@@ -47,35 +47,10 @@
     (setq-default mode-line-format nil))
   :bind (:map doom-modeline-mode-map))
 
-;; need install all-the-icons fonts
-;; web site https://github.com/domtronn/all-the-icons.el
-(use-package all-the-icons)
-
 ;; Settings for delete multi line spaces
 (use-package emacs
   :config
-  (defalias 'yes-or-no-p 'y-or-n-p)
-  ;; Display 'lambda' as 'λ' (just for fun)
-  (global-prettify-symbols-mode 1)
-  (set-default 'cursor-type 'bar)
-  (setq default-frame-alist '((width . 180) (height . 40)))
-  ;; (set-frame-parameter nil 'fullscreen 'maximized)
-  ;; Set fonts global
-  (set-face-attribute
-   'default nil
-   :font (font-spec :name "Ubuntu Mono"
-                    :weight 'normal
-                    :slant 'normal
-                    :size 12.0))
-  (dolist (charset '(kana han symbol cjk-misc bopomofo))
-    (set-fontset-font
-     (frame-parameter nil 'font)
-     charset
-     (font-spec :name "文泉驿等宽微米黑"
-                :weight 'normal
-                :slant 'normal
-                :size 12.0)))
-
+  ;; text scale
   (global-set-key (kbd "C-+") 'text-scale-increase)
   (global-set-key (kbd "C--") 'text-scale-decrease)
   (global-set-key (kbd "C-0") 'text-scale-adjust)
@@ -91,6 +66,10 @@
                       display-time-day-and-date t)
   ;; Display time
   (display-time-mode 1))
+
+;; need install all-the-icons fonts
+;; web site https://github.com/domtronn/all-the-icons.el
+(use-package all-the-icons)
 
 ;; Settings for line number
 (use-package nlinum-relative
@@ -122,7 +101,11 @@
 
   (setq nlinum-relative--format-function custom-nlinum-relative--format-function)
   (global-nlinum-relative-mode)
-  :hook (nlinum-relative-toggle . custom-nlinum-relative-toggle)
+  :hook ((nlinum-relative-toggle . custom-nlinum-relative-toggle)
+         ((dashboard-mode eshell-mode shell-mode term-mode vterm-mode) .
+          (lambda ()
+            (global-nlinum-relative-mode)
+            (setq-local nlinum-mode nil))))
   :config
   (setq nlinum-relative-current-symbol "%d->")
   (setq nlinum-relative-redisplay-delay 0)      ;; delay

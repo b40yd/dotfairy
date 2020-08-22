@@ -24,6 +24,17 @@
 
 ;;; Code:
 
+;; Dos2Unix/Unix2Dos
+(defun dos2unix ()
+  "Convert the current buffer to UNIX file format."
+  (interactive)
+  (set-buffer-file-coding-system 'undecided-unix nil))
+
+(defun unix2dos ()
+  "Convert the current buffer to DOS file format."
+  (interactive)
+  (set-buffer-file-coding-system 'undecided-dos nil))
+
 ;; On-the-fly spell checker
 (use-package flyspell
   :ensure t
@@ -44,6 +55,12 @@
     :bind (:map flyspell-mode-map
            ([remap flyspell-correct-word-before-point] . flyspell-correct-wrapper))
     :init (setq flyspell-correct-interface #'flyspell-correct-ivy)))
+
+;; Automatically reload files was modified by external program
+(use-package autorevert
+  :ensure nil
+  :diminish
+  :hook (after-init . global-auto-revert-mode))
 
 ;; Edit multiple regions in the same way simultaneously
 (use-package iedit
@@ -68,6 +85,14 @@
 (use-package undo-tree
   :init
   (global-undo-tree-mode))
+
+;; Hideshow
+(use-package hideshow
+  :ensure nil
+  :diminish hs-minor-mode
+  :bind (:map hs-minor-mode-map
+              ("C-`" . hs-toggle-hiding)))
+
 
 (provide 'init-iedit)
 ;;; init-iedit.el ends here

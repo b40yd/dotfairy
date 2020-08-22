@@ -36,7 +36,7 @@
         org-enable-hugo-support t
         org-src-fontify-natively t
         org-src-tab-acts-natively t
-        org-directory "~/.org" ;; needs to be defined for `org-default-notes-file'
+        org-directory (concat dotfairy-local-dir "org/") ;; needs to be defined for `org-default-notes-file'
         org-default-notes-file (expand-file-name "notes.org" org-directory))
 
    (setq org-agenda-files `(,org-directory)
@@ -59,6 +59,7 @@
                   '("HIGH" "MEDIUM" "LOW" "WARN" "OPTIONAL"))))
   :bind
   (("C-c o a" . org-agenda)
+   ("C-c a" . org-agenda)
   ("C-c o c" . org-capture)))
 
 (provide 'init-org)
