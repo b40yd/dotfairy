@@ -28,6 +28,18 @@
 (setq user-full-name "7ym0n.q6e"
       user-mail-address "bb.qnyd@gmail.com")
 
+(defcustom dotfairy-dashboard t
+  "Use dashboard at startup or not.
+If Non-nil, use dashboard, otherwise will restore previous session."
+  :group 'dotfairy
+  :type 'boolean)
+
+(defcustom dotfairy-restore-frame-geometry t
+  "Restore the frame's geometry at startup.
+If Non-nil, save and restore the frame's geometry."
+  :group 'dotfairy
+  :type 'boolean)
+
 ;;; Settings for package archives
 (setq package-archives '(("melpa" . "http://mirrors.cloud.tencent.com/elpa/melpa/")
                          ("gnu" . "http://mirrors.cloud.tencent.com/elpa/gnu/")

@@ -69,7 +69,13 @@
 
 ;; need install all-the-icons fonts
 ;; web site https://github.com/domtronn/all-the-icons.el
-(use-package all-the-icons)
+(use-package all-the-icons
+  :commands (all-the-icons-octicon
+             all-the-icons-faicon
+             all-the-icons-fileicon
+             all-the-icons-wicon
+             all-the-icons-material
+             all-the-icons-alltheicon))
 
 ;; Settings for line number
 (use-package nlinum-relative
@@ -141,12 +147,31 @@
   :ensure t
   :init
   (dashboard-setup-startup-hook)
+  :bind (("R" . restore-session))
   :config
   (setq dashboard-set-heading-icons t)
   (setq dashboard-center-content t)
   (setq dashboard-set-file-icons t)
   (setq dashboard-items '((recents . 5)
                           (projects . 5)))
+
+  (defun restore-previous-session ()
+    "Restore the previous session."
+    (interactive)
+    (when (bound-and-true-p persp-mode)
+      (restore-session persp-auto-save-fname)))
+
+  (defun restore-session (fname)
+    "Restore the specified session."
+    (interactive (list (read-file-name "Load perspectives from a file: "
+                                       persp-save-dir)))
+    (when (bound-and-true-p persp-mode)
+      (message "Restoring session...")
+      (quit-window t)
+      (condition-case-unless-debug err
+          (persp-load-state-from-file fname)
+        (error "Error: Unable to restore session -- %s" err))
+      (message "Done")))
   )
 
 (provide 'init-ui)

@@ -28,7 +28,7 @@
   "The modes that don't auto format and organize imports while saving the buffers.
 `prog-mode' means ignoring all derived modes.
 "
-  :group 'centaur
+  :group 'dotfairy
   :type '(repeat (symbol :tag "Major-Mode")))
 
 (use-package lsp-mode

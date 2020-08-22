@@ -53,7 +53,7 @@
   (use-package flyspell-correct-ivy
     :after ivy
     :bind (:map flyspell-mode-map
-           ([remap flyspell-correct-word-before-point] . flyspell-correct-wrapper))
+                ([remap flyspell-correct-word-before-point] . flyspell-correct-wrapper))
     :init (setq flyspell-correct-interface #'flyspell-correct-ivy)))
 
 ;; Automatically reload files was modified by external program
@@ -61,6 +61,32 @@
   :ensure nil
   :diminish
   :hook (after-init . global-auto-revert-mode))
+
+;; delete hungry
+(use-package hungry-delete
+  :bind (("C-c d f" . hungry-delete-forward)
+         ("C-c d b" . hungry-delete-backward)))
+
+;; Drag stuff (lines, words, region, etc...) around
+(use-package drag-stuff
+  :diminish
+  :commands drag-stuff-define-keys
+  :hook (after-init . drag-stuff-global-mode)
+  :config
+  (add-to-list 'drag-stuff-except-modes 'org-mode)
+  (drag-stuff-define-keys))
+
+;; A comprehensive visual interface to diff & patch
+(use-package ediff
+  :ensure nil
+  :hook(;; show org ediffs unfolded
+        (ediff-prepare-buffer . outline-show-all)
+        ;; restore window layout when done
+        (ediff-quit . winner-undo))
+  :config
+  (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+  (setq ediff-split-window-function 'split-window-horizontally)
+  (setq ediff-merge-split-window-function 'split-window-horizontally))
 
 ;; Edit multiple regions in the same way simultaneously
 (use-package iedit

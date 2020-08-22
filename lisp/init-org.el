@@ -39,16 +39,16 @@
         org-directory (concat dotfairy-local-dir "org/") ;; needs to be defined for `org-default-notes-file'
         org-default-notes-file (expand-file-name "notes.org" org-directory))
 
-   (setq org-agenda-files `(,org-directory)
+  (setq org-agenda-files `(,org-directory)
         org-todo-keywords
         '((sequence "TODO(t)" "DOING(i)" "HANGUP(h)" "|" "DONE(d)" "CANCEL(c)")
-          (sequence "⚑(T)" "🏴(I)" "❓(H)" "|" "✔(D)" "✘(C)")))
-    ;; Prettify UI
+          (sequence "⚑(T)" "⚫(I)" "❓(H)" "|" "✔(D)" "✘(C)")))
+  ;; Prettify UI
   (use-package org-bullets
     :hook (org-mode . org-bullets-mode)
     :init
     (setq org-bullets-bullet-list '("☰" "☷" "☯" "☭"))
-    (setq org-ellipsis " ▼ "))
+    (setq org-ellipsis (if (char-displayable-p ?▼) " ▼ " nil)))
 
   (use-package org-fancy-priorities
     :diminish
@@ -57,10 +57,55 @@
                 (if (char-displayable-p ?☕)
                     '("⚡" "⬆" "⬇" ""❗"" "☕")
                   '("HIGH" "MEDIUM" "LOW" "WARN" "OPTIONAL"))))
+  ;; Pomodoro
+  (use-package org-pomodoro
+    :custom-face
+    (org-pomodoro-mode-line ((t (:inherit warning))))
+    (org-pomodoro-mode-line-overtime ((t (:inherit error))))
+    (org-pomodoro-mode-line-break ((t (:inherit success))))
+    :bind (:map org-agenda-mode-map
+                ("P" . org-pomodoro)))
+
+  ;; Presentation
+  (use-package org-tree-slide
+    :diminish
+    :functions (org-display-inline-images
+                org-remove-inline-images)
+    :bind (:map org-mode-map
+                ("C-c o p" . org-tree-slide-mode)
+                :map org-tree-slide-mode-map
+                ("<left>" . org-tree-slide-move-previous-tree)
+                ("<right>" . org-tree-slide-move-next-tree)
+                ("C-<tab>" . org-tree-slide-move-previous-tree)
+                ("SPC" . org-tree-slide-move-next-tree))
+    :hook ((org-tree-slide-play . (lambda ()
+                                    (text-scale-increase 4)
+                                    (org-display-inline-images)
+                                    (read-only-mode 1)))
+           (org-tree-slide-stop . (lambda ()
+                                    (text-scale-increase 0)
+                                    (org-remove-inline-images)
+                                    (read-only-mode -1))))
+    :config
+    (org-tree-slide-simple-profile)
+    (setq org-tree-slide-skip-outline-level 2))
+
+  (use-package org-roam
+    :diminish
+    :custom (org-roam-directory org-directory)
+    :hook (after-init . org-roam-mode)
+    :bind (:map org-roam-mode-map
+                (("C-c o r l" . org-roam)
+                 ("C-c o r f" . org-roam-find-file)
+                 ("C-c o r g" . org-roam-graph))
+                :map org-mode-map
+                (("C-c o r i" . org-roam-insert))
+                (("C-c o r I" . org-roam-insert-immediate))))
+
   :bind
   (("C-c o a" . org-agenda)
    ("C-c a" . org-agenda)
-  ("C-c o c" . org-capture)))
+   ("C-c o c" . org-capture)))
 
 (provide 'init-org)
 ;;; init-org.el ends here

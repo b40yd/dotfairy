@@ -112,16 +112,6 @@
                 (lambda (file) (file-in-directory-p file package-user-dir))))
   :config (push (expand-file-name recentf-save-file) recentf-exclude))
 
-;; delete hungry
-(use-package hungry-delete
-  :bind (("C-c d f" . hungry-delete-forward)
-         ("C-c d b" . hungry-delete-backward)))
-
-;; move text
-(use-package drag-stuff
-  :bind (("<M-up>" . drag-stuff-up)
-         ("<M-down>" . drag-stuff-down)))
-
 (use-package time
   :ensure nil
   :unless (display-graphic-p)

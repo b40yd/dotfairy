@@ -161,7 +161,7 @@ whichever is found first. Must end in a slash.")
 (require 'init-projectile)
 (require 'init-ibuffer)
 (require 'init-windows)
-
+(require 'init-persp)
 ;;checking
 (require 'init-flycheck)
 
@@ -173,6 +173,7 @@ whichever is found first. Must end in a slash.")
 (require 'init-lsp)
 (require 'init-git)
 (require 'init-eshell)
+
 ;;(require 'init-dired)
 (require 'init-restclient)
 (require 'init-docker)
