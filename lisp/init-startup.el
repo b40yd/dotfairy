@@ -174,7 +174,7 @@ whichever is found first. Must end in a slash.")
 (require 'init-git)
 (require 'init-eshell)
 
-;;(require 'init-dired)
+(require 'init-dired)
 (require 'init-restclient)
 (require 'init-docker)
 
