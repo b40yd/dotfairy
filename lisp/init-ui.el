@@ -39,6 +39,7 @@
   (doom-modeline-icon display-icon)
   (doom-modeline-minor-modes nil)
   (doom-modeline-unicode-fallback t)
+  (doom-modeline-buffer-encoding t)
   :hook (after-init . doom-modeline-mode)
   :init
   ;; Prevent flash of unstyled modeline at startup

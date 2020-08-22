@@ -184,9 +184,24 @@ install-all() {
 
 }
 
+install-fonts() {
+    info "installing Chinese and Ubuntu mono fonts"
+    cp -rfv $BASEPATH/fonts/*.ttf /usr/share/fonts/ && mkfontscale && mkfontdir && fc-cache -f -v
+
+    info "installing all-the-icons fonts"
+    warn "M-x all-the-icons-install-fonts"
+}
+
+init-config-dir() {
+    local user=$1
+    info "mkdir -pv $HOME/$user/.emacs.d/.local/{elpa,etc/workspaces,org}"
+    mkdir -pv ~/.emacs.d/.local/{elpa,etc/workspaces,org}
+}
+
 if [ `id -u` -eq 0 ];then
     install-all
-    cp -rfv $BASEPATH/fonts/*.ttf /usr/share/fonts/ && fc-cache -f -v
+    install-fonts
+    init-config-dir $1
 else
     crit "please use root." && exit 1
 fi
