@@ -148,7 +148,7 @@
   :ensure t
   :init
   (dashboard-setup-startup-hook)
-  :bind (("R" . restore-session))
+  :bind (("C-c R" . restore-session))
   :config
   (setq dashboard-set-heading-icons t)
   (setq dashboard-center-content t)

@@ -30,6 +30,9 @@
   (("C-x g" . magit-status))
   :config
   ;; Access Git forges from Magit
+  ;; see config: https://magit.vc/manual/ghub/Storing-a-Token.html#Storing-a-Token
+  ;; writting like as gitlib.com:
+  ;; echo "machine gitlab.com/api/v4 login $YOU_AUTH_NAME^forge password $YOU_AUTH_TOKEN" ~/.authinfo
   (when (executable-find "cc")
     (use-package forge
       :demand
@@ -39,6 +42,16 @@
                     ("State" 6 t nil state nil)
                     ("Updated" 10 t nill updated nil)))))
   )
+
+(use-package magit-todos
+  :after magit
+  :config
+  (setq magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?")
+  (define-key magit-todos-section-map "j" nil))
+
+
+(use-package magit-gitflow
+  :hook (magit-mode . turn-on-magit-gitflow))
 
 ;; Walk through git revisions of a file
 (use-package git-timemachine
