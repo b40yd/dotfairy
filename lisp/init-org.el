@@ -26,6 +26,12 @@
 
 (use-package org
   ;; :init (setq org-startup-indented t)
+  :init
+  (use-package ox-hugo
+    :ensure t            ;Auto-install the package from Melpa (optional)
+    :after ox)
+  (with-eval-after-load 'ox
+    (require 'ox-hugo))
   :config
   (setq org-startup-indented t
         org-journal-file-format "%Y-%m-%d"
@@ -119,6 +125,18 @@ unwanted space when exporting org-mode to html."
   (("C-c o a" . org-agenda)
    ("C-c a" . org-agenda)
    ("C-c o c" . org-capture)))
+
+(use-package ox-pandoc
+  :after ox
+  :init
+  (add-to-list 'org-export-backends 'pandoc)
+  (setq org-pandoc-options
+        '((standalone . t)
+          (mathjax . t)
+          (variable . "revealjs-url=https://revealjs.com"))))
+
+;; (use-package easy-hugo
+;;   :bind ("C-c e e" . easy-hugo))
 
 (provide 'init-org)
 ;;; init-org.el ends here

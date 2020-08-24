@@ -45,6 +45,9 @@ If Non-nil, save and restore the frame's geometry."
                          ("gnu" . "http://mirrors.cloud.tencent.com/elpa/gnu/")
                          ("org" . "http://mirrors.cloud.tencent.com/elpa/org/")))
 
+;; confirm exit emacs
+(setq confirm-kill-emacs 'y-or-n-p)
+
  ;; Display 'lambda' as 'λ' (just for fun)
 (global-prettify-symbols-mode 1)
 (set-default 'cursor-type 'bar)
@@ -54,10 +57,10 @@ If Non-nil, save and restore the frame's geometry."
 ;; Set fonts global
 (set-face-attribute
  'default nil
- :font (font-spec :name "Ubuntu Mono"
+ :font (font-spec :name "Source Code Pro"
                   :weight 'normal
                   :slant 'normal
-                  :size 12.5))
+                  :size 9.0))
 (dolist (charset '(kana han symbol cjk-misc bopomofo))
   (set-fontset-font
    (frame-parameter nil 'font)
@@ -65,7 +68,7 @@ If Non-nil, save and restore the frame's geometry."
    (font-spec :name "文泉驿等宽微米黑"
               :weight 'normal
               :slant 'normal
-              :size 11.0)))
+              :size 10.5)))
 
 (defun my/autoinsert-yas-expand()
       "Replace text in yasnippet template."

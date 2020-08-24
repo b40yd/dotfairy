@@ -30,8 +30,7 @@
   :defines (recentf-exclude ivy-ignore-buffers)
   :commands (get-current-persp persp-contain-buffer-p)
   :hook ((after-init . persp-mode)
-         (persp-mode . persp-load-frame)
-         (kill-emacs . persp-save-frame))
+         (persp-mode . persp-load-frame))
   :init (setq persp-keymap-prefix (kbd "C-x p")
               persp-nil-name "default"
               persp-set-last-persp-for-new-frames nil
@@ -42,28 +41,6 @@
   ;; Save and load frame parameters (size & position)
   (defvar persp-frame-file (expand-file-name "persp-frame" persp-save-dir)
     "File of saving frame parameters.")
-
-  (defun persp-save-frame ()
-    "Save the current frame parameters to file."
-    (interactive)
-    (when (and (display-graphic-p) dotfairy-restore-frame-geometry persp-mode)
-      (condition-case error
-          (with-temp-buffer
-            (erase-buffer)
-            (insert
-             ";;; -*- mode: emacs-lisp; coding: utf-8-unix -*-\n"
-             ";;; This is the previous frame parameters.\n"
-             ";;; Last generated " (current-time-string) ".\n"
-             "(setq initial-frame-alist\n"
-             (format "      '((top . %d)\n" (frame-parameter nil 'top))
-             (format "        (left . %d)\n" (frame-parameter nil 'left))
-             (format "        (width . %d)\n" (frame-parameter nil 'width))
-             (format "        (height . %d)\n" (frame-parameter nil 'height))
-             (format "        (fullscreen . %s)))\n" (frame-parameter nil 'fullscreen)))
-            (when (file-writable-p persp-frame-file)
-              (write-file persp-frame-file)))
-        (error
-         (warn "persp frame: %s" (error-message-string error))))))
 
   (defun persp-load-frame ()
     "Load frame with the previous frame's geometry."
