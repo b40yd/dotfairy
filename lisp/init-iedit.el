@@ -104,7 +104,6 @@
 
 ;; Delete selection if you insert
 (use-package delsel
-  :ensure nil
   :hook (after-init . delete-selection-mode))
 
 ;; edit undo tree
@@ -114,10 +113,25 @@
 
 ;; Hideshow
 (use-package hideshow
-  :ensure nil
   :diminish hs-minor-mode
   :bind (:map hs-minor-mode-map
               ("C-`" . hs-toggle-hiding)))
+
+(use-package rainbow-mode
+  :after rainbow-mode
+  :bind (("C-c e E" . rainbow-mode-hydra/body))
+  :pretty-hydra
+  ((:title (pretty-hydra-title "Colors Management" 'faicon "windows")
+           :foreign-keys warn :quit-key "q")
+   ("Actions"
+    (("w" kurecolor-decrease-brightness-by-step "kurecolor-decrease-brightness-by-step")
+     ("W" kurecolor-increase-brightness-by-step "kurecolor-increase-brightness-by-step")
+     ("d" kurecolor-decrease-saturation-by-step "kurecolor-decrease-saturation-by-step")
+     ("D" kurecolor-increase-saturation-by-step "kurecolor-increase-saturation-by-step")
+     ("e" kurecolor-decrease-hue-by-step "kurecolor-decrease-hue-by-step")
+     ("E" kurecolor-increase-hue-by-step "kurecolor-increase-hue-by-step"))))
+  :config
+  (use-package kurecolor))
 
 
 (provide 'init-iedit)
