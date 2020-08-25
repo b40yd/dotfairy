@@ -109,12 +109,12 @@ whichever is found first. Must end in a slash.")
 (when (fboundp 'set-charset-priority)
   (set-charset-priority 'unicode))       ; pretty
 
-(prefer-coding-system 'utf-8)            ; pretty
+(set-language-environment 'utf-8)
+(prefer-coding-system 'utf-8-unix)            ; pretty
 (setq locale-coding-system 'utf-8)
 
-(set-language-environment 'utf-8)
-(set-default-coding-systems 'utf-8)
-(set-buffer-file-coding-system 'utf-8)
+(set-default-coding-systems 'utf-8-unix)
+(set-buffer-file-coding-system 'utf-8-unix)
 (set-clipboard-coding-system 'utf-8)
 (set-file-name-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
@@ -122,15 +122,20 @@ whichever is found first. Must end in a slash.")
 (set-selection-coding-system 'utf-8)
 (modify-coding-system-alist 'process "*" 'utf-8)
 
+(when (eq system-type 'windows-nt)
+  (set-language-environment 'chinese-gb18030)
+  (prefer-coding-system 'utf-8-unix)
+  (setq locale-coding-system 'gb18030)
+  (setq w32-unicode-filenames 'nil)
+  (setq file-name-coding-system 'gb18030)
+  (set-next-selection-coding-system 'utf-16-le)
+  (set-selection-coding-system 'utf-16-le)
+  (set-clipboard-coding-system 'utf-16-le))
+
 ;; The clipboard's on Windows could be in a wider (or thinner) encoding than
 ;; utf-8 (likely UTF-16), so let Emacs/the OS decide what encoding to use there.
 (unless IS-WINDOWS
   (setq selection-coding-system 'utf-8))
-
-(when (eq system-type 'windows-nt)
-    (setq locale-coding-system 'gb18030)
-    (setq w32-unicode-filenames 'nil)
-    (setq file-name-coding-system 'gb18030))
 
 ;; UI
 (unless (eq window-system 'ns)

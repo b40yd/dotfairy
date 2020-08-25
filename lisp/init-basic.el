@@ -151,6 +151,7 @@
 
 (defcustom display-icon (display-graphic-p)
   "Display icons or not."
+  :group 'dotfairy
   :type 'boolean)
 
 ;; Font
