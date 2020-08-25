@@ -51,7 +51,9 @@
 
 
 (use-package magit-gitflow
-  :hook (magit-mode . turn-on-magit-gitflow))
+  :hook (magit-mode . turn-on-magit-gitflow)
+  :config
+  (define-key magit-mode-map "@" 'magit-gitflow-popup))
 
 ;; Walk through git revisions of a file
 (use-package git-timemachine

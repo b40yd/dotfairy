@@ -85,5 +85,6 @@ If Non-nil, save and restore the frame's geometry."
                        (("[mM]akefile\\'" . "Makefile") . ["Makefile" my/autoinsert-yas-expand])
                        (("\\.tex\\'" . "TeX/LaTeX") . ["template.tex" my/autoinsert-yas-expand]))))
 
+(setq auto-revert-check-vc-info t) ;; modeline magit status update, But doing so isn't good for performance
 ;; (byte-recompile-directory package-user-dir 0 0) ;
 ;;; config.el ends here

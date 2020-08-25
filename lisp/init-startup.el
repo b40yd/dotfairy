@@ -111,6 +111,17 @@ whichever is found first. Must end in a slash.")
 
 (prefer-coding-system 'utf-8)            ; pretty
 (setq locale-coding-system 'utf-8)
+
+(set-language-environment 'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-buffer-file-coding-system 'utf-8)
+(set-clipboard-coding-system 'utf-8)
+(set-file-name-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
+(modify-coding-system-alist 'process "*" 'utf-8)
+
 ;; The clipboard's on Windows could be in a wider (or thinner) encoding than
 ;; utf-8 (likely UTF-16), so let Emacs/the OS decide what encoding to use there.
 (unless IS-WINDOWS
