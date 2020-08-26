@@ -24,16 +24,26 @@
 
 ;;; Code:
 
+;; (use-package ox-pandoc
+;;   :after ox
+;;   :init
+;;   (require 'ox-pandoc)
+;;   (add-to-list 'org-export-backends 'pandoc)
+;;   (setq org-pandoc-options
+;;         '((standalone . t)
+;;           (mathjax . t))))
+
+(use-package ox-hugo
+  :ensure t            ;Auto-install the package from Melpa (optional)
+  :after ox)
+(with-eval-after-load 'ox
+  (require 'ox-hugo))
+(use-package ox-reveal)
+(with-eval-after-load 'ox
+  (require 'ox-reveal))
+
 (use-package org
-  ;; :init (setq org-startup-indented t)
-  :init
-  (use-package ox-hugo
-    :ensure t            ;Auto-install the package from Melpa (optional)
-    :after ox)
-  (with-eval-after-load 'ox
-    (require 'ox-hugo))
-  (use-package ox-reveal
-    :init (require 'ox-reveal))
+  :init (setq org-startup-indented t)
   :config
   (setq org-startup-indented t
         org-journal-file-format "%Y-%m-%d"
@@ -128,13 +138,6 @@ unwanted space when exporting org-mode to html."
    ("C-c a" . org-agenda)
    ("C-c o c" . org-capture)))
 
-(use-package ox-pandoc
-  :after ox
-  :init
-  (add-to-list 'org-export-backends 'pandoc)
-  (setq org-pandoc-options
-        '((standalone . t)
-          (mathjax . t))))
 
 (provide 'init-org)
 ;;; init-org.el ends here
