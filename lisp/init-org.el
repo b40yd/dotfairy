@@ -32,6 +32,8 @@
     :after ox)
   (with-eval-after-load 'ox
     (require 'ox-hugo))
+  (use-package ox-reveal
+    :init (require 'ox-reveal))
   :config
   (setq org-startup-indented t
         org-journal-file-format "%Y-%m-%d"
@@ -107,7 +109,7 @@ unwanted space when exporting org-mode to html."
                                     (read-only-mode -1))))
     :config
     (org-tree-slide-simple-profile)
-    (setq org-tree-slide-skip-outline-level 2))
+    (setq org-tree-slide-skip-outline-level 4))
 
   (use-package org-roam
     :diminish
@@ -132,11 +134,7 @@ unwanted space when exporting org-mode to html."
   (add-to-list 'org-export-backends 'pandoc)
   (setq org-pandoc-options
         '((standalone . t)
-          (mathjax . t)
-          (variable . "revealjs-url=https://revealjs.com"))))
-
-;; (use-package easy-hugo
-;;   :bind ("C-c e e" . easy-hugo))
+          (mathjax . t))))
 
 (provide 'init-org)
 ;;; init-org.el ends here
