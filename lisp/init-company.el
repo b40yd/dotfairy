@@ -24,12 +24,29 @@
 
 ;;; Code:
 
+(use-package yasnippet
+  :diminish yas-minor-mode
+  :hook (after-init . yas-global-mode))
+
+(use-package yasnippet-snippets
+  :after yasnippet)
+
 ;; Settings for company
 (use-package company
   :defines (company-dabbrev-ignore-case company-dabbrev-downcase)
   :hook (after-init . global-company-mode)
+  :bind (("C-M-i" . company-complete)
+         :map company-mode-map
+         ("<backtab>" . company-yasnippet)
+         :map company-active-map
+         ("<backtab>" . my-company-yasnippet)
+         :map company-search-map
+         ("C-p" . company-select-previous)
+         ("C-n" . company-select-next))
   :init
   (setq company-idle-delay 0.25
+        company-box-show-single-candidate t
+        company-box-max-candidates 50
         company-minimum-prefix-length 2
         company-tooltip-limit 14
         company-tooltip-align-annotations t
@@ -55,6 +72,48 @@
         ;; domain-specific words with particular casing.
         company-dabbrev-ignore-case nil
         company-dabbrev-downcase nil)
+  (defun my-company-yasnippet ()
+    "Hide the current completeions and show snippets."
+    (interactive)
+    (company-cancel)
+    (call-interactively 'company-yasnippet))
+
+  :config
+  ;; `yasnippet' integration
+  (with-no-warnings
+    (with-eval-after-load 'yasnippet
+      (defun company-backend-with-yas (backend)
+        "Add `yasnippet' to company backend."
+        (if (and (listp backend) (member 'company-yasnippet backend))
+            backend
+          (append (if (consp backend) backend (list backend))
+                  '(:with company-yasnippet))))
+
+      (defun my-company-enbale-yas (&rest _)
+        "Enable `yasnippet' in `company'."
+        (setq company-backends (mapcar #'company-backend-with-yas company-backends)))
+      ;; Enable in current backends
+      (my-company-enbale-yas)
+      ;; Enable in `lsp-mode'
+      (advice-add #'lsp--auto-configure :after #'my-company-enbale-yas)
+
+      (defun my-company-yasnippet-disable-inline (fun command &optional arg &rest _ignore)
+        "Enable yasnippet but disable it inline."
+        (if (eq command 'prefix)
+            (when-let ((prefix (funcall fun 'prefix)))
+              (unless (memq (char-before (- (point) (length prefix)))
+                            '(?. ?< ?> ?\( ?\) ?\[ ?{ ?} ?\" ?' ?`))
+                prefix))
+          (progn
+            (when (and (bound-and-true-p lsp-mode)
+                       arg (not (get-text-property 0 'yas-annotation-patch arg)))
+              (let* ((name (get-text-property 0 'yas-annotation arg))
+                     (snip (format "%s (Snippet)" name))
+                     (len (length arg)))
+                (put-text-property 0 len 'yas-annotation snip arg)
+                (put-text-property 0 len 'yas-annotation-patch t arg)))
+            (funcall fun command arg))))
+      (advice-add #'company-yasnippet :around #'my-company-yasnippet-disable-inline)))
 
   (use-package company-box
     :hook (company-mode . company-box-mode)
