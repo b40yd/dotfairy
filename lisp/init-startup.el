@@ -202,6 +202,7 @@ whichever is found first. Must end in a slash.")
 (require 'init-markdown)
 (require 'init-json)
 (require 'init-org)
+(require 'init-yaml)
 
 (provide 'init-startup)
 ;;; init-startup.el ends here
