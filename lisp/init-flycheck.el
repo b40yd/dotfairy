@@ -46,12 +46,9 @@
 
   ;; Display Flycheck errors in GUI tooltips
   (if (display-graphic-p)
-
       (use-package flycheck-posframe
-        :custom-face (flycheck-posframe-border-face ((t (:inherit font-lock-comment-face))))
         :hook (flycheck-mode . flycheck-posframe-mode)
-        :init (setq flycheck-posframe-border-width 1
-                    flycheck-posframe-inhibit-functions
+        :init (setq flycheck-posframe-inhibit-functions
                     '((lambda (&rest _) (bound-and-true-p company-backend)))))
     (use-package flycheck-pos-tip
       :defines flycheck-pos-tip-timeout
