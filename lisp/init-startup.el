@@ -203,6 +203,7 @@ whichever is found first. Must end in a slash.")
 (require 'init-json)
 (require 'init-org)
 (require 'init-yaml)
+(require 'init-asm)
 
 (provide 'init-startup)
 ;;; init-startup.el ends here
