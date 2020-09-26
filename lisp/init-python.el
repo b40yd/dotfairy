@@ -28,8 +28,7 @@
   :ensure t
   :hook ((inferior-python-mode . (lambda ()
                                   (process-query-on-exit-flag
-                                   (get-process "Python"))))
-         (python-mode . auto-insert))
+                                   (get-process "Python")))))
   :init
   (setq python-indent-offset 4)
   :config

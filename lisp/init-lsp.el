@@ -49,7 +49,8 @@
   )
 :commands (lsp-enable-which-key-integration
            lsp-format-buffer
-           lsp-organize-imports)
+           lsp-organize-imports
+           lsp-install-server)
 
 :bind (:map lsp-mode-map
        ("C-c C-." . lsp-describe-thing-at-point)

@@ -65,7 +65,7 @@ dependencies or long-term shared data. Must end with a slash.")
 Use this for files that change often, like cache files. Must end with a slash.")
 
 (defconst dotfairy-private-dir
-  (if-let (dotfairydir (getenv "DOTFAIRYDOOMDIR"))
+  (if-let (dotfairydir (getenv "DOTFAIRYDIR"))
       (expand-file-name (file-name-as-directory dotfairydir))
     (or (let ((xdgdir
                (expand-file-name "dotfairy/"
@@ -74,7 +74,7 @@ Use this for files that change often, like cache files. Must end with a slash.")
           (if (file-directory-p xdgdir) xdgdir))
         "~/.dotfairy.d/"))
   "Where your private configuration is placed.
-Defaults to ~/.config/dotfairy, ~/.dotfairy.d or the value of the DOOMDIR envvar;
+Defaults to ~/.config/dotfairy, ~/.dotfairy.d or the value of the DOTFAIRYDIR envvar;
 whichever is found first. Must end in a slash.")
 
 ;;
@@ -193,6 +193,8 @@ whichever is found first. Must end in a slash.")
 (require 'init-dired)
 (require 'init-restclient)
 (require 'init-docker)
+
+(require 'init-autoinsert)
 
 ;; Language
 (require 'init-clang)

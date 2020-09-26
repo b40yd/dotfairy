@@ -70,21 +70,6 @@ If Non-nil, save and restore the frame's geometry."
               :slant 'normal
               :size 10.5)))
 
-(defun my/autoinsert-yas-expand()
-      "Replace text in yasnippet template."
-      (yas/expand-snippet (buffer-string) (point-min) (point-max)))
-
-(custom-set-variables
- '(auto-insert 'other)
- '(auto-insert-query nil)
- '(auto-insert-directory "~/.emacs.d/private/templates/")
- '(auto-insert-alist '((("\\.\\([Hh]\\|hh\\|hpp\\)\\'" . "C / C++ header") . ["template.h" c++-mode my/autoinsert-yas-expand])
-                       (("\\.\\([Cc]\\|cc\\|cpp\\)\\'" . "C++ source") . ["template.cc" my/autoinsert-yas-expand])
-                       (("\\.sh\\'" . "Shell script") . ["template.sh" my/autoinsert-yas-expand])
-                       (("\\.py\\'" . "Python script") . ["template.py" my/autoinsert-yas-expand])
-                       (("[mM]akefile\\'" . "Makefile") . ["Makefile" my/autoinsert-yas-expand])
-                       (("\\.tex\\'" . "TeX/LaTeX") . ["template.tex" my/autoinsert-yas-expand]))))
-
 (setq auto-revert-check-vc-info t) ;; modeline magit status update, But doing so isn't good for performance
 ;; (byte-recompile-directory package-user-dir 0 0) ;
 ;;; config.el ends here
