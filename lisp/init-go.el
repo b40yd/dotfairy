@@ -52,7 +52,14 @@
   (use-package go-fill-struct)
   (use-package go-impl)
   (use-package go-gen-test)
-  (use-package go-tag))
+  (use-package go-tag)
+  (use-package gotest
+    :bind (:map go-mode-map
+           ("C-c t a" . go-test-current-project)
+           ("C-c t m" . go-test-current-file)
+           ("C-c t ." . go-test-current-test)
+           ("C-c t x" . go-run))))
+
 
 (provide 'init-go)
 ;;; init-go.el ends here

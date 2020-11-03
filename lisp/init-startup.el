@@ -55,14 +55,23 @@ Use this as a storage location for this system's installation of DotFairy Emacs.
 These files should not be shared across systems. By default, it is used by
 `dotfairy-etc-dir' and `dotfairy-cache-dir'. Must end with a slash.")
 
+(if (not (file-directory-p dotfairy-local-dir))
+    (make-directory dotfairy-local-dir))
+
 (defconst dotfairy-etc-dir (concat dotfairy-local-dir "etc/")
   "Directory for non-volatile local storage.
 Use this for files that don't change much, like server binaries, external
 dependencies or long-term shared data. Must end with a slash.")
 
+(if (not (file-directory-p dotfairy-etc-dir))
+    (make-directory dotfairy-etc-dir))
+
 (defconst dotfairy-cache-dir (concat dotfairy-local-dir "cache/")
   "Directory for volatile local storage.
 Use this for files that change often, like cache files. Must end with a slash.")
+
+(if (not (file-directory-p dotfairy-cache-dir))
+    (make-directory dotfairy-cache-dir))
 
 (defconst dotfairy-private-dir
   (if-let (dotfairydir (getenv "DOTFAIRYDIR"))

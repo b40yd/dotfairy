@@ -42,64 +42,64 @@
 
                        ;; Format and organize imports
                        (unless (apply #'derived-mode-p dotfairy-lsp-format-on-save-ignore-modes)
-                       (add-hook 'before-save-hook #'lsp-format-buffer t t)
-                       (add-hook 'before-save-hook #'lsp-organize-imports t t))
-		       )
+                         (add-hook 'before-save-hook #'lsp-format-buffer t t)
+                         (add-hook 'before-save-hook #'lsp-organize-imports t t))
+		               )
+                   )
          )
+  :commands (lsp-enable-which-key-integration
+             lsp-format-buffer
+             lsp-organize-imports
+             lsp-install-server)
+
+  :bind (:map lsp-mode-map
+              ("C-c C-." . lsp-describe-thing-at-point)
+              ([remap xref-find-definitions] . lsp-find-definition)
+              ([remap xref-find-references] . lsp-find-references))
+
+  :init
+  ;; @see https://emacs-lsp.github.io/lsp-mode/page/performance
+  (setq read-process-output-max (* 1024 1024)) ;; 1MB
+  (setq lsp-gopls-codelens nil)
+  (setq lsp-keymap-prefix "C-c l"
+        lsp-keep-workspace-alive nil
+        lsp-signature-auto-activate nil
+        lsp-modeline-code-actions-enable nil
+        lsp-modeline-diagnostics-enable nil
+
+        lsp-enable-file-watchers nil
+        lsp-enable-file-watchers nil
+        lsp-enable-folding nil
+        lsp-enable-semantic-highlighting nil
+        lsp-enable-symbol-highlighting nil
+        lsp-enable-text-document-color nil
+
+        lsp-enable-indentation nil
+        lsp-enable-on-type-formatting nil)
+
+  :config
+  ;; Auto kill LSP server
+  (setq lsp-keep-workspace-alive nil
+        lsp-enable-snippet t)
+
+  ;; Disable features that have great potential to be slow.
+  (setq lsp-enable-file-watchers nil
+        lsp-enable-folding nil
+        lsp-enable-text-document-color nil)
+
+  ;; Disable features that modify our code without our permission.
+  (setq lsp-enable-indentation nil
+        lsp-enable-on-type-formatting nil)
+  (with-no-warnings
+    (defun my-lsp--init-if-visible (func &rest args)
+      "Not enabling lsp in `git-timemachine-mode'."
+      (unless (bound-and-true-p git-timemachine-mode)
+        (apply func args)))
+    (advice-add #'lsp--init-if-visible :around #'my-lsp--init-if-visible))
+
+  (setq lsp-vetur-global-snippets-dir (expand-file-name "vetur" (concat dotfairy-emacs-dir "private/snippets/")))
+
   )
-:commands (lsp-enable-which-key-integration
-           lsp-format-buffer
-           lsp-organize-imports
-           lsp-install-server)
-
-:bind (:map lsp-mode-map
-       ("C-c C-." . lsp-describe-thing-at-point)
-       ([remap xref-find-definitions] . lsp-find-definition)
-       ([remap xref-find-references] . lsp-find-references))
-
-:init
-;; @see https://emacs-lsp.github.io/lsp-mode/page/performance
-(setq read-process-output-max (* 1024 1024)) ;; 1MB
-
-(setq lsp-keymap-prefix "C-c l"
-      lsp-keep-workspace-alive nil
-      lsp-signature-auto-activate nil
-      lsp-modeline-code-actions-enable nil
-      lsp-modeline-diagnostics-enable nil
-
-      lsp-enable-file-watchers nil
-      lsp-enable-file-watchers nil
-      lsp-enable-folding nil
-      lsp-enable-semantic-highlighting nil
-      lsp-enable-symbol-highlighting nil
-      lsp-enable-text-document-color nil
-
-      lsp-enable-indentation nil
-      lsp-enable-on-type-formatting nil)
-
-:config
-;; Auto kill LSP server
-(setq lsp-keep-workspace-alive nil
-      lsp-enable-snippet t)
-
-;; Disable features that have great potential to be slow.
-(setq lsp-enable-file-watchers nil
-      lsp-enable-folding nil
-      lsp-enable-text-document-color nil)
-
-;; Disable features that modify our code without our permission.
-(setq lsp-enable-indentation nil
-      lsp-enable-on-type-formatting nil)
-(with-no-warnings
-  (defun my-lsp--init-if-visible (func &rest args)
-    "Not enabling lsp in `git-timemachine-mode'."
-    (unless (bound-and-true-p git-timemachine-mode)
-      (apply func args)))
-  (advice-add #'lsp--init-if-visible :around #'my-lsp--init-if-visible))
-
-(setq lsp-vetur-global-snippets-dir (expand-file-name "vetur" (concat dotfairy-emacs-dir "private/snippets/")))
-
-)
 
 ;;; Optionally: lsp-ui, company-lsp
 (use-package lsp-ui
@@ -107,7 +107,7 @@
   (lsp-ui-sideline-code-action ((t (:inherit warning))))
   :pretty-hydra
   ((:title (pretty-hydra-title "LSP UI" 'faicon "rocket")
-    :color amaranth :quit-key "q")
+           :color amaranth :quit-key "q")
    ("Doc"
     (("d e" (progn
               (lsp-ui-doc-enable (not lsp-ui-doc-mode))
