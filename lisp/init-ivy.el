@@ -33,7 +33,7 @@
    ("C-S-s" . swiper-all)
 
    ("C-c f r" . counsel-recentf)
-   ("C-c C-r" . ivy-resume)
+   ("C-c c r" . ivy-resume)
    ("C-c v p" . ivy-push-view)
    ("C-c v o" . ivy-pop-view)
    ("C-c v ." . ivy-switch-view)
@@ -411,7 +411,7 @@ This is for use in `ivy-re-builders-alist'."
 
   ;; Integrate yasnippet
   (use-package ivy-yasnippet
-    :bind ("C-c C-y" . ivy-yasnippet))
+    :bind ("C-c c y" . ivy-yasnippet))
 
   ;; Select from xref candidates with Ivy
   (use-package ivy-xref

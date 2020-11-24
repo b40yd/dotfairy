@@ -53,4 +53,18 @@ auto-complete server:
 npm install -g vscode-html-languageserver-bin
 ```
 
+- Clang
+auto-complete server:
+
+```
+install-package ccls
+```
+
+- Rust
+auto-complete server:
+
+```
+install-package rustup rust-analyzer
+```
+
 ## keymap

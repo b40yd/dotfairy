@@ -187,6 +187,9 @@ setup-rustup-toolchain() {
     install_package rust-analyzer
 }
 
+install-clang() {
+    install_package ccls
+}
 
 install-all() {
     install-python-server
@@ -197,7 +200,7 @@ install-all() {
     install-css-server
     install-html-server
     install-rustup
-
+    install-clang
 }
 
 install-fonts() {

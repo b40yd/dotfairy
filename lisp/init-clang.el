@@ -25,16 +25,73 @@
 ;;; Code:
 
 ;; C/C++ Mode
+(use-package ccls)
 (use-package cc-mode
   :ensure nil
   :bind (:map c-mode-base-map
-         ("C-c C-c" . compile))
+              ("C-c C-c" . compile))
   :hook (c-mode-common . (lambda () (c-set-style "stroustrup")))
   :init (setq-default c-basic-offset 4)
   :config
   (use-package modern-cpp-font-lock
     :diminish
     :init (modern-c++-font-lock-global-mode t)))
+
+
+;;
+;; rtags enable jump-to-function definition
+;; system need to install rtags first
+;;
+;; for centos, you need llvm-devel, cppunit-devl
+;; install gcc-4.9, cmake 3.1 and download rtags from github and make it
+;;
+
+(use-package rtags
+  :ensure t
+  :config
+  (rtags-enable-standard-keybindings)
+  (setq rtags-autostart-diagnostics t)
+  (rtags-diagnostics)
+  (setq rtags-completions-enabled t)
+  (define-key c-mode-base-map (kbd "M-.")
+    (function rtags-find-symbol-at-point))
+  (define-key c-mode-base-map (kbd "M-,")
+    (function rtags-find-references-at-point))
+  )
+
+;;
+;; cmake-ide enable rdm(rtags) auto start and rc(rtags) to watch directory
+;;
+(use-package cmake-ide
+  :ensure t
+  :config
+  (cmake-ide-setup)
+  )
+
+
+;;
+;; for editting CMakeLists.txt
+;;
+(use-package cmake-mode
+  :ensure t
+  :mode (("CMakeLists\\.txt\\'" . cmake-mode)
+         ("\\.cmake\\'" . cmake-mode))
+  :config
+  (add-hook 'cmake-mode-hook (lambda()
+                               (add-to-list (make-local-variable 'company-backends)
+                                            'company-cmake)))
+  )
+
+;;
+;; for c formatting
+;;
+(use-package clang-format
+  :ensure t
+  :config
+  (setq clang-format-style-option "llvm")
+  (add-hook 'c-mode-hook (lambda() (add-hook 'before-save-hook 'clang-format-buffer)))
+  (add-hook 'c++-mode-hook (lambda() (add-hook 'before-save-hook 'clang-format-buffer)))
+  )
 
 (provide 'init-clang)
 ;;; init-clang.el ends here
