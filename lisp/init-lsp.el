@@ -32,7 +32,8 @@
   :type '(repeat (symbol :tag "Major-Mode")))
 
 (use-package lsp-mode
-  :defines (lsp-clients-python-library-directories)
+  :defines (lsp-clients-python-library-directories
+            lsp-rust-server)
   :hook ((prog-mode . (lambda ()
                         (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode)
                           (lsp-deferred))))

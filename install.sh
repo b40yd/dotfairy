@@ -172,6 +172,21 @@ install-python-server() {
     fi
 }
 
+install-rustup() {
+    if type rustup &> /dev/null;then
+        install_package rustup && setup-rustup-toolchain
+    fi
+}
+
+setup-rustup-toolchain() {
+    export RUSTUP_UPDATE_ROOT=https://mirrors.ustc.edu.cn/rust-static/rustup
+    export RUSTUP_DIST_SERVER=https://mirrors.ustc.edu.cn/rust-static
+    rustup toolchain add nightly && \
+    rustup component add rust-src && \
+    cargo +nightly install racer && \
+    install_package rust-analyzer
+}
+
 
 install-all() {
     install-python-server
@@ -181,6 +196,7 @@ install-all() {
     install-json-server
     install-css-server
     install-html-server
+    install-rustup
 
 }
 

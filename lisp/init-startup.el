@@ -208,6 +208,7 @@ whichever is found first. Must end in a slash.")
 ;; Language
 (require 'init-clang)
 (require 'init-go)
+(require 'init-rust)
 (require 'init-python)
 (require 'init-web)
 (require 'init-markdown)
