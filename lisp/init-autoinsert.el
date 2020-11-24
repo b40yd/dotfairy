@@ -42,6 +42,7 @@
   (define-auto-insert "\\.org$" ["template.org" my/autoinsert-yas-expand])
   (define-auto-insert "\\.js$" ["template.js" my/autoinsert-yas-expand])
   (define-auto-insert "\\.ts$" ["template.ts" my/autoinsert-yas-expand])
+  (define-auto-insert "\\.el$" ["template.el" my/autoinsert-yas-expand])
   (define-auto-insert "\\.html$" ["template.html" my/autoinsert-yas-expand])
   (define-auto-insert "\\.([Hh]|hh|hpp)$" ["template.h" my/autoinsert-yas-expand])
   (define-auto-insert "\\.([Cc]|cc|cpp)$" ["template.cc" my/autoinsert-yas-expand])
