@@ -79,12 +79,10 @@ decrease this. If you experience stuttering, increase this.")
             (add-hook 'minibuffer-exit-hook #'my-minibuffer-exit-hook)))
 
 
-(let (file-name-handler-alist)
-  ;; Ensure Doom is running out of this file's directory
-  (setq user-emacs-directory (file-name-directory load-file-name)))
+(setq user-emacs-directory (file-name-directory load-file-name))
 
-;; Load the heart of Doom Emacs
-(load (concat user-emacs-directory "lisp/init-startup")
-      nil 'nomessage)
+(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+;; Load the heart of dotfairy
+(require 'init-startup)
 
 ;;; init.el ends here

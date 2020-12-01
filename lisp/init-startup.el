@@ -27,7 +27,7 @@
 (require 'subr-x)
 
 ;; add core path
-(add-to-list 'load-path (file-name-directory load-file-name))
+;;(add-to-list 'load-path (file-name-directory load-file-name))
 
 (defconst IS-MAC     (eq system-type 'darwin))
 (defconst IS-LINUX   (eq system-type 'gnu/linux))
@@ -92,6 +92,9 @@ whichever is found first. Must end in a slash.")
        custom-file                        (concat dotfairy-private-dir "custom.el")
        dotfairy-config-file               (concat dotfairy-private-dir "config.el")
        dotfairy-example-config-file       (concat dotfairy-emacs-dir "config.el"))
+
+(if (not (file-directory-p package-user-dir))
+    (make-directory package-user-dir))
 
 (let* ((my-lisp-dir package-user-dir)
        (default-directory my-lisp-dir)
