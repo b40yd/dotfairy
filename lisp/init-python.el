@@ -35,7 +35,7 @@
   ;; (when (executable-find "jupyter")
   ;;   (setq lsp-python-executable-cmd "jupyter"))
 
-  (setq python-shell-interpreter "python3"
+  (setq python-shell-interpreter "python"
         python-shell-interpreter-args "-i")
   ;; ;; ;; Env vars
   (when (fboundp 'exec-path-from-shell-copy-env)

@@ -166,7 +166,7 @@ install-html-server() {
 
 install-python-server() {
     if type pip &> /dev/null;then
-        pip3 install autopep8 python-language-server pyls-mypy pyls-isort pyls-black -i https://mirrors.aliyun.com/pypi/simple/
+        pip3 install autopep8 python-language-server pyls-mypy pyls-isort pylint pyflakes pyls-black -i https://mirrors.aliyun.com/pypi/simple/
     else
         info "please install pip tools." && exit 1
     fi

@@ -114,7 +114,8 @@
     (when (and IS-MAC (executable-find "gls"))
       (setq counsel-find-file-occur-use-find nil
             counsel-find-file-occur-cmd
-            "gls -a | grep -i -E '%s' | tr '\\n' '\\0' | xargs -0 gls -d --group-directories-first")))
+            "gls -a | grep -i -E '%s' | tr '\\n' '\\0' | xargs -0 gls -d --group-directories-first"))
+    )
 
   :config
   (with-no-warnings
@@ -397,7 +398,8 @@ This is for use in `ivy-re-builders-alist'."
             counsel-ack counsel-fzf counsel-pt counsel-imenu
             counsel-yank-pop counsel-recentf counsel-buffer-or-recentf))
 
-    (ivy-prescient-mode 1))
+    (ivy-prescient-mode 1)
+    (setf (alist-get 'counsel-rg ivy-re-builders-alist) #'ivy--regex-plus))
 
   ;; Additional key bindings for Ivy
   (use-package ivy-hydra
