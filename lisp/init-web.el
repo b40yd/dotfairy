@@ -28,9 +28,9 @@
   :mode ("\\.html\\'")
   :ensure t
   :config
-  (setq web-mode-markup-indent-offset 2
-        web-mode-css-indent-offset 2
-        web-mode-code-indent-offset 2
+  (setq web-mode-markup-indent-offset 4
+        web-mode-css-indent-offset 4
+        web-mode-code-indent-offset 4
         web-mode-enable-current-element-highlight t
         web-mode-enable-css-colorization t)
   (use-package company-web
@@ -46,7 +46,7 @@
   (add-hook 'css-mode-hook (lambda()
                              (add-to-list (make-local-variable 'company-backends)
                                           '(company-css company-files company-yasnippet company-capf))))
-  (setq css-indent-offset 2))
+  (setq css-indent-offset 4))
 
 (use-package scss-mode
   :ensure t
@@ -56,7 +56,7 @@
   :ensure t
   :mode "\\.js\\'"
   :config
-  (setq js2-basic-offset 2))
+  (setq js2-basic-offset 4))
 
 ;; npm install -g typescript
 (defun setup-tide-mode()
