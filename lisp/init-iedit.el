@@ -67,14 +67,14 @@
   :bind (("C-c d f" . hungry-delete-forward)
          ("C-c d b" . hungry-delete-backward)))
 
-;; Drag stuff (lines, words, region, etc...) around
-(use-package drag-stuff
-  :diminish
-  :commands drag-stuff-define-keys
-  :hook (after-init . drag-stuff-global-mode)
-  :config
-  (add-to-list 'drag-stuff-except-modes 'org-mode)
-  (drag-stuff-define-keys))
+;; ;; Drag stuff (lines, words, region, etc...) around
+;; (use-package drag-stuff
+;;   :diminish
+;;   :commands drag-stuff-define-keys
+;;   :hook (after-init . drag-stuff-global-mode)
+;;   :config
+;;   (add-to-list 'drag-stuff-except-modes 'org-mode)
+;;   (drag-stuff-define-keys))
 
 ;; A comprehensive visual interface to diff & patch
 (use-package ediff
@@ -153,6 +153,97 @@
 ;; Smartly select region, rectangle, multi cursors
 (use-package smart-region
   :hook (after-init . smart-region-on))
+
+(use-package pomidor
+  :bind ("<f12>" . pomidor)
+  :init
+  (setq alert-default-style 'mode-line)
+
+  (with-eval-after-load 'all-the-icons
+    (setq alert-severity-faces
+          '((urgent   . all-the-icons-red)
+            (high     . all-the-icons-orange)
+            (moderate . all-the-icons-yellow)
+            (normal   . all-the-icons-green)
+            (low      . all-the-icons-blue)
+            (trivial  . all-the-icons-purple))
+          alert-severity-colors
+          `((urgent   . ,(face-foreground 'all-the-icons-red))
+            (high     . ,(face-foreground 'all-the-icons-orange))
+            (moderate . ,(face-foreground 'all-the-icons-yellow))
+            (normal   . ,(face-foreground 'all-the-icons-green))
+            (low      . ,(face-foreground 'all-the-icons-blue))
+            (trivial  . ,(face-foreground 'all-the-icons-purple))))))
+(use-package rg
+  :defines projectile-command-map
+  :hook (after-init . rg-enable-default-bindings)
+  :bind (:map rg-global-map
+              ("c" . rg-dwim-current-dir)
+              ("f" . rg-dwim-current-file)
+              ("m" . rg-menu)
+              :map rg-mode-map
+              ("m" . rg-menu))
+  :init (setq rg-group-result t
+              rg-show-columns t)
+  :config
+  (cl-pushnew '("tmpl" . "*.tmpl") rg-custom-type-aliases)
+
+  (with-eval-after-load 'projectile
+    (defalias 'projectile-ripgrep #'rg-project)
+    (bind-key "s R" #'rg-project projectile-command-map))
+
+  (with-eval-after-load 'counsel
+    (bind-keys
+     :map rg-global-map
+     ("R" . counsel-rg)
+     ("F" . counsel-fzf))))
+
+(use-package wgrep
+  :init
+  (setq wgrep-auto-save-buffer t
+        wgrep-change-readonly-file t))
+
+;; Minor mode to aggressively keep your code always indented
+(use-package aggressive-indent
+  :diminish
+  :hook ((after-init . global-aggressive-indent-mode)
+         ;; FIXME: Disable in big files due to the performance issues
+         ;; https://github.com/Malabarba/aggressive-indent-mode/issues/73
+         (find-file . (lambda ()
+                        (if (> (buffer-size) (* 3000 80))
+                            (aggressive-indent-mode -1)))))
+  :config
+  ;; Disable in some modes
+  (dolist (mode '(asm-mode web-mode html-mode css-mode go-mode scala-mode prolog-inferior-mode))
+    (push mode aggressive-indent-excluded-modes))
+
+  ;; Disable in some commands
+  (add-to-list 'aggressive-indent-protected-commands #'delete-trailing-whitespace t)
+
+  ;; Be slightly less aggressive in C/C++/C#/Java/Go/Swift
+  (add-to-list 'aggressive-indent-dont-indent-if
+               '(and (derived-mode-p 'c-mode 'c++-mode 'csharp-mode
+                                     'java-mode 'go-mode 'swift-mode)
+                     (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
+                                         (thing-at-point 'line))))))
+
+;; Show number of matches in mode-line while searching
+(use-package anzu
+  :diminish
+  :bind (([remap query-replace] . anzu-query-replace)
+         ([remap query-replace-regexp] . anzu-query-replace-regexp)
+         :map isearch-mode-map
+         ([remap isearch-query-replace] . anzu-isearch-query-replace)
+         ([remap isearch-query-replace-regexp] . anzu-isearch-query-replace-regexp))
+  :hook (after-init . global-anzu-mode))
+;; Redefine M-< and M-> for some modes
+(use-package beginend
+  :diminish (beginend-mode beginend-global-mode)
+  :hook (after-init . beginend-global-mode)
+  :config
+  (mapc (lambda (pair)
+          (add-hook (car pair) (lambda () (diminish (cdr pair)))))
+        beginend-modes))
 
 (provide 'init-iedit)
 ;;; init-iedit.el ends here

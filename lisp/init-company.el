@@ -24,13 +24,6 @@
 
 ;;; Code:
 
-(use-package yasnippet
-  :diminish yas-minor-mode
-  :hook (after-init . yas-global-mode))
-
-(use-package yasnippet-snippets
-  :after yasnippet)
-
 ;; Settings for company
 (use-package company
   :defines (company-dabbrev-ignore-case company-dabbrev-downcase)
@@ -180,5 +173,11 @@
                 ([remap company-show-doc-buffer] . company-quickhelp-manual-begin))
     :init (setq company-quickhelp-delay 0.0)))
 
+(use-package yasnippet
+  :diminish yas-minor-mode
+  :hook (after-init . yas-global-mode))
+
+(use-package yasnippet-snippets
+  :after yasnippet)
 (provide 'init-company)
 ;;; init-company.el ends here
