@@ -245,5 +245,24 @@
           (add-hook (car pair) (lambda () (diminish (cdr pair)))))
         beginend-modes))
 
+(use-package beacon
+  :ensure t
+  :config
+  (beacon-mode 1)
+  (setq beacon-color "#666600"))
+
+;; Jump to things in Emacs tree-style
+(use-package avy
+  :bind (("C-:" . avy-goto-char)
+         ("C-'" . avy-goto-char-2)
+         ("M-g f" . avy-goto-line)
+         ("M-g w" . avy-goto-word-1)
+         ("M-g e" . avy-goto-word-0))
+  :hook (after-init . avy-setup-default)
+  :config (setq avy-all-windows nil
+                avy-all-windows-alt t
+                avy-background t
+                avy-style 'pre))
+
 (provide 'init-iedit)
 ;;; init-iedit.el ends here

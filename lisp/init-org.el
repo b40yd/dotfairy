@@ -123,7 +123,7 @@ unwanted space when exporting org-mode to html."
 
   (use-package org-roam
     :diminish
-    :custom (org-roam-directory org-directory)
+    :custom (org-roam-directory dotfairy-local-dir)
     :hook (after-init . org-roam-mode)
     :bind (:map org-roam-mode-map
                 (("C-c o r l" . org-roam)
@@ -132,6 +132,31 @@ unwanted space when exporting org-mode to html."
                 :map org-mode-map
                 (("C-c o r i" . org-roam-insert))
                 (("C-c o r I" . org-roam-insert-immediate))))
+
+  (use-package org-roam-server
+    :ensure t
+    :config
+    (setq org-roam-server-host "127.0.0.1"
+          org-roam-server-port 8080
+          org-roam-server-authenticate nil
+          org-roam-server-export-inline-images t
+          org-roam-server-serve-files nil
+          org-roam-server-served-file-extensions '("pdf" "mp4" "ogv")
+          org-roam-server-network-poll t
+          org-roam-server-network-arrows nil
+          org-roam-server-network-label-truncate t
+          org-roam-server-network-label-truncate-length 60
+          org-roam-server-network-label-wrap-length 20))
+
+  (use-package org-journal
+    :ensure t
+    :defer t
+    :init
+    ;; Change default prefix key; needs to be set before loading org-journal
+    (setq org-journal-prefix-key "C-c j")
+    :config
+    (setq org-journal-dir dotfairy-local-dir
+          org-journal-date-format "%A, %d %B %Y"))
 
   :bind
   (("C-c o a" . org-agenda)
