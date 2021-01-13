@@ -131,35 +131,43 @@ unwanted space when exporting org-mode to html."
                 :map org-mode-map
                 (("C-c o r i" . org-roam-insert))
                 (("C-c o r I" . org-roam-insert-immediate)))
-    :config (setq org-roam-directory (concat dotfairy-org-dir "roam/")
-                  org-roam-capture-templates
-                  '(
-                    ("d" "default" plain (function org-roam-capture--get-point)
-                     "%?"
-                     :file-name "%<%Y%m%d%H%M%S>-${slug}"
-                     :head "#+title: ${title}\n#+roam_alias:\n\n")
-                    ("g" "group")
-                    ("ga" "Group A" plain (function org-roam-capture--get-point)
-                     "%?"
-                     :file-name "%<%Y%m%d%H%M%S>-${slug}"
-                     :head "#+title: ${title}\n#+roam_alias:\n\n")
-                    ("gb" "Group B" plain (function org-roam-capture--get-point)
-                     "%?"
-                     :file-name "%<%Y%m%d%H%M%S>-${slug}"
-                     :head "#+title: ${title}\n#+roam_alias:\n\n"))
-                  org-roam-capture-immediate-template
-                  '("d" "default" plain (function org-roam-capture--get-point)
-                    "%?"
-                    :file-name "%<%Y%m%d%H%M%S>-${slug}"
-                    :head "#+title: ${title}\n"
-                    :unnarrowed t)
-                  org-roam-capture-ref-templates
-                  '(("r" "ref" plain (function org-roam-capture--get-point)
-                     ""
-                     :file-name "${slug}"
-                     :head "#+title: ${title}\n#+roam_key: ${ref}\n"
-                     :unnarrowed t))
-                  )
+    :config
+    (require 'org-roam-protocol)
+    (setq org-roam-directory (concat dotfairy-org-dir "roam/")
+          org-roam-capture-templates
+          '(
+            ("d" "default" plain (function org-roam-capture--get-point)
+             "%?"
+             :file-name "%<%Y%m%d%H%M%S>-${slug}"
+             :head "#+title: ${title}\n#+roam_alias:\n\n")
+            ("g" "group")
+            ("ga" "Group A" plain (function org-roam-capture--get-point)
+             "%?"
+             :file-name "%<%Y%m%d%H%M%S>-${slug}"
+             :head "#+title: ${title}\n#+roam_alias:\n\n")
+            ("gb" "Group B" plain (function org-roam-capture--get-point)
+             "%?"
+             :file-name "%<%Y%m%d%H%M%S>-${slug}"
+             :head "#+title: ${title}\n#+roam_alias:\n\n"))
+          org-roam-capture-immediate-template
+          '("d" "default" plain (function org-roam-capture--get-point)
+            "%?"
+            :file-name "%<%Y%m%d%H%M%S>-${slug}"
+            :head "#+title: ${title}\n"
+            :unnarrowed t)
+          org-roam-capture-ref-templates
+          '(("r" "ref" plain (function org-roam-capture--get-point)
+             ""
+             :file-name "${slug}"
+             :head "#+title: ${title}\n#+roam_key: ${ref}\n"
+             :unnarrowed t)
+            ("a" "Annotation" plain (function org-roam-capture--get-point)
+             "%U ${body}\n"
+             :file-name "${slug}"
+             :head "#+title: ${title}\n#+roam_key: ${ref}\n#+roam_alias:\n"
+             :immediate-finish t
+             :unnarrowed t)
+            ))
     )
 
   (use-package org-roam-server
