@@ -86,3 +86,5 @@ decrease this. If you experience stuttering, increase this.")
 (require 'init-startup)
 
 ;;; init.el ends here
+(put 'downcase-region 'disabled nil)
+(put 'upcase-region 'disabled nil)

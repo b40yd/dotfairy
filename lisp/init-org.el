@@ -54,7 +54,7 @@
         org-enable-hugo-support t
         org-src-fontify-natively t
         org-src-tab-acts-natively t
-        org-directory (concat dotfairy-local-dir "org/") ;; needs to be defined for `org-default-notes-file'
+        org-directory dotfairy-org-dir ;; needs to be defined for `org-default-notes-file'
         org-default-notes-file (expand-file-name "notes.org" org-directory))
 
   (setq org-agenda-files `(,org-directory)
@@ -123,7 +123,6 @@ unwanted space when exporting org-mode to html."
 
   (use-package org-roam
     :diminish
-    :custom (org-roam-directory dotfairy-local-dir)
     :hook (after-init . org-roam-mode)
     :bind (:map org-roam-mode-map
                 (("C-c o r l" . org-roam)
@@ -131,7 +130,37 @@ unwanted space when exporting org-mode to html."
                  ("C-c o r g" . org-roam-graph))
                 :map org-mode-map
                 (("C-c o r i" . org-roam-insert))
-                (("C-c o r I" . org-roam-insert-immediate))))
+                (("C-c o r I" . org-roam-insert-immediate)))
+    :config (setq org-roam-directory (concat dotfairy-org-dir "roam/")
+                  org-roam-capture-templates
+                  '(
+                    ("d" "default" plain (function org-roam-capture--get-point)
+                     "%?"
+                     :file-name "%<%Y%m%d%H%M%S>-${slug}"
+                     :head "#+title: ${title}\n#+roam_alias:\n\n")
+                    ("g" "group")
+                    ("ga" "Group A" plain (function org-roam-capture--get-point)
+                     "%?"
+                     :file-name "%<%Y%m%d%H%M%S>-${slug}"
+                     :head "#+title: ${title}\n#+roam_alias:\n\n")
+                    ("gb" "Group B" plain (function org-roam-capture--get-point)
+                     "%?"
+                     :file-name "%<%Y%m%d%H%M%S>-${slug}"
+                     :head "#+title: ${title}\n#+roam_alias:\n\n"))
+                  org-roam-capture-immediate-template
+                  '("d" "default" plain (function org-roam-capture--get-point)
+                    "%?"
+                    :file-name "%<%Y%m%d%H%M%S>-${slug}"
+                    :head "#+title: ${title}\n"
+                    :unnarrowed t)
+                  org-roam-capture-ref-templates
+                  '(("r" "ref" plain (function org-roam-capture--get-point)
+                     ""
+                     :file-name "${slug}"
+                     :head "#+title: ${title}\n#+roam_key: ${ref}\n"
+                     :unnarrowed t))
+                  )
+    )
 
   (use-package org-roam-server
     :ensure t
@@ -155,7 +184,7 @@ unwanted space when exporting org-mode to html."
     ;; Change default prefix key; needs to be set before loading org-journal
     (setq org-journal-prefix-key "C-c j")
     :config
-    (setq org-journal-dir dotfairy-local-dir
+    (setq org-journal-dir (concat dotfairy-local-dir "journal/")
           org-journal-date-format "%A, %d %B %Y"))
 
   :bind

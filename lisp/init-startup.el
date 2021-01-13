@@ -58,6 +58,12 @@ These files should not be shared across systems. By default, it is used by
 (if (not (file-directory-p dotfairy-local-dir))
     (make-directory dotfairy-local-dir))
 
+(defconst dotfairy-org-dir (concat dotfairy-local-dir "org/")
+  "The root directory of DotFairy's core files. Must end with a slash.")
+
+(if (not (file-directory-p dotfairy-org-dir))
+    (make-directory (concat dotfairy-org-dir "roam/")))
+
 (defconst dotfairy-etc-dir (concat dotfairy-local-dir "etc/")
   "Directory for non-volatile local storage.
 Use this for files that don't change much, like server binaries, external
