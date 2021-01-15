@@ -54,13 +54,14 @@
         org-enable-hugo-support t
         org-src-fontify-natively t
         org-src-tab-acts-natively t
+        org-duration-format '((special . h:mm))
         org-directory dotfairy-org-dir ;; needs to be defined for `org-default-notes-file'
         org-default-notes-file (expand-file-name "notes.org" org-directory))
 
   (setq org-enforce-todo-checkbox-dependencies t
         org-enforce-todo-dependencies t
         org-hide-leading-stars t
-        org-log-done 'time
+        org-log-done t
         org-log-reschedule 'note
         org-log-redeadline 'note
         org-log-into-drawer "LOGBOOK"
@@ -70,6 +71,8 @@
         org-hide-emphasis-markers t
         org-fontify-done-headline t
         org-hide-leading-stars t
+        org-fontify-whole-heading-line t
+        org-fontify-quote-and-verse-blocks t
         org-pretty-entities t
         org-odd-levels-only t
         org-list-allow-alphabetical t
@@ -81,22 +84,22 @@
                                       "APPROVED(A@)" "EXPIRED(E@)" "REJECTED(R@)")
                             (sequence "OPEN(O)" "|" "CLOSED(C)")
                             (type "PERIODIC(P)"))
-        org-todo-keyword-faces '(("TODO"      :foreground "red"          :weight bold)
-                                 ("PERIODIC"  :foreground "magenta"      :weight bold)
-                                 ("NEXT"      :foreground "blue"         :weight bold)
-                                 ("DONE"      :foreground "forest green" :weight bold)
-                                 ("WAITING"   :foreground "yellow"       :weight bold)
-                                 ("HOLD"      :foreground "goldenrod"    :weight bold)
-                                 ("CANCELLED" :foreground "orangered"    :weight bold)
-                                 ("PHONE"     :foreground "forest green" :weight bold)
-                                 ("MEETING"   :foreground "forest green" :weight bold)
-                                 ("QUOTE"     :foreground "hotpink"      :weight bold)
-                                 ("QUOTED"    :foreground "indianred1"   :weight bold)
-                                 ("APPROVED"  :foreground "forest green" :weight bold)
-                                 ("EXPIRED"   :foreground "olivedrab1"   :weight bold)
-                                 ("REJECTED"  :foreground "olivedrab"    :weight bold)
-                                 ("OPEN"      :foreground "magenta"      :weight bold)
-                                 ("CLOSED"    :foreground "forest green" :weight bold))
+        ;; org-todo-keyword-faces '(("TODO"      :foreground "red"          :weight bold)
+        ;;                          ("PERIODIC"  :foreground "magenta"      :weight bold)
+        ;;                          ("NEXT"      :foreground "blue"         :weight bold)
+        ;;                          ("DONE"      :foreground "forest green" :weight bold)
+        ;;                          ("WAITING"   :foreground "yellow"       :weight bold)
+        ;;                          ("HOLD"      :foreground "goldenrod"    :weight bold)
+        ;;                          ("CANCELLED" :foreground "orangered"    :weight bold)
+        ;;                          ("PHONE"     :foreground "forest green" :weight bold)
+        ;;                          ("MEETING"   :foreground "forest green" :weight bold)
+        ;;                          ("QUOTE"     :foreground "hotpink"      :weight bold)
+        ;;                          ("QUOTED"    :foreground "indianred1"   :weight bold)
+        ;;                          ("APPROVED"  :foreground "forest green" :weight bold)
+        ;;                          ("EXPIRED"   :foreground "olivedrab1"   :weight bold)
+        ;;                          ("REJECTED"  :foreground "olivedrab"    :weight bold)
+        ;;                          ("OPEN"      :foreground "magenta"      :weight bold)
+        ;;                          ("CLOSED"    :foreground "forest green" :weight bold))
         org-todo-state-tags-triggers '(("CANCELLED" ("CANCELLED" . t))
                                        ("WAITING" ("WAITING" . t))
                                        ("HOLD" ("WAITING" . t) ("HOLD" . t))
@@ -121,12 +124,13 @@
         ;; Column view and estimates
         org-columns-default-format "%80ITEM(Task) %7TODO(To Do) %10Effort(Estim){:} %10CLOCKSUM{Total}"
         org-global-properties '(("Effort_ALL" . "0:0 0:10 0:30 1:00 2:00 3:00 4:00 8:00"))
-        org-time-clocksum-format '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t)
+        org-time-clocksum-format '(:hours "%d" :require-hours t :minutes ":%0d" :require-minutes t)
         ;; Mark a task as DONE when archiving
         org-archive-mark-done nil
         org-src-fontify-natively t
         org-time-clocksum-use-effort-durations t)
 
+  (setq org-agenda-block-separator (string-to-char " "))
   (setq org-agenda-custom-commands
         '(("a" "My Agenda"
            ((todo "TODO" (
@@ -143,8 +147,11 @@
                         (org-agenda-overriding-header "㊠ SCHEDULE:\n")
                         (org-agenda-repeating-timestamp-show-all nil)
                         (org-agenda-remove-tags t)
+                        (org-agenda-prefix-format "  %-12:c%?-12t% s")
+                        ;; (concat "  %-3i  %-15b %t%s" org-agenda-hidden-separator))
+                        ;; (org-agenda-todo-keyword-format "")
                         (org-agenda-time)
-                        (org-agenda-current-time-string "⮜┈┈┈┈┈┈┈ now")
+                        (org-agenda-current-time-string "☟ ┈┈┈┈┈┈┈ now")
                         (org-agenda-scheduled-leaders '("" ""))
                         (org-agenda-deadline-leaders '("" ""))
                         (org-agenda-time-grid (quote ((today require-timed remove-match) (0900 2100) "      " "┈┈┈┈┈┈┈┈┈┈┈┈┈")))))
@@ -152,21 +159,9 @@
             (todo "NEXT" (
                           (org-agenda-overriding-header "🌟 THIS WEEK:\n")
                           (org-agenda-remove-tags t)
-                          (org-agenda-todo-keyword-format "")
-                          (org-agenda-prefix-format "  %-2i  %b")))
+                          (org-agenda-prefix-format "  %-2i  %b")
+                          (org-agenda-todo-keyword-format "")))
             ))))
-
-  (defadvice org-html-paragraph (before org-html-paragraph-advice
-                                        (paragraph contents info) activate)
-    "Join consecutive Chinese lines into a single long line without
-unwanted space when exporting org-mode to html."
-    (let* ((origin-contents (ad-get-arg 1))
-           (fix-regexp "[[:multibyte:]]")
-           (fixed-contents
-            (replace-regexp-in-string
-             (concat
-              "\\(" fix-regexp "\\) *\n *\\(" fix-regexp "\\)") "\\1\\2" origin-contents)))
-      (ad-set-arg 1 fixed-contents)))
 
   (setq org-list-demote-modify-bullet
         (quote (("+" . "⮙")
@@ -215,7 +210,7 @@ unwanted space when exporting org-mode to html."
                                     "🐤" "🐥" "🐦" "🐧" "🐨" "🐩" "🐪" "🐫" "🐬" "🐭" "🐮" "🐯"
                                     "🐰" "🐱" "🐲" "🐳" "🐴" "🐵" "🐶" "🐷" "🐸" "🐹" "🐺" "🐻"
                                     "🐼" "𝍖" "🩠" "🩡" "🩢" "🩣" "🩤" "🩥" "🩦"))
-    (setq org-agenda-breadcrumbs-separator " ❱ "
+    (setq org-agenda-breadcrumbs-separator " ❯ "
           org-ellipsis (if (char-displayable-p ?⤵) " ⤵ " nil)))
 
   (use-package org-fancy-priorities
