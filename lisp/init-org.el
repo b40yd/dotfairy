@@ -57,10 +57,104 @@
         org-directory dotfairy-org-dir ;; needs to be defined for `org-default-notes-file'
         org-default-notes-file (expand-file-name "notes.org" org-directory))
 
-  (setq org-agenda-files `(,org-directory)
-        org-todo-keywords
-        '((sequence "TODO(t)" "DOING(i)" "HANGUP(h)" "|" "DONE(d)" "CANCEL(c)")
-          (sequence "⚑(T)" "⚫(I)" "❓(H)" "|" "✔(D)" "✘(C)")))
+  (setq org-enforce-todo-checkbox-dependencies t
+        org-enforce-todo-dependencies t
+        org-hide-leading-stars t
+        org-log-done 'time
+        org-log-reschedule 'note
+        org-log-redeadline 'note
+        org-log-into-drawer "LOGBOOK"
+        org-return-follows-link t
+        org-special-ctrl-a/e t
+        org-use-fast-todo-selection t
+        org-hide-emphasis-markers t
+        org-fontify-done-headline t
+        org-hide-leading-stars t
+        org-pretty-entities t
+        org-odd-levels-only t
+        org-list-allow-alphabetical t
+        ;; TODO sequences
+        org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!/!)")
+                            (sequence "WAITING(w@/!)" "|" "HOLD(h@/!)"
+                                      "CANCELLED(c@/!)" "PHONE" "MEETING")
+                            (sequence "QUOTE(q!)" "QUOTED(Q!)" "|"
+                                      "APPROVED(A@)" "EXPIRED(E@)" "REJECTED(R@)")
+                            (sequence "OPEN(O)" "|" "CLOSED(C)")
+                            (type "PERIODIC(P)"))
+        org-todo-keyword-faces '(("TODO"      :foreground "red"          :weight bold)
+                                 ("PERIODIC"  :foreground "magenta"      :weight bold)
+                                 ("NEXT"      :foreground "blue"         :weight bold)
+                                 ("DONE"      :foreground "forest green" :weight bold)
+                                 ("WAITING"   :foreground "yellow"       :weight bold)
+                                 ("HOLD"      :foreground "goldenrod"    :weight bold)
+                                 ("CANCELLED" :foreground "orangered"    :weight bold)
+                                 ("PHONE"     :foreground "forest green" :weight bold)
+                                 ("MEETING"   :foreground "forest green" :weight bold)
+                                 ("QUOTE"     :foreground "hotpink"      :weight bold)
+                                 ("QUOTED"    :foreground "indianred1"   :weight bold)
+                                 ("APPROVED"  :foreground "forest green" :weight bold)
+                                 ("EXPIRED"   :foreground "olivedrab1"   :weight bold)
+                                 ("REJECTED"  :foreground "olivedrab"    :weight bold)
+                                 ("OPEN"      :foreground "magenta"      :weight bold)
+                                 ("CLOSED"    :foreground "forest green" :weight bold))
+        org-todo-state-tags-triggers '(("CANCELLED" ("CANCELLED" . t))
+                                       ("WAITING" ("WAITING" . t))
+                                       ("HOLD" ("WAITING" . t) ("HOLD" . t))
+                                       (done ("WAITING") ("HOLD"))
+                                       ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
+                                       ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
+                                       ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))
+        org-treat-S-cursor-todo-selection-as-state-change nil
+        ;; Targets include this file and any file contributing to the agenda -
+        ;; up to 5 levels deep
+        org-refile-targets '((org-agenda-files :maxlevel . 5)
+                             (nil :maxlevel . 5))
+        ;; Targets start with the file name - allows creating level 1 tasks
+        ;; !!!!!!!!!!!!!!!!!!! REMOVED. It doesn't work well with ivy/org
+        ;;;;; org-refile-use-outline-path 'file
+        ;; Targets complete in steps so we start with filename, TAB shows the
+        ;; next level of targets etc
+        ;; !!!!!!!!!!!!!!!!!!! REMOVED. It breaks ivy/org
+        ;;;;; org-outline-path-complete-in-steps t
+        ;; Allow refile to create parent tasks with confirmation
+        org-refile-allow-creating-parent-nodes 'confirm
+        ;; Column view and estimates
+        org-columns-default-format "%80ITEM(Task) %7TODO(To Do) %10Effort(Estim){:} %10CLOCKSUM{Total}"
+        org-global-properties '(("Effort_ALL" . "0:0 0:10 0:30 1:00 2:00 3:00 4:00 8:00"))
+        org-time-clocksum-format '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t)
+        ;; Mark a task as DONE when archiving
+        org-archive-mark-done nil
+        org-src-fontify-natively t
+        org-time-clocksum-use-effort-durations t)
+
+  (setq org-agenda-custom-commands
+        '(("a" "My Agenda"
+           ((todo "TODO" (
+                          (org-agenda-overriding-header "☆ TODAY:\n")
+                          (org-agenda-remove-tags t)
+                          (org-agenda-prefix-format "  %-2i  %b")
+                          (org-agenda-todo-keyword-format "")))
+            (agenda "" (
+                        (org-agenda-skip-scheduled-if-done t)
+                        (org-agenda-skip-timestamp-if-done t)
+                        (org-agenda-skip-deadline-if-done t)
+                        (org-agenda-start-day "+0d")
+                        (org-agenda-span 5)
+                        (org-agenda-overriding-header "㊠ SCHEDULE:\n")
+                        (org-agenda-repeating-timestamp-show-all nil)
+                        (org-agenda-remove-tags t)
+                        (org-agenda-time)
+                        (org-agenda-current-time-string "⮜┈┈┈┈┈┈┈ now")
+                        (org-agenda-scheduled-leaders '("" ""))
+                        (org-agenda-deadline-leaders '("" ""))
+                        (org-agenda-time-grid (quote ((today require-timed remove-match) (0900 2100) "      " "┈┈┈┈┈┈┈┈┈┈┈┈┈")))))
+
+            (todo "NEXT" (
+                          (org-agenda-overriding-header "🌟 THIS WEEK:\n")
+                          (org-agenda-remove-tags t)
+                          (org-agenda-todo-keyword-format "")
+                          (org-agenda-prefix-format "  %-2i  %b")))
+            ))))
 
   (defadvice org-html-paragraph (before org-html-paragraph-advice
                                         (paragraph contents info) activate)
@@ -74,19 +168,62 @@ unwanted space when exporting org-mode to html."
               "\\(" fix-regexp "\\) *\n *\\(" fix-regexp "\\)") "\\1\\2" origin-contents)))
       (ad-set-arg 1 fixed-contents)))
 
+  (setq org-list-demote-modify-bullet
+        (quote (("+" . "⮙")
+                ("-" . "⮚")
+                ("*" . "🞿")
+                ("1." . "⯁")
+                ("1)" . "⯀")
+                ("A)" . "⬥")
+                ("B)" . "⬦")
+                ("a)" . "⬧")
+                ("b)" . "⬨")
+                ("A." . "⬝")
+                ("B." . "⬞")
+                ("a." . "⬖")
+                ("b." . "⬗"))))
+
+  (setq-default prettify-symbols-alist '(("#+BEGIN_SRC" . "｛")
+                                         ("#+END_SRC" . "｝")
+                                         ("#+begin_src" . "｛")
+                                         ("#+end_src" . "｝")
+                                         ("#+BEGIN_COMMENT" . "｛")
+                                         ("#+END_COMMENT" . "｝")
+                                         ("#+begin_comment" . "｛")
+                                         ("#+end_comment" . "｝")
+                                         (">=" . "≥")
+                                         ("=>" . "⇨")))
+  (setq prettify-symbols-unprettify-at-point 'right-edge)
+  (add-hook 'org-mode-hook 'prettify-symbols-mode)
+
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\([+]\) "
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\([-]\) "
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "◦"))))))
   ;; Prettify UI
   (use-package org-bullets
     :hook (org-mode . org-bullets-mode)
     :init
-    (setq org-bullets-bullet-list '("☰" "☷" "☯" "☭"))
-    (setq org-ellipsis (if (char-displayable-p ?▼) " ▼ " nil)))
+    ;;  𝋠 𝋡 𝋢 𝋣 𝋤 𝋥 𝋦 𝋧 𝋨 𝋩 𝋪 𝋫 𝋬 𝋭 𝋮 𝋯 𝋰 𝋱 𝋲
+    ;;
+    ;; "🐀" "🐁" "🐂" "🐃" "🐄" "🐅" "🐆" "🐇" "🐈" "🐉" "🐊" "🐋" "🐌" "🐍" "🐎" "🐏" "🐐" "🐑" "🐒" "🐓" "🐔" "🐕" "🐖" "🐗" "🐘" "🐙" "🐚" "🐛" "🐜" "🐝" "🐞" "🐟" "🐠" "🐡" "🐢" "🐣" "🐤" "🐥" "🐦" "🐧" "🐨" "🐩" "🐪" "🐫" "🐬" "🐭" "🐮" "🐯" "🐰" "🐱" "🐲" "🐳" "🐴" "🐵" "🐶" "🐷" "🐸" "🐹" "🐺" "🐻" "🐼"
+    (setq org-bullets-bullet-list '("🐀" "🐁" "🐂" "🐃" "🐄" "🐅" "🐆" "🐇" "🐈" "🐉" "🐊" "🐋"
+                                    "🐌" "🐍" "🐎" "🐏" "🐐" "🐑" "🐒" "🐓" "🐔" "🐕" "🐖" "🐗"
+                                    "🐘" "🐙" "🐚" "🐛" "🐜" "🐝" "🐞" "🐟" "🐠" "🐡" "🐢" "🐣"
+                                    "🐤" "🐥" "🐦" "🐧" "🐨" "🐩" "🐪" "🐫" "🐬" "🐭" "🐮" "🐯"
+                                    "🐰" "🐱" "🐲" "🐳" "🐴" "🐵" "🐶" "🐷" "🐸" "🐹" "🐺" "🐻"
+                                    "🐼" "𝍖" "🩠" "🩡" "🩢" "🩣" "🩤" "🩥" "🩦"))
+    (setq org-agenda-breadcrumbs-separator " ❱ "
+          org-ellipsis (if (char-displayable-p ?⤵) " ⤵ " nil)))
 
   (use-package org-fancy-priorities
     :diminish
     :hook (org-mode . org-fancy-priorities-mode)
     :init (setq org-fancy-priorities-list
-                (if (char-displayable-p ?☕)
-                    '("⚡" "⬆" "⬇" ""❗"" "☕")
+                (if (char-displayable-p ?🟈)
+                    '("🟔" "🟑" "🟍" "✯" "🟈") ;;"🟔" "🟑" "🟍" "✯" "🟈"
                   '("HIGH" "MEDIUM" "LOW" "WARN" "OPTIONAL"))))
   ;; Pomodoro
   (use-package org-pomodoro
