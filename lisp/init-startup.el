@@ -62,6 +62,8 @@ These files should not be shared across systems. By default, it is used by
   "The root directory of DotFairy's core files. Must end with a slash.")
 
 (if (not (file-directory-p dotfairy-org-dir))
+    (make-directory dotfairy-org-dir))
+(if (not (file-directory-p dotfairy-org-dir))
     (make-directory (concat dotfairy-org-dir "roam/")))
 
 (defconst dotfairy-etc-dir (concat dotfairy-local-dir "etc/")
@@ -225,6 +227,7 @@ whichever is found first. Must end in a slash.")
 (require 'init-org)
 (require 'init-yaml)
 (require 'init-asm)
+(require 'init-debugger)
 
 (provide 'init-startup)
 ;;; init-startup.el ends here

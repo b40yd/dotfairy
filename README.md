@@ -21,7 +21,7 @@ go get golang.org/x/tools/gopls@latest
 - `Python`
 auto-complete server:
 ```shell
-pip3 install autopep8 python-language-server pyls-mypy pyls-isort pyls-black jupyter -i https://mirrors.aliyun.com/pypi/simple/
+pip3 install trepan3k autopep8 python-language-server pyls-mypy pyls-isort pyls-black jupyter mccabe pydocstyle pyflakes pylint rope yapf flake8-mypy ptvsd -i https://mirrors.aliyun.com/pypi/simple/
 ```
 - `BASH`
 auto-complete server:
