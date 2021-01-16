@@ -32,17 +32,15 @@
   :bind (:map lsp-mode-map
               ("<f5>" . dap-debug)
               ("S-<f5>" . dap-hydra))
-  :config
-  ;; Enabling only some features
-  (setq dap-auto-configure-features '(sessions locals controls tooltip))
+
   :hook ((after-init . dap-auto-configure-mode)
          (dap-stopped . (lambda (_args) (dap-hydra)))
-
+         ;; (dap-terminated . (lambda (_args) (message "...")))
          (python-mode . (lambda () (require 'dap-python)))
          (ruby-mode . (lambda () (require 'dap-ruby)))
          (go-mode . (lambda () (require 'dap-go)))
          (java-mode . (lambda () (require 'dap-java)))
-         ((c-mode c++-mode objc-mode swift-mode) . (lambda () (require 'dap-lldb)))
+         ((c-mode c++-mode objc-mode swift-mode rust-mode) . (lambda () (require 'dap-lldb)))
          (php-mode . (lambda () (require 'dap-php)))
          ((js-mode js2-mode) . (lambda () (require 'dap-chrome)))
          (powershell-mode . (lambda () (require 'dap-pwsh))))

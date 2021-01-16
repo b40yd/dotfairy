@@ -15,7 +15,8 @@ dotfairy is emacs.d
 - `Golang`
 auto-complete server:
 ```shell
-go get golang.org/x/tools/gopls@latest
+go get golang.org/x/tools/gopls
+go get github.com/go-delve/delve/cmd/dlv
 ```
 
 - `Python`
