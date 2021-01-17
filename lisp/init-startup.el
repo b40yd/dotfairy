@@ -192,7 +192,6 @@ whichever is found first. Must end in a slash.")
 ;; Base
 (require 'init-basic)
 (require 'init-hydra)
-(require 'init-iedit)
 (require 'init-ui)
 (require 'init-projectile)
 (require 'init-ibuffer)
@@ -231,5 +230,7 @@ whichever is found first. Must end in a slash.")
 (require 'init-asm)
 (require 'init-debugger)
 
+;; editor
+(require 'init-iedit)
 (provide 'init-startup)
 ;;; init-startup.el ends here
