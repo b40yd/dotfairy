@@ -185,6 +185,10 @@
 
 (use-package tree-sitter
   :if (executable-find "tree-sitter")
+  :straight (tree-sitter :type git
+                         :host github
+                         :repo "ubolonton/emacs-tree-sitter"
+                         :files ("lisp/*.el"))
   :hook (((rustic-mode
            python-mode
            go-mode
@@ -201,6 +205,10 @@
 
 (use-package tree-sitter-langs
   :if (executable-find "tree-sitter")
+  :straight (tree-sitter-langs :type git
+                               :host github
+                               :repo "ubolonton/emacs-tree-sitter"
+                               :files ("langs/*.el" "langs/queries"))
   :after tree-sitter)
 
 
