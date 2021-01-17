@@ -135,38 +135,41 @@ install-nodejs() {
 
 install-bash-server() {
     if type npm &> /dev/null;then
-        npm install -g bash-language-server
+        npm install -g bash-language-server --registry=https://registry.npm.taobao.org
     fi
 }
 
 install-typescript-server() {
     if type npm &> /dev/null;then
-        npm install -g typescript-language-server
+        npm install -g typescript-language-server --registry=https://registry.npm.taobao.org
     fi
 }
 
 install-json-server() {
     if type npm &> /dev/null;then
-        npm install -g vscode-json-languageserver
+        npm install -g vscode-json-languageserver --registry=https://registry.npm.taobao.org
     fi
 }
 
 install-css-server() {
     if type npm &> /dev/null;then
-        npm install -g vscode-css-languageserver-bin
+        npm install -g vscode-css-languageserver-bin --registry=https://registry.npm.taobao.org
     fi
 }
 
 install-html-server() {
     if type npm &> /dev/null;then
-        npm install -g vscode-html-languageserver-bin
+        npm install -g vscode-html-languageserver-bin --registry=https://registry.npm.taobao.org
     fi
 
 }
 
 install-python-server() {
     if type pip &> /dev/null;then
-        pip3 install autopep8 python-language-server pyls-mypy pyls-isort pylint pyflakes pyls-black -i https://mirrors.aliyun.com/pypi/simple/
+        pip3 install trepan3k autopep8 python-language-server pyls-mypy pyls-isort pyls-black jupyter mccabe pydocstyle pyflakes pylint rope yapf flake8-mypy ptvsd -i https://mirrors.aliyun.com/pypi/simple/
+        if type npm &> /dev/null;then
+            npm install -g pyright --registry=https://registry.npm.taobao.org
+        fi
     else
         info "please install pip tools." && exit 1
     fi
