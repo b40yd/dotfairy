@@ -57,6 +57,51 @@
         org-duration-format '((special . h:mm))
         org-directory dotfairy-org-dir ;; needs to be defined for `org-default-notes-file'
         org-default-notes-file (expand-file-name "notes.org" org-directory))
+  ;; settings for org-refile
+  (setq org-refile-use-outline-path 'file
+        org-outline-path-complete-in-steps nil)
+  (setq org-refile-allow-creating-parent-nodes 'confirm)
+  (setq org-refile-targets '(((concat dotfairy-org-dir "notes.org") :maxlevel . 3)
+                             ((concat dotfairy-org-dir "gtd.org") :maxlevel . 3)
+                             ((concat dotfairy-org-dir "projects.org") :maxlevel . 3)))
+
+  (defconst dotfairy-org-todo-file
+    (expand-file-name "notes.org" dotfairy-org-dir))
+  (defconst dotfairy-org-tickler-file
+    (expand-file-name "tickler.org" dotfairy-org-dir))
+  (defconst dotfairy-org-books-file
+    (expand-file-name "books.org" dotfairy-org-dir))
+  (defconst dotfairy-org-projects-file
+    (expand-file-name "projects.org" dotfairy-org-dir))
+  (defconst dotfairy-org-references-file
+    (expand-file-name "references.org" dotfairy-org-dir))
+  (defconst dotfairy-org-examples-file
+    (expand-file-name "examples.org" dotfairy-org-dir))
+  (defconst dotfairy-org-gtd-file
+    (expand-file-name "gtd.org" dotfairy-org-dir))
+  (setq org-agenda-files `(,dotfairy-org-todo-file
+                           ,dotfairy-org-gtd-file
+                           ,dotfairy-org-tickler-file
+                           ,dotfairy-org-projects-file))
+
+  (setq org-capture-templates '(("t" "Todo [inbox]" entry
+                                 (file+headline dotfairy-org-todo-file "Tasks")
+                                 (file "~/.emacs.d/private/org/todo.tmpl"))
+                                ("r" "Tickler" entry
+                                 (file+headline dotfairy-org-tickler-file "Tickler")
+                                 (file "~/.emacs.d/private/org/ticker.tmpl"))
+                                ("b" "Add a book to read list" entry
+                                 (file+headline dotfairy-org-books-file "Read list")
+                                 (file "~/.emacs.d/private/org/books.tmpl"))
+                                ("p" "Add a new project" entry
+                                 (file+headline dotfairy-org-projects-file "Projects")
+                                 (file "~/.emacs.d/private/org/projects.tmpl"))
+                                ("R" "Add a new reference" entry
+                                 (file+headline dotfairy-org-references-file "References")
+                                 (file "~/.emacs.d/private/org/references.tmpl"))
+                                ("e" "Add a new code example" entry
+                                 (file+headline dotfairy-org-examples-file "Examples")
+                                 (file "~/.emacs.d/private/org/examples.tmpl"))))
 
   (setq org-enforce-todo-checkbox-dependencies t
         org-enforce-todo-dependencies t
@@ -84,22 +129,7 @@
                                       "APPROVED(A@)" "EXPIRED(E@)" "REJECTED(R@)")
                             (sequence "OPEN(O)" "|" "CLOSED(C)")
                             (type "PERIODIC(P)"))
-        ;; org-todo-keyword-faces '(("TODO"      :foreground "red"          :weight bold)
-        ;;                          ("PERIODIC"  :foreground "magenta"      :weight bold)
-        ;;                          ("NEXT"      :foreground "blue"         :weight bold)
-        ;;                          ("DONE"      :foreground "forest green" :weight bold)
-        ;;                          ("WAITING"   :foreground "yellow"       :weight bold)
-        ;;                          ("HOLD"      :foreground "goldenrod"    :weight bold)
-        ;;                          ("CANCELLED" :foreground "orangered"    :weight bold)
-        ;;                          ("PHONE"     :foreground "forest green" :weight bold)
-        ;;                          ("MEETING"   :foreground "forest green" :weight bold)
-        ;;                          ("QUOTE"     :foreground "hotpink"      :weight bold)
-        ;;                          ("QUOTED"    :foreground "indianred1"   :weight bold)
-        ;;                          ("APPROVED"  :foreground "forest green" :weight bold)
-        ;;                          ("EXPIRED"   :foreground "olivedrab1"   :weight bold)
-        ;;                          ("REJECTED"  :foreground "olivedrab"    :weight bold)
-        ;;                          ("OPEN"      :foreground "magenta"      :weight bold)
-        ;;                          ("CLOSED"    :foreground "forest green" :weight bold))
+
         org-todo-state-tags-triggers '(("CANCELLED" ("CANCELLED" . t))
                                        ("WAITING" ("WAITING" . t))
                                        ("HOLD" ("WAITING" . t) ("HOLD" . t))
@@ -227,7 +257,7 @@
     (org-pomodoro-mode-line-overtime ((t (:inherit error))))
     (org-pomodoro-mode-line-break ((t (:inherit success))))
     :bind (:map org-agenda-mode-map
-                ("P" . org-pomodoro)))
+                ("C-c o P" . org-pomodoro)))
 
   ;; Presentation
   (use-package org-tree-slide
