@@ -221,6 +221,7 @@ init-config-dir() {
 }
 
 if [ `id -u` -eq 0 ];then
+    install_package watchexec
     install-all
     install-fonts
     init-config-dir $1
