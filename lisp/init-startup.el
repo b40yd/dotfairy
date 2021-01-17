@@ -198,6 +198,8 @@ whichever is found first. Must end in a slash.")
 (require 'init-ibuffer)
 (require 'init-windows)
 (require 'init-persp)
+(require 'init-calendar)
+
 ;;checking
 (require 'init-flycheck)
 

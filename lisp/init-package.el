@@ -24,36 +24,6 @@
 
 ;;; Code:
 
-;; this makes each use-package form also invoke straight.el to install the
-;; package, unless otherwise specified.
-(setq straight-use-package-by-default t)
-;; Use watchexec (if it is installed) and python3 to check for modifications for
-;; elisp packages
-(when (executable-find "watchexec")
-  (setq straight-check-for-modifications
-        `(watch-files find-when-checking)))
-
-;; setting emacs network proxy
-;; (setq url-proxy-services '(("https" . "127.0.0.1:7890")))
-
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-
-;; install use-package
-(straight-use-package 'use-package)
-;; enable imenu support for `use-package'
-(setq use-package-enable-imenu-support t)
-
 ;; Initialize packages
 (unless (bound-and-true-p package--initialized) ; To avoid warnings in 27
   (setq package-enable-at-startup nil)          ; To prevent initializing twice

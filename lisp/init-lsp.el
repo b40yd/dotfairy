@@ -146,8 +146,6 @@
      ("j" next-line "↓")
      ("k" previous-line "↑")
      ("l" forward-char "→")
-     ("C-a" mwim-beginning-of-code-or-line nil)
-     ("C-e" mwim-end-of-code-or-line nil)
      ("C-b" backward-char nil)
      ("C-n" next-line nil)
      ("C-p" previous-line nil)

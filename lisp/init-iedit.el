@@ -111,12 +111,6 @@
   :init
   (global-undo-tree-mode))
 
-;; Hideshow
-(use-package hideshow
-  :diminish hs-minor-mode
-  :bind (:map hs-minor-mode-map
-              ("C-`" . hs-toggle-hiding)))
-
 (use-package rainbow-mode
   :after rainbow-mode
   :bind (("C-c e E" . rainbow-mode-hydra/body))
@@ -137,30 +131,36 @@
 (use-package expand-region
   :bind ("C-=" . er/expand-region))
 
+(use-package selected
+  :bind (:map selected-keymap
+              ("w" . kill-region)
+              ("~" . hydra-change-case/body)
+              ("c" . copy-region-as-kill)
+              ("d" . duplicate-thing)
+              ("E" . eval-region)
+              ("e" . er/expand-region)
+              ("f" . fill-region)
+              ("/" . indent-region)
+              ("q" . vr/query-replace)
+              (";" . comment-or-uncomment-region)
+              ("s" . rag/kill-rectangle-replace-with-space)
+              ("l" . align-hydra/body)
+              ("t" . xah-title-case-region-or-line))
+  :init
+  (selected-global-mode))
+
 ;; Multiple cursors
 (use-package multiple-cursors
-  :bind (("C-c m l" . mc/edit-lines)
-         ("C->" . mc/mark-next-like-this)
-         ("C-<" . mc/mark-previous-like-this)
-         ("C-|" . mc/vertical-align-with-space)
-         ("C-x C-m" . mc/mark-all-dwim))
-
-  :bind (:map selected-keymap
-              ("a" . mc/mark-all-like-this)
-              ("p" . mc/mark-previous-like-this)
-              ("n" . mc/mark-next-like-this)
-              ("P" . mc/unmark-previous-like-this)
-              ("N" . mc/unmark-next-like-this)
-              ("[" . mc/cycle-backward)
-              ("]" . mc/cycle-forward)
-              ("m" . mc/mark-more-like-this-extended)
-              ("h" . mc-hide-unmatched-lines-mode)
-              ("\\" . mc/vertical-align-with-space)
-              ("#" . mc/insert-numbers) ; use num prefix to set the starting number
-              ("^" . mc/edit-beginnings-of-lines)
-              ("$" . mc/edit-ends-of-lines))
-  :init
-  (setq mc/list-file (locate-user-emacs-file "mc-lists")))
+  :bind (("C-S-c C-S-c"   . mc/edit-lines)
+         ("C->"           . mc/mark-next-like-this)
+         ("C-<"           . mc/mark-previous-like-this)
+         ("C-c C-<"       . mc/mark-all-like-this)
+         ("C-M->"         . mc/skip-to-next-like-this)
+         ("C-M-<"         . mc/skip-to-previous-like-this)
+         ("s-<mouse-1>"   . mc/add-cursor-on-click)
+         ("C-S-<mouse-1>" . mc/add-cursor-on-click)
+         :map mc/keymap
+         ("C-|" . mc/vertical-align-with-space)))
 
 ;; Smartly select region, rectangle, multi cursors
 (use-package smart-region
@@ -281,6 +281,16 @@
               ("C-a" . mwim-beginning-of-code-or-line-or-comment)
               ("C-e" . mwim-end-of-code-or-line)))
 
+;; Goto last change
+(use-package goto-chg
+  :bind ("C-," . goto-last-change))
+
+;; Record and jump to the last point in the buffer
+(use-package goto-last-point
+  :diminish
+  :bind ("C-M-," . goto-last-point)
+  :hook (after-init . goto-last-point-mode))
+
 ;; Jump to definition
 (use-package dumb-jump
   :pretty-hydra
@@ -306,178 +316,36 @@
   (setq dumb-jump-prefer-searcher 'rg
         dumb-jump-selector 'ivy))
 
+;; Hideshow
+(use-package hideshow
+  :diminish hs-minor-mode
+  :bind (:map hs-minor-mode-map
+              ("C-`" . hs-toggle-hiding)))
+
+;; Flexible text folding
 (use-package origami
-  :bind ("C-c h o" . hydra-origami/body)
-  :config
-  (defhydra hydra-origami (:color red
-                                  :hint nil)
-    "
-_t_: toggle    _r_: redo    _p_: prev        _c_: close all
-_u_: undo      _n_: next    _o_: open all    _q_: quit
-"
-    ("t" origami-recursively-toggle-node)
-    ("u" origami-undo)
-    ("r" origami-redo)
-    ("p" origami-previous-fold)
-    ("n" origami-next-fold)
-    ("o" origami-open-all-nodes)
-    ("c" origami-close-all-nodes)
-    ("q" nil "Quit" :color blue))
-
-  (global-origami-mode))
-
-;; lsp-origami provides support for origami.el using language server protocol’s
-;; textDocument/foldingRange functionality.
-;; https://github.com/emacs-lsp/lsp-origami/
-(use-package lsp-origami
-  :hook ((lsp-after-open . lsp-origami-mode)))
-
-;; smartparens: for movement, editing and inserting parenthesis
-;; https://github.com/Fuco1/smartparens
-(use-package smartparens
-  :config
-  (setq sp-ignore-modes-list (quote (minibuffer-inactive-mode
-                                     Info-mode
-                                     term-mode
-                                     org-mode
-                                     org-journal-mode
-                                     markdown-mode
-                                     ivy-occur-mode)))
-
-  ;; macro to wrap the current sexp at point
-  (defmacro def-pairs (pairs)
-    `(progn
-       ,@(cl-loop for (key . val) in pairs
-                  collect
-                  `(defun ,(read (concat
-                                  "wrap-with-"
-                                  (prin1-to-string key)
-                                  "s"))
-                       (&optional arg)
-                     (interactive "p")
-                     (sp-wrap-with-pair ,val)))))
-  (def-pairs ((paren . "(")
-              (bracket . "[")
-              (brace . "{")
-              (single-quote . "'")
-              (double-quote . "\"")
-              (back-quote . "`")))
-
-  (bind-keys
-   :map smartparens-mode-map
-   ("C-M-f" . sp-forward-sexp)
-   ("C-M-b" . sp-backward-sexp)
-   ("C-M-d" . sp-down-sexp)
-   ("C-M-a" . sp-backward-down-sexp)
-   ("C-S-d" . sp-beginning-of-sexp)
-   ("C-S-a" . sp-end-of-sexp)
-   ("C-M-e" . sp-up-sexp)
-   ("C-M-u" . sp-backward-up-sexp)
-   ("M-P" . sp-previous-sexp)
-   ("M-N" . sp-next-sexp)
-   ("C-M-k" . sp-kill-sexp)
-   ("C-M-w" . sp-copy-sexp)
-   ("M-<delete>" . sp-unwrap-sexp)
-   ("M-<backspace>" . sp-backward-unwrap-sexp)
-   ("C-<right>" . sp-forward-slurp-sexp)
-   ("C-<left>" . sp-forward-barf-sexp)
-   ("C-M-<left>" . sp-backward-slurp-sexp)
-   ("C-M-<right>" . sp-backward-barf-sexp)
-   ("M-D" . sp-splice-sexp)
-   ("C-M-<delete>" . sp-splice-sexp-killing-forward)
-   ("C-M-<backspace>" . sp-splice-sexp-killing-backward)
-   ("C-S-<backspace>" . sp-splice-sexp-killing-around)
-   ("C-]" . sp-select-next-thing-exchange)
-   ("C-M-]" . sp-select-next-thing)
-   ("C-M-SPC" . sp-mark-sexp)
-   ("M-F" . sp-forward-symbol)
-   ("M-B" . sp-backward-symbol)
-
-   ("C-c R" . sp-rewrap-sexp)
-   ("M-[" . sp-backward-unwrap-sexp)
-   ("M-]" . sp-unwrap-sexp)
-
-   ("C-c s j" . sp-join-sexp)
-   ("C-c s s" . sp-split-sexp)
-
-   ("C-c )" . wrap-with-parens)
-   ("C-c ]" . wrap-with-brackets)
-   ("C-c }" . wrap-with-braces)
-   ("C-c '" . wrap-with-single-quotes)
-   ("C-c \"" . wrap-with-double-quotes)
-   ("C-c `" . wrap-with-back-quotes))
-
-  ;; enable smartparens globally
-  (smartparens-global-mode)
-  (smartparens-global-strict-mode) ; only allows you to insert or delete
-                                        ; brackets in pairs
-  (show-smartparens-global-mode +1)
-
-  (require 'smartparens-config)
-
-  ;; indent with braces for C like languages
-  (sp-with-modes '(rustic-mode
-                   js2-mode
-                   css-mode
-                   web-mode
-                   typescript-mode
-                   c-mode
-                   c++-mode
-                   sh-mode
-                   go-mode
-                   shell-mode)
-                 (sp-local-pair "{" nil :post-handlers '(("||\n[i]" "RET")))
-                 (sp-local-pair "/*" "*/" :post-handlers '((" | " "SPC")
-                                                           ("* ||\n[i]" "RET"))))
-
-  (bind-key "C-c h s"
-            (defhydra smartparens-hydra (:hint nil)
-              "
-_d_: down           _a_: back-down        _f_: -> sexp    _k_: hyb-kill      _c_-_a_: begin
-_e_: up             _u_: back-up          _b_: <- sexp    _K_: kill          _c_-_e_: end
-_[_: back-unwrap    _]_: unwrap           _r_: rewrap     _m_: mark            _j_: join
-_p_: prev           _n_: next             _c_: copy       _s_: mark-thing      _|_: split
-_t_: transpose      _T_: hyb-transpose    _q_: quit
-"
-
-              ("d" sp-down-sexp)
-              ("e" sp-up-sexp)
-              ("u" sp-backward-up-sexp)
-              ("a" sp-backward-down-sexp)
-              ("f" sp-forward-sexp)
-              ("b" sp-backward-sexp)
-              ("k" sp-kill-hybrid-sexp)
-              ("t" sp-transpose-sexp)
-              ("T" sp-transpose-hybrid-sexp)
-              ("K" sp-kill-sexp)
-              ("[" sp-backward-unwrap-sexp)
-              ("]" sp-unwrap-sexp)
-              ("r" sp-rewrap-sexp)
-              ("p" sp-previous-sexp)
-              ("n" sp-next-sexp)
-              ("j" sp-join-sexp)
-              ("|" sp-split-sexp)
-              ("c" sp-copy-sexp)
-              ("s" sp-select-next-thing :color blue)
-              ("m" sp-mark-sexp :color blue)
-              ("q" nil :color blue))
-            smartparens-mode-map)
-
-  (setq sp-show-pair-from-inside t)
-  ;; show matching paren instantly
-  (setq sp-show-pair-delay 0.1)
-
-  ;; no more pair mismatch messages
-  (setq sp-message-width nil)
-
-  (defun sp-strict-kill-line-or-region (&optional arg)
-    "Kill active region or current line."
-    (interactive "p")
-    (if (use-region-p)
-        (sp-kill-region (region-beginning) (region-end))
-      (sp-kill-whole-line)))
-
-  (bind-key* "C-w" #'sp-strict-kill-line-or-region smartparens-mode-map))
+  :pretty-hydra
+  ((:title (pretty-hydra-title "Origami" 'octicon "fold" :height 1.1 :v-adjust -0.05)
+           :color amaranth :quit-key "q")
+   ("Node"
+    ((":" origami-recursively-toggle-node "toggle recursively")
+     ("a" origami-toggle-all-nodes "toggle all")
+     ("t" origami-toggle-node "toggle current")
+     ("o" origami-show-only-node "only show current"))
+    "Actions"
+    (("u" origami-undo "undo")
+     ("d" origami-redo "redo")
+     ("r" origami-reset "reset"))))
+  :bind (:map origami-mode-map
+              ("C-`" . origami-hydra/body))
+  :hook (prog-mode . origami-mode)
+  :init (setq origami-show-fold-header t)
+  :config (face-spec-reset-face 'origami-fold-header-face)
+  ;; lsp-origami provides support for origami.el using language server protocol’s
+  ;; textDocument/foldingRange functionality.
+  ;; https://github.com/emacs-lsp/lsp-origami/
+  (use-package lsp-origami
+    :hook ((lsp-after-open . lsp-origami-try-enable))))
 
 (provide 'init-iedit)
 ;;; init-iedit.el ends here

@@ -45,6 +45,9 @@ If Non-nil, save and restore the frame's geometry."
                          ("gnu" . "http://mirrors.cloud.tencent.com/elpa/gnu/")
                          ("org" . "http://mirrors.cloud.tencent.com/elpa/org/")))
 
+;; setting emacs network proxy
+;; (setq url-proxy-services '(("https" . "127.0.0.1:7890")))
+
 ;; confirm exit emacs
 (setq confirm-kill-emacs 'y-or-n-p)
 
