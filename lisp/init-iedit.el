@@ -167,34 +167,40 @@
 
 (use-package selected
   :bind (:map selected-keymap
-              ("w" . kill-region)
-              ("~" . hydra-change-case/body)
               ("c" . copy-region-as-kill)
-              ("d" . duplicate-thing)
-              ("E" . eval-region)
               ("e" . er/expand-region)
-              ("f" . fill-region)
+              ("l" . downcase-region)
+              ("u" . upcase-region)
+              ("w" . kill-region)
+              ("W" . count-words-region)
+              ("m" . apply-macro-to-region-lines)
               ("/" . indent-region)
-              ("q" . vr/query-replace)
-              (";" . comment-or-uncomment-region)
-              ("s" . rag/kill-rectangle-replace-with-space)
-              ("l" . align-hydra/body)
-              ("t" . xah-title-case-region-or-line))
+              (";" . comment-or-uncomment-region))
   :init
   (selected-global-mode))
 
 ;; Multiple cursors
 (use-package multiple-cursors
-  :bind (("C-S-c C-S-c"   . mc/edit-lines)
-         ("C->"           . mc/mark-next-like-this)
-         ("C-<"           . mc/mark-previous-like-this)
-         ("C-c C-<"       . mc/mark-all-like-this)
-         ("C-M->"         . mc/skip-to-next-like-this)
-         ("C-M-<"         . mc/skip-to-previous-like-this)
-         ("s-<mouse-1>"   . mc/add-cursor-on-click)
-         ("C-S-<mouse-1>" . mc/add-cursor-on-click)
-         :map mc/keymap
-         ("C-|" . mc/vertical-align-with-space)))
+  :bind (("C-c m l" . mc/edit-lines)
+         ("C->" . mc/mark-next-like-this)
+         ("C-<" . mc/mark-previous-like-this)
+         ("C-c C-|" . mc/vertical-align-with-space)
+         ("C-x C-m" . mc/mark-all-dwim))
+
+  :bind (:map selected-keymap
+              ("a" . mc/mark-all-like-this)
+              ("p" . mc/mark-previous-like-this)
+              ("n" . mc/mark-next-like-this)
+              ("P" . mc/unmark-previous-like-this)
+              ("N" . mc/unmark-next-like-this)
+              ("m" . mc/mark-more-like-this-extended)
+              ("h" . mc-hide-unmatched-lines-mode)
+              ("\\" . mc/vertical-align-with-space)
+              ("#" . mc/insert-numbers) ; use num prefix to set the starting number
+              ("^" . mc/edit-beginnings-of-lines)
+              ("$" . mc/edit-ends-of-lines))
+  :init
+  (setq mc/list-file (locate-user-emacs-file "mc-lists")))
 
 ;; Smartly select region, rectangle, multi cursors
 (use-package smart-region
