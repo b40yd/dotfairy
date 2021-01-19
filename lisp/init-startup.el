@@ -169,10 +169,12 @@ whichever is found first. Must end in a slash.")
 
 ;; Basic modes
 (recentf-mode 1)
-
+(setq-default savehist-additional-variables
+              '(kill-ring))
 (ignore-errors (savehist-mode 1))
 (save-place-mode 1)
 (show-paren-mode 1)
+(setq kill-whole-line t) ; delete line break
 (delete-selection-mode 1)
 (global-auto-revert-mode 1)
 

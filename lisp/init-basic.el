@@ -37,9 +37,9 @@
 ;; Don't autosave files or create lock/history/backup files. We don't want
 ;; copies of potentially sensitive material floating around or polluting our
 ;; filesystem. We rely on git and our own good fortune instead. Fingers crossed!
-(setq auto-save-default nil
+(setq auto-save-default t
       create-lockfiles nil
-      make-backup-files nil
+      make-backup-files t
       ;; But have a place to store them in case we do use them...
       ;; auto-save-list-file-name (concat doom-cache-dir "autosave")
       auto-save-list-file-prefix (concat dotfairy-cache-dir "autosave/")
@@ -86,7 +86,11 @@
 
 ;; Cull duplicates in the kill ring to reduce bloat and make the kill ring
 ;; easier to peruse (with `counsel-yank-pop' or `helm-show-kill-ring'.
+(setq kill-ring-max 1024)
 (setq kill-do-not-save-duplicates t)
+
+;; undo limit
+(setq undo-outer-limit 5000000)
 
 ;; Allow UTF or composed text from the clipboard, even in the terminal or on
 ;; non-X systems (like Windows or macOS), where only `STRING' is used.
