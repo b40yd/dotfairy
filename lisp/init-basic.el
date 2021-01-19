@@ -143,8 +143,6 @@
 (setq visible-bell t
       inhibit-compacting-font-caches t  ; Don’t compact font caches during GC.
       delete-by-moving-to-trash t       ; Deleting files go to OS's trash folder
-      make-backup-files nil             ; Forbide to make backup files
-      auto-save-default nil             ; Disable auto save
 
       uniquify-buffer-name-style 'post-forward-angle-brackets ; Show path if names are same
       adaptive-fill-regexp "[ t]+|[ t]*([0-9]+.|*+)[ t]*"
