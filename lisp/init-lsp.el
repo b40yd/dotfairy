@@ -24,7 +24,7 @@
 
 ;;; Code:
 
-(defcustom dotfairy-lsp-format-on-save-ignore-modes '(c-mode c++-mode)
+(defcustom dotfairy-lsp-format-on-save-ignore-modes '(c-mode c++-mode python-mode)
   "The modes that don't auto format and organize imports while saving the buffers.
 `prog-mode' means ignoring all derived modes.
 "

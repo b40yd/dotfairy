@@ -24,11 +24,15 @@
 
 ;;; Code:
 
+
 (use-package python
   :ensure t
   :hook ((inferior-python-mode . (lambda ()
                                    (process-query-on-exit-flag
-                                    (get-process "Python")))))
+                                    (get-process "Python"))))
+         (after-save . (lambda ()
+                         (when (and (executable-find "black") buffer-file-name)
+                           (call-process "black" nil nil nil buffer-file-name)))))
   :init
   (setq python-indent-offset 4)
   :config
@@ -50,9 +54,6 @@
     :config
     (add-hook 'before-save-hook #'py-isort-before-save))
 
-  (use-package pyimport
-    :bind (("C-c e i" . pyimport-insert-missing)
-           ("C-c e r" . pyimport-remove-unused)))
   (use-package python-pytest
     :ensure t
     :bind (("C-c t f" . python-pytest-file-dwim)
@@ -61,19 +62,6 @@
            ("C-c t T" . python-pytest-function)
            ("C-c t r" . python-pytest-repeat)
            ("C-c t p" . python-pytest-popup)))
-  ;; Python: pyright
-  (use-package lsp-pyright
-    :preface
-    ;; Use yapf to format
-    (defun lsp-pyright-format-buffer ()
-      (interactive)
-      (when (and (executable-find "yapf") buffer-file-name)
-        (call-process "yapf" nil nil nil "-i" buffer-file-name)))
-    :hook (python-mode . (lambda ()
-                           (require 'lsp-pyright)
-                           (add-hook 'after-save-hook #'lsp-pyright-format-buffer t t)))
-    :init (when (executable-find "python3")
-            (setq lsp-pyright-python-executable-cmd "python3")))
   )
 
 (provide 'init-python)

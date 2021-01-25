@@ -33,17 +33,12 @@
 ;;         '((standalone . t)
 ;;           (mathjax . t))))
 
-(use-package ox-hugo
-  :ensure t            ;Auto-install the package from Melpa (optional)
-  :after ox)
-(with-eval-after-load 'ox
-  (require 'ox-hugo))
-(use-package ox-reveal)
-(with-eval-after-load 'ox
-  (require 'ox-reveal))
-
 (use-package org
   :init (setq org-startup-indented t)
+  :bind
+  (("C-c o a" . org-agenda)
+   ("C-c a" . org-agenda)
+   ("C-c o c" . org-capture))
   :config
   (setq org-startup-indented t
         org-journal-file-format "%Y-%m-%d"
@@ -106,7 +101,7 @@
   (setq org-enforce-todo-checkbox-dependencies t
         org-enforce-todo-dependencies t
         org-hide-leading-stars t
-        org-log-done t
+        org-log-done 'time
         org-log-reschedule 'note
         org-log-redeadline 'note
         org-log-into-drawer "LOGBOOK"
@@ -122,91 +117,13 @@
         org-odd-levels-only t
         org-list-allow-alphabetical t
         ;; TODO sequences
-        org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!/!)")
-                            (sequence "WAITING(w@/!)" "|" "HOLD(h@/!)"
-                                      "CANCELLED(c@/!)" "PHONE" "MEETING")
-                            (sequence "QUOTE(q!)" "QUOTED(Q!)" "|"
-                                      "APPROVED(A@)" "EXPIRED(E@)" "REJECTED(R@)")
-                            (sequence "OPEN(O)" "|" "CLOSED(C)")
-                            (type "PERIODIC(P)"))
-
-        org-todo-state-tags-triggers '(("CANCELLED" ("CANCELLED" . t))
-                                       ("WAITING" ("WAITING" . t))
-                                       ("HOLD" ("WAITING" . t) ("HOLD" . t))
-                                       (done ("WAITING") ("HOLD"))
-                                       ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
-                                       ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
-                                       ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))
-        org-treat-S-cursor-todo-selection-as-state-change nil
+        org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "CANCELLED(c@/!)" "WAITING(W@/!)" "DONE(d)"))
         ;; Targets include this file and any file contributing to the agenda -
         ;; up to 5 levels deep
         org-refile-targets '((org-agenda-files :maxlevel . 5)
                              (nil :maxlevel . 5))
-        ;; Targets start with the file name - allows creating level 1 tasks
-        ;; !!!!!!!!!!!!!!!!!!! REMOVED. It doesn't work well with ivy/org
-        ;;;;; org-refile-use-outline-path 'file
-        ;; Targets complete in steps so we start with filename, TAB shows the
-        ;; next level of targets etc
-        ;; !!!!!!!!!!!!!!!!!!! REMOVED. It breaks ivy/org
-        ;;;;; org-outline-path-complete-in-steps t
-        ;; Allow refile to create parent tasks with confirmation
-        org-refile-allow-creating-parent-nodes 'confirm
-        ;; Column view and estimates
-        org-columns-default-format "%80ITEM(Task) %7TODO(To Do) %10Effort(Estim){:} %10CLOCKSUM{Total}"
-        org-global-properties '(("Effort_ALL" . "0:0 0:10 0:30 1:00 2:00 3:00 4:00 8:00"))
-        org-time-clocksum-format '(:hours "%d" :require-hours t :minutes ":%0d" :require-minutes t)
-        ;; Mark a task as DONE when archiving
-        org-archive-mark-done nil
-        org-src-fontify-natively t
-        org-time-clocksum-use-effort-durations t)
+        )
 
-  (setq org-agenda-block-separator (string-to-char " "))
-  (setq org-agenda-custom-commands
-        '(("a" "My Agenda"
-           ((todo "TODO" (
-                          (org-agenda-overriding-header "☆ TODAY:\n")
-                          (org-agenda-remove-tags t)
-                          (org-agenda-prefix-format "  %-2i  %b")
-                          (org-agenda-todo-keyword-format "")))
-            (agenda "" (
-                        (org-agenda-skip-scheduled-if-done t)
-                        (org-agenda-skip-timestamp-if-done t)
-                        (org-agenda-skip-deadline-if-done t)
-                        (org-agenda-start-day "+0d")
-                        (org-agenda-span 5)
-                        (org-agenda-overriding-header "㊠ SCHEDULE:\n")
-                        (org-agenda-repeating-timestamp-show-all nil)
-                        (org-agenda-remove-tags t)
-                        (org-agenda-prefix-format "  %-12:c%?-12t% s")
-                        ;; (concat "  %-3i  %-15b %t%s" org-agenda-hidden-separator))
-                        ;; (org-agenda-todo-keyword-format "")
-                        (org-agenda-time)
-                        (org-agenda-current-time-string "☟ ┈┈┈┈┈┈┈ now")
-                        (org-agenda-scheduled-leaders '("" ""))
-                        (org-agenda-deadline-leaders '("" ""))
-                        (org-agenda-time-grid (quote ((today require-timed remove-match) (0900 2100) "      " "┈┈┈┈┈┈┈┈┈┈┈┈┈")))))
-
-            (todo "NEXT" (
-                          (org-agenda-overriding-header "🌟 THIS WEEK:\n")
-                          (org-agenda-remove-tags t)
-                          (org-agenda-prefix-format "  %-2i  %b")
-                          (org-agenda-todo-keyword-format "")))
-            ))))
-
-  (setq org-list-demote-modify-bullet
-        (quote (("+" . "⮙")
-                ("-" . "⮚")
-                ("*" . "🞿")
-                ("1." . "⯁")
-                ("1)" . "⯀")
-                ("A)" . "⬥")
-                ("B)" . "⬦")
-                ("a)" . "⬧")
-                ("b)" . "⬨")
-                ("A." . "⬝")
-                ("B." . "⬞")
-                ("a." . "⬖")
-                ("b." . "⬗"))))
 
   (setq-default prettify-symbols-alist '(("#+BEGIN_SRC" . "｛")
                                          ("#+END_SRC" . "｝")
@@ -218,30 +135,6 @@
                                          ("#+end_comment" . "｝")
                                          (">=" . "≥")
                                          ("=>" . "⇨")))
-  (setq prettify-symbols-unprettify-at-point 'right-edge)
-  (add-hook 'org-mode-hook 'prettify-symbols-mode)
-
-  (font-lock-add-keywords 'org-mode
-                          '(("^ *\([+]\) "
-                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-  (font-lock-add-keywords 'org-mode
-                          '(("^ *\([-]\) "
-                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "◦"))))))
-  ;; Prettify UI
-  (use-package org-bullets
-    :hook (org-mode . org-bullets-mode)
-    :init
-    ;;  𝋠 𝋡 𝋢 𝋣 𝋤 𝋥 𝋦 𝋧 𝋨 𝋩 𝋪 𝋫 𝋬 𝋭 𝋮 𝋯 𝋰 𝋱 𝋲
-    ;;
-    ;; "🐀" "🐁" "🐂" "🐃" "🐄" "🐅" "🐆" "🐇" "🐈" "🐉" "🐊" "🐋" "🐌" "🐍" "🐎" "🐏" "🐐" "🐑" "🐒" "🐓" "🐔" "🐕" "🐖" "🐗" "🐘" "🐙" "🐚" "🐛" "🐜" "🐝" "🐞" "🐟" "🐠" "🐡" "🐢" "🐣" "🐤" "🐥" "🐦" "🐧" "🐨" "🐩" "🐪" "🐫" "🐬" "🐭" "🐮" "🐯" "🐰" "🐱" "🐲" "🐳" "🐴" "🐵" "🐶" "🐷" "🐸" "🐹" "🐺" "🐻" "🐼"
-    (setq org-bullets-bullet-list '("🐀" "🐁" "🐂" "🐃" "🐄" "🐅" "🐆" "🐇" "🐈" "🐉" "🐊" "🐋"
-                                    "🐌" "🐍" "🐎" "🐏" "🐐" "🐑" "🐒" "🐓" "🐔" "🐕" "🐖" "🐗"
-                                    "🐘" "🐙" "🐚" "🐛" "🐜" "🐝" "🐞" "🐟" "🐠" "🐡" "🐢" "🐣"
-                                    "🐤" "🐥" "🐦" "🐧" "🐨" "🐩" "🐪" "🐫" "🐬" "🐭" "🐮" "🐯"
-                                    "🐰" "🐱" "🐲" "🐳" "🐴" "🐵" "🐶" "🐷" "🐸" "🐹" "🐺" "🐻"
-                                    "🐼" "𝍖" "🩠" "🩡" "🩢" "🩣" "🩤" "🩥" "🩦"))
-    (setq org-agenda-breadcrumbs-separator " ❯ "
-          org-ellipsis (if (char-displayable-p ?⤵) " ⤵ " nil)))
 
   (use-package org-fancy-priorities
     :diminish
@@ -250,6 +143,87 @@
                 (if (char-displayable-p ?🟈)
                     '("🟔" "🟑" "🟍" "✯" "🟈") ;;"🟔" "🟑" "🟍" "✯" "🟈"
                   '("HIGH" "MEDIUM" "LOW" "WARN" "OPTIONAL"))))
+
+  (use-package org-superstar
+    :hook (org-mode . org-superstar-mode)
+    :init
+    (setq org-superstar-prettify-item-bullets t
+          org-superstar-headline-bullets-list'("🐀" "🐁" "🐂" "🐃" "🐄" "🐅" "🐆" "🐇" "🐈" "🐉" "🐊" "🐋"
+                                               "🐌" "🐍" "🐎" "🐏" "🐐" "🐑" "🐒" "🐓" "🐔" "🐕" "🐖" "🐗"
+                                               "🐘" "🐙" "🐚" "🐛" "🐜" "🐝" "🐞" "🐟" "🐠" "🐡" "🐢" "🐣"
+                                               "🐤" "🐥" "🐦" "🐧" "🐨" "🐩" "🐪" "🐫" "🐬" "🐭" "🐮" "🐯"
+                                               "🐰" "🐱" "🐲" "🐳" "🐴" "🐵" "🐶" "🐷" "🐸" "🐹" "🐺" "🐻"
+                                               "🐼" "𝍖" "🩠" "🩡" "🩢" "🩣" "🩤" "🩥" "🩦")
+          org-superstar-leading-bullet ?\s
+          org-hide-leading-stars t)
+    (setq org-superstar-item-bullet-alist
+          '((?* . ?🞿)
+            (?+ . ?⮚)
+            (?- . ?•)
+            ))
+    ;; Enable custom bullets for TODO items
+    (setq org-superstar-special-todo-items t)
+    (setq org-superstar-todo-bullet-alist
+          '(("TODO" "⚐")
+            ("NEXT" "⚛")
+            ("HOLD" "✰")
+            ("WAITING" "☕")
+            ("CANCELLED" "✘")
+            ("DONE" "✔")))
+
+    )
+
+  (use-package org-super-agenda
+    :init
+    (org-super-agenda-mode)
+    :config
+    (setq org-agenda-custom-commands
+          '(("z" "Next View"
+             ((agenda "" ((org-agenda-span 'day)
+                          (org-super-agenda-groups
+                           '((:name "Today"
+                                    :time-grid t
+                                    :todo "TODAY"
+                                    :date today
+                                    :scheduled today
+                                    :order 0)
+                             (:habit t)
+                             (:name "Due Today"
+                                    :deadline today
+                                    :order 2)
+                             (:name "Due Soon"
+                                    :deadline future
+                                    :order 8)
+                             (:name "Overdue"
+                                    :deadline past
+                                    :order 7)
+                             ))))
+              (alltodo "" ((org-agenda-overriding-header "")
+                           (org-super-agenda-groups
+                            '((:name "Passed Deadline"
+                                     :and (:deadline past :todo ("TODO" "WAITING" "HOLD" "NEXT"))
+                                     :face (:background "#7f1b19"))
+                              (:name "Important"
+                                     :priority "A")
+                              (:priority<= "B"
+                                           ;; Show this section after "Today" and "Important", because
+                                           ;; their order is unspecified, defaulting to 0. Sections
+                                           ;; are displayed lowest-number-first.
+                                           :order 1)
+                              (:name "Waiting"
+                                     :todo "WAITING"
+                                     :order 9)
+                              (:name "On hold"
+                                     :todo "HOLD"
+                                     :order 10)
+                              (:name "On Working"
+                                     :todo "NEXT"
+                                     :order 9)
+                              ))))
+              ))))
+    (setq org-agenda-breadcrumbs-separator " ❯ ")
+    )
+
   ;; Pomodoro
   (use-package org-pomodoro
     :custom-face
@@ -356,12 +330,10 @@
     :config
     (setq org-journal-dir (concat dotfairy-local-dir "journal/")
           org-journal-date-format "%A, %d %B %Y"))
-
-  :bind
-  (("C-c o a" . org-agenda)
-   ("C-c a" . org-agenda)
-   ("C-c o c" . org-capture)))
-
+  (use-package ox-hugo
+    :ensure t            ;Auto-install the package from Melpa (optional)
+    :after ox)
+  )
 
 (provide 'init-org)
 ;;; init-org.el ends here

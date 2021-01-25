@@ -58,7 +58,7 @@
 
 ;; Automatically reload files was modified by external program
 (use-package autorevert
-  :ensure nil
+  :ensure t
   :diminish
   :hook (after-init . global-auto-revert-mode))
 

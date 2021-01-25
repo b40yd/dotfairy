@@ -22,7 +22,7 @@ go get github.com/go-delve/delve/cmd/dlv
 - `Python`
 auto-complete server:
 ```shell
-pip3 install trepan3k autopep8 python-language-server pyls-mypy pyls-isort pyls-black jupyter mccabe pydocstyle pyflakes pylint rope yapf flake8-mypy ptvsd -i https://mirrors.aliyun.com/pypi/simple/
+pip3 install trepan3k autopep8 python-language-server pyls-mypy pyls-isort pyls-black jupyter mccabe pydocstyle pyflakes pylint rope flake8-mypy ptvsd -i https://mirrors.aliyun.com/pypi/simple/
 ```
 - `BASH`
 auto-complete server:

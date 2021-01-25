@@ -171,7 +171,7 @@ whichever is found first. Must end in a slash.")
 (recentf-mode 1)
 (setq-default savehist-additional-variables
               '(kill-ring))
-(ignore-errors (savehist-mode 1))
+(ignore-errors (savehist-mode 0))
 (save-place-mode 1)
 (show-paren-mode 1)
 (setq kill-whole-line t) ; delete line break

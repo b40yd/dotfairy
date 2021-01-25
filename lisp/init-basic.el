@@ -37,9 +37,9 @@
 ;; Don't autosave files or create lock/history/backup files. We don't want
 ;; copies of potentially sensitive material floating around or polluting our
 ;; filesystem. We rely on git and our own good fortune instead. Fingers crossed!
-(setq auto-save-default t
+(setq auto-save-default nil
       create-lockfiles nil
-      make-backup-files t
+      make-backup-files nil
       ;; But have a place to store them in case we do use them...
       ;; auto-save-list-file-name (concat doom-cache-dir "autosave")
       auto-save-list-file-prefix (concat dotfairy-cache-dir "autosave/")
@@ -126,12 +126,12 @@
 
 ;; Mouse & Smooth Scroll
 ;; Scroll one line at a time (less "jumpy" than defaults)
-(when (display-graphic-p)
-  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))
-        mouse-wheel-progressive-speed nil))
-(setq scroll-step 1
-      scroll-margin 0
-      scroll-conservatively 100000)
+;; (when (display-graphic-p)
+;;   (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))
+;;         mouse-wheel-progressive-speed nil))
+;; (setq scroll-step 1
+;;       scroll-margin 0
+;;       scroll-conservatively 100000)
 
 ;; Misc
 (fset 'yes-or-no-p 'y-or-n-p)

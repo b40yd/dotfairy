@@ -166,7 +166,7 @@ install-html-server() {
 
 install-python-server() {
     if type pip &> /dev/null;then
-        pip3 install trepan3k autopep8 python-language-server pyls-mypy pyls-isort pyls-black jupyter mccabe pydocstyle pyflakes pylint rope yapf flake8-mypy ptvsd -i https://mirrors.aliyun.com/pypi/simple/
+        pip3 install trepan3k autopep8 python-language-server pyls-mypy pyls-isort pyls-black jupyter mccabe pydocstyle pyflakes pylint rope flake8-mypy ptvsd -i https://mirrors.aliyun.com/pypi/simple/
         if type npm &> /dev/null;then
             npm install -g pyright --registry=https://registry.npm.taobao.org
         fi
