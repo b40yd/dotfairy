@@ -117,7 +117,7 @@
         org-odd-levels-only t
         org-list-allow-alphabetical t
         ;; TODO sequences
-        org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "CANCELLED(c@/!)" "WAITING(W@/!)" "DONE(d)"))
+        org-todo-keywords '((sequence "TODO(t)" "SOMEDAY(s)" "NEXT(n)" "HOLD(h)" "CANCELLED(c@/!)" "WAITING(W@/!)" "DONE(d)"))
         ;; Targets include this file and any file contributing to the agenda -
         ;; up to 5 levels deep
         org-refile-targets '((org-agenda-files :maxlevel . 5)
@@ -166,6 +166,7 @@
     (setq org-superstar-todo-bullet-alist
           '(("TODO" "⚐")
             ("NEXT" "⚛")
+            ("SOMEDAY" "🌅")
             ("HOLD" "✰")
             ("WAITING" "☕")
             ("CANCELLED" "✘")
@@ -219,6 +220,9 @@
                               (:name "On Working"
                                      :todo "NEXT"
                                      :order 9)
+                              (:name "To Read"
+                                     :tag ("Read" "Book" "Books")
+                                     :todo "SOMEDAY")
                               ))))
               ))))
     (setq org-agenda-breadcrumbs-separator " ❯ ")
