@@ -117,7 +117,9 @@ fi
 
 install-gopls() {
     if type go &> /dev/null;then
-        go get golang.org/x/tools/gopls@latest
+        go get golang.org/x/tools/gopls
+        go install github.com/go-delve/delve/cmd/dlv
+        go get github.com/fatih/gomodifytags
     else
         install_package golang
         [ $? -ne 0 ] && crit "please install golang env." && exit 1
@@ -125,9 +127,7 @@ install-gopls() {
 }
 
 install-nodejs() {
-    if type go &> /dev/null;then
-        go get golang.org/x/tools/gopls@latest
-    else
+    if type nodejs &> /dev/null;then
         install_package nodejs
         [ $? -ne 0 ] && crit "please install nodejs env." && exit 1
     fi

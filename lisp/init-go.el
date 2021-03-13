@@ -43,9 +43,7 @@
   (use-package go-eldoc
     :ensure t
     :hook (go-mode . go-eldoc-setup))
-  (use-package go-guru
-    :ensure t
-    :hook (go-mode . go-guru-hl-identifier-mode))
+
   (use-package go-rename
     :ensure t)
   ;; go-fill-struct
@@ -55,10 +53,12 @@
   (use-package go-tag)
   (use-package gotest
     :bind (:map go-mode-map
-           ("C-c t a" . go-test-current-project)
-           ("C-c t m" . go-test-current-file)
-           ("C-c t ." . go-test-current-test)
-           ("C-c t x" . go-run))))
+                ("C-c t a" . go-test-current-project)
+                ("C-c t b" . 'go-test-current-benchmark)
+                ("C-c t m" . go-test-current-file)
+                ("C-c t x" . go-run)
+                ("C-c t ." . go-test-current-test)
+                )))
 
 
 (provide 'init-go)
