@@ -83,7 +83,14 @@ decrease this. If you experience stuttering, increase this.")
 
 (setq user-emacs-directory (file-name-directory load-file-name))
 
-(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+;; (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+(defun custom-config-load-path (&rest _)
+  (dolist (dir '("lisp"))
+    (push (expand-file-name dir user-emacs-directory) load-path)))
+
+(advice-add #'package-initialize :after #'custom-config-load-path)
+(custom-config-load-path)
+
 ;; Load the heart of dotfairy
 (require 'init-startup)
 

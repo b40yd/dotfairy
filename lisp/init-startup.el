@@ -63,7 +63,7 @@ These files should not be shared across systems. By default, it is used by
 
 (if (not (file-directory-p dotfairy-org-dir))
     (make-directory dotfairy-org-dir))
-(if (not (file-directory-p dotfairy-org-dir))
+(if (not (file-directory-p (concat dotfairy-org-dir "roam/")))
     (make-directory (concat dotfairy-org-dir "roam/")))
 
 (defconst dotfairy-etc-dir (concat dotfairy-local-dir "etc/")

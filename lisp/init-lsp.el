@@ -24,14 +24,8 @@
 
 ;;; Code:
 
-(defcustom dotfairy-lsp-format-on-save-ignore-modes '(c-mode c++-mode python-mode go-mode)
-  "The modes that don't auto format and organize imports while saving the buffers.
-`prog-mode' means ignoring all derived modes.
-"
-  :group 'dotfairy
-  :type '(repeat (symbol :tag "Major-Mode")))
-
 (use-package lsp-mode
+  :ensure t
   :defines (lsp-clients-python-library-directories
             lsp-rust-server)
   :hook ((prog-mode . (lambda ()
@@ -104,6 +98,7 @@
 
 ;;; Optionally: lsp-ui, company-lsp
 (use-package lsp-ui
+  :ensure t
   :custom-face
   (lsp-ui-sideline-code-action ((t (:inherit warning))))
   :pretty-hydra
@@ -187,12 +182,14 @@
 ;; Ivy integration
 (use-package lsp-ivy
   :after lsp-mode
+  :ensure t
   :bind (:map lsp-mode-map
               ([remap xref-find-apropos] . lsp-ivy-workspace-symbol)
               ("C-s-." . lsp-ivy-global-workspace-symbol)))
 
 (use-package lsp-treemacs :commands lsp-treemacs-errors-list
   :after lsp-mode
+  :ensure t
   :bind (:map lsp-mode-map
               ("C-<f8>" . lsp-treemacs-errors-list)
               ("M-<f8>" . lsp-treemacs-symbols)

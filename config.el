@@ -74,5 +74,13 @@ If Non-nil, save and restore the frame's geometry."
               :size 10.5)))
 
 (setq auto-revert-check-vc-info t) ;; modeline magit status update, But doing so isn't good for performance
+
+(defcustom dotfairy-lsp-format-on-save-ignore-modes '(c-mode c++-mode python-mode go-mode)
+  "The modes that don't auto format and organize imports while saving the buffers.
+`prog-mode' means ignoring all derived modes.
+"
+  :group 'dotfairy
+  :type '(repeat (symbol :tag "Major-Mode")))
+
 ;; (byte-recompile-directory package-user-dir 0 0) ;
 ;;; config.el ends here

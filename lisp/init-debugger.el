@@ -27,6 +27,7 @@
 (use-package realgud)
 
 (use-package dap-mode
+  :ensure t
   :defines dap-python-executable
   :diminish
   :bind (:map lsp-mode-map

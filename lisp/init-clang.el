@@ -25,9 +25,10 @@
 ;;; Code:
 
 ;; C/C++ Mode
-(use-package ccls)
+(use-package ccls
+  :ensure t)
 (use-package cc-mode
-  :ensure nil
+  :ensure t
   :bind (:map c-mode-base-map
               ("C-c C-c" . compile))
   :hook (c-mode-common . (lambda () (c-set-style "stroustrup")))
