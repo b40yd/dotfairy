@@ -88,54 +88,40 @@
   (setq ediff-split-window-function 'split-window-horizontally)
   (setq ediff-merge-split-window-function 'split-window-horizontally))
 
-;; Edit multiple regions in the same way simultaneously
-
-(use-package iedit
-  :bind* (("C-;" . iedit-hydra/iedit-mode))
+;; Rectangle
+(use-package rect
+  :ensure nil
+  :bind (:map text-mode-map
+              ("<C-return>" . rect-hydra/body)
+              :map prog-mode-map
+              ("<C-return>" . rect-hydra/body))
+  :init (with-eval-after-load 'org
+          (bind-key "<s-return>" #'rect-hydra/body org-mode-map))
   :pretty-hydra
-  ((:title (pretty-hydra-title "IEdit" 'faicon "windows")
-           :foreign-keys warn :quit-key "q")
+  ((:title (pretty-hydra-title "Rectangle" 'material "border_all" :height 1.1 :v-adjust -0.225)
+           :color amaranth :body-pre (rectangle-mark-mode) :post (deactivate-mark) :quit-key ("q" "C-g"))
    ("Move"
-    (("a" nav/beginning-of-line "nav/beginning-of-line")
-     ("A" nav/beginning-of-line-and-exit "nav/beginning-of-line-and-exit")
-     ("e" nav/end-of-line "nav/end-of-line")
-     ("E" nav/end-of-line-and-exit "nav/end-of-line-and-exit")
-     ("l" forward-char "forward-char")
-     ("<right>" forward-char "forward-char")
-     ("h" backward-char "backward-char")
-     ("<left>" backward-char "backward-char")
-     ("j" next-line "next-line")
-     ("<down>" next-line "next-line")
-     ("k" previous-line "previous-line")
-     ("<up>" previous-line "previous-line")
-     ("[" backward-sexp "backward-sexp")
-     ("]" forward-sexp "forward-sexp"))
+    (("h" backward-char "←")
+     ("j" next-line "↓")
+     ("k" previous-line "↑")
+     ("l" forward-char "→"))
+    "Action"
+    (("w" copy-rectangle-as-kill "copy") ; C-x r M-w
+     ("y" yank-rectangle "yank")         ; C-x r y
+     ("t" string-rectangle "string")     ; C-x r t
+     ("d" kill-rectangle "kill")         ; C-x r d
+     ("c" clear-rectangle "clear")       ; C-x r c
+     ("o" open-rectangle "open"))        ; C-x r o
+    "Misc"
+    (("N" rectangle-number-lines "number lines")        ; C-x r N
+     ("e" rectangle-exchange-point-and-mark "exchange") ; C-x C-x
+     ("u" undo "undo")
+     ("r" (if (region-active-p)
+              (deactivate-mark)
+            (rectangle-mark-mode 1))
+      "reset")))))
 
-    "Mark"
-    (("se" iedit-mode "iedit-mode")
-     (";" iedit-toggle-selection "iedit-toggle-selection")
-     ("<tab>" iedit-next-occurrence "iedit-next-occurrence")
-     ("?" iedit-help-for-occurrences "iedit-help-for-occurrences")
-     ("mc" iedit-toggle-case-sensitive "iedit-toggle-case-sensitive")
-     ("mg" iedit-apply-global-modification "iedit-apply-global-modification")
-     ("f" iedit-restrict-function "iedit-restrict-function")
-     ("i" iedit-restrict-current-line "iedit-restrict-current-line")
-     ("md" iedit-blank-occurrences "iedit-blank-occurrences")
-     ("mD" iedit-delete-occurrences "iedit-delete-occurrences")
-     ("mB" iedit-toggle-buffering "iedit-toggle-buffering")
-     ("mn" iedit-expand-down-to-occurrence "iedit-expand-down-to-occurrence")
-     ("mp" iedit-expand-up-to-occurrence "iedit-expand-up-to-occurrence")
-     ("mL" iedit-downcase-occurrences "iedit-downcase-occurrences"))
-    "Mark2"
-    (
-     ("mU" iedit-upcase-occurrences "iedit-upcase-occurrences")
-     ("mN" iedit-number-occurrences "iedit-number-occurrences")
-     ("mR" iedit-replace-occurrences "iedit-replace-occurrences")
-     ("m{" iedit-expand-up-a-line "iedit-expand-up-a-line")
-     ("m}" iedit-expand-down-a-line "iedit-expand-down-a-line")
-     ("m<" iedit-goto-first-occurrence "iedit-goto-first-occurrence")
-     ("m>" iedit-goto-last-occurrence "iedit-goto-last-occurrence")
-     ))))
+(use-package iedit)
 ;; Delete selection if you insert
 (use-package delsel
   :hook (after-init . delete-selection-mode))
