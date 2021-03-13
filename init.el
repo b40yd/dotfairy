@@ -24,6 +24,8 @@
 
 ;;; Code:
 
+(setq byte-compile-warnings '(cl-functions))
+
 ;; Defer garbage collection further back in the startup process
 (setq gc-cons-threshold most-positive-fixnum)
 
