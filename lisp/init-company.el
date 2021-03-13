@@ -161,10 +161,6 @@
               ((featurep sym) 'ElispFeature)
               ((facep sym)    'ElispFace)))))
 
-  (use-package company-lsp
-    :ensure t
-    :config
-    (push 'company-lsp company-backends))
 
   (use-package company-quickhelp
     :hook (prog-mode . company-quickhelp-mode)
