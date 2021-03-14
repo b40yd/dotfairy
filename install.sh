@@ -118,7 +118,7 @@ fi
 install-gopls() {
     if type go &> /dev/null;then
         go get golang.org/x/tools/gopls
-        go install github.com/go-delve/delve/cmd/dlv
+        go install github.com/go-delve/delve/cmd/dlv@latest
         go get github.com/fatih/gomodifytags
     else
         install_package golang
