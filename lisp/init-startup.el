@@ -168,7 +168,6 @@ whichever is found first. Must end in a slash.")
   (horizontal-scroll-bar-mode -1))
 
 ;; Basic modes
-(recentf-mode 1)
 (setq-default savehist-additional-variables
               '(kill-ring))
 (ignore-errors (savehist-mode 0))
