@@ -26,6 +26,8 @@
 
 (setq byte-compile-warnings '(cl-functions))
 
+;; don't GC during startup to save time
+(setq gc-cons-percentage 0.6)
 ;; Defer garbage collection further back in the startup process
 (setq gc-cons-threshold most-positive-fixnum)
 
@@ -88,4 +90,12 @@ decrease this. If you experience stuttering, increase this.")
 ;; Load the heart of dotfairy
 (require 'init-startup)
 
+;; (setq garbage-collection-messages t) ; for debug
+(defun my-cleanup-gc ()
+  "Clean up gc."
+  (setq gc-cons-threshold  67108864) ; 64M
+  (setq gc-cons-percentage 0.1) ; original value
+  (garbage-collect))
+
+(run-with-idle-timer 4 nil #'my-cleanup-gc)
 ;;; init.el ends here

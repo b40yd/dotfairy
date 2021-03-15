@@ -177,13 +177,6 @@ whichever is found first. Must end in a slash.")
 (delete-selection-mode 1)
 (global-auto-revert-mode 1)
 
-(setq electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit)
-(electric-pair-mode 1)
-
-;; Keybindings
-(global-set-key (kbd "C-.") #'imenu)
-(global-set-key (kbd "<C-return>") #'rectangle-mark-mode)
-
 (require 'init-package)
 
 ;; (defun dotfairy/initial-layers()

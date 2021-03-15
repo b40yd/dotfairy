@@ -28,6 +28,32 @@
   :ensure t
   :defines (lsp-clients-python-library-directories
             lsp-rust-server)
+  :custom-face
+  (lsp-headerline-breadcrumb-path-error-face
+   ((t :underline (:style wave :color ,(face-foreground 'error))
+       :inherit lsp-headerline-breadcrumb-path-face)))
+  (lsp-headerline-breadcrumb-path-warning-face
+   ((t :underline (:style wave :color ,(face-foreground 'warning))
+       :inherit lsp-headerline-breadcrumb-path-face)))
+  (lsp-headerline-breadcrumb-path-info-face
+   ((t :underline (:style wave :color ,(face-foreground 'success))
+       :inherit lsp-headerline-breadcrumb-path-face)))
+  (lsp-headerline-breadcrumb-path-hint-face
+   ((t :underline (:style wave :color ,(face-foreground 'success))
+       :inherit lsp-headerline-breadcrumb-path-face)))
+
+  (lsp-headerline-breadcrumb-symbols-error-face
+   ((t :inherit lsp-headerline-breadcrumb-symbols-face
+       :underline (:style wave :color ,(face-foreground 'error)))))
+  (lsp-headerline-breadcrumb-symbols-warning-face
+   ((t :inherit lsp-headerline-breadcrumb-symbols-face
+       :underline (:style wave :color ,(face-foreground 'warning)))))
+  (lsp-headerline-breadcrumb-symbols-info-face
+   ((t :inherit lsp-headerline-breadcrumb-symbols-face
+       :underline (:style wave :color ,(face-foreground 'success)))))
+  (lsp-headerline-breadcrumb-symbols-hint-face
+   ((t :inherit lsp-headerline-breadcrumb-symbols-face
+       :underline (:style wave :color ,(face-foreground 'success)))))
   :hook ((prog-mode . (lambda ()
                         (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode)
                           (lsp-deferred))))
@@ -55,7 +81,6 @@
   :init
   ;; @see https://emacs-lsp.github.io/lsp-mode/page/performance
   (setq read-process-output-max (* 1024 1024)) ;; 1MB
-  (setq lsp-gopls-codelens nil)
   (setq lsp-keymap-prefix "C-c l"
         lsp-keep-workspace-alive nil
         lsp-signature-auto-activate nil
@@ -65,7 +90,6 @@
         lsp-enable-file-watchers nil
         lsp-enable-file-watchers nil
         lsp-enable-folding nil
-        lsp-enable-semantic-highlighting nil
         lsp-enable-symbol-highlighting nil
         lsp-enable-text-document-color nil
 
@@ -91,8 +115,6 @@
       (unless (bound-and-true-p git-timemachine-mode)
         (apply func args)))
     (advice-add #'lsp--init-if-visible :around #'my-lsp--init-if-visible))
-
-  (setq lsp-vetur-global-snippets-dir (expand-file-name "vetur" (concat dotfairy-emacs-dir "private/snippets/")))
 
   )
 
@@ -150,7 +172,7 @@
      ("c" lsp-ui-sideline-apply-code-actions "apply code actions"))))
   :bind (("C-c u" . lsp-ui-imenu)
          :map lsp-ui-mode-map
-         ("M-<f6>" . lsp-ui-hydra/body)
+         ("C-<f6>" . lsp-ui-hydra/body)
          ("M-RET" . lsp-ui-sideline-apply-code-actions))
   :hook (lsp-mode . lsp-ui-mode)
   :init (setq lsp-ui-doc-max-height 8
