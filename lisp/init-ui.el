@@ -24,6 +24,15 @@
 
 ;;; Code:
 
+
+;; Don't use GTK+ tooltip
+(when (boundp 'x-gtk-use-system-tooltips)
+  (setq x-gtk-use-system-tooltips nil))
+
+;; Title
+(setq frame-title-format '("DotFairy Emacs - %b")
+      icon-title-format frame-title-format)
+
 ;; Settings for UI theme
 ;; theme:
 ;;     doom-monokai-classic

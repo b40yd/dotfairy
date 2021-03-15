@@ -211,11 +211,9 @@ whichever is found first. Must end in a slash.")
 (require 'init-lsp)
 (require 'init-git)
 (require 'init-eshell)
-
 (require 'init-dired)
 (require 'init-restclient)
 (require 'init-docker)
-
 (require 'init-autoinsert)
 
 ;; Language
@@ -230,6 +228,9 @@ whichever is found first. Must end in a slash.")
 (require 'init-org)
 (require 'init-yaml)
 (require 'init-asm)
+(require 'init-prog)
+
+;; Debugger
 (require 'init-debugger)
 
 ;; editor

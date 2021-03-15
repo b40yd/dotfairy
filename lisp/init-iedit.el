@@ -121,7 +121,20 @@
             (rectangle-mark-mode 1))
       "reset")))))
 
-(use-package iedit)
+;; Edit multiple regions in the same way simultaneously
+(use-package iedit
+  :defines desktop-minor-mode-table
+  :bind (("C-;" . iedit-mode)
+         ("C-x r RET" . iedit-rectangle-mode)
+         :map isearch-mode-map ("C-;" . iedit-mode-from-isearch)
+         :map esc-map ("C-;" . iedit-execute-last-modification)
+         :map help-map ("C-;" . iedit-mode-toggle-on-function))
+  :config
+  ;; Avoid restoring `iedit-mode'
+  (with-eval-after-load 'desktop
+    (add-to-list 'desktop-minor-mode-table
+                 '(iedit-mode nil))))
+
 ;; Delete selection if you insert
 (use-package delsel
   :hook (after-init . delete-selection-mode))
@@ -341,6 +354,10 @@
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
   (setq dumb-jump-prefer-searcher 'rg
         dumb-jump-selector 'ivy))
+
+(use-package editorconfig
+  :diminish
+  :hook (after-init . editorconfig-mode))
 
 ;; Hideshow
 (use-package hideshow
