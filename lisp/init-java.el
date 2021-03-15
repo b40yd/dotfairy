@@ -26,7 +26,10 @@
 
 (use-package lsp-java
   :ensure t
-  :config (add-hook 'java-mode-hook 'lsp))
+  :after lsp-mode
+  :if (executable-find "mvn")
+  :init
+  (use-package request :defer t))
 
 (provide 'init-java)
 ;;; init-java.el ends here

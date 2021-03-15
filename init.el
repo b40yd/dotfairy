@@ -26,6 +26,14 @@
 
 (setq byte-compile-warnings '(cl-functions))
 
+;; Defer garbage collection further back in the startup process
+(setq gc-cons-threshold most-positive-fixnum)
+
+;; Inhibit resizing frame
+(setq frame-inhibit-implied-resize t)
+;; enable all disabled commands
+(setq disabled-command-function nil)
+
 ;; Speed up startup
 (defvar centaur-gc-cons-threshold (if (display-graphic-p) 16000000 1600000)
   "The default value to use for `gc-cons-threshold'. If you experience freezing,
@@ -50,9 +58,9 @@ decrease this. If you experience stuttering, increase this.")
             ;; `focus-out-hook' is obsolete since 27.1
             (if (boundp 'after-focus-change-function)
                 (add-function :after after-focus-change-function
-                  (lambda ()
-                    (unless (frame-focus-state)
-                      (garbage-collect))))
+                              (lambda ()
+                                (unless (frame-focus-state)
+                                  (garbage-collect))))
               (add-hook 'focus-out-hook 'garbage-collect))
 
             ;; Avoid GCs while using `ivy'/`counsel'/`swiper' and `helm', etc.
