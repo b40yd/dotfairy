@@ -26,17 +26,6 @@
 
 (setq byte-compile-warnings '(cl-functions))
 
-;; Defer garbage collection further back in the startup process
-(setq gc-cons-threshold most-positive-fixnum)
-
-;; Package initialize occurs automatically, before `user-init-file' is
-;; loaded, but after `early-init-file'. We handle package
-;; initialization, so we must prevent Emacs from doing it early!
-(setq package-enable-at-startup t)
-
-;; Inhibit resizing frame
-(setq frame-inhibit-implied-resize t)
-
 ;; Speed up startup
 (defvar centaur-gc-cons-threshold (if (display-graphic-p) 16000000 1600000)
   "The default value to use for `gc-cons-threshold'. If you experience freezing,
@@ -92,5 +81,3 @@ decrease this. If you experience stuttering, increase this.")
 (require 'init-startup)
 
 ;;; init.el ends here
-(put 'downcase-region 'disabled nil)
-(put 'upcase-region 'disabled nil)

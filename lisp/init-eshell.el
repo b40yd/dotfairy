@@ -141,77 +141,9 @@
   (use-package eshell-z
     :hook (eshell-mode . (lambda () (require 'eshell-z)))))
 
-(use-package vterm
-  :if (executable-find "cmake")
-  :bind (:map vterm-mode-map
-              ("C-s" . counsel-grep-or-swiper)
-              ("C-y" . vterm-yank))
-  :bind ("C-c t m" . multi-term-hydra/body)
-  :config
-
-  ;; disable some unnecessary minor-modes in term-mode
-  (add-hook 'vterm-mode-hook (lambda ()
-                               (yas-minor-mode -1)
-                               (setq-local global-hl-line-mode nil)
-
-                               ;; Prevent premature horizontal scrolling
-                               (setq-local hscroll-margin 0)))
-
-  ;; vterm buffers are killed when the associated process is terminated
-  (setq vterm-kill-buffer-on-exit t))
-
-;; vterm-toggle: toggles between the vterm buffer and whatever buffer you are editing.
-;; https://github.com/jixiuf/vterm-toggle
-(use-package vterm-toggle
-  :if (executable-find "cmake")
-  :after vterm)
-
-;; multi-vterm: manage multiple terminal windows easily within emacs
-;; https://github.com/suonlight/multi-vterm
-(use-package multi-vterm
-  :after vterm
-  :if (executable-find "cmake")
-  :config
-  ;; hydra for using multi-vterm
-  (defhydra multi-term-hydra ()
-    "multi-term"
-    ("o" multi-vterm "new terminal")
-    ("t" vterm-toggle-cd "toggle/open")
-    ("n" multi-vterm-next "Next")
-    ("p" multi-vterm-prev "Prev")
-    ("d" multi-vterm-dedicated-toggle "Dedicated terminal")
-    ("r" multi-vterm-projectile "vterm projectile")
-    ("q" nil "Quit" :color blue)))
-
 (setq compilation-always-kill t
       compilation-ask-about-save nil
       compilation-scroll-output t)
-
-;; https://gitlab.com/jgkamat/rmsbolt
-;; rmsbolt:A godbolt embedded in Emacs
-(use-package rmsbolt
-  :defer t)
-
-;; quickrun - Execute editing buffer and show its output quickly.
-;; https://github.com/syohex/emacs-quickrun
-(use-package quickrun
-  :config
-  ;; hydra for quickrun
-  (bind-key "C-c h q"
-            (defhydra hydra-quickrun (:color teal
-                                             :hint nil)
-              "
-_u_: compile + run     _c_: compile file                _s_: execute buffer in eshell
-_r_: execute region    _e_: execute + replace region    _a_: execute with args
-_q_: quit
-"
-              ("u" quickrun)
-              ("r" quickrun-region)
-              ("e" quickrun-replace-region)
-              ("c" quickrun-compile-only)
-              ("a" quickrun-with-arg)
-              ("s" quickrun-shell)
-              ("q" nil "Quit" :color blue))))
 
 (provide 'init-eshell)
 ;;; init-eshell.el ends here

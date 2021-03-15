@@ -206,6 +206,7 @@ whichever is found first. Must end in a slash.")
 ;; Complete
 (require 'init-company)
 (require 'init-ivy)
+(require 'init-autoinsert)
 
 ;; Tools
 (require 'init-lsp)
@@ -214,7 +215,7 @@ whichever is found first. Must end in a slash.")
 (require 'init-dired)
 (require 'init-restclient)
 (require 'init-docker)
-(require 'init-autoinsert)
+(require 'init-vterm)
 
 ;; Language
 (require 'init-clang)

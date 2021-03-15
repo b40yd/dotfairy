@@ -58,5 +58,29 @@
 (unless (fboundp 'conf-toml-mode)
   (use-package toml-mode))
 
+;; https://gitlab.com/jgkamat/rmsbolt
+;; rmsbolt:A godbolt embedded in Emacs
+(use-package rmsbolt
+  :defer t)
+
+;; quickrun - Execute editing buffer and show its output quickly.
+;; https://github.com/syohex/emacs-quickrun
+(use-package quickrun
+  :config
+  ;; hydra for quickrun
+  :bind (("C-c r" . quickrun-hydra/body))
+
+  :pretty-hydra
+  ((:title (pretty-hydra-title "QuickRun" 'faicon "linux")
+           :color amaranth :quit-key "q")
+   ("Doc"
+    (("u" quickrun)
+     ("r" quickrun-region)
+     ("e" quickrun-replace-region)
+     ("c" quickrun-compile-only)
+     ("a" quickrun-with-arg)
+     ("s" quickrun-shell)
+     ("q" nil "Quit" :color blue)))))
+
 (provide 'init-prog)
 ;;; init-prog.el ends here

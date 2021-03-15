@@ -175,9 +175,5 @@
           (lambda () (setq-local global-hl-line-mode nil)))))
 
 
-(use-package quickrun
-  :ensure t
-  :bind ("C-c r" . quickrun))
-
 (provide 'init-basic)
 ;;; init-basic.el ends here
