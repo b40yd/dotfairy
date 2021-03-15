@@ -150,6 +150,24 @@
       sentence-end "\\([。！？]\\|……\\|[.?!][]\"')}]*\\($\\|[ \t]\\)\\)[ \t\n]*"
       sentence-end-double-space nil)
 
+(defun recompile-elpa ()
+  "Recompile packages in elpa directory. Useful if you switch Emacs versions."
+  (interactive)
+  (if (fboundp 'async-byte-recompile-directory)
+      (async-byte-recompile-directory package-user-dir)
+    (byte-recompile-directory package-user-dir 0 t)))
+
+;; Reload configurations
+(defun reload-init-file ()
+  "Reload Emacs configurations."
+  (interactive)
+  (load user-init-file))
+(global-set-key (kbd "C-c C-l") #'reload-init-file)
+
+(defun open-init-file()
+  (interactive)
+  (find-file "~/.emacs.d/init.el"))
+(global-set-key (kbd "C-c f e d") 'open-init-file)
 
 (defcustom display-icon (display-graphic-p)
   "Display icons or not."

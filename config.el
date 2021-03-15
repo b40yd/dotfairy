@@ -82,5 +82,7 @@ If Non-nil, save and restore the frame's geometry."
   :group 'dotfairy
   :type '(repeat (symbol :tag "Major-Mode")))
 
+(setq default-directory "~/") ;; default workspace
+
 ;; (byte-recompile-directory package-user-dir 0 0) ;
 ;;; config.el ends here

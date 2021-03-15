@@ -73,7 +73,7 @@
   :pretty-hydra
   ((:title (pretty-hydra-title "QuickRun" 'faicon "linux")
            :color amaranth :quit-key "q")
-   ("Doc"
+   ("CMD"
     (("u" quickrun)
      ("r" quickrun-region)
      ("e" quickrun-replace-region)
