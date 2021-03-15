@@ -61,17 +61,13 @@ If Non-nil, save and restore the frame's geometry."
 (set-face-attribute
  'default nil
  :font (font-spec :name "Source Code Pro"
-                  :weight 'normal
-                  :slant 'normal
-                  :size 9.0))
-(dolist (charset '(kana han symbol cjk-misc bopomofo))
-  (set-fontset-font
-   (frame-parameter nil 'font)
-   charset
-   (font-spec :name "文泉驿等宽微米黑"
-              :weight 'normal
-              :slant 'normal
-              :size 10.5)))
+                  :size 13.0))
+(if (display-graphic-p)
+    (dolist (charset '(kana han symbol cjk-misc bopomofo))
+      (set-fontset-font (frame-parameter nil 'font)
+                        charset
+                        (font-spec :family "WenQuanYi Zen Hei Mono"
+                                   :size 15.0))))
 
 (setq auto-revert-check-vc-info t) ;; modeline magit status update, But doing so isn't good for performance
 
