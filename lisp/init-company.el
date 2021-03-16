@@ -102,8 +102,10 @@
 
   ;; Better sorting and filtering
   (use-package company-prescient
-    :if dotfairy-company-prescient
-    :hook (after-init . company-prescient-mode))
+    :config
+    (if dotfairy-company-prescient
+        (company-prescient-mode 1)))
+
 
   (use-package company-box
     :hook (company-mode . company-box-mode)
