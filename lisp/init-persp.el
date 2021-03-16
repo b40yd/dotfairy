@@ -23,6 +23,8 @@
 ;;
 
 ;;; Code:
+(require 'init-const)
+(require 'init-custom)
 
 ;; Windows/buffers sets shared among frames + save/load.
 (use-package persp-mode

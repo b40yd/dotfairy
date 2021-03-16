@@ -24,61 +24,42 @@
 
 ;;; Code:
 
-;; Personal information
-(setq user-full-name "7ym0n.q6e"
-      user-mail-address "bb.qnyd@gmail.com")
-
-(defcustom dotfairy-dashboard t
-  "Use dashboard at startup or not.
-If Non-nil, use dashboard, otherwise will restore previous session."
-  :group 'dotfairy
-  :type 'boolean)
-
-(defcustom dotfairy-restore-frame-geometry t
-  "Restore the frame's geometry at startup.
-If Non-nil, save and restore the frame's geometry."
-  :group 'dotfairy
-  :type 'boolean)
-
-;;; Settings for package archives
-(setq package-archives '(("melpa" . "http://mirrors.cloud.tencent.com/elpa/melpa/")
-                         ("gnu" . "http://mirrors.cloud.tencent.com/elpa/gnu/")
-                         ("org" . "http://mirrors.cloud.tencent.com/elpa/org/")))
-
-;; setting emacs network proxy
-;; (setq url-proxy-services '(("https" . "127.0.0.1:7890")))
+(setq dotfairy-full-name "user name")           ; User full name
+(setq dotfairy-mail-address "user@email.com")   ; Email address
+;; (setq dotfairy-proxy "127.0.0.1:1080")          ; Network proxy
+;; (setq dotfairy-server nil)                      ; Enable `server-mode' or not: t or nil
+(setq dotfairy-package-archives 'emacs-china)   ; Package repo: melpa, emacs-china, netease, ustc, tencent or tuna
+;; (setq dotfairy-dashboard nil)                   ; Use dashboard at startup or not: t or nil
+;; (setq dotfairy-restore-frame-geometry nil)      ; Restore the frame's geometry at startup: t or nil
+(setq dotfairy-lsp-format-on-save-ignore-modes '(c-mode c++-mode python-mode go-mode)) ; Ignore format on save for some languages
 
 ;; confirm exit emacs
 (setq confirm-kill-emacs 'y-or-n-p)
 
- ;; Display 'lambda' as 'λ' (just for fun)
-(global-prettify-symbols-mode 1)
-(set-default 'cursor-type 'bar)
-(setq default-frame-alist '((width . 140) (height . 40)))
-;; (setq default-frame-alist '((width . 180) (height . 40)))
-;; (set-frame-parameter nil 'fullscreen 'maximized)
-;; Set fonts global
-(set-face-attribute
- 'default nil
- :font (font-spec :name "Source Code Pro"
-                  :size 13.0))
-(if (display-graphic-p)
-    (dolist (charset '(kana han symbol cjk-misc bopomofo))
-      (set-fontset-font (frame-parameter nil 'font)
-                        charset
-                        (font-spec :family "WenQuanYi Zen Hei Mono"
-                                   :size 15.0))))
+;; Fonts
+(when (display-graphic-p)
+  ;; Set default font
+  (cl-loop for font in '("Source Code Pro" "SF Mono" "Hack" "Fira Code"
+                         "Menlo" "Monaco" "DejaVu Sans Mono" "Consolas")
+           when (font-installed-p font)
+           return (set-face-attribute 'default nil
+                                      :font font
+                                      :height (cond (IS-MAC 130)
+                                                    (IS-WINDOWS 110)
+                                                    (t 100))))
 
-(setq auto-revert-check-vc-info t) ;; modeline magit status update, But doing so isn't good for performance
+  ;; Specify font for all unicode characters
+  (cl-loop for font in '("Apple Color Emoji" "Segoe UI Symbol" "Symbola" "Symbol")
+           when (font-installed-p font)
+           return(set-fontset-font t 'unicode font nil 'prepend))
 
-(defcustom dotfairy-lsp-format-on-save-ignore-modes '(c-mode c++-mode python-mode go-mode)
-  "The modes that don't auto format and organize imports while saving the buffers.
-`prog-mode' means ignoring all derived modes.
-"
-  :group 'dotfairy
-  :type '(repeat (symbol :tag "Major-Mode")))
+  ;; Specify font for Chinese characters
+  (cl-loop for font in '("WenQuanYi Zen Hei Mono" "WenQuanYi Micro Hei" "Microsoft Yahei")
+           when (font-installed-p font)
+           return (set-fontset-font t '(#x4e00 . #x9fff) font)))
 
-(setq default-directory "~/") ;; default workspace
+;; default workspace
+(setq default-directory "~/")
 
 ;; (byte-recompile-directory package-user-dir 0 0) ;
 ;;; config.el ends here

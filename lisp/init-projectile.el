@@ -23,6 +23,7 @@
 ;;
 
 ;;; Code:
+(require 'init-const)
 
 (use-package projectile
   :init
@@ -56,7 +57,7 @@
               ("C-c /" . projectile-find-file))
   :config
   (projectile-mode +1)
-  ; Projectile runs four functions to determine the root (in this order):
+                                        ; Projectile runs four functions to determine the root (in this order):
   ;;
   ;; + `projectile-root-local' -> checks the `projectile-project-root' variable
   ;;    for an explicit path.

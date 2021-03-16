@@ -33,6 +33,20 @@
 (setq frame-title-format '("DotFairy Emacs - %b")
       icon-title-format frame-title-format)
 
+;; Inhibit resizing frame
+(setq frame-inhibit-implied-resize t
+      frame-resize-pixelwise t)
+
+;; Menu/Tool/Scroll bars
+(unless (eq window-system 'ns)
+  (menu-bar-mode -1))
+(when (fboundp 'tool-bar-mode)
+  (tool-bar-mode -1))
+(when (fboundp 'scroll-bar-mode)
+  (scroll-bar-mode -1))
+(when (fboundp 'horizontal-scroll-bar-mode)
+  (horizontal-scroll-bar-mode -1))
+  
 ;; Settings for UI theme
 ;; theme:
 ;;     doom-monokai-classic
@@ -87,46 +101,35 @@
              all-the-icons-material
              all-the-icons-alltheicon))
 
-;; Settings for line number
-(use-package nlinum-relative
-  :init
-  (defvar custom-nlinum-relative--format-function
-    (lambda (line width)
-      (let* ((line-display (abs (- line nlinum-relative--current-line) ))
-             (is-current-line? (eq line-display 0))
-             (line-display (if is-current-line?
-                               nlinum-relative--current-line
-                             (+ nlinum-relative-offset line-display)))
-             (str (if is-current-line?
-                      (format nlinum-relative-current-symbol line-display) (format nlinum-format line-display)))
-             )
-        (when (< (length str) width)
-          ;; Left pad to try and right-align the line-numbers.
-          (setq str (concat (make-string (- width (length str)) ?\ ) str)))
-        (if is-current-line?
-            (put-text-property 0 width 'face 'nlinum-relative-current-face str)
-          (put-text-property 0 width 'face 'linum str))
-        str))
-    "nlinum-relative to replace nlinum-format-function")
-  (defun custom-nlinum-relative-toggle ()
-    "Toggle between linum-relative and linum."
-    (interactive)
-    (if (eq nlinum-relative--format-function custom-nlinum-relative--format-function)
-        (nlinum-relative-off)
-      (nlinum-relative-on)))
+;; Show native line numbers if possible, otherwise use `linum'
+(if (fboundp 'display-line-numbers-mode)
+    (use-package display-line-numbers
+      :ensure nil
+      :hook (prog-mode . display-line-numbers-mode))
+  (use-package linum-off
+    :demand
+    :defines linum-format
+    :hook (after-init . global-linum-mode)
+    :init (setq linum-format "%4d ")
+    :config
+    ;; Highlight current line number
+    (use-package hlinum
+      :defines linum-highlight-in-all-buffersp
+      :custom-face (linum-highlight-face ((t (:inherit default :background nil :foreground nil))))
+      :hook (global-linum-mode . hlinum-activate)
+      :init (setq linum-highlight-in-all-buffersp t))))
 
-  (setq nlinum-relative--format-function custom-nlinum-relative--format-function)
-  (global-nlinum-relative-mode)
-  :hook ((nlinum-relative-toggle . custom-nlinum-relative-toggle)
-         ((dashboard-mode eshell-mode shell-mode term-mode vterm-mode) .
-          (lambda ()
-            (global-nlinum-relative-mode)
-            (setq-local nlinum-mode nil))))
-  :config
-  (setq nlinum-relative-current-symbol "%d->")
-  (setq nlinum-relative-redisplay-delay 0)      ;; delay
+;; Suppress GUI features
+(setq use-file-dialog nil
+      use-dialog-box nil
+      inhibit-startup-screen t
+      inhibit-startup-echo-area-message t)
 
-  (setq nlinum-relative-offset 0))
+;; Display dividers between windows
+(setq window-divider-default-places t
+      window-divider-default-bottom-width 1
+      window-divider-default-right-width 1)
+(add-hook 'window-setup-hook #'window-divider-mode)
 
 ;; Settings for electric-pair
 (use-package electric

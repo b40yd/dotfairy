@@ -27,6 +27,8 @@
 ;;
 ;; auto insert
 ;;
+(require 'init-const)
+
 (defun my/autoinsert-yas-expand()
   "replace text in yasnippet template"
   (yas-expand-snippet (buffer-string) (point-min) (point-max)))

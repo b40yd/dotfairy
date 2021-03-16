@@ -23,6 +23,7 @@
 ;;
 
 ;;; Code:
+(require 'init-funcs)
 
 (use-package counsel
   :diminish ivy-mode counsel-mode
@@ -393,10 +394,10 @@ This is for use in `ivy-re-builders-alist'."
             (t . ivy-prescient-re-builder))
           ivy-prescient-sort-commands
           '(:not swiper swiper-isearch ivy-switch-buffer
-            lsp-ivy-workspace-symbol ivy-resume ivy--restore-session
-            counsel-grep counsel-git-grep counsel-rg counsel-ag
-            counsel-ack counsel-fzf counsel-pt counsel-imenu
-            counsel-yank-pop counsel-recentf counsel-buffer-or-recentf))
+                 lsp-ivy-workspace-symbol ivy-resume ivy--restore-session
+                 counsel-grep counsel-git-grep counsel-rg counsel-ag
+                 counsel-ack counsel-fzf counsel-pt counsel-imenu
+                 counsel-yank-pop counsel-recentf counsel-buffer-or-recentf))
 
     (ivy-prescient-mode 1)
     (setf (alist-get 'counsel-rg ivy-re-builders-alist) #'ivy--regex-plus))
@@ -429,17 +430,17 @@ This is for use in `ivy-re-builders-alist'."
    (IS-MAC
     (use-package counsel-osx-app
       :bind (:map counsel-mode-map
-             ("s-<f6>" . counsel-osx-app)))))
+                  ("s-<f6>" . counsel-osx-app)))))
 
   ;; Display world clock using Ivy
   (use-package counsel-world-clock
     :bind (:map counsel-mode-map
-           ("C-c c k" . counsel-world-clock)))
+                ("C-c c k" . counsel-world-clock)))
 
   ;; Tramp ivy interface
   (use-package counsel-tramp
     :bind (:map counsel-mode-map
-           ("C-c c T" . counsel-tramp)))
+                ("C-c c T" . counsel-tramp)))
   )
 
 ;; Better experience with icons

@@ -29,6 +29,8 @@
   :bind
   (("C-x g" . magit-status))
   :config
+  ;; modeline magit status update, But doing so isn't good for performance
+  (setq auto-revert-check-vc-info t)
   ;; Access Git forges from Magit
   ;; see config: https://magit.vc/manual/ghub/Storing-a-Token.html#Storing-a-Token
   ;; writting like as gitlib.com:

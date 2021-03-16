@@ -24,17 +24,6 @@
 
 ;;; Code:
 
-;; Dos2Unix/Unix2Dos
-(defun dos2unix ()
-  "Convert the current buffer to UNIX file format."
-  (interactive)
-  (set-buffer-file-coding-system 'undecided-unix nil))
-
-(defun unix2dos ()
-  "Convert the current buffer to DOS file format."
-  (interactive)
-  (set-buffer-file-coding-system 'undecided-dos nil))
-
 ;; On-the-fly spell checker
 (use-package flyspell
   :ensure t
