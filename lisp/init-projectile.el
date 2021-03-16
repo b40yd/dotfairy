@@ -30,7 +30,7 @@
   (setq projectile-mode-line-prefix "ⓟ"
         projectile-sort-order 'recentf
         projectile-use-git-grep t
-        projectile-cache-file (concat dotfairy-local-dir "projectile.cache")
+        projectile-cache-file (concat dotfairy-cache-dir "projectile.cache")
         ;; Auto-discovery is slow to do by default. Better to update the list
         ;; when you need to (`projectile-discover-projects-in-search-path').
         projectile-auto-discover nil
@@ -38,7 +38,7 @@
         projectile-globally-ignored-files '(".DS_Store" "TAGS")
         projectile-globally-ignored-file-suffixes '(".elc" ".pyc" ".o")
         projectile-kill-buffers-filter 'kill-only-files
-        projectile-known-projects-file (concat dotfairy-local-dir "projectile.projects")
+        projectile-known-projects-file (concat dotfairy-cache-dir "projectile.projects")
         projectile-ignored-projects '("~/" "/tmp"))
   (global-set-key [remap find-tag]         #'projectile-find-tag)
   (use-package ag

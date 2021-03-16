@@ -23,6 +23,7 @@
 ;;
 
 ;;; Code:
+(require 'init-const)
 
 ;; Directional window-selection routines
 (use-package windmove
@@ -155,7 +156,9 @@
         treemacs-is-never-other-window   t
         treemacs-silent-filewatch        t
         treemacs-silent-refresh          t
-        treemacs-width                   30)
+        treemacs-width                   30
+        treemacs-persist-file (concat dotfairy-cache-dir "treemacs-persist")
+        treemacs-last-error-persist-file (concat dotfairy-cache-dir "treemacs-last-error-persist"))
   (treemacs-follow-mode t)
   (treemacs-filewatch-mode t)
   (pcase (cons (not (null (executable-find "git")))

@@ -23,6 +23,7 @@
 ;;
 
 ;;; Code:
+(require 'init-const)
 
 (use-package lsp-mode
   :ensure t
@@ -74,7 +75,8 @@
   :config
   ;; Auto kill LSP server
   (setq lsp-keep-workspace-alive nil
-        lsp-enable-snippet t)
+        lsp-enable-snippet t
+        lsp-intelephense-storage-path (concat dotfairy-cache-dir "lsp-intelephense/"))
 
   ;; Disable features that have great potential to be slow.
   (setq lsp-enable-file-watchers nil

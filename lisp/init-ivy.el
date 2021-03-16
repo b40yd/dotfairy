@@ -358,7 +358,8 @@
 
   ;; Enhance M-x
   (use-package amx
-    :init (setq amx-history-length 20))
+    :init (setq amx-history-length 20
+                amx-save-file (concat dotfairy-cache-dir "amx-items")))
 
   ;; Better sorting and filtering
   (use-package prescient
@@ -369,6 +370,9 @@
     :commands ivy-prescient-re-builder
     :custom-face
     (ivy-minibuffer-match-face-1 ((t (:inherit font-lock-doc-face :foreground nil))))
+    :config
+    ;; NOTE prescient config duplicated with `company'
+    (setq prescient-save-file (concat dotfairy-cache-dir "prescient-save.el"))
     :init
     (defun ivy-prescient-non-fuzzy (str)
       "Generate an Ivy-formatted non-fuzzy regexp list for the given STR.
