@@ -24,7 +24,6 @@
 
 ;;; Code:
 (setq-default gdb-many-windows t)
-(use-package realgud)
 
 (use-package dap-mode
   :ensure t

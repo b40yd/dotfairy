@@ -71,6 +71,7 @@
 (setq undo-outer-limit 5000000)
 
 ;; Misc
+(set-default 'cursor-type 'bar)
 (fset 'yes-or-no-p 'y-or-n-p)
 (setq-default major-mode 'text-mode
               word-wrap t
@@ -124,6 +125,7 @@
   :hook (after-init . savehist-mode)
   :init (setq enable-recursive-minibuffers t ; Allow commands in minibuffers
               history-length 1000
+              savehist-file (expand-file-name ".savehist" dotfairy-cache-dir)
               savehist-additional-variables '(mark-ring
                                               global-mark-ring
                                               search-ring

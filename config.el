@@ -28,7 +28,7 @@
 (setq dotfairy-mail-address "user@email.com")   ; Email address
 ;; (setq dotfairy-proxy "127.0.0.1:1080")          ; Network proxy
 ;; (setq dotfairy-server nil)                      ; Enable `server-mode' or not: t or nil
-(setq dotfairy-package-archives 'emacs-china)   ; Package repo: melpa, emacs-china, netease, ustc, tencent or tuna
+(setq dotfairy-package-archives 'netease)   ; Package repo: melpa, emacs-china, netease, ustc, tencent or tuna
 ;; (setq dotfairy-dashboard nil)                   ; Use dashboard at startup or not: t or nil
 ;; (setq dotfairy-restore-frame-geometry nil)      ; Restore the frame's geometry at startup: t or nil
 (setq dotfairy-lsp-format-on-save-ignore-modes '(c-mode c++-mode python-mode go-mode)) ; Ignore format on save for some languages
