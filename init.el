@@ -63,7 +63,7 @@ decrease this. If you experience stuttering, increase this.")
                               (lambda ()
                                 (unless (frame-focus-state)
                                   (garbage-collect))))
-              (add-hook 'after-focus-change-function 'garbage-collect))
+              (add-hook 'focus-out-hook 'garbage-collect))
 
             ;; Avoid GCs while using `ivy'/`counsel'/`swiper' and `helm', etc.
             ;; @see http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold/
