@@ -76,7 +76,7 @@ whichever is found first. Must end in a slash.")
 
 (defconst dotfairy-custom-example-file
   (expand-file-name "config.el" dotfairy-emacs-dir)
-  "Custom example file of Centaur Emacs.")
+  "Custom example file of Dotfairy Emacs.")
 
 (provide 'init-const)
 ;;; init-const.el ends here

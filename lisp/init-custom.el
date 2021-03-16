@@ -50,6 +50,32 @@ If Non-nil, save and restore the frame's geometry."
   :group 'dotfairy
   :type 'boolean)
 
+
+(defcustom dotfairy-proxy "127.0.0.1:1087"
+  "Set network proxy."
+  :group 'dotfairy
+  :type 'string)
+
+(defcustom dotfairy-theme-alist
+  '((default . doom-one)
+    (doom-one . doom-one)
+    (doom-monokai-pro     . doom-monokai-pro)
+    (doom-dark+    . doom-dark+)
+    (doom-one-light   . doom-one-light)
+    (doom-solarized-light    . doom-solarized-light)
+    (doom-city-lights    . doom-city-lights)
+    (doom-tomorrow-day    . doom-tomorrow-day)
+    (doom-tomorrow-night   . doom-tomorrow-night))
+  "List of themes mapped to internal themes."
+  :group 'dotfairy
+  :type '(alist :key-type (symbol :tag "Theme")
+                :value-type (symbol :tag "Internal theme")))
+
+(defcustom dotfairy-theme 'default
+  "The color theme."
+  :group 'dotfairy
+  :type 'symbol)
+
 (defcustom dotfairy-lsp-format-on-save-ignore-modes '(c-mode c++-mode python-mode go-mode)
   "The modes that don't auto format and organize imports while saving the buffers.
 `prog-mode' means ignoring all derived modes."

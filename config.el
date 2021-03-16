@@ -29,10 +29,22 @@
 ;; (setq dotfairy-proxy "127.0.0.1:1080")          ; Network proxy
 ;; (setq dotfairy-server nil)                      ; Enable `server-mode' or not: t or nil
 (setq dotfairy-package-archives 'netease)   ; Package repo: melpa, emacs-china, netease, ustc, tencent or tuna
+;; Color theme:
+;; dotfairy-theme-list
+;; '((default . doom-one)
+;;   (doom-one . doom-one)
+;;   (doom-monokai-pro     . doom-monokai-pro)
+;;   (doom-dark+    . doom-dark+)
+;;   (doom-one-light   . doom-one-light)
+;;   (doom-solarized-light    . doom-solarized-light)
+;;   (doom-city-lights    . doom-city-lights)
+;;   (doom-tomorrow-day    . doom-tomorrow-day)
+;;   (doom-tomorrow-night   . doom-tomorrow-night))
+(setq dotfairy-theme 'default)
 ;; (setq dotfairy-dashboard nil)                   ; Use dashboard at startup or not: t or nil
 ;; (setq dotfairy-restore-frame-geometry nil)      ; Restore the frame's geometry at startup: t or nil
 (setq dotfairy-lsp-format-on-save-ignore-modes '(c-mode c++-mode python-mode go-mode)) ; Ignore format on save for some languages
-
+;; (setq dotfairy-company-prescient nil) ; Enable `company-prescient' or not. it's on Windows 10 very slow.
 ;; confirm exit emacs
 (setq confirm-kill-emacs 'y-or-n-p)
 

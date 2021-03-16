@@ -30,10 +30,25 @@
 (defvar socks-noproxy)
 (defvar socks-server)
 
-(defcustom dotfairy-proxy "127.0.0.1:1087"
-  "Set network proxy."
-  :group 'dotfairy
-  :type 'string)
+
+(defun dotfairy--theme-name (theme)
+  "Return internal THEME name."
+  (or (alist-get theme dotfairy-theme-alist) theme 'doom-one))
+
+(defun dotfairy--load-theme (theme)
+  "Disable others and enable new one."
+  (when theme
+    (mapc #'disable-theme custom-enabled-themes)
+    (load-theme theme t)
+    (message "Loaded theme `%s'" theme)))
+
+(defun dotfairy-load-theme (theme &optional no-save)
+  "Load color THEME. Save to `custom-file' if NO-SAVE is nil."
+  ;; Set option
+  (dotfairy-set-variable 'dotfairy-theme theme no-save)
+  (dotfairy--load-theme (dotfairy--theme-name theme)))
+
+(global-set-key (kbd "C-c C-t") #'dotfairy-load-theme)
 
 ;; Network Proxy
 (defun proxy-http-show ()
