@@ -63,7 +63,7 @@
         lsp-modeline-code-actions-enable nil
         lsp-modeline-diagnostics-enable nil
 
-        lsp-go-codelenses '((generate . t) (test . t) (tidy . t))
+        ;; lsp-go-codelenses '((generate . t) (test . t) (tidy . t))
 
         lsp-enable-file-watchers nil
         lsp-enable-file-watchers nil

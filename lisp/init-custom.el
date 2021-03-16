@@ -61,6 +61,11 @@ If Non-nil, save and restore the frame's geometry."
   :group 'dotfairy
   :type 'boolean)
 
+(defcustom dotfairy-company-prescient t
+  "Enable `company-prescient' or not. it's on Windows 10 very slow."
+  :group 'dotfairy
+  :type 'boolean)
+
 ;; Emacs Lisp Package Archive (ELPA)
 ;; @see https://github.com/melpa/melpa and https://elpa.emacs-china.org/.
 (defcustom dotfairy-package-archives-alist

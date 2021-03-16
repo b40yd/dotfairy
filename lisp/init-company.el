@@ -41,7 +41,7 @@
         company-echo-delay (if (display-graphic-p) nil 0)
         company-box-show-single-candidate t
         company-minimum-prefix-length 2
-        company-tooltip-limit 12
+        company-tooltip-limit 14
         company-tooltip-align-annotations t
         company-require-match 'never
         company-global-modes '(not erc-mode message-mode help-mode gud-mode)
@@ -102,7 +102,8 @@
 
   ;; Better sorting and filtering
   (use-package company-prescient
-    :init (company-prescient-mode 1))
+    :if dotfairy-company-prescient
+    :hook (after-init . company-prescient-mode))
 
   (use-package company-box
     :hook (company-mode . company-box-mode)
