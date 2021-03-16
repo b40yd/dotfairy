@@ -63,6 +63,8 @@
         lsp-modeline-code-actions-enable nil
         lsp-modeline-diagnostics-enable nil
 
+        lsp-go-codelenses '((generate . t) (test . t) (tidy . t))
+
         lsp-enable-file-watchers nil
         lsp-enable-file-watchers nil
         lsp-enable-folding nil
@@ -70,7 +72,9 @@
         lsp-enable-text-document-color nil
 
         lsp-enable-indentation nil
-        lsp-enable-on-type-formatting nil)
+        lsp-enable-on-type-formatting nil
+        lsp-session-file (concat dotfairy-etc-dir "lsp-session")
+        lsp-server-install-dir (concat dotfairy-etc-dir "lsp/"))
 
   :config
   ;; Auto kill LSP server

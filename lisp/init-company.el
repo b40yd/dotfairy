@@ -37,11 +37,11 @@
          ("C-p" . company-select-previous)
          ("C-n" . company-select-next))
   :init
-  (setq company-idle-delay 0.25
+  (setq company-idle-delay 0
+        company-echo-delay (if (display-graphic-p) nil 0)
         company-box-show-single-candidate t
-        company-box-max-candidates 50
         company-minimum-prefix-length 2
-        company-tooltip-limit 14
+        company-tooltip-limit 12
         company-tooltip-align-annotations t
         company-require-match 'never
         company-global-modes '(not erc-mode message-mode help-mode gud-mode)
@@ -49,18 +49,10 @@
                             company-echo-metadata-frontend)
         ;; Buffer-local backends will be computed when loading a major mode, so
         ;; only specify a global default here.
-        company-backends '(company-capf)
+        company-backends '((company-capf :with company-yasnippet)
+                           (company-dabbrev-code company-keywords company-files)
+                           company-dabbrev)
 
-        ;; These auto-complete the current selection when
-        ;; `company-auto-complete-chars' is typed. This is too magical. We
-        ;; already have the much more explicit RET and TAB.
-        company-auto-complete nil
-        company-auto-complete-chars nil
-
-        ;; Only search the current buffer for `company-dabbrev' (a backend that
-        ;; suggests text your open buffers). This prevents Company from causing
-        ;; lag once you have a lot of buffers open.
-        company-dabbrev-other-buffers nil
         ;; Make `company-dabbrev' fully case-sensitive, to improve UX with
         ;; domain-specific words with particular casing.
         company-dabbrev-ignore-case nil
@@ -108,11 +100,16 @@
             (funcall fun command arg))))
       (advice-add #'company-yasnippet :around #'my-company-yasnippet-disable-inline)))
 
+  ;; Better sorting and filtering
+  (use-package company-prescient
+    :init (company-prescient-mode 1))
+
   (use-package company-box
     :hook (company-mode . company-box-mode)
     :config
     (setq company-box-show-single-candidate t
           company-box-backends-colors nil
+          company-box-doc-delay 0.3
           company-box-max-candidates 50
           company-box-icons-alist 'company-box-icons-all-the-icons
           company-box-icons-functions
