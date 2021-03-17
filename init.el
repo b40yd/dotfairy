@@ -26,16 +26,6 @@
 
 (setq byte-compile-warnings '(cl-functions))
 
-;; don't GC during startup to save time
-(setq gc-cons-percentage 0.6)
-;; Defer garbage collection further back in the startup process
-(setq gc-cons-threshold most-positive-fixnum)
-
-;; Inhibit resizing frame
-(setq frame-inhibit-implied-resize t)
-;; enable all disabled commands
-(setq disabled-command-function nil)
-
 ;; Speed up startup
 (defvar centaur-gc-cons-threshold (if (display-graphic-p) 16000000 1600000)
   "The default value to use for `gc-cons-threshold'. If you experience freezing,

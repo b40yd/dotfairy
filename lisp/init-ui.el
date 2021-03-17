@@ -46,25 +46,12 @@
   (push '(tool-bar-lines . 0)   default-frame-alist)
   (push '(vertical-scroll-bars) default-frame-alist))
 
-;; These are disabled directly through their frame parameters to avoid the extra
-;; work their minor modes do, but their variables must be unset too, otherwise
-;; users will have to cycle them twice to re-enable them.
-(unless (eq window-system 'ns)
-  (menu-bar-mode -1))
-(when (fboundp 'tool-bar-mode)
-  (tool-bar-mode -1))
-(when (fboundp 'scroll-bar-mode)
-  (scroll-bar-mode -1))
-(when (fboundp 'horizontal-scroll-bar-mode)
-  (horizontal-scroll-bar-mode -1))
-
 ;; Settings for UI theme
 ;; theme:
 ;;     doom-monokai-classic
 ;;     doom-snazzy
 ;;     doom-one-light
 ;;     doom-dark+
-
 (use-package doom-themes
   :custom-face
   (doom-modeline-buffer-file ((t (:inherit (mode-line bold)))))
