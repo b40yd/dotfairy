@@ -39,6 +39,45 @@
   (("C-c o a" . org-agenda)
    ("C-c a" . org-agenda)
    ("C-c o c" . org-capture))
+  :hook (((org-babel-after-execute org-mode) . org-redisplay-inline-images) ; display image
+         (org-mode . (lambda ()
+                       "Beautify org symbols."
+                       (setq prettify-symbols-alist '(("#+BEGIN_SRC" . ?»)
+                                                      ("#+END_SRC" . ?«)
+                                                      ("#+begin_src" . ?»)
+                                                      ("#+end_src" . ?«)
+                                                      ("#+BEGIN_COMMENT" . ?»)
+                                                      ("#+END_COMMENT" . ?«)
+                                                      ("#+begin_comment" . ?»)
+                                                      ("#+end_comment" . ?«)
+                                                      ("#+BEGIN_QUOTE" . ?»)
+                                                      ("#+END_QUOTE" . ?«)
+                                                      ("#+begin_quote" . ?»)
+                                                      ("#+end_quote" . ?«)
+                                                      ("#+HEADERS" . ?☰)
+                                                      ("#+RESULTS:" . ?💻)
+                                                      ("#+ARCHIVE:" . ?📦)
+                                                      ("#+AUTHOR:" . ?👤)
+                                                      ("#+CREATOR:" . ?💁)
+                                                      ("#+DATE:" . ?📆)
+                                                      ("#+DESCRIPTION:" . ?⸙)
+                                                      ("#+EMAIL:" . ?📧)
+                                                      ("#+OPTIONS:" . ?⛭)
+                                                      ("#+SETUPFILE:" . ?⛮)
+                                                      ("#+TAGS:" . ?🏷)
+                                                      ("#+TITLE:" . ?📓)
+                                                      ("[ ]" . ?☐)
+                                                      ("[X]" . ?☑)
+                                                      ("[-]" . ?⛝)
+                                                      (">=" . "≥")
+                                                      ("=>" . "⇨")))
+                       (prettify-symbols-mode 1)))
+         (org-indent-mode . (lambda()
+                              (diminish 'org-indent-mode)
+                              ;; WORKAROUND: Prevent text moving around while using brackets
+                              ;; @see https://github.com/seagle0128/.emacs.d/issues/88
+                              (make-variable-buffer-local 'show-paren-mode)
+                              (setq show-paren-mode nil))))
   :config
   (setq org-startup-indented t
         org-journal-file-format "%Y-%m-%d"
@@ -52,51 +91,6 @@
         org-duration-format '((special . h:mm))
         org-directory dotfairy-org-dir ;; needs to be defined for `org-default-notes-file'
         org-default-notes-file (expand-file-name "notes.org" org-directory))
-  ;; settings for org-refile
-  (setq org-refile-use-outline-path 'file
-        org-outline-path-complete-in-steps nil)
-  (setq org-refile-allow-creating-parent-nodes 'confirm)
-  (setq org-refile-targets '(((concat dotfairy-org-dir "notes.org") :maxlevel . 3)
-                             ((concat dotfairy-org-dir "gtd.org") :maxlevel . 3)
-                             ((concat dotfairy-org-dir "projects.org") :maxlevel . 3)))
-
-  (defconst dotfairy-org-todo-file
-    (expand-file-name "notes.org" dotfairy-org-dir))
-  (defconst dotfairy-org-tickler-file
-    (expand-file-name "tickler.org" dotfairy-org-dir))
-  (defconst dotfairy-org-books-file
-    (expand-file-name "books.org" dotfairy-org-dir))
-  (defconst dotfairy-org-projects-file
-    (expand-file-name "projects.org" dotfairy-org-dir))
-  (defconst dotfairy-org-references-file
-    (expand-file-name "references.org" dotfairy-org-dir))
-  (defconst dotfairy-org-examples-file
-    (expand-file-name "examples.org" dotfairy-org-dir))
-  (defconst dotfairy-org-gtd-file
-    (expand-file-name "gtd.org" dotfairy-org-dir))
-  (setq org-agenda-files `(,dotfairy-org-todo-file
-                           ,dotfairy-org-gtd-file
-                           ,dotfairy-org-tickler-file
-                           ,dotfairy-org-projects-file))
-
-  (setq org-capture-templates '(("t" "Todo [inbox]" entry
-                                 (file+headline dotfairy-org-todo-file "Tasks")
-                                 (file "~/.emacs.d/private/org/todo.tmpl"))
-                                ("r" "Tickler" entry
-                                 (file+headline dotfairy-org-tickler-file "Tickler")
-                                 (file "~/.emacs.d/private/org/ticker.tmpl"))
-                                ("b" "Add a book to read list" entry
-                                 (file+headline dotfairy-org-books-file "Read list")
-                                 (file "~/.emacs.d/private/org/books.tmpl"))
-                                ("p" "Add a new project" entry
-                                 (file+headline dotfairy-org-projects-file "Projects")
-                                 (file "~/.emacs.d/private/org/projects.tmpl"))
-                                ("R" "Add a new reference" entry
-                                 (file+headline dotfairy-org-references-file "References")
-                                 (file "~/.emacs.d/private/org/references.tmpl"))
-                                ("e" "Add a new code example" entry
-                                 (file+headline dotfairy-org-examples-file "Examples")
-                                 (file "~/.emacs.d/private/org/examples.tmpl"))))
 
   (setq org-enforce-todo-checkbox-dependencies t
         org-enforce-todo-dependencies t
@@ -123,35 +117,6 @@
         org-refile-targets '((org-agenda-files :maxlevel . 5)
                              (nil :maxlevel . 5))
         )
-
-
-  (setq-default prettify-symbols-alist '(("#+BEGIN_SRC" . "｛")
-                                         ("#+END_SRC" . "｝")
-                                         ("#+begin_src" . "｛")
-                                         ("#+end_src" . "｝")
-                                         ("#+BEGIN_COMMENT" . "｛")
-                                         ("#+END_COMMENT" . "｝")
-                                         ("#+begin_comment" . "｛")
-                                         ("#+end_comment" . "｝")
-                                         ("#+BEGIN_QUOTE" . ?»)
-                                         ("#+END_QUOTE" . ?«)
-                                         ("#+HEADERS" . ?☰)
-                                         ("#+RESULTS:" . ?💻)
-                                         ("#+ARCHIVE:" . ?📦)
-                                         ("#+AUTHOR:" . ?👤)
-                                         ("#+CREATOR:" . ?💁)
-                                         ("#+DATE:" . ?📆)
-                                         ("#+DESCRIPTION:" . ?⸙)
-                                         ("#+EMAIL:" . ?📧)
-                                         ("#+OPTIONS:" . ?⛭)
-                                         ("#+SETUPFILE:" . ?⛮)
-                                         ("#+TAGS:" . ?🏷)
-                                         ("#+TITLE:" . ?📓)
-                                         ("[ ]" . ?☐)
-                                         ("[X]" . ?☑)
-                                         ("[-]" . ?⛝)
-                                         (">=" . "≥")
-                                         ("=>" . "⇨")))
 
   (use-package org-fancy-priorities
     :diminish
@@ -341,6 +306,14 @@
           org-roam-server-network-label-truncate t
           org-roam-server-network-label-truncate-length 60
           org-roam-server-network-label-wrap-length 20))
+
+  ;; Preview
+  (use-package org-preview-html
+    :diminish)
+
+  ;; Table of contents
+  (use-package toc-org
+    :hook (org-mode . toc-org-mode))
 
   (use-package org-journal
     :ensure t

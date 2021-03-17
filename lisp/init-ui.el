@@ -195,8 +195,11 @@
       (condition-case-unless-debug err
           (persp-load-state-from-file fname)
         (error "Error: Unable to restore session -- %s" err))
-      (message "Done")))
-  )
+      (message "Done"))))
+
+;; Use fixed pitch where it's sensible
+(use-package mixed-pitch
+  :diminish)
 
 (use-package whitespace :defer t
   :config
