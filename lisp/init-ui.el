@@ -41,9 +41,10 @@
 ;; Disable tool, menu, and scrollbars. Doom is designed to be keyboard-centric,
 ;; so these are just clutter (the scrollbar also impacts performance). Whats
 ;; more, the menu bar exposes functionality that Doom doesn't endorse.
-(push '(menu-bar-lines . 0)   default-frame-alist)
-(push '(tool-bar-lines . 0)   default-frame-alist)
-(push '(vertical-scroll-bars) default-frame-alist)
+(unless (>= emacs-major-version 27)
+  (push '(menu-bar-lines . 0)   default-frame-alist)
+  (push '(tool-bar-lines . 0)   default-frame-alist)
+  (push '(vertical-scroll-bars) default-frame-alist))
 
 ;; These are disabled directly through their frame parameters to avoid the extra
 ;; work their minor modes do, but their variables must be unset too, otherwise

@@ -70,6 +70,15 @@
 ;; undo limit
 (setq undo-outer-limit 5000000)
 
+;; Mouse & Smooth Scroll
+;; Scroll one line at a time (less "jumpy" than defaults)
+(when (display-graphic-p)
+  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))
+        mouse-wheel-progressive-speed nil))
+(setq scroll-step 1
+      scroll-margin 0
+      scroll-conservatively 100000)
+
 ;; Misc
 (set-default 'cursor-type 'bar)
 (fset 'yes-or-no-p 'y-or-n-p)
@@ -83,6 +92,8 @@
 (setq visible-bell t
       inhibit-compacting-font-caches t  ; Don’t compact font caches during GC.
       delete-by-moving-to-trash t       ; Deleting files go to OS's trash folder
+      make-backup-files nil             ; Forbide to make backup files
+      auto-save-default nil             ; Disable auto save
 
       uniquify-buffer-name-style 'post-forward-angle-brackets ; Show path if names are same
       adaptive-fill-regexp "[ t]+|[ t]*([0-9]+.|*+)[ t]*"
@@ -140,6 +151,11 @@
   :init (setq display-time-24hr-format t
               display-time-day-and-date t))
 
+(when (>= emacs-major-version 27)
+  (use-package so-long
+    :ensure nil
+    :hook (after-init . global-so-long-mode)
+    :config (setq so-long-threshold 400)))
 
 ;; Highlight the current line
 (use-package hl-line
