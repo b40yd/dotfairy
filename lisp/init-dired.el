@@ -23,6 +23,8 @@
 ;;
 
 ;;; Code:
+(require 'init-const)
+
 (use-package dired
   :ensure nil
   :bind (:map dired-mode-map
@@ -90,9 +92,38 @@
           (message "Not display icons because of too many items.")))
       (advice-add #'all-the-icons-dired--refresh :override #'my-all-the-icons-dired--refresh)))
 
-  ;; `find-dired' alternative using `fd'
-  (when (executable-find "fd")
-    (use-package fd-dired)))
+  ;; Extra Dired functionality
+  ;; C-x C-q into modify mode
+  (use-package dired-aux :ensure nil)
+  (use-package dired-x
+    :ensure nil
+    :demand
+    :config
+    (let ((cmd (cond (IS-MAC "open")
+                     (IS-LINUX "xdg-open")
+                     (IS-WINDOWS "start")
+                     (t ""))))
+      (setq dired-guess-shell-alist-user
+            `(("\\.pdf\\'" ,cmd)
+              ("\\.docx\\'" ,cmd)
+              ("\\.\\(?:djvu\\|eps\\)\\'" ,cmd)
+              ("\\.\\(?:jpg\\|jpeg\\|png\\|gif\\|xpm\\)\\'" ,cmd)
+              ("\\.\\(?:xcf\\)\\'" ,cmd)
+              ("\\.csv\\'" ,cmd)
+              ("\\.tex\\'" ,cmd)
+              ("\\.\\(?:mp4\\|mkv\\|avi\\|flv\\|rm\\|rmvb\\|ogv\\)\\(?:\\.part\\)?\\'" ,cmd)
+              ("\\.\\(?:mp3\\|flac\\)\\'" ,cmd)
+              ("\\.html?\\'" ,cmd)
+              ("\\.md\\'" ,cmd))))
+
+    (setq dired-omit-files
+          (concat dired-omit-files
+                  "\\|^.DS_Store$\\|^.projectile$\\|^.git*\\|^.svn$\\|^.vscode$\\|\\.js\\.meta$\\|\\.meta$\\|\\.elc$\\|^.emacs.*"))))
+
+
+;; `find-dired' alternative using `fd'
+(when (executable-find "fd")
+  (use-package fd-dired))
 
 (provide 'init-dired)
 ;;; init-dired.el ends here

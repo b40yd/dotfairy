@@ -82,5 +82,47 @@
      ("s" quickrun-shell)
      ("q" nil "Quit" :color blue)))))
 
+;; Nice writing
+(use-package olivetti
+  :diminish
+  :bind ("<f7>" . olivetti-mode)
+  :init (setq olivetti-body-width 0.618))
+
+;; Music player
+(use-package bongo
+  :bind ("C-<f9>" . bongo)
+  :config
+  (with-eval-after-load 'dired
+    (with-no-warnings
+      (defun bongo-add-dired-files ()
+        "Add marked files to the Bongo library."
+        (interactive)
+        (bongo-buffer)
+        (let (file (files nil))
+          (dired-map-over-marks
+           (setq file (dired-get-filename)
+                 files (append files (list file)))
+           nil t)
+          (with-bongo-library-buffer
+           (mapc 'bongo-insert-file files)))
+        (bongo-switch-buffers))
+      (bind-key "b" #'bongo-add-dired-files dired-mode-map))))
+
+;; Process
+(use-package proced
+  :ensure nil
+  :init
+  (setq-default proced-format 'verbose)
+  (setq proced-auto-update-flag t
+        proced-auto-update-interval 3))
+
+;; Misc
+(use-package copyit)                    ; copy path, url, etc.
+(use-package diffview)                  ; side-by-side diff view
+(use-package esup)                      ; Emacs startup profiler
+(use-package focus)                     ; Focus on the current region
+(use-package list-environment)
+(use-package memory-usage)
+
 (provide 'init-prog)
 ;;; init-prog.el ends here

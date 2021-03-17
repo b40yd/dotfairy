@@ -77,7 +77,7 @@ decrease this. If you experience stuttering, increase this.")
             (add-hook 'minibuffer-exit-hook #'my-minibuffer-exit-hook)))
 
 
-(setq user-emacs-directory (file-name-directory load-file-name))
+;; (setq user-emacs-directory (expand-file-name "lisp" load-file-name))
 
 ;; (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 (defun custom-config-load-path (&rest _)

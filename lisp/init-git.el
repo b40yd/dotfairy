@@ -111,5 +111,15 @@
                                     (when smerge-mode
                                       (hydra-smerge/body))))))
 
+;; Open github/gitlab/bitbucket page
+(use-package browse-at-remote
+  :bind (:map vc-prefix-map
+              ("B" . browse-at-remote)))
+
+;; Git related modes
+(use-package gitattributes-mode)
+(use-package gitconfig-mode)
+(use-package gitignore-mode)
+
 (provide 'init-git)
 ;;; init-git.el ends here

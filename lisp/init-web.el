@@ -52,6 +52,35 @@
   :ensure t
   :mode "\\scss\\'")
 
+;; JavaScript
+(use-package js2-mode
+  :defines flycheck-javascript-eslint-executable
+  :mode (("\\.js\\'" . js2-mode)
+         ("\\.jsx\\'" . js2-jsx-mode))
+  :interpreter (("node" . js2-mode)
+                ("node" . js2-jsx-mode))
+  :hook ((js2-mode . js2-imenu-extras-mode)
+         (js2-mode . js2-highlight-unused-variables-mode))
+  :config
+  (with-eval-after-load 'flycheck
+    (when (or (executable-find "eslint_d")
+              (executable-find "eslint")
+              (executable-find "jshint"))
+      (setq js2-mode-show-strict-warnings nil))
+    (when (executable-find "eslint_d")
+      ;; https://github.com/mantoni/eslint_d.js
+      ;; npm -i -g eslint_d
+      (setq flycheck-javascript-eslint-executable "eslint_d")))
+
+  (use-package js2-refactor
+    :diminish
+    :hook (js2-mode . js2-refactor-mode)
+    :config (js2r-add-keybindings-with-prefix "C-c C-m")))
+
+;; New `less-css-mde' in Emacs 26
+(unless (fboundp 'less-css-mode)
+  (use-package less-css-mode))
+
 (use-package rjsx-mode
   :ensure t
   :mode "\\.js\\'"
@@ -88,7 +117,7 @@
 ;; Install: npm -g install prettier
 (use-package prettier-js
   :diminish
-  :hook (rjsx-mode
+  :hook ((rjsx-mode js-mode js2-mode json-mode web-mode css-mode sgml-mode html-mode)
          .
          prettier-js-mode))
 
