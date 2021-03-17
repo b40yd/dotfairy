@@ -53,8 +53,7 @@
 
   :hook (after-init . projectile-mode)
   :bind (:map projectile-mode-map
-              ("C-c p" . projectile-command-map)
-              ("C-c /" . projectile-find-file))
+              ("C-c p" . projectile-command-map))
   :config
   (projectile-mode +1)
                                         ; Projectile runs four functions to determine the root (in this order):
