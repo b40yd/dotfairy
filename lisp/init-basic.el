@@ -49,7 +49,6 @@
   (set-language-environment 'chinese-gb18030)
   (prefer-coding-system 'utf-8-unix)
   (setq locale-coding-system 'gb18030)
-  (setq w32-unicode-filenames 'nil)
   (setq file-name-coding-system 'gb18030)
   (set-next-selection-coding-system 'utf-16-le)
   (set-selection-coding-system 'utf-16-le)

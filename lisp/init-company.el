@@ -32,6 +32,9 @@
          :map company-mode-map
          ("<backtab>" . company-yasnippet)
          :map company-active-map
+         ("C-p" . company-select-previous)
+         ("C-n" . company-select-next)
+         ("<tab>" . company-complete-common-or-cycle)
          ("<backtab>" . my-company-yasnippet)
          :map company-search-map
          ("C-p" . company-select-previous)
@@ -43,7 +46,7 @@
         company-minimum-prefix-length 2
         company-tooltip-limit 14
         company-tooltip-align-annotations t
-        company-require-match 'never
+        company-require-match nil
         company-global-modes '(not erc-mode message-mode help-mode gud-mode)
         company-frontends '(company-pseudo-tooltip-frontend
                             company-echo-metadata-frontend)
