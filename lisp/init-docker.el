@@ -23,7 +23,7 @@
 ;;
 
 ;;; Code:
-
+(use-package docker-tramp)
 (use-package dockerfile-mode
   :mode "\\Dockerfile\\'")
 
