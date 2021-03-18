@@ -204,6 +204,14 @@
   :init (when (executable-find "python3")
           (setq lsp-pyright-python-executable-cmd "python3")))
 
+;; Java
+(use-package lsp-java
+  :ensure t
+  :after lsp-mode
+  :if (executable-find "mvn")
+  :init
+  (use-package request :defer t))
+
 (use-package lsp-treemacs :commands lsp-treemacs-errors-list
   :after lsp-mode
   :ensure t

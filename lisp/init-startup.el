@@ -67,7 +67,6 @@
 (require 'init-web)
 (require 'init-markdown)
 (require 'init-json)
-(require 'init-java)
 (require 'init-org)
 (require 'init-yaml)
 (require 'init-asm)
