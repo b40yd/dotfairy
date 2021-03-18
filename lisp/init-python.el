@@ -41,11 +41,6 @@
   (when (fboundp 'exec-path-from-shell-copy-env)
     (exec-path-from-shell-copy-env "PYTHONPATH"))
 
-  (use-package py-isort
-    :ensure t
-    :config
-    (add-hook 'before-save-hook #'py-isort-before-save))
-
   (use-package python-pytest
     :ensure t
     :bind (("C-c t f" . python-pytest-file-dwim)
