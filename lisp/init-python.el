@@ -33,22 +33,14 @@
          (after-save . (lambda ()
                          (when (and (executable-find "black") buffer-file-name)
                            (call-process "black" nil nil nil buffer-file-name)))))
-  :init
-  (setq python-indent-offset 4)
   :config
-  ;; (when (executable-find "jupyter")
-  ;;   (setq lsp-python-executable-cmd "jupyter"))
-
+  (setq python-indent-offset 4)
   (setq python-shell-interpreter "python"
         python-shell-interpreter-args "-i")
   ;; ;; ;; Env vars
   (when (fboundp 'exec-path-from-shell-copy-env)
     (exec-path-from-shell-copy-env "PYTHONPATH"))
 
-  (use-package py-autopep8
-    :ensure t
-    :hook ((python-mode . py-autopep8-enable-on-save))
-    )
   (use-package py-isort
     :ensure t
     :config
