@@ -72,7 +72,7 @@ decrease this. If you experience stuttering, increase this.")
 ;; (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 (defun custom-config-load-path (&rest _)
   "Load lisp path"
-  (dolist (dir '("lisp"))
+  (dolist (dir '("." "lisp"))
     (push (expand-file-name dir user-emacs-directory) load-path)))
 
 (advice-add #'package-initialize :after #'custom-config-load-path)
@@ -89,4 +89,5 @@ decrease this. If you experience stuttering, increase this.")
   (garbage-collect))
 
 (run-with-idle-timer 4 nil #'my-cleanup-gc)
+
 ;;; init.el ends here

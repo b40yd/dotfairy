@@ -26,10 +26,9 @@
 (require 'cl-lib)
 (require 'init-const)
 (require 'init-custom)
-
-(defvar socks-noproxy)
-(defvar socks-server)
-
+(require 'init-proxy)
+(require 'init-buffers)
+(require 'init-files)
 
 (defun dotfairy--theme-name (theme)
   "Return internal THEME name."
@@ -49,80 +48,6 @@
   (dotfairy--load-theme (dotfairy--theme-name theme)))
 
 (global-set-key (kbd "C-c C-t") #'dotfairy-load-theme)
-
-;; Network Proxy
-(defun proxy-http-show ()
-  "Show HTTP/HTTPS proxy."
-  (interactive)
-  (if url-proxy-services
-      (message "Current HTTP proxy is `%s'" dotfairy-proxy)
-    (message "No HTTP proxy")))
-
-(defun proxy-http-enable ()
-  "Enable HTTP/HTTPS proxy."
-  (interactive)
-  (setq url-proxy-services
-        `(("http" . ,dotfairy-proxy)
-          ("https" . ,dotfairy-proxy)
-          ("no_proxy" . "^\\(localhost\\|192.168.*\\|10.*\\)")))
-  (proxy-http-show))
-
-(defun proxy-http-disable ()
-  "Disable HTTP/HTTPS proxy."
-  (interactive)
-  (setq url-proxy-services nil)
-  (proxy-http-show))
-
-(defun proxy-http-toggle ()
-  "Toggle HTTP/HTTPS proxy."
-  (interactive)
-  (if (bound-and-true-p url-proxy-services)
-      (proxy-http-disable)
-    (proxy-http-enable)))
-
-(defun proxy-socks-show ()
-  "Show SOCKS proxy."
-  (interactive)
-  (when (fboundp 'cadddr)                ; defined 25.2+
-    (if (bound-and-true-p socks-noproxy)
-        (message "Current SOCKS%d proxy is %s:%d"
-                 (cadddr socks-server) (cadr socks-server) (caddr socks-server))
-      (message "No SOCKS proxy"))))
-
-(defun proxy-socks-enable ()
-  "Enable SOCKS proxy."
-  (interactive)
-  (require 'socks)
-  (setq url-gateway-method 'socks
-        socks-noproxy '("localhost")
-        socks-server '("Default server" "127.0.0.1" 1086 5))
-  (proxy-socks-show))
-
-(defun proxy-socks-disable ()
-  "Disable SOCKS proxy."
-  (interactive)
-  (setq url-gateway-method 'native
-        socks-noproxy nil)
-  (proxy-socks-show))
-
-(defun proxy-socks-toggle ()
-  "Toggle SOCKS proxy."
-  (interactive)
-  (if (bound-and-true-p socks-noproxy)
-      (proxy-socks-disable)
-    (proxy-socks-enable)))
-
-(defun copy-file-name ()
-  "Copy the current buffer file name to the clipboard."
-  (interactive)
-  (if-let ((filename (if (equal major-mode 'dired-mode)
-                         default-directory
-                       (buffer-file-name))))
-      (progn
-        (kill-new filename)
-        (message "Copied '%s'" filename))
-    (message "WARNING: Current buffer is not attached to a file!")))
-
 
 (defun recompile-elpa ()
   "Recompile packages in elpa directory. Useful if you switch Emacs versions."
@@ -268,74 +193,5 @@ Return the fastest package archive."
         (error "Cannot open tramp file")
       (browse-url (concat "file://" file-name)))))
 
-(defun delete-this-file ()
-  "Delete the current file, and kill the buffer."
-  (interactive)
-  (unless (buffer-file-name)
-    (error "No file is currently being edited"))
-  (when (yes-or-no-p (format "Really delete '%s'?"
-                             (file-name-nondirectory buffer-file-name)))
-    (delete-file (buffer-file-name))
-    (kill-this-buffer)))
-
-(defun rename-this-file (new-name)
-  "Renames both current buffer and file it's visiting to NEW-NAME."
-  (interactive "sNew name: ")
-  (let ((name (buffer-name))
-        (filename (buffer-file-name)))
-    (unless filename
-      (error "Buffer '%s' is not visiting a file!" name))
-    (progn
-      (when (file-exists-p filename)
-        (rename-file filename new-name 1))
-      (set-visited-file-name new-name)
-      (rename-buffer new-name))))
-
-
-(defun sudo-file-path (file)
-  (let ((host (or (file-remote-p file 'host) "localhost")))
-    (concat "/" (when (file-remote-p file)
-                  (concat (file-remote-p file 'method) ":"
-                          (if-let (user (file-remote-p file 'user))
-                              (concat user "@" host)
-                            host)
-                          "|"))
-            "sudo:root@" host
-            ":" (or (file-remote-p file 'localname)
-                    file))))
-
-;;;###autoload
-(defun sudo-find-file (file)
-  "Open FILE as root."
-  (interactive "FOpen file as root: ")
-  (find-file (sudo-file-path file)))
-
-;;;###autoload
-(defun sudo-this-file ()
-  "Open the current file as root."
-  (interactive)
-  (find-file
-   (sudo-file-path
-    (or buffer-file-name
-        (when (or (derived-mode-p 'dired-mode)
-                  (derived-mode-p 'wdired-mode))
-          default-directory)))))
-
-;;;###autoload
-(defun sudo-save-buffer ()
-  "Save this file as root."
-  (interactive)
-  (let ((file (sudo-file-path buffer-file-name)))
-    (if-let (buffer (find-file-noselect file))
-        (let ((origin (current-buffer)))
-          (copy-to-buffer buffer (point-min) (point-max))
-          (unwind-protect
-              (with-current-buffer buffer
-                (save-buffer))
-            (unless (eq origin buffer)
-              (kill-buffer buffer))
-            (with-current-buffer origin
-              (revert-buffer t t))))
-      (user-error "Unable to open %S" file))))
 (provide 'init-funcs)
 ;;; init-funcs.el ends here
