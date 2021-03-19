@@ -115,6 +115,9 @@
 ;; History
 (use-package saveplace
   :ensure nil
+  :init
+  (setq save-place-file (concat dotfairy-cache-dir "saveplace")
+        save-place-limit 100)
   :hook (after-init . save-place-mode))
 
 (use-package recentf
