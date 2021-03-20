@@ -72,7 +72,7 @@ decrease this. If you experience stuttering, increase this.")
 ;; (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 (defun custom-config-load-path (&rest _)
   "Load lisp path"
-  (dolist (dir '("." "lisp"))
+  (dolist (dir '("lisp" "site-lisp"))
     (push (expand-file-name dir user-emacs-directory) load-path)))
 
 (advice-add #'package-initialize :after #'custom-config-load-path)
@@ -80,7 +80,11 @@ decrease this. If you experience stuttering, increase this.")
 
 ;; Load the heart of dotfairy
 (require 'init-startup)
-
+(require 'custom-buffer)
+(require 'custom-projectile)
+(require 'custom-ivy)
+(require 'custom-workspace)
+(require 'custom-keybinds)
 ;; (setq garbage-collection-messages t) ; for debug
 (defun my-cleanup-gc ()
   "Clean up gc."

@@ -35,10 +35,6 @@
 
 (use-package org
   :init (setq org-startup-indented t)
-  :bind
-  (("C-c o a" . org-agenda)
-   ("C-c a" . org-agenda)
-   ("C-c o c" . org-capture))
   :hook (((org-babel-after-execute org-mode) . org-redisplay-inline-images) ; display image
          (org-mode . (lambda ()
                        "Beautify org symbols."
@@ -216,17 +212,14 @@
     (org-pomodoro-mode-line ((t (:inherit warning))))
     (org-pomodoro-mode-line-overtime ((t (:inherit error))))
     (org-pomodoro-mode-line-break ((t (:inherit success))))
-    :bind (:map org-agenda-mode-map
-                ("C-c o P" . org-pomodoro)))
+    )
 
   ;; Presentation
   (use-package org-tree-slide
     :diminish
     :functions (org-display-inline-images
                 org-remove-inline-images)
-    :bind (:map org-mode-map
-                ("C-c o p" . org-tree-slide-mode)
-                :map org-tree-slide-mode-map
+    :bind (:map org-tree-slide-mode-map
                 ("<left>" . org-tree-slide-move-previous-tree)
                 ("<right>" . org-tree-slide-move-next-tree)
                 ("C-<tab>" . org-tree-slide-move-previous-tree)
@@ -246,13 +239,6 @@
   (use-package org-roam
     :diminish
     :hook (after-init . org-roam-mode)
-    :bind (:map org-roam-mode-map
-                (("C-c o r l" . org-roam)
-                 ("C-c o r f" . org-roam-find-file)
-                 ("C-c o r g" . org-roam-graph))
-                :map org-mode-map
-                (("C-c o r i" . org-roam-insert))
-                (("C-c o r I" . org-roam-insert-immediate)))
     :config
     (require 'org-roam-protocol)
     (setq org-roam-directory (concat dotfairy-org-dir "roam/")

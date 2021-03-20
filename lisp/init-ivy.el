@@ -29,70 +29,42 @@
   :diminish ivy-mode counsel-mode
   :bind
   (("C-s"   . swiper-isearch)
-   ("C-r"   . swiper-isearch-backward)
-   ("s-f"   . swiper)
-   ("C-S-s" . swiper-all)
-
-   ("C-c f r" . counsel-recentf)
-   ("C-c c r" . ivy-resume)
-   ("C-c v p" . ivy-push-view)
-   ("C-c v o" . ivy-pop-view)
-   ("C-c v ." . ivy-switch-view)
-
-   :map counsel-mode-map
-   ([remap swiper] . counsel-grep-or-swiper)
-   ([remap swiper-backward] . counsel-grep-or-swiper-backward)
-   ([remap dired] . counsel-dired)
-   ([remap set-variable] . counsel-set-variable)
-   ([remap insert-char] . counsel-unicode-char)
-   ([remap recentf-open-files] . counsel-recentf)
-
-   ("C-x j"   . counsel-mark-ring)
-   ("C-c s B" . counsel-bookmarked-directory)
-   ("C-c c F" . counsel-faces)
-   ("C-c s L" . counsel-load-library)
-   ("C-c s O" . counsel-find-file-extern)
-   ("C-c s P" . counsel-package)
-   ("C-c s R" . counsel-list-processes)
-   ("C-c s a" . counsel-apropos)
-   ("C-c s d f" . counsel-describe-function)
-   ("C-c s d v" . counsel-describe-variable)
-   ("C-c s d s" . counsel-describe-symbol)
-   ("C-c s d i" . counsel-info-lookup-symbol)
-   ("C-c c e" . counsel-colors-emacs)
-   ("C-c s f" . counsel-find-library)
-   ("C-c s g" . counsel-grep)
-   ("C-c s h" . counsel-command-history)
-   ("C-c s i" . counsel-git)
-   ("C-c s j" . counsel-git-grep)
-   ("C-c s l" . counsel-locate)
-   ("C-c s m" . counsel-minibuffer-history)
-   ("C-c c o" . counsel-outline)
-   ("C-c c p" . counsel-pt)
-   ("C-c s r" . counsel-rg)
-   ("C-c s s" . counsel-ag)
-   ("C-c c t" . counsel-load-theme)
-   ("C-c c u" . counsel-unicode-char)
-   ("C-c c w" . counsel-colors-web)
-   ("C-c c v" . counsel-set-variable)
-   ("C-c s z" . counsel-fzf)
-
-   :map ivy-minibuffer-map
-   ("C-w" . ivy-yank-word)
-   ("C-`" . ivy-avy)
-
-   :map counsel-find-file-map
-   ("C-h" . counsel-up-directory)
-
-   :map swiper-map
-   ("M-s" . swiper-isearch-toggle)
-   ("M-%" . swiper-query-replace)
-
-   :map isearch-mode-map
-   ("M-s" . swiper-isearch-toggle))
+   ("C-r"   . swiper-isearch-backward))
   :hook ((after-init . ivy-mode)
          (ivy-mode . counsel-mode))
   :init
+  (define-key!
+    [remap swiper-backward]          #'counsel-grep-or-swiper-backward
+    [remap dired]                    #'counsel-dired
+    [remap insert-char]              #'counsel-unicode-char
+    [remap recentf-open-files]       #'counsel-recentf
+    [remap apropos]                  #'counsel-apropos
+    [remap bookmark-jump]            #'counsel-bookmark
+    [remap compile]                  #'+ivy/compile
+    [remap describe-bindings]        #'counsel-descbinds
+    [remap describe-face]            #'counsel-faces
+    [remap describe-function]        #'counsel-describe-function
+    [remap describe-variable]        #'counsel-describe-variable
+    [remap describe-symbol]          #'counsel-describe-symbol
+    [remap execute-extended-command] #'counsel-M-x
+    [remap find-file]                #'counsel-find-file
+    [remap find-library]             #'counsel-find-library
+    [remap imenu]                    #'counsel-imenu
+    [remap info-lookup-symbol]       #'counsel-info-lookup-symbol
+    [remap load-theme]               #'counsel-load-theme
+    [remap locate]                   #'counsel-locate
+    [remap org-goto]                 #'counsel-org-goto
+    [remap org-set-tags-command]     #'counsel-org-tag
+    [remap projectile-compile-project] #'+ivy/project-compile
+    [remap recentf-open-files]       #'counsel-recentf
+    [remap set-variable]             #'counsel-set-variable
+    [remap swiper]                   #'counsel-grep-or-swiper
+    [remap unicode-chars-list-chars] #'counsel-unicode-char
+    [remap yank-pop]                 #'counsel-yank-pop
+    [remap switch-to-buffer]              #'+ivy/switch-buffer
+    [remap switch-to-buffer-other-window] #'+ivy/switch-buffer-other-window
+    [remap persp-switch-to-buffer]        #'+ivy/switch-workspace-buffer)
+
   (setq enable-recursive-minibuffers t) ; Allow commands in minibuffers
   (setq ivy-use-selectable-prompt t
         ivy-use-virtual-buffers t    ; Enable bookmarks and recentf
@@ -427,24 +399,11 @@ This is for use in `ivy-re-builders-alist'."
       (setq xref-show-definitions-function #'ivy-xref-show-defs))
     (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
 
-  ;; Quick launch apps
-  (cond
-   (IS-LINUX
-    (bind-key "s-<f6>" #'counsel-linux-app counsel-mode-map))
-   (IS-MAC
-    (use-package counsel-osx-app
-      :bind (:map counsel-mode-map
-                  ("s-<f6>" . counsel-osx-app)))))
-
   ;; Display world clock using Ivy
-  (use-package counsel-world-clock
-    :bind (:map counsel-mode-map
-                ("C-c c k" . counsel-world-clock)))
+  (use-package counsel-world-clock)
 
   ;; Tramp ivy interface
-  (use-package counsel-tramp
-    :bind (:map counsel-mode-map
-                ("C-c c T" . counsel-tramp)))
+  (use-package counsel-tramp)
   )
 
 ;; Better experience with icons
@@ -467,8 +426,6 @@ This is for use in `ivy-re-builders-alist'."
   :init
   ;; For better performance
   (setq ivy-rich-parse-remote-buffer nil))
-
-
 
 (provide 'init-ivy)
 ;;; init-ivy.el ends here

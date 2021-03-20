@@ -42,13 +42,18 @@
     (exec-path-from-shell-copy-env "PYTHONPATH"))
 
   (use-package python-pytest
-    :ensure t
-    :bind (("C-c t f" . python-pytest-file-dwim)
-           ("C-c t F" . python-pytest-file)
-           ("C-c t t" . python-pytest-function-dwim)
-           ("C-c t T" . python-pytest-function)
-           ("C-c t r" . python-pytest-repeat)
-           ("C-c t p" . python-pytest-popup)))
+    :init
+    (map! :after python
+          :localleader
+          :map python-mode-map
+          (:prefix ("t" . "test")
+                   "f" #'python-pytest-file-dwim
+                   "F" #'python-pytest-file
+                   "s" #'python-pytest-function-dwim
+                   "S" #'python-pytest-function
+                   "r" #'python-pytest-repeat
+                   "p" #'python-pytest-dispatch
+                   )))
   )
 
 (provide 'init-python)

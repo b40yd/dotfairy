@@ -28,6 +28,7 @@
 ;; Base
 (require 'init-basic)
 (require 'init-hydra)
+(require 'init-keybinds)
 
 ;; UI
 (require 'init-ui)
@@ -38,7 +39,6 @@
 ;; Project
 (require 'init-projectile)
 (require 'init-ibuffer)
-(require 'init-kill-ring)
 (require 'init-windows)
 (require 'init-persp)
 (require 'init-calendar)

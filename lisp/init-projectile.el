@@ -25,6 +25,11 @@
 ;;; Code:
 (require 'init-const)
 
+
+(defvar projectile-project-root nil)
+(defvar projectile-enable-caching)
+(defvar projectile-require-project-root)
+
 (use-package projectile
   :init
   (setq projectile-mode-line-prefix "ⓟ"
@@ -52,8 +57,6 @@
     (setq counsel-projectile-sort-files t))
 
   :hook (after-init . projectile-mode)
-  :bind (:map projectile-mode-map
-              ("C-x p" . projectile-command-map))
   :config
   (projectile-mode +1)
                                         ; Projectile runs four functions to determine the root (in this order):
@@ -91,9 +94,9 @@
 
   ;; Disable commands that won't work, as is, and that Doom already provides a
   ;; better alternative for.
-  (put 'projectile-ag 'disabled "Use +{ivy,helm}/project-search instead")
-  (put 'projectile-ripgrep 'disabled "Use +{ivy,helm}/project-search instead")
-  (put 'projectile-grep 'disabled "Use +{ivy,helm}/project-search instead")
+  (put 'projectile-ag 'disabled "Use +{ivy}/project-search instead")
+  (put 'projectile-ripgrep 'disabled "Use +{ivy}/project-search instead")
+  (put 'projectile-grep 'disabled "Use +{ivy}/project-search instead")
 
   ;; It breaks projectile's project root resolution if HOME is a project (e.g.
   ;; it's a git repo). In that case, we disable bottom-up root searching to

@@ -109,7 +109,7 @@
   (aw-leading-char-face ((t (:inherit font-lock-keyword-face :bold t :height 3.0))))
   (aw-mode-line-face ((t (:inherit mode-line-emphasis :bold t))))
   :bind (([remap other-window] . ace-window)
-         ("C-c w" . ace-window-hydra/body))
+         ("C-c w W" . ace-window-hydra/body))
   :hook (emacs-startup . ace-window-display-mode)
   :config
   ;; Bind hydra to dispatch list

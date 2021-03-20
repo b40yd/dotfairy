@@ -52,9 +52,7 @@
   :hook (after-init . global-auto-revert-mode))
 
 ;; delete hungry
-(use-package hungry-delete
-  :bind (("C-c d f" . hungry-delete-forward)
-         ("C-c d b" . hungry-delete-backward)))
+(use-package hungry-delete)
 
 ;; ;; Drag stuff (lines, words, region, etc...) around
 (use-package drag-stuff
@@ -135,7 +133,7 @@
 
 (use-package rainbow-mode
   :after rainbow-mode
-  :bind (("C-c e E" . rainbow-mode-hydra/body))
+  :bind (("C-c c m" . rainbow-mode-hydra/body))
   :pretty-hydra
   ((:title (pretty-hydra-title "Colors Management" 'faicon "windows")
            :foreign-keys warn :quit-key "q")
@@ -169,12 +167,6 @@
 
 ;; Multiple cursors
 (use-package multiple-cursors
-  :bind (("C-c m l" . mc/edit-lines)
-         ("C->" . mc/mark-next-like-this)
-         ("C-<" . mc/mark-previous-like-this)
-         ("C-c C-|" . mc/vertical-align-with-space)
-         ("C-x C-m" . mc/mark-all-dwim))
-
   :bind (:map selected-keymap
               ("a" . mc/mark-all-like-this)
               ("p" . mc/mark-previous-like-this)
@@ -214,29 +206,6 @@
             (normal   . ,(face-foreground 'all-the-icons-green))
             (low      . ,(face-foreground 'all-the-icons-blue))
             (trivial  . ,(face-foreground 'all-the-icons-purple))))))
-(use-package rg
-  :defines projectile-command-map
-  :hook (after-init . rg-enable-default-bindings)
-  :bind (:map rg-global-map
-              ("c" . rg-dwim-current-dir)
-              ("f" . rg-dwim-current-file)
-              ("m" . rg-menu)
-              :map rg-mode-map
-              ("m" . rg-menu))
-  :init (setq rg-group-result t
-              rg-show-columns t)
-  :config
-  (cl-pushnew '("tmpl" . "*.tmpl") rg-custom-type-aliases)
-
-  (with-eval-after-load 'projectile
-    (defalias 'projectile-ripgrep #'rg-project)
-    (bind-key "s R" #'rg-project projectile-command-map))
-
-  (with-eval-after-load 'counsel
-    (bind-keys
-     :map rg-global-map
-     ("R" . counsel-rg)
-     ("F" . counsel-fzf))))
 
 (use-package wgrep
   :init

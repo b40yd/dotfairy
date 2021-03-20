@@ -182,7 +182,7 @@
              (bury-buffer))
       "Save and bury buffer" :exit t))))
   :bind (:map smerge-mode-map
-              ("C-c g m" . smerge-mode-hydra/body))
+              ("C-c v m" . smerge-mode-hydra/body))
   :hook ((find-file . (lambda ()
                         (save-excursion
                           (goto-char (point-min))
@@ -195,7 +195,7 @@
 ;; Open github/gitlab/bitbucket page
 (use-package browse-at-remote
   :bind (:map vc-prefix-map
-              ("B" . browse-at-remote)))
+              ("C-c v B" . browse-at-remote)))
 
 ;; Git related modes
 (use-package gitattributes-mode)

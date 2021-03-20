@@ -112,24 +112,85 @@
                        (flycheck-golangci-lint-setup))))
 
   (use-package go-tag
-    :bind (:map go-mode-map
-                ("C-c t t" . go-tag-add)
-                ("C-c t T" . go-tag-remove))
     :init (setq go-tag-args (list "-transform" "camelcase")))
+  (use-package go-gen-test)
+  (use-package gotest)
+  (map! :map go-mode-map
+        :localleader
+        "a" #'go-tag-add
+        "d" #'go-tag-remove
+        "i" #'go-goto-imports      ; Go to imports
+        (:prefix ("ri" . "imports")
+                 "a" #'go-import-add
+                 "r" #'go-remove-unused-imports)
+        (:prefix ("b" . "build")
+                 :desc "go run ." "r" (cmd! (compile "go run ."))
+                 :desc "go build" "b" (cmd! (compile "go build"))
+                 :desc "go clean" "c" (cmd! (compile "go clean")))
+        (:prefix ("t" . "test")
+                 "t" #'+go/test-rerun
+                 "a" #'+go/test-all
+                 "s" #'+go/test-single
+                 "n" #'+go/test-nested
+                 "g" #'go-gen-test-dwim
+                 "G" #'go-gen-test-all
+                 "e" #'go-gen-test-exported
+                 (:prefix ("b" . "bench")
+                          "s" #'+go/bench-single
+                          "a" #'+go/bench-all)))
+  )
 
-  (use-package go-gen-test
-    :bind (:map go-mode-map
-                ("C-c t g" . go-gen-test-dwim)))
+(defvar +go-test-last nil
+  "The last test run.")
 
-  (use-package gotest
-    :bind (:map go-mode-map
-                ("C-c t a" . go-test-current-project)
-                ("C-c t b" . go-test-current-benchmark)
-                ("C-c t m" . go-test-current-file)
-                ("C-c t x" . go-run)
-                ("C-c t ." . go-test-current-test)
-                )))
+(defun +go--spawn (cmd)
+  (save-selected-window
+    (compile cmd)))
 
+(defun +go--run-tests (args)
+  (let ((cmd (concat "go test " args)))
+    (setq +go-test-last (concat "cd " default-directory ";" cmd))
+    (+go--spawn cmd)))
+
+;;;###autoload
+(defun +go/test-rerun ()
+  (interactive)
+  (if +go-test-last
+      (+go--spawn +go-test-last)
+    (+go/test-all)))
+
+;;;###autoload
+(defun +go/test-all ()
+  (interactive)
+  (+go--run-tests ""))
+
+;;;###autoload
+(defun +go/test-nested ()
+  (interactive)
+  (+go--run-tests "./..."))
+
+;;;###autoload
+(defun +go/test-single ()
+  (interactive)
+  (if (string-match "_test\\.go" buffer-file-name)
+      (save-excursion
+        (re-search-backward "^func[ ]+\\(([[:alnum:]]*?[ ]?[*]?[[:alnum:]]+)[ ]+\\)?\\(Test[[:alnum:]_]+\\)(.*)")
+        (+go--run-tests (concat "-run" "='" (match-string-no-properties 2) "'")))
+    (error "Must be in a _test.go file")))
+
+;;;###autoload
+(defun +go/bench-all ()
+  (interactive)
+  (+go--run-tests "-test.run=NONE -test.bench=\".*\""))
+
+;;;###autoload
+(defun +go/bench-single ()
+  (interactive)
+  (if (string-match "_test\\.go" buffer-file-name)
+      (save-excursion
+        (re-search-backward "^func[ ]+\\(([[:alnum:]]*?[ ]?[*]?[[:alnum:]]+)[ ]+\\)?\\(Benchmark[[:alnum:]_]+\\)(.*)")
+        (+go--run-tests (concat "-test.run=NONE -test.bench" "='" (match-string-no-properties 2) "'")))
+    (error "Must be in a _test.go file")))
 
 (provide 'init-go)
 ;;; init-go.el ends here

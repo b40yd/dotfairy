@@ -146,6 +146,6 @@
           persp)))
     (advice-add #'persp-mode-projectile-bridge-add-new-persp
                 :override #'my-persp-mode-projectile-bridge-add-new-persp)))
-
+(require 'init-session)
 (provide 'init-persp)
 ;;; init-persp.el ends here

@@ -100,12 +100,6 @@
       sentence-end "\\([。！？]\\|……\\|[.?!][]\"')}]*\\($\\|[ \t]\\)\\)[ \t\n]*"
       sentence-end-double-space nil)
 
-;; Display available keybindings in popup
-(use-package which-key
-  :ensure t
-  :init
-  (which-key-mode))
-
 ;; Start server
 (use-package server
   :ensure nil
@@ -122,7 +116,6 @@
 
 (use-package recentf
   :ensure nil
-  :bind (("C-c C-r" . recentf-open-files))
   :hook (after-init . recentf-mode)
   :init (setq recentf-max-saved-items 300
               recentf-exclude
@@ -167,25 +160,23 @@
           (lambda () (setq-local global-hl-line-mode nil)))))
 
 ;; File and buffer
-(defun revert-this-buffer ()
+(defun dotfairy/revert-this-buffer ()
   "Revert the current buffer."
   (interactive)
   (unless (minibuffer-window-active-p (selected-window))
     (revert-buffer t t)
     (message "Reverted this buffer")))
-(global-set-key (kbd "C-c b r") #'revert-this-buffer)
 
 ;; Reload configurations
-(defun reload-init-file ()
+(defun dotfairy/reload-init-file ()
   "Reload Emacs configurations."
   (interactive)
-  (load user-init-file))
-(global-set-key (kbd "C-c C-l") #'reload-init-file)
+  (load user-init-file)
+  (funcall major-mode))
 
-(defun open-init-file()
+
+(defun dotfairy/open-init-file()
   (interactive)
-  (find-file "~/.emacs.d/init.el"))
-(global-set-key (kbd "C-c f e d") 'open-init-file)
-
+  (find-file user-init-file))
 (provide 'init-basic)
 ;;; init-basic.el ends here

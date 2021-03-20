@@ -23,19 +23,6 @@
 ;;
 
 ;;; Code:
-;;;###autoload
-(defun dotfairy-project-p (&optional dir)
-  "Return t if DIR (defaults to `default-directory') is a valid project."
-  (and (dotfairy-project-root dir)
-       t))
-
-;;;###autoload
-(defun dotfairy-project-root (&optional dir)
-  "Return the project root of DIR (defaults to `default-directory').
-Returns nil if not in a project."
-  (let ((projectile-project-root (unless dir projectile-project-root))
-        projectile-require-project-root)
-    (projectile-project-root dir)))
 
 ;;;###autoload
 (defvar dotfairy-real-buffer-functions
@@ -405,5 +392,5 @@ current project."
        (- (length buffer-list)
           (length (cl-remove-if-not #'buffer-live-p buffer-list)))))))
 
-(provide 'init-buffers)
+(provide 'custom-buffer)
 ;;; init-buffers.el ends here

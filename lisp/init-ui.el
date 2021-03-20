@@ -80,7 +80,7 @@
   (unless after-init-time
     (setq doom-modeline--default-format mode-line-format)
     (setq-default mode-line-format nil))
-  :bind (:map doom-modeline-mode-map))
+  )
 
 ;; Settings for delete multi line spaces
 (use-package emacs
@@ -171,31 +171,12 @@
   :ensure t
   :init
   (dashboard-setup-startup-hook)
-  :bind (("C-c R" . restore-session))
   :config
   (setq dashboard-set-heading-icons t)
   (setq dashboard-center-content t)
   (setq dashboard-set-file-icons t)
   (setq dashboard-items '((recents . 5)
-                          (projects . 5)))
-
-  (defun restore-previous-session ()
-    "Restore the previous session."
-    (interactive)
-    (when (bound-and-true-p persp-mode)
-      (restore-session persp-auto-save-fname)))
-
-  (defun restore-session (fname)
-    "Restore the specified session."
-    (interactive (list (read-file-name "Load perspectives from a file: "
-                                       persp-save-dir)))
-    (when (bound-and-true-p persp-mode)
-      (message "Restoring session...")
-      (quit-window t)
-      (condition-case-unless-debug err
-          (persp-load-state-from-file fname)
-        (error "Error: Unable to restore session -- %s" err))
-      (message "Done"))))
+                          (projects . 5))))
 
 ;; Use fixed pitch where it's sensible
 (use-package mixed-pitch
@@ -216,5 +197,28 @@
           ;; empty ;blank lines at BOB or EOB
           indentation)) ;highlight spaces/tabs at BOL depending on `indent-tabs-mode'
   )
+
+;;;###autoload
+(defun dotfairy/toggle-line-numbers ()
+  "Toggle line numbers.
+Cycles through regular, relative and no line numbers. The order depends on what
+`display-line-numbers-type' is set to. If you're using Emacs 26+, and
+visual-line-mode is on, this skips relative and uses visual instead.
+See `display-line-numbers' for what these values mean."
+  (interactive)
+  (defvar dotfairy--line-number-style display-line-numbers-type)
+  (let* ((styles `(t ,(if visual-line-mode 'visual 'relative) nil))
+         (order (cons display-line-numbers-type (remq display-line-numbers-type styles)))
+         (queue (memq dotfairy--line-number-style order))
+         (next (if (= (length queue) 1)
+                   (car order)
+                 (car (cdr queue)))))
+    (setq dotfairy--line-number-style next)
+    (setq display-line-numbers next)
+    (message "Switched to %s line numbers"
+             (pcase next
+               (`t "normal")
+               (`nil "disabled")
+               (_ (symbol-name next))))))
 (provide 'init-ui)
 ;;; init-ui.el ends here

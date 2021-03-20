@@ -4,7 +4,7 @@
 ;;;
 
 (use-package pretty-hydra
-  :bind (("C-c m v" . editor-plus/body))
+  :bind (("C-c c v" . editor-plus/body))
   :init
   (cl-defun pretty-hydra-title (title &optional icon-type icon-name
                                       &key face height v-adjust)
