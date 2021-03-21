@@ -28,8 +28,8 @@
   :if (executable-find "cmake")
   :bind (:map vterm-mode-map
               ("C-s" . counsel-grep-or-swiper)
-              ("C-y" . vterm-yank))
-  :bind ("C-c t m" . multi-term-hydra/body)
+              ("C-y" . vterm-yank)
+              ("C-c C-m" . multi-term-hydra/body))
   :config
 
   ;; disable some unnecessary minor-modes in term-mode

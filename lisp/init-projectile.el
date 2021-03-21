@@ -49,6 +49,8 @@
   (use-package ag
     :ensure t)
   (use-package counsel-projectile
+    :bind (:map projectile-mode-map
+                ("C-x p" . projectile-command-map))
     :hook
     (after-init . counsel-projectile-mode)
     :config

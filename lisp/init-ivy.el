@@ -29,7 +29,20 @@
   :diminish ivy-mode counsel-mode
   :bind
   (("C-s"   . swiper-isearch)
-   ("C-r"   . swiper-isearch-backward))
+   ("C-r"   . swiper-isearch-backward)
+   :map ivy-minibuffer-map
+   ("C-w" . ivy-yank-word)
+   ("C-`" . ivy-avy)
+
+   :map counsel-find-file-map
+   ("C-h" . counsel-up-directory)
+
+   :map swiper-map
+   ("M-s" . swiper-isearch-toggle)
+   ("M-%" . swiper-query-replace)
+
+   :map isearch-mode-map
+   ("M-s" . swiper-isearch-toggle))
   :hook ((after-init . ivy-mode)
          (ivy-mode . counsel-mode))
   :init
@@ -223,8 +236,6 @@
         (if (memq (ivy-state-caller ivy-last) '(swiper swiper-isearch))
             (my-ivy-switch-to-counsel-rg)
           (my-ivy-switch-to-swiper-isearch))))
-    (bind-key "<C-return>" #'my-swiper-toggle-counsel-rg swiper-map)
-    (bind-key "<C-return>" #'my-swiper-toggle-counsel-rg counsel-ag-map)
 
     (with-eval-after-load 'rg
       (defun my-swiper-toggle-rg-dwim ()
@@ -232,8 +243,7 @@
         (interactive)
         (ivy-quit-and-run
           (rg-dwim default-directory)))
-      (bind-key "<M-return>" #'my-swiper-toggle-rg-dwim swiper-map)
-      (bind-key "<M-return>" #'my-swiper-toggle-rg-dwim counsel-ag-map))
+      )
 
     (defun my-swiper-toggle-swiper-isearch ()
       "Toggle `swiper' and `swiper-isearch' with the current input."
@@ -242,21 +252,18 @@
         (if (eq (ivy-state-caller ivy-last) 'swiper-isearch)
             (swiper ivy-text)
           (swiper-isearch ivy-text))))
-    (bind-key "<s-return>" #'my-swiper-toggle-swiper-isearch swiper-map)
 
     (defun my-counsel-find-file-toggle-fzf ()
       "Toggle `counsel-fzf' with the current `counsel-find-file' input."
       (interactive)
       (ivy-quit-and-run
         (counsel-fzf (or ivy-text "") default-directory)))
-    (bind-key "<C-return>" #'my-counsel-find-file-toggle-fzf counsel-find-file-map)
 
     (defun my-swiper-toggle-rg-dwim ()
       "Toggle `rg-dwim' with the current input."
       (interactive)
       (ivy-quit-and-run (my-ivy-switch-to-rg-dwim)))
-    (bind-key "<M-return>" #'my-swiper-toggle-rg-dwim swiper-map)
-    (bind-key "<M-return>" #'my-swiper-toggle-rg-dwim counsel-ag-map)
+
 
     (defun my-swiper-toggle-swiper-isearch ()
       "Toggle `swiper' and `swiper-isearch' with the current input."
@@ -265,7 +272,7 @@
         (if (eq (ivy-state-caller ivy-last) 'swiper-isearch)
             (my-ivy-switch-to-swiper)
           (my-ivy-switch-to-swiper-isearch))))
-    (bind-key "<s-return>" #'my-swiper-toggle-swiper-isearch swiper-map)
+
 
     ;; More actions
     (ivy-add-actions
@@ -404,6 +411,56 @@ This is for use in `ivy-re-builders-alist'."
 
   ;; Tramp ivy interface
   (use-package counsel-tramp)
+  (map! :after ivy
+        :localleader
+        :map counsel-mode-map
+        (:prefix ("i" . "ivy")
+                 "a" #'counsel-ag
+                 "A" #'counsel-apropos
+                 "B" #'counsel-bookmarked-directory
+                 (:prefix ("d" . "describe")
+                          "f" #'counsel-describe-function
+                          "v" #'counsel-describe-variable
+                          "s" #'counsel-describe-symbol
+                          "l"  #'counsel-info-lookup-symbol
+                          )
+                 "e" #'counsel-colors-emacs
+                 "f" #'counsel-find-library
+                 "F" #'counsel-faces
+                 "G" #'counsel-git
+                 "h" #'counsel-command-history
+                 "H" #'counsel-minibuffer-history
+                 "l" #'counsel-locate
+                 "L" #'counsel-load-library
+                 "m" #'counsel-mark-ring
+                 "o" #'counsel-outline
+                 "O" #'counsel-find-file-extern
+                 "p" #'counsel-pt
+                 "P" #'counsel-package
+                 "R" #'counsel-list-processes
+                 "t" #'counsel-load-theme
+                 "u" #'counsel-unicode-char
+                 "w" #'counsel-colors-web
+                 "v" #'counsel-set-variable
+                 "z" #'counsel-fzf)
+        (:prefix ("s" . "Search")
+                 "g" #'counsel-grep
+                 "j" #'counsel-git-grep
+                 "r" #'counsel-rg
+                 "s" #'swiper-isearch-toggle
+                 )
+        :map swiper-map
+        "s" #'my-swiper-toggle-swiper-isearch
+        "r" #'my-swiper-toggle-rg-dwim
+        "R"  #'my-swiper-toggle-counsel-rg
+        :map counsel-ag-map
+        "s" #'my-swiper-toggle-swiper-isearch
+        "r" #'my-swiper-toggle-rg-dwim
+        "R"  #'my-swiper-toggle-counsel-rg
+        :map counsel-find-file-map
+        "f" #'my-counsel-find-file-toggle-fzf
+        )
+
   )
 
 ;; Better experience with icons

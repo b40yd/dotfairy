@@ -54,7 +54,7 @@
 
                    )
       (:prefix-map ("e" . "editor")
-                   :desc "Wdired change to wdired-mode" "e"  #'wdired-change-to-wdired-mode)
+                   :desc "Dired change to wdired-mode" "e"  #'wdired-change-to-wdired-mode)
       ;;; <leader> f --- file
       (:prefix-map ("f" . "file")
                    :desc "Open project editorconfig"   "."   #'editorconfig-find-current-editorconfig
@@ -140,15 +140,7 @@
                    :desc "Open Dired"         "d"  #'+default/dired
                    :desc "New frame"          "f"  #'make-frame
                    :desc "Dired"              "-"  #'dired-jump
-
-                   :desc "Project sidebar"               "p" #'+treemacs/toggle
                    :desc "Find file in project rsidebar" "P" #'treemacs-find-file
-
-                   :desc "Toggle vterm popup"            "t" #'+vterm/toggle
-                   :desc "Open vterm here"               "T" #'+vterm/here
-
-                   :desc "Toggle eshell popup"           "e" #'+eshell/toggle
-                   :desc "Open eshell here"              "E" #'+eshell/here
                    )
 
        ;;; <leader> p --- project
@@ -163,7 +155,6 @@
 
       ;;; <leader> q --- quit/restart
       (:prefix-map ("q" . "quit/restart")
-                   :desc "Restart emacs server"         "d" #'+default/restart-server
                    :desc "Delete frame"                 "f" #'delete-frame
                    :desc "Clear current frame"          "F" #'dotfairy/kill-all-buffers
                    :desc "Kill Emacs (and daemon)"      "K" #'save-buffers-kill-emacs
@@ -276,20 +267,19 @@
                    :desc "Redo window config"           "U" #'winner-redo)
 
       ;;; <leader> m --- multiple cursors
-      (:when (featurep 'multiple-cursors)
-             (:prefix-map ("m" . "multiple-cursors")
-                          :desc "Edit lines"         "l"         #'mc/edit-lines
-                          :desc "Mark next"          "n"         #'mc/mark-next-like-this
-                          :desc "Unmark next"        "N"         #'mc/unmark-next-like-this
-                          :desc "Mark previous"      "p"         #'mc/mark-previous-like-this
-                          :desc "Unmark previous"    "P"         #'mc/unmark-previous-like-this
-                          :desc "Mark all"           "t"         #'mc/mark-all-like-this
-                          :desc "Mark all DWIM"      "m"         #'mc/mark-all-like-this-dwim
-                          :desc "Edit line endings"  "e"         #'mc/edit-ends-of-lines
-                          :desc "Edit line starts"   "a"         #'mc/edit-beginnings-of-lines
-                          :desc "Mark tag"           "s"         #'mc/mark-sgml-tag-pair
-                          :desc "Mark in defun"      "d"         #'mc/mark-all-like-this-in-defun
-                          :desc "Add cursor w/mouse" "<mouse-1>" #'mc/add-cursor-on-click))
+      (:prefix-map ("m" . "multiple-cursors")
+                   :desc "Edit lines"         "l"         #'mc/edit-lines
+                   :desc "Mark next"          "n"         #'mc/mark-next-like-this
+                   :desc "Unmark next"        "N"         #'mc/unmark-next-like-this
+                   :desc "Mark previous"      "p"         #'mc/mark-previous-like-this
+                   :desc "Unmark previous"    "P"         #'mc/unmark-previous-like-this
+                   :desc "Mark all"           "t"         #'mc/mark-all-like-this
+                   :desc "Mark all DWIM"      "m"         #'mc/mark-all-like-this-dwim
+                   :desc "Edit line endings"  "e"         #'mc/edit-ends-of-lines
+                   :desc "Edit line starts"   "a"         #'mc/edit-beginnings-of-lines
+                   :desc "Mark tag"           "s"         #'mc/mark-sgml-tag-pair
+                   :desc "Mark in defun"      "d"         #'mc/mark-all-like-this-in-defun
+                   :desc "Add cursor w/mouse" "<mouse-1>" #'mc/add-cursor-on-click)
 
       )
 (provide 'custom-keybinds)
