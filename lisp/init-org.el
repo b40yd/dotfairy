@@ -153,8 +153,7 @@
     )
 
   (use-package org-super-agenda
-    :init
-    (org-super-agenda-mode)
+    :hook (org-mode . org-super-agenda-mode)
     :config
     (setq org-agenda-custom-commands
           '(("z" "Next View"
