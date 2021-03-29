@@ -33,11 +33,13 @@
          (after-save . (lambda ()
                          (when (and (executable-find "black") buffer-file-name)
                            (call-process "black" nil nil nil buffer-file-name)))))
-  :config
+  :init
+  ;; Disable readline based native completion
+  (setq python-shell-completion-native-enable nil)
   (setq python-indent-offset 4)
-  (setq python-shell-interpreter "python"
-        python-shell-interpreter-args "-i")
-  ;; ;; ;; Env vars
+
+  :config
+  ;; Env vars
   (when (fboundp 'exec-path-from-shell-copy-env)
     (exec-path-from-shell-copy-env "PYTHONPATH"))
 
