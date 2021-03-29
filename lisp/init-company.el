@@ -168,7 +168,7 @@
 
 
   (use-package company-quickhelp
-    :hook (prog-mode . company-quickhelp-mode)
+    :hook (global-company-mode . company-quickhelp-mode)
     :defines company-quickhelp-delay
     :bind (:map company-active-map
                 ([remap company-show-doc-buffer] . company-quickhelp-manual-begin))
