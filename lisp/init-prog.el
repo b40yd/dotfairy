@@ -68,7 +68,7 @@
 (use-package quickrun
   :config
   ;; hydra for quickrun
-  :bind (("C-c r" . quickrun-hydra/body))
+  ;; :bind (("C-c r" . quickrun-hydra/body))
 
   :pretty-hydra
   ((:title (pretty-hydra-title "QuickRun" 'faicon "linux")
@@ -114,12 +114,12 @@
 ;; Nice writing
 (use-package olivetti
   :diminish
-  :bind ("<f7>" . olivetti-mode)
+  ;; :bind ("<f7>" . olivetti-mode)
   :init (setq olivetti-body-width 0.618))
 
 ;; Music player
 (use-package bongo
-  :bind ("C-<f9>" . bongo)
+  ;; :bind ("C-<f9>" . bongo)
   :config
   (with-eval-after-load 'dired
     (with-no-warnings

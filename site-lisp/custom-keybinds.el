@@ -36,8 +36,14 @@
 (autoload 'org-capture-goto-target "org-capture" nil t)
 
 (map! :leader
+      (:prefix-map ("a" . "appliction")
+                   :desc "Music Player"                        "b"   #'bongo
+                   :desc "Reading"                             "r"   #'olivetti-mode
+                   :desc "Quick Run"                           "R"   #'quickrun-hydra/body
+                   :desc "LSP UI imenu"                        "u"   #'lsp-ui-imenu
+                   )
       ;;; <leader> c --- code
-      (:prefix-map ("c" . "Coding")
+      (:prefix-map ("c" . "coding")
                    :desc "Hungry delete backward"              "b"   #'hungry-delete-backward
                    :desc "Compile"                             "c"   #'compile
                    :desc "Recompile"                           "C"   #'recompile
@@ -47,6 +53,7 @@
                    :desc "LSP Code actions"                    "a"   #'lsp-execute-code-action
                    :desc "LSP Organize imports"                "o"   #'lsp-organize-imports
                    :desc "LSP Rename"                          "r"   #'lsp-rename
+                   :desc "LSP describe thing at point"         "."   #'lsp-describe-thing-at-point
                    ;; :desc "LSP"                                   "l"   #'+default/lsp-command-map
 
                    :desc "Jump to symbol in current workspace" "j"   #'lsp-ivy-workspace-symbol
@@ -184,12 +191,13 @@
                    :desc "Indent style"                 "I" #'dotfairy/toggle-indent-style
                    :desc "Line numbers"                 "l" #'dotfairy/toggle-line-numbers
 
-                   :desc "org-tree-slide mode"        "p" #'org-tree-slide-mode
+                   :desc "Org tree slide mode"          "p" #'org-tree-slide-mode
+                   :desc "Org super agenda mode"        "s" #'org-super-agenda-mode
                    :desc "Read-only mode"               "r" #'read-only-mode
 
-                   :desc "Pomodoro timer"             "P" #'org-pomodoro
+                   :desc "Pomodoro timer"               "P" #'org-pomodoro
+                   :desc "Load theme"                   "T"  #'dotfairy-load-theme
                    )
-      :desc "Load theme"                   "T"  #'dotfairy-load-theme
 
       ;;; <leader> v --- versioning
       (:prefix-map ("v" . "versioning")

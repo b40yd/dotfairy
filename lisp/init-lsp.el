@@ -50,7 +50,7 @@
              lsp-install-server)
 
   :bind (:map lsp-mode-map
-              ("C-c C-." . lsp-describe-thing-at-point)
+              ;; ("C-c C-." . lsp-describe-thing-at-point)
               ([remap xref-find-definitions] . lsp-find-definition)
               ([remap xref-find-references] . lsp-find-references))
 
@@ -151,7 +151,8 @@
      ("M-b" backward-word nil)
      ("M-f" forward-word nil)
      ("c" lsp-ui-sideline-apply-code-actions "apply code actions"))))
-  :bind (("C-c u" . lsp-ui-imenu)
+  :bind (
+         ;; ("C-c u" . lsp-ui-imenu)
          :map lsp-ui-mode-map
          ("C-<f6>" . lsp-ui-hydra/body)
          ("M-RET" . lsp-ui-sideline-apply-code-actions))
@@ -187,8 +188,7 @@
   :after lsp-mode
   :ensure t
   :bind (:map lsp-mode-map
-              ([remap xref-find-apropos] . lsp-ivy-workspace-symbol)
-              ("C-s-." . lsp-ivy-global-workspace-symbol)))
+              ([remap xref-find-apropos] . lsp-ivy-workspace-symbol)))
 
 ;; Python: pyright
 (use-package lsp-pyright
@@ -218,7 +218,7 @@
   :bind (:map lsp-mode-map
               ("C-<f8>" . lsp-treemacs-errors-list)
               ("M-<f8>" . lsp-treemacs-symbols)
-              ("s-<f8>" . lsp-treemacs-java-deps-list))
+              ("S-<f8>" . lsp-treemacs-java-deps-list))
   :init (lsp-treemacs-sync-mode 1)
   :config
   (with-eval-after-load 'ace-window
