@@ -393,7 +393,11 @@ This is for use in `ivy-re-builders-alist'."
   ;; Ivy integration for Projectile
   (use-package counsel-projectile
     :hook (counsel-mode . counsel-projectile-mode)
-    :init (setq counsel-projectile-grep-initial-input '(ivy-thing-at-point)))
+    :init (setq counsel-projectile-grep-initial-input '(ivy-thing-at-point))
+    :config
+    ;; no highlighting visited files; slows down the filtering
+    (ivy-set-display-transformer #'counsel-projectile-find-file nil)
+    (setq counsel-projectile-sort-files t))
 
   ;; Integrate yasnippet
   (use-package ivy-yasnippet)

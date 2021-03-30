@@ -31,7 +31,7 @@
 ;; persp-mode and projectile in different prefixes
 (setq persp-keymap-prefix (kbd "C-c w"))
 (after! projectile
-  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
+  (define-key projectile-mode-map (kbd "C-x p") 'projectile-command-map))
 
 (autoload 'org-capture-goto-target "org-capture" nil t)
 
@@ -41,6 +41,15 @@
                    :desc "Reading"                             "r"   #'olivetti-mode
                    :desc "Quick Run"                           "R"   #'quickrun-hydra/body
                    :desc "LSP UI imenu"                        "u"   #'lsp-ui-imenu
+                   )
+      (:prefix-map ("b" . "buffers")
+                   :desc "Kill all buffers"                    "a"   #'dotfairy/kill-all-buffers
+                   :desc "Kill this buffer in all windows"     "A"   #'dotfairy/kill-this-buffer-in-all-windows
+                   :desc "Kill buried buffers"                 "b"   #'dotfairy/kill-buried-buffers
+                   :desc "Save and kill buffer"                "s"   #'dotfairy/save-and-kill-buffer
+                   :desc "Kill other buffers"                  "o"   #'dotfairy/kill-other-buffers
+                   :desc "kill matching buffers"               "m"   #'dotfairy/kill-matching-buffers
+
                    )
       ;;; <leader> c --- code
       (:prefix-map ("c" . "coding")
@@ -70,7 +79,7 @@
                    :desc "Find directory"              "d"   #'dired
                    :desc "Delete this file"            "D"   #'dotfairy/delete-this-file
                    :desc "Find file in emacs.d"        "e"   #'dotfairy/find-file-in-emacsd
-                   :desc "Browse emacs.d"              "E"   #'dotfairy/browse-in-emacsd
+                   :desc "Browse in emacs.d"           "E"   #'dotfairy/browse-in-emacsd
                    :desc "Find file"                   "f"   #'find-file
                    :desc "Find file from here"         "F"   #'+default/find-file-under-here
                    :desc "Locate file"                 "l"   #'locate
@@ -151,13 +160,16 @@
                    :desc "Find file in project rsidebar" "P" #'treemacs-find-file
                    )
 
-       ;;; <leader> p --- project
+      ;;; <leader> p --- project
       (:prefix ("p" . "project")
                :desc "Find file in other project"  "F" #'dotfairy/find-file-in-other-project
+               :desc "Kill project buffers"        "k" #'dotfairy/kill-project-buffers
+               :desc "Browse in other project"     "o" #'dotfairy/browse-in-other-project
+               :desc "Browse project"              "p" #'+default/browse-project
                :desc "Search project"              "s" #'+default/search-project
                :desc "Search Other Project"        "S" #'+default/search-other-project
                :desc "List project todos"          "t" #'magit-todos-list
-               ;; later expanded by projectile
+
                (:prefix ("4" . "in other window"))
                (:prefix ("5" . "in other frame")))
 

@@ -31,6 +31,7 @@
 (defvar projectile-require-project-root)
 
 (use-package projectile
+  :hook (after-init . projectile-mode)
   :init
   (setq projectile-mode-line-prefix "ⓟ"
         projectile-sort-order 'recentf
@@ -45,23 +46,10 @@
         projectile-kill-buffers-filter 'kill-only-files
         projectile-known-projects-file (concat dotfairy-cache-dir "projectile.projects")
         projectile-ignored-projects '("~/" "/tmp"))
-  (global-set-key [remap find-tag]         #'projectile-find-tag)
-  (use-package ag
-    :ensure t)
-  (use-package counsel-projectile
-    :bind (:map projectile-mode-map
-                ("C-x p" . projectile-command-map))
-    :hook
-    (after-init . counsel-projectile-mode)
-    :config
-    ;; no highlighting visited files; slows down the filtering
-    (ivy-set-display-transformer #'counsel-projectile-find-file nil)
-    (setq counsel-projectile-sort-files t))
-
-  :hook (after-init . projectile-mode)
-  :config
   (projectile-mode +1)
-                                        ; Projectile runs four functions to determine the root (in this order):
+
+  :config
+  ;; Projectile runs four functions to determine the root (in this order):
   ;;
   ;; + `projectile-root-local' -> checks the `projectile-project-root' variable
   ;;    for an explicit path.
@@ -131,7 +119,11 @@
     ;; FIXME: too slow while getting submodule files on Windows
     (setq projectile-git-submodule-command nil))
 
-  (setq projectile-completion-system 'ivy))
+  (setq projectile-completion-system 'ivy)
+
+  (use-package ag
+    :ensure t)
+  )
 
 
 (provide 'init-projectile)
