@@ -24,47 +24,64 @@
 
 ;;; Code:
 
-(use-package vterm
-  :if (executable-find "cmake")
-  :bind (:map vterm-mode-map
-              ("C-s" . counsel-grep-or-swiper)
-              ("C-y" . vterm-yank)
-              ("C-c C-m" . multi-term-hydra/body))
-  :config
+;; Better term
+;; @see https://github.com/akermu/emacs-libvterm#installation
+(when (and module-file-suffix           ; dynamic module
+           (executable-find "cmake")
+           (executable-find "libtool")
+           (executable-find "make"))
+  (use-package vterm
+    :init (setq vterm-always-compile-module t)
+    :config
+    ;; disable some unnecessary minor-modes in term-mode
+    (add-hook 'vterm-mode-hook (lambda ()
+                                 (yas-minor-mode -1)
+                                 (setq-local global-hl-line-mode nil)
 
-  ;; disable some unnecessary minor-modes in term-mode
-  (add-hook 'vterm-mode-hook (lambda ()
-                               (yas-minor-mode -1)
-                               (setq-local global-hl-line-mode nil)
+                                 ;; Prevent premature horizontal scrolling
+                                 (setq-local hscroll-margin 0)))
 
-                               ;; Prevent premature horizontal scrolling
-                               (setq-local hscroll-margin 0)))
+    ;; vterm buffers are killed when the associated process is terminated
+    (setq vterm-kill-buffer-on-exit t))
 
-  ;; vterm buffers are killed when the associated process is terminated
-  (setq vterm-kill-buffer-on-exit t))
+  ;; vterm-toggle: toggles between the vterm buffer and whatever buffer you are editing.
+  ;; https://github.com/jixiuf/vterm-toggle
+  (use-package vterm-toggle
+    :after vterm)
 
-;; vterm-toggle: toggles between the vterm buffer and whatever buffer you are editing.
-;; https://github.com/jixiuf/vterm-toggle
-(use-package vterm-toggle
-  :if (executable-find "cmake")
-  :after vterm)
+  ;; multi-vterm: manage multiple terminal windows easily within emacs
+  ;; https://github.com/suonlight/multi-vterm
+  (use-package multi-vterm
+    :after vterm
+    :config
+    ;; hydra for using multi-vterm
+    (defhydra multi-term-hydra ()
+      "multi-term"
+      ("o" multi-vterm "new terminal")
+      ("t" vterm-toggle-cd "toggle/open")
+      ("n" multi-vterm-next "Next")
+      ("p" multi-vterm-prev "Prev")
+      ("d" multi-vterm-dedicated-toggle "Dedicated terminal")
+      ("r" multi-vterm-projectile "vterm projectile")
+      ("q" nil "Quit" :color blue)))
 
-;; multi-vterm: manage multiple terminal windows easily within emacs
-;; https://github.com/suonlight/multi-vterm
-(use-package multi-vterm
-  :after vterm
-  :if (executable-find "cmake")
-  :config
-  ;; hydra for using multi-vterm
-  (defhydra multi-term-hydra ()
-    "multi-term"
-    ("o" multi-vterm "new terminal")
-    ("t" vterm-toggle-cd "toggle/open")
-    ("n" multi-vterm-next "Next")
-    ("p" multi-vterm-prev "Prev")
-    ("d" multi-vterm-dedicated-toggle "Dedicated terminal")
-    ("r" multi-vterm-projectile "vterm projectile")
-    ("q" nil "Quit" :color blue)))
+  ;; Shell Pop
+  (use-package shell-pop
+    :bind ([f9] . shell-pop)
+    :init (setq shell-pop-window-size 30
+                shell-pop-shell-type
+                (cond ((fboundp 'vterm) '("vterm" "*vterm*" #'vterm))
+                      (IS-WINDOWS '("eshell" "*eshell*" #'eshell))
+                      (t '("terminal" "*terminal*"
+                           (lambda () (term shell-pop-term-shell)))))))
+
+  (map! :map vterm-mode-map
+        :localleader
+        "s" #'counsel-grep-or-swiper
+        "y" #'vterm-yank
+        "m" #'multi-term-hydra/body
+        )
+  )
 
 (provide 'init-vterm)
 ;;; init-vterm.el ends here

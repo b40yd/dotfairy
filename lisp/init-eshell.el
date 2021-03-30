@@ -141,9 +141,6 @@
   (use-package eshell-z
     :hook (eshell-mode . (lambda () (require 'eshell-z)))))
 
-(setq compilation-always-kill t
-      compilation-ask-about-save nil
-      compilation-scroll-output t)
 
 (provide 'init-eshell)
 ;;; init-eshell.el ends here

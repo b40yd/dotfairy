@@ -90,6 +90,7 @@
                    :desc "Search All Opened buffer"     "B" #'swiper-all
                    :desc "Search current directory"     "d" #'+default/search-cwd
                    :desc "Search other directory"       "D" #'+default/search-other-cwd
+                   :desc "Counsel grep or swiper"       "g" #'counsel-grep-or-swiper
                    :desc "Jump to symbol"               "i" #'imenu
                    :desc "Jump to visible link"         "l" #'link-hint-open-link
                    :desc "Jump to link"                 "L" #'ffap-menu
