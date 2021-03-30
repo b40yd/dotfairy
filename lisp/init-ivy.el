@@ -396,8 +396,7 @@ This is for use in `ivy-re-builders-alist'."
     :init (setq counsel-projectile-grep-initial-input '(ivy-thing-at-point)))
 
   ;; Integrate yasnippet
-  (use-package ivy-yasnippet
-    :bind ("C-c c y" . ivy-yasnippet))
+  (use-package ivy-yasnippet)
 
   ;; Select from xref candidates with Ivy
   (use-package ivy-xref
@@ -447,7 +446,7 @@ This is for use in `ivy-re-builders-alist'."
                  "g" #'counsel-grep
                  "j" #'counsel-git-grep
                  "r" #'counsel-rg
-                 "s" #'swiper-isearch-toggle
+                 "s" #'counsel-grep-or-swiper
                  )
         :map swiper-map
         "s" #'my-swiper-toggle-swiper-isearch
