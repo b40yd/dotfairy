@@ -62,10 +62,10 @@
         lsp-signature-auto-activate nil
         lsp-modeline-code-actions-enable nil
         lsp-modeline-diagnostics-enable nil
+        lsp-modeline-workspace-status-enable nil
 
         lsp-go-codelenses '((generate . t) (test . t) (tidy . t))
 
-        lsp-enable-file-watchers nil
         lsp-enable-file-watchers nil
         lsp-enable-folding nil
         lsp-enable-symbol-highlighting nil
@@ -77,27 +77,18 @@
         lsp-server-install-dir (concat dotfairy-etc-dir "lsp/"))
 
   :config
-  ;; Auto kill LSP server
-  (setq lsp-keep-workspace-alive nil
-        lsp-enable-snippet t
-        lsp-intelephense-storage-path (concat dotfairy-cache-dir "lsp-intelephense/"))
 
-  ;; Disable features that have great potential to be slow.
-  (setq lsp-enable-file-watchers nil
-        lsp-enable-folding nil
-        lsp-enable-text-document-color nil)
-
-  ;; Disable features that modify our code without our permission.
-  (setq lsp-enable-indentation nil
-        lsp-enable-on-type-formatting nil)
   (with-no-warnings
     (defun my-lsp--init-if-visible (func &rest args)
       "Not enabling lsp in `git-timemachine-mode'."
       (unless (bound-and-true-p git-timemachine-mode)
         (apply func args)))
     (advice-add #'lsp--init-if-visible :around #'my-lsp--init-if-visible))
-
-  )
+  (defun lsp-update-server ()
+    "Update LSP server."
+    (interactive)
+    ;; Equals to `C-u M-x lsp-install-server'
+    (lsp-install-server t)))
 
 ;;; Optionally: lsp-ui, company-lsp
 (use-package lsp-ui
@@ -105,7 +96,7 @@
   :custom-face
   (lsp-ui-sideline-code-action ((t (:inherit warning))))
   :pretty-hydra
-  ((:title (pretty-hydra-title "LSP UI" 'faicon "rocket")
+  ((:title (pretty-hydra-title "LSP UI" 'faicon "rocket" :face 'all-the-icons-green)
            :color amaranth :quit-key "q")
    ("Doc"
     (("d e" (progn
@@ -120,6 +111,8 @@
       "bottom" :toggle (eq lsp-ui-doc-position 'bottom))
      ("d p" (setq lsp-ui-doc-position 'at-point)
       "at point" :toggle (eq lsp-ui-doc-position 'at-point))
+     ("d h" (setq lsp-ui-doc-header (not lsp-ui-doc-header))
+      "header" :toggle lsp-ui-doc-header)
      ("d f" (setq lsp-ui-doc-alignment 'frame)
       "align frame" :toggle (eq lsp-ui-doc-alignment 'frame))
      ("d w" (setq lsp-ui-doc-alignment 'window)
@@ -144,6 +137,8 @@
      ("j" next-line "↓")
      ("k" previous-line "↑")
      ("l" forward-char "→")
+     ("C-a" mwim-beginning-of-code-or-line nil)
+     ("C-e" mwim-end-of-code-or-line nil)
      ("C-b" backward-char nil)
      ("C-n" next-line nil)
      ("C-p" previous-line nil)
@@ -157,15 +152,9 @@
          ("C-<f6>" . lsp-ui-hydra/body)
          ("M-RET" . lsp-ui-sideline-apply-code-actions))
   :hook (lsp-mode . lsp-ui-mode)
-  :init (setq lsp-ui-doc-max-height 8
-              lsp-ui-doc-max-width 35
-              lsp-ui-doc-enable nil
-              lsp-ui-doc-use-webkit nil
-              lsp-ui-doc-delay 0
-              lsp-ui-doc-include-signature t
-              lsp-ui-doc-position 'top
-              lsp-eldoc-enable-hover nil ;; Disable eldoc displays in minibuffer
-              lsp-ui-sideline-ignore-duplicate t
+  :init (setq lsp-ui-sideline-ignore-duplicate t
+              lsp-ui-sideline-show-diagnostics nil
+              lsp-ui-doc-position 'at-point
               lsp-ui-doc-border (face-foreground 'font-lock-comment-face)
               lsp-ui-imenu-colors `(,(face-foreground 'font-lock-keyword-face)
                                     ,(face-foreground 'font-lock-string-face)
@@ -188,7 +177,8 @@
   :after lsp-mode
   :ensure t
   :bind (:map lsp-mode-map
-              ([remap xref-find-apropos] . lsp-ivy-workspace-symbol)))
+              ([remap xref-find-apropos] . lsp-ivy-workspace-symbol))
+  )
 
 ;; Python: pyright
 (use-package lsp-pyright

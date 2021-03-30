@@ -85,6 +85,12 @@
       ;; Enable in `lsp-mode'
       (advice-add #'lsp--auto-configure :after #'my-company-enbale-yas)
 
+      (defun my-lsp-fix-company-capf ()
+        "Remove redundant `comapny-capf'."
+        (setq company-backends
+              (remove 'company-backends (remq 'company-capf company-backends))))
+      (advice-add #'lsp-completion--enable :after #'my-lsp-fix-company-capf)
+
       (defun my-company-yasnippet-disable-inline (fun command &optional arg &rest _ignore)
         "Enable yasnippet but disable it inline."
         (if (eq command 'prefix)
@@ -105,7 +111,7 @@
 
   ;; Better sorting and filtering
   (use-package company-prescient
-    :config
+    :init
     (if dotfairy-company-prescient
         (company-prescient-mode 1)))
 
