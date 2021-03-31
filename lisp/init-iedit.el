@@ -83,7 +83,7 @@
               :map prog-mode-map
               ("<C-return>" . rect-hydra/body))
   :init (with-eval-after-load 'org
-          (bind-key "<s-return>" #'rect-hydra/body org-mode-map))
+          (bind-key "<C-M-return>" #'rect-hydra/body org-mode-map))
   :pretty-hydra
   ((:title (pretty-hydra-title "Rectangle" 'material "border_all" :height 1.1 :v-adjust -0.225)
            :color amaranth :body-pre (rectangle-mark-mode) :post (deactivate-mark) :quit-key ("q" "C-g"))
@@ -132,8 +132,8 @@
   (global-undo-tree-mode))
 
 (use-package rainbow-mode
-  :after rainbow-mode
-  :bind (("C-c c m" . rainbow-mode-hydra/body))
+  :hook ((html-mode css-mode) . rainbow-mode)
+  :bind (("C-x c m" . rainbow-mode-hydra/body))
   :pretty-hydra
   ((:title (pretty-hydra-title "Colors Management" 'faicon "windows")
            :foreign-keys warn :quit-key "q")
@@ -147,14 +147,20 @@
   :config
   (use-package kurecolor))
 
+;; Highlight brackets according to their depth
+(use-package rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode))
+
 ;; Increase selected region by semantic units
 (use-package expand-region
-  :bind ("C-=" . er/expand-region))
+  :bind (("M-+" . er/expand-region)
+         ("M--" . er/contract-region)))
 
 (use-package selected
   :bind (:map selected-keymap
               ("c" . copy-region-as-kill)
               ("e" . er/expand-region)
+              ("E" . er/contract-region)
               ("l" . downcase-region)
               ("u" . upcase-region)
               ("w" . kill-region)
@@ -256,9 +262,61 @@
 
 (use-package beacon
   :ensure t
-  :config
+  :init
   (beacon-mode 1)
+  :config
   (setq beacon-color "#666600"))
+
+;; TODO
+(use-package hl-todo
+  :hook (after-init . global-hl-todo-mode)
+  :config
+  (dolist (keyword '("BUG" "DEFECT" "ISSUE"))
+    (cl-pushnew `(,keyword . ,(face-foreground 'error)) hl-todo-keyword-faces))
+  (dolist (keyword '("WORKAROUND" "HACK" "TRICK"))
+    (cl-pushnew `(,keyword . ,(face-foreground 'warning)) hl-todo-keyword-faces)))
+
+;; Highlight symbols
+(use-package symbol-overlay
+  :diminish
+  :functions (turn-off-symbol-overlay turn-on-symbol-overlay)
+  :custom-face (symbol-overlay-default-face ((t (:inherit (region bold)))))
+  :bind (("M-i" . symbol-overlay-put)
+         ("M-n" . symbol-overlay-jump-next)
+         ("M-p" . symbol-overlay-jump-prev)
+         ("M-N" . symbol-overlay-switch-forward)
+         ("M-P" . symbol-overlay-switch-backward)
+         ("M-C" . symbol-overlay-remove-all)
+         ([M-f3] . symbol-overlay-remove-all))
+  :hook ((prog-mode . symbol-overlay-mode)
+         (iedit-mode . turn-off-symbol-overlay)
+         (iedit-mode-end . turn-on-symbol-overlay))
+  :init (setq symbol-overlay-idle-time 0.1)
+  (with-eval-after-load 'all-the-icons
+    (setq symbol-overlay-faces
+          '((:inherit (all-the-icons-blue bold) :inverse-video t)
+            (:inherit (all-the-icons-pink bold) :inverse-video t)
+            (:inherit (all-the-icons-yellow bold) :inverse-video t)
+            (:inherit (all-the-icons-purple bold) :inverse-video t)
+            (:inherit (all-the-icons-red bold) :inverse-video t)
+            (:inherit (all-the-icons-orange bold) :inverse-video t)
+            (:inherit (all-the-icons-green bold) :inverse-video t)
+            (:inherit (all-the-icons-cyan bold) :inverse-video t))))
+  :config
+  ;; Disable symbol highlighting while selecting
+  (defun turn-off-symbol-overlay (&rest _)
+    "Turn off symbol highlighting."
+    (interactive)
+    (symbol-overlay-mode -1))
+  (advice-add #'set-mark :after #'turn-off-symbol-overlay)
+
+  (defun turn-on-symbol-overlay (&rest _)
+    "Turn on symbol highlighting."
+    (interactive)
+    (when (derived-mode-p 'prog-mode)
+      (symbol-overlay-mode 1)))
+  (advice-add #'deactivate-mark :after #'turn-on-symbol-overlay))
+
 
 ;; Jump to things in Emacs tree-style
 (use-package avy
