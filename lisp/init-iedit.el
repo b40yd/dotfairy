@@ -406,5 +406,18 @@
   (use-package lsp-origami
     :hook ((lsp-after-open . lsp-origami-try-enable))))
 
+;; Highlight some operations
+(use-package volatile-highlights
+  :diminish
+  :hook (after-init . volatile-highlights-mode)
+  :config
+  (with-no-warnings
+    (when (fboundp 'pulse-momentary-highlight-region)
+      (defun my-vhl-pulse (beg end &optional _buf face)
+        "Pulse the changes."
+        (pulse-momentary-highlight-region beg end face))
+      (advice-add #'vhl/.make-hl :override #'my-vhl-pulse))))
+
+
 (provide 'init-iedit)
 ;;; init-iedit.el ends here
