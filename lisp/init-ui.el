@@ -23,6 +23,7 @@
 ;;
 
 ;;; Code:
+(require 'init-const)
 (require 'init-custom)
 
 ;; Don't use GTK+ tooltip
@@ -82,13 +83,11 @@
     (setq-default mode-line-format nil))
   )
 
+(use-package minions
+  :hook (doom-modeline-mode . minions-mode))
+
 ;; Settings for delete multi line spaces
 (use-package emacs
-  :config
-  ;; text scale
-  (global-set-key (kbd "C-+") 'text-scale-increase)
-  (global-set-key (kbd "C--") 'text-scale-decrease)
-  (global-set-key (kbd "C-0") 'text-scale-adjust)
   :bind ((("M-/" . comment-line)
           ("M-?" . comment-or-uncomment-region)))
   :hook ((before-save . delete-trailing-whitespace)
@@ -105,6 +104,8 @@
 ;; need install all-the-icons fonts
 ;; web site https://github.com/domtronn/all-the-icons.el
 (use-package all-the-icons
+  :init (unless (or IS-WINDOWS (font-installed-p "all-the-icons"))
+          (all-the-icons-install-fonts t))
   :commands (all-the-icons-octicon
              all-the-icons-faicon
              all-the-icons-fileicon
@@ -167,16 +168,34 @@
   (centaur-tabs-headline-match)
   (centaur-tabs-mode t))
 
-(use-package dashboard
-  :ensure t
-  :init
-  (dashboard-setup-startup-hook)
-  :config
-  (setq dashboard-set-heading-icons t)
-  (setq dashboard-center-content t)
-  (setq dashboard-set-file-icons t)
-  (setq dashboard-items '((recents . 5)
-                          (projects . 5))))
+(when dotfairy-dashboard
+  (use-package dashboard
+    :ensure t
+    :init
+    (dashboard-setup-startup-hook)
+    :config
+    (setq dashboard-startup-banner (or dotfairy-logo 'official)
+          dashboard-set-heading-icons t
+          dashboard-center-content t
+          dashboard-set-file-icons t
+          dashboard-set-footer t
+          dashboard-footer-icon (cond ((icons-displayable-p)
+                                       (all-the-icons-faicon "heart"
+                                                             :height 1.1
+                                                             :v-adjust -0.05
+                                                             :face 'error))
+                                      ((char-displayable-p ?🧡) "🧡 ")
+                                      (t (propertize ">" 'face 'dashboard-footer)))
+          dashboard-items '((recents . 5)
+                            (projects . 5)))))
+
+;; Easily adjust the font size in all frames
+(use-package default-text-scale
+  :hook (after-init . default-text-scale-mode)
+  :bind (:map default-text-scale-mode-map
+              ("C-=" . default-text-scale-increase)
+              ("C--" . default-text-scale-decrease)
+              ("C-0" . default-text-scale-reset)))
 
 ;; Use fixed pitch where it's sensible
 (use-package mixed-pitch

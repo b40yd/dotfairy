@@ -28,6 +28,13 @@
   :group 'convenience
   :link '(url-link :tag "Homepage" "https://github.com/7ym0n/dotfairy"))
 
+(defcustom dotfairy-logo (expand-file-name
+                          (if (display-graphic-p) "logo.png" "banner.txt")
+                          user-emacs-directory)
+  "Set Centaur logo. nil means official logo."
+  :group 'dotfairy
+  :type 'string)
+
 (defcustom dotfairy-full-name ""
   "Set user full name."
   :group 'dotfairy
