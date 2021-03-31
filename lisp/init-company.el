@@ -138,6 +138,19 @@
                   (t . nil)))))
       (advice-add #'company-box-icons--elisp :override #'my-company-box-icons--elisp))
 
+    ;; `company-box' performs insufficient frame-live-p checks. Any command that
+    ;; "cleans up the session" will break company-box.
+    ;; TODO Fix this upstream.
+    (defadvice! +company-box-detect-deleted-frame-a (frame)
+      :filter-return #'company-box--get-frame
+      (if (frame-live-p frame) frame))
+    (defadvice! +company-box-detect-deleted-doc-frame-a (_selection frame)
+      :before #'company-box-doc
+      (and company-box-doc-enable
+           (frame-local-getq company-box-doc-frame frame)
+           (not (frame-live-p (frame-local-getq company-box-doc-frame frame)))
+           (frame-local-setq company-box-doc-frame nil frame)))
+
     (when (icons-displayable-p)
       (declare-function all-the-icons-faicon 'all-the-icons)
       (declare-function all-the-icons-material 'all-the-icons)
