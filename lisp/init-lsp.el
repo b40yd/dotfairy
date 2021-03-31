@@ -63,6 +63,8 @@
         lsp-modeline-code-actions-enable nil
         lsp-modeline-diagnostics-enable nil
         lsp-modeline-workspace-status-enable nil
+        lsp-eldoc-enable-hover nil
+        lsp-signature-render-documentation nil
 
         lsp-go-codelenses '((generate . t) (test . t) (tidy . t))
 
@@ -164,13 +166,7 @@
   :config
   ;; `C-g'to close doc
   (advice-add #'keyboard-quit :before #'lsp-ui-doc-hide)
-
-  ;; Reset `lsp-ui-doc-background' after loading theme
-  (add-hook 'after-load-theme-hook
-            (lambda ()
-              (setq lsp-ui-doc-border (face-foreground 'font-lock-comment-face))
-              (set-face-background 'lsp-ui-doc-background
-                                   (face-background 'tooltip)))))
+  )
 
 ;; Ivy integration
 (use-package lsp-ivy
