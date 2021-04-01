@@ -55,10 +55,10 @@
           mac-right-option-modifier 'none
           ns-right-option-modifier  'none))
    (IS-WINDOWS
-    (setq w32-lwindow-modifier nil
-          w32-rwindow-modifier nil
-          ns-command-modifier nil
-          ns-option-modifier nil))))
+    (setq w32-lwindow-modifier 'super
+          w32-rwindow-modifier 'super
+          ns-command-modifier 'super
+          ns-option-modifier 'meta))))
 
 (use-package general
   :init

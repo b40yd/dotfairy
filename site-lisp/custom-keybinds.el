@@ -208,7 +208,6 @@
                    :desc "Org super agenda mode"        "s" #'org-super-agenda-mode
                    :desc "Read-only mode"               "r" #'read-only-mode
 
-                   :desc "Pomodoro timer"               "P" #'org-pomodoro
                    :desc "Load theme"                   "T"  #'dotfairy-load-theme
                    )
 

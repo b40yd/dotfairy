@@ -75,6 +75,8 @@
                               (make-variable-buffer-local 'show-paren-mode)
                               (setq show-paren-mode nil))))
   :config
+  (with-eval-after-load 'ox
+    (require 'ox-hugo))
   (setq org-startup-indented t
         org-journal-file-format "%Y-%m-%d"
         org-journal-date-prefix "#+TITLE: "
@@ -106,6 +108,17 @@
         org-pretty-entities t
         org-odd-levels-only t
         org-list-allow-alphabetical t
+        org-agenda-files `(,dotfairy-org-dir)
+        org-capture-templates
+        `(("b" "book" entry (file ,(concat org-directory "/book.org"))
+           "*  %^{Title} %?\n%U\n%a\n")
+          ("t" "Todo" entry (file ,(concat org-directory "/todo.org"))
+           "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
+          ("n" "Note" entry (file ,(concat org-directory "/notes.org"))
+           "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
+          ("j" "Journal" entry (,(if (>= emacs-major-version 26) 'file+olp+datetree 'file+datetree)
+                                ,(concat org-directory "/journal.org"))
+           "*  %^{Title} %?\n%U\n%a\n" :clock-in t :clock-resume t))
         ;; TODO sequences
         org-todo-keywords '((sequence "TODO(t)" "SOMEDAY(s)" "NEXT(n)" "HOLD(h)" "CANCELLED(c@/!)" "WAITING(W@/!)" "DONE(d)"))
         ;; Targets include this file and any file contributing to the agenda -
@@ -205,14 +218,6 @@
     (setq org-agenda-breadcrumbs-separator " ❯ ")
     )
 
-  ;; Pomodoro
-  (use-package org-pomodoro
-    :custom-face
-    (org-pomodoro-mode-line ((t (:inherit warning))))
-    (org-pomodoro-mode-line-overtime ((t (:inherit error))))
-    (org-pomodoro-mode-line-break ((t (:inherit success))))
-    )
-
   ;; Presentation
   (use-package org-tree-slide
     :diminish
@@ -237,6 +242,7 @@
 
   (use-package org-roam
     :diminish
+    :custom (org-roam-directory (file-truename dotfairy-org-dir))
     :hook (after-init . org-roam-mode)
     :config
     (require 'org-roam-protocol)
@@ -279,7 +285,12 @@
 
   (use-package org-roam-server
     :ensure t
+    :hook (org-roam-server-mode . org-roam-server-browse)
     :config
+    (defun org-roam-server-browse ()
+      (when org-roam-server-mode
+        (let ((url (format "http://%s:%d" org-roam-server-host org-roam-server-port)))
+          (browse-url url))))
     (setq org-roam-server-host "127.0.0.1"
           org-roam-server-port 8080
           org-roam-server-authenticate nil
@@ -309,6 +320,7 @@
     :config
     (setq org-journal-dir (concat dotfairy-local-dir "journal/")
           org-journal-date-format "%A, %d %B %Y"))
+
   (use-package ox-hugo
     :ensure t            ;Auto-install the package from Melpa (optional)
     :after ox)
