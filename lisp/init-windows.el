@@ -48,7 +48,7 @@
 
 ;; Quickly switch windows
 (use-package ace-window
-  :bind (("M-o" . 'ace-window))
+  ;; :bind (("M-o" . 'ace-window))
   :preface
   (defun toggle-window-split ()
     (interactive)
@@ -108,8 +108,7 @@
   :custom-face
   (aw-leading-char-face ((t (:inherit font-lock-keyword-face :bold t :height 3.0))))
   (aw-mode-line-face ((t (:inherit mode-line-emphasis :bold t))))
-  :bind (([remap other-window] . ace-window)
-         ("C-c w W" . ace-window-hydra/body))
+  :bind (([remap other-window] . ace-window))
   :hook (emacs-startup . ace-window-display-mode)
   :config
   ;; Bind hydra to dispatch list

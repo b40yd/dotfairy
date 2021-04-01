@@ -284,6 +284,7 @@
                    :desc "Save session"                 "s" #'dotfairy/save-session
                    :desc "Load session"                 "l" #'dotfairy/load-session
                    :desc "Load last autosaved session"  "L" #'dotfairy/quickload-session
+                   :desc "Management windows"           "m" #'ace-window-hydra/body
                    :desc "Undo window config"           "u" #'winner-undo
                    :desc "Redo window config"           "U" #'winner-redo)
 

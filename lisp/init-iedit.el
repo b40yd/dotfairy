@@ -338,9 +338,11 @@
                 avy-style 'pre))
 
 (use-package mwim
-  :bind (:map prog-mode-map
-              ("C-a" . mwim-beginning-of-code-or-line-or-comment)
-              ("C-e" . mwim-end-of-code-or-line)))
+  :bind (([remap move-beginning-of-line] . mwim-beginning-of-code-or-line)
+         ([remap move-end-of-line] . mwim-end-of-code-or-line)
+         :map prog-mode-map
+         ("C-a" . mwim-beginning-of-code-or-line-or-comment)
+         ("C-e" . mwim-end-of-code-or-line)))
 
 ;; Goto last change
 (use-package goto-chg
@@ -349,7 +351,7 @@
 ;; Record and jump to the last point in the buffer
 (use-package goto-last-point
   :diminish
-  :bind ("C-M-," . goto-last-point)
+  :bind ("C-." . goto-last-point)
   :hook (after-init . goto-last-point-mode))
 
 ;; Jump to definition
