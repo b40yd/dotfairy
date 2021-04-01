@@ -324,6 +324,22 @@
   (use-package ox-hugo
     :ensure t            ;Auto-install the package from Melpa (optional)
     :after ox)
+
+  (defadvice! +chinese--org-html-paragraph-a (args)
+    "Join consecutive Chinese lines into a single long line without unwanted space
+when exporting org-mode to '(html hugo md odt)."
+    :filter-args #'org-html-paragraph
+    :filter-args #'org-hugo-paragraph
+    :filter-args #'org-md-paragraph
+    :filter-args #'org-odt-paragraph
+    (cl-destructuring-bind (paragraph contents info) args
+      (let* ((fix-regexp "[[:multibyte:]]")
+             (fixed-contents
+              (replace-regexp-in-string
+               (concat "\\(" fix-regexp "\\) *\n *\\(" fix-regexp "\\)")
+               "\\1\\2"
+               contents)))
+        (list paragraph fixed-contents info))))
   )
 
 (provide 'init-org)
