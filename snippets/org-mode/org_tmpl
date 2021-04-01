@@ -1,0 +1,7 @@
+# -*- mode: org-mode -*-
+# name: org
+# key: org_tmpl
+# --
+# +TITLE: $1
+# +AUTHOR: `user-full-name`
+# +DATE: `(format-time-string "%Y-%m-%d")`
