@@ -194,8 +194,7 @@
                    :desc "Find global snippet"   "/" #'yas-visit-snippet-file
                    :desc "Reload snippets"       "r" #'yas-reload-all
                    :desc "Read snippets name from minibuffer" "y" #'ivy-yasnippet
-                   :desc "Create Temp Template"  "c" #'aya-create
-                   :desc "Use Temp Template"     "e" #'aya-expand)
+                   )
 
       ;;; <leader> t --- toggle
       (:prefix-map ("t" . "toggle")
