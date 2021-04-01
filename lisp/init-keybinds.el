@@ -41,20 +41,24 @@
 (defvar dotfairy-leader-map (make-sparse-keymap)
   "An overriding keymap for <leader> keys.")
 
-(cond
- (IS-MAC
-  ;; mac-* variables are used by the special emacs-mac build of Emacs by
-  ;; Yamamoto Mitsuharu, while other builds use ns-*.
-  (setq mac-command-modifier      'super
-        ns-command-modifier       'super
-        mac-option-modifier       'meta
-        ns-option-modifier        'meta
-        ;; Free up the right option for character composition
-        mac-right-option-modifier 'none
-        ns-right-option-modifier  'none))
- (IS-WINDOWS
-  (setq w32-lwindow-modifier 'super
-        w32-rwindow-modifier 'super)))
+;; Key Modifiers
+(with-no-warnings
+  (cond
+   (IS-MAC
+    ;; mac-* variables are used by the special emacs-mac build of Emacs by
+    ;; Yamamoto Mitsuharu, while other builds use ns-*.
+    (setq mac-command-modifier      'super
+          ns-command-modifier       'super
+          mac-option-modifier       'meta
+          ns-option-modifier        'meta
+          ;; Free up the right option for character composition
+          mac-right-option-modifier 'none
+          ns-right-option-modifier  'none))
+   (IS-WINDOWS
+    (setq w32-lwindow-modifier nil
+          w32-rwindow-modifier nil
+          ns-command-modifier nil
+          ns-option-modifier nil))))
 
 (use-package general
   :init
