@@ -192,5 +192,7 @@ Warning: freezes indefinitely on any stdin prompt."
             (process-exit-status process))
           (string-trim (buffer-string)))))
 
+(use-package command-log-mode)
+
 (provide 'init-prog)
 ;;; init-prog.el ends here

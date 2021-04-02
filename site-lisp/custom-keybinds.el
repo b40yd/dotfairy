@@ -37,10 +37,16 @@
 
 (map! :leader
       (:prefix-map ("a" . "appliction")
+                   (:prefix ("c" . "Command log")
+                            :desc "Enable command log mode"    "e" #'command-log-mode
+                            :desc "Toggle command log buffer"  "g" #'clm/toggle-command-log-buffer
+                            :desc "Clear command log"          "c" #'clm/command-log-clear
+                            )
                    :desc "Music Player"                        "b"   #'bongo
                    :desc "Reading"                             "r"   #'olivetti-mode
                    :desc "Quick Run"                           "R"   #'quickrun-hydra/body
                    :desc "LSP UI imenu"                        "u"   #'lsp-ui-imenu
+
                    )
       (:prefix-map ("b" . "buffers")
                    :desc "Kill all buffers"                    "a"   #'dotfairy/kill-all-buffers
