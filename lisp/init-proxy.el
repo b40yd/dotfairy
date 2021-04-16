@@ -41,20 +41,20 @@
         `(("http" . ,dotfairy-proxy)
           ("https" . ,dotfairy-proxy)
           ("no_proxy" . "^\\(localhost\\|192.168.*\\|10.*\\)")))
-  (proxy-http-show))
+  (dotfairy/proxy-http-show))
 
 (defun dotfairy/proxy-http-disable ()
   "Disable HTTP/HTTPS proxy."
   (interactive)
   (setq url-proxy-services nil)
-  (proxy-http-show))
+  (dotfairy/proxy-http-show))
 
 (defun dotfairy/proxy-http-toggle ()
   "Toggle HTTP/HTTPS proxy."
   (interactive)
   (if (bound-and-true-p url-proxy-services)
-      (proxy-http-disable)
-    (proxy-http-enable)))
+      (dotfairy/proxy-http-disable)
+    (dotfairy/proxy-http-enable)))
 
 (defun dotfairy/proxy-socks-show ()
   "Show SOCKS proxy."
@@ -72,21 +72,21 @@
   (setq url-gateway-method 'socks
         socks-noproxy '("localhost")
         socks-server '("Default server" "127.0.0.1" 1086 5))
-  (proxy-socks-show))
+  (dotfairy/proxy-socks-show))
 
 (defun dotfairy/proxy-socks-disable ()
   "Disable SOCKS proxy."
   (interactive)
   (setq url-gateway-method 'native
         socks-noproxy nil)
-  (proxy-socks-show))
+  (dotfairy/proxy-socks-show))
 
 (defun dotfairy/proxy-socks-toggle ()
   "Toggle SOCKS proxy."
   (interactive)
   (if (bound-and-true-p socks-noproxy)
-      (proxy-socks-disable)
-    (proxy-socks-enable)))
+      (dotfairy/proxy-socks-disable)
+    (dotfairy/proxy-socks-enable)))
 
 (provide 'init-proxy)
 ;;; init-proxy.el ends here
