@@ -68,4 +68,5 @@ auto-complete server:
 install-package rustup rust-analyzer
 ```
 
-## keymap
+## Usage
+please reading [blog](https://scanbuf.net/post/manual/how-do-myself-custom-editor/)

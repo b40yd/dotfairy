@@ -179,6 +179,24 @@
 
 ;; Multiple cursors
 (use-package multiple-cursors
+  :pretty-hydra
+  ((:title (pretty-hydra-title "Multiple-Cursors" 'material "border_all" :height 1.1 :v-adjust -0.225)
+           :color amaranth :quit-key ("q" "C-g"))
+   ("Actions"
+    (("a"         mc/edit-beginnings-of-lines       "Edit line starts")
+     ("d"         mc/mark-all-like-this-in-defun    "Mark in defun")
+     ("e"         mc/edit-ends-of-lines             "Edit line endings")
+     ("l"         mc/edit-lines                     "Edit lines")
+     ("m"         mc/mark-all-like-this-dwim        "Mark all DWIM")
+     ("n"         mc/mark-next-like-this            "Mark next"))
+    ""
+    (("N"         mc/unmark-next-like-this          "Unmark next")
+     ("p"         mc/mark-previous-like-this        "Mark previous")
+     ("P"         mc/unmark-previous-like-this      "Unmark previous")
+     ("s"         mc/mark-sgml-tag-pair             "Mark tag")
+     ("t"         mc/mark-all-like-this             "Mark all")
+     ("<mouse-1>" mc/add-cursor-on-click            "Add cursor w/mouse"))))
+
   :bind (:map selected-keymap
               ("a" . mc/mark-all-like-this)
               ("p" . mc/mark-previous-like-this)
@@ -192,7 +210,38 @@
               ("^" . mc/edit-beginnings-of-lines)
               ("$" . mc/edit-ends-of-lines))
   :init
-  (setq mc/list-file (locate-user-emacs-file "mc-lists")))
+  (setq mc/list-file (locate-user-emacs-file "mc-lists"))
+  (eval-after-load 'multiple-cursors-core
+    '(progn
+       (nconc mc--default-cmds-to-run-for-all
+              '(autopair-backspace
+                sp--self-insert-command
+                c-electric-backspace
+                yas-expand))
+       (nconc mc--default-cmds-to-run-once
+              '(counsel-M-x
+                smex
+                ivy-done
+                hydra-launcher/body
+                multiple-cursors-hydra/body
+                multiple-cursors-hydra/mc/edit-lines-and-exit
+                multiple-cursors-hydra/mc/mark-all-like-this-and-exit
+                multiple-cursors-hydra/mc/mark-previous-like-this
+                multiple-cursors-hydra/mc/mark-next-like-this
+                multiple-cursors-hydra/mc/skip-to-previous-like-this
+                multiple-cursors-hydra/mc/skip-to-next-like-this
+                multiple-cursors-hydra/mc/unmark-previous-like-this
+                multiple-cursors-hydra/mc/unmark-next-like-this
+                multiple-cursors-hydra/mc/add-cursor-on-click
+                multiple-cursors-hydra/mc/mark-sgml-tag-pair
+                multiple-cursors-hydra/mc/edit-beginnings-of-lines
+                multiple-cursors-hydra/mc/mark-all-like-this-in-defun
+                multiple-cursors-hydra/mc/edit-ends-of-lines
+                multiple-cursors-hydra/mc/edit-lines
+                multiple-cursors-hydra/mc/mark-all-like-this-dwim
+                multiple-cursors-hydra/mc/mark-all-like-this
+                multiple-cursors-hydra/nil))))
+  )
 
 ;; Smartly select region, rectangle, multi cursors
 (use-package smart-region
