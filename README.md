@@ -69,4 +69,7 @@ install-package rustup rust-analyzer
 ```
 
 ## Usage
-please reading [blog](https://scanbuf.net/post/manual/how-do-myself-custom-editor/)
+please read [blog](https://scanbuf.net/post/manual/how-do-myself-custom-editor/)。
+
+## keymap
+   see [site-lisp/custom-keybinds.el](site-lisp/custom-keybinds.el).
