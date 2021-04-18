@@ -294,7 +294,9 @@
 
       ;;; <leader> m --- multiple cursors
       (:prefix-map ("m" . "multiple-cursors")
-                   :desc "Toggle Multiple Cursors"  "m"      #'multiple-cursors-hydra/body)
+                   :desc "Toggle Multiple Cursors"                           "m"       #'multiple-cursors-hydra/body
+                   :desc "Use arrow keys to quickly mark/skip next/previous" "<SPC>" #'mc/mark-more-like-this-extended
+                   )
 
       )
 (provide 'custom-keybinds)

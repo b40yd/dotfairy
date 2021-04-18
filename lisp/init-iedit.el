@@ -183,19 +183,48 @@
   ((:title (pretty-hydra-title "Multiple-Cursors" 'material "border_all" :height 1.1 :v-adjust -0.225)
            :color amaranth :quit-key ("q" "C-g"))
    ("Actions"
-    (("a"         mc/edit-beginnings-of-lines       "Edit line starts")
-     ("d"         mc/mark-all-like-this-in-defun    "Mark in defun")
-     ("e"         mc/edit-ends-of-lines             "Edit line endings")
-     ("l"         mc/edit-lines                     "Edit lines")
-     ("m"         mc/mark-all-like-this-dwim        "Mark all DWIM")
-     ("n"         mc/mark-next-like-this            "Mark next"))
-    ""
-    (("N"         mc/unmark-next-like-this          "Unmark next")
-     ("p"         mc/mark-previous-like-this        "Mark previous")
-     ("P"         mc/unmark-previous-like-this      "Unmark previous")
-     ("s"         mc/mark-sgml-tag-pair             "Mark tag")
-     ("t"         mc/mark-all-like-this             "Mark all")
-     ("<mouse-1>" mc/add-cursor-on-click            "Add cursor w/mouse"))))
+    (
+     ("@" set-rectangular-region-anchor               "set-mark except you're marking a rectangular region")
+     ("," mc/skip-to-next-like-this                   "skip to next like this")
+     ("." mc/skip-to-previous-like-this               "skip to previous like this")
+     ("/" mc/mark-pop                                 "Mark pop")
+     (";" mc/mark-all-words-like-this                 "Only mark all matches word")
+     ("[" mc/mark-next-word-like-this                 "Only mark next like this world")
+     ("{" mc/mark-next-symbol-like-this               "Only mark next like this symbol")
+     ("]" mc/mark-previous-word-like-this             "Only mark previous like this word")
+     ("}" mc/mark-previous-symbol-like-this           "Only mar previous like this symbol")
+     ("-" mc/mark-all-symbols-like-this               "Only mark all matches symbol")
+     ("+" mc/mark-all-words-like-this-in-defun        "Only mark all current function matches word")
+     ("_" mc/mark-all-symbols-like-this-in-defun      "Only mark all current function matches symbol")
+     )
+
+    "---"
+    (
+     ("s" mc/sort-regions                             "Sort the marked regions alphabetically")
+     ("a" mc/edit-beginnings-of-lines                 "Add cursor at the start of each line in the current region")
+     ("A" mc/mark-all-in-region                       "Prompts for a string to match in the region")
+     ("e" mc/edit-ends-of-lines                       "Add cursor at the end of each line in the current region")
+     ("f" mc/mark-all-like-this-in-defun              "Mark all current function matches the current region")
+     ("i" mc/insert-numbers                           "Insert increasing numbers for each cursor")
+     ("I" mc/insert-letters                           "Insert increasing letters for each cursor")
+     ("l" mc/edit-lines                               "Add cursor to each line in the current region")
+     ("m" mc/mark-all-like-this                       "Mark all matches the current region")
+     ("n" mc/mark-next-like-this                      "Add cursor to next line")
+     ("M" mc/mark-all-dwim                            "Smart mark all")
+     ("N" mc/unmark-next-like-this                    "Unmark next like this")
+     )
+    "----"
+    (
+     ("p" mc/mark-previous-like-this                  "Add cursor to previous line")
+     ("P" mc/unmark-previous-like-this                "Unmark previous like this")
+     ("r" mc/reverse-regions                          "Reverse the order of the marked regions")
+     ("s" mc/mark-next-like-this-symbol               "Mark next like this symbol")
+     ("S" mc/mark-previous-like-this-symbol           "Mark previous like this symbol")
+     ("t" mc/mark-sgml-tag-pair                       "Mark the current opening and closing tag")
+     ("w" mc/mark-next-like-this-word                 "Mark next like this word")
+     ("W" mc/mark-previous-like-this-word             "Mark previous like this word")
+     ("<mouse-1>" mc/add-cursor-on-click                      "Bind to a mouse event to add cursors by clicking")
+     )))
 
   :bind (:map selected-keymap
               ("a" . mc/mark-all-like-this)
@@ -226,20 +255,40 @@
                 multiple-cursors-hydra/body
                 multiple-cursors-hydra/mc/edit-lines-and-exit
                 multiple-cursors-hydra/mc/mark-all-like-this-and-exit
-                multiple-cursors-hydra/mc/mark-previous-like-this
                 multiple-cursors-hydra/mc/mark-next-like-this
-                multiple-cursors-hydra/mc/skip-to-previous-like-this
-                multiple-cursors-hydra/mc/skip-to-next-like-this
-                multiple-cursors-hydra/mc/unmark-previous-like-this
-                multiple-cursors-hydra/mc/unmark-next-like-this
+                multiple-cursors-hydra/mc/mark-next-like-this-word
+                multiple-cursors-hydra/mc/mark-next-like-this-symbol
+                multiple-cursors-hydra/mc/mark-next-word-like-this
+                multiple-cursors-hydra/mc/mark-next-symbol-like-this
+                multiple-cursors-hydra/mc/mark-previous-like-this
+                multiple-cursors-hydra/mc/mark-previous-like-this-word
+                multiple-cursors-hydra/mc/mark-previous-like-this-symbol
+                multiple-cursors-hydra/mc/mark-previous-word-like-this
+                multiple-cursors-hydra/mc/mark-previous-symbol-like-this
+                multiple-cursors-hydra/mc/mark-more-like-this-extended
                 multiple-cursors-hydra/mc/add-cursor-on-click
-                multiple-cursors-hydra/mc/mark-sgml-tag-pair
-                multiple-cursors-hydra/mc/edit-beginnings-of-lines
-                multiple-cursors-hydra/mc/mark-all-like-this-in-defun
-                multiple-cursors-hydra/mc/edit-ends-of-lines
+                multiple-cursors-hydra/mc/mark-pop
+                multiple-cursors-hydra/mc/unmark-next-like-this
+                multiple-cursors-hydra/mc/unmark-previous-like-this
+                multiple-cursors-hydra/mc/skip-to-next-like-this
+                multiple-cursors-hydra/mc/skip-to-previous-like-this
                 multiple-cursors-hydra/mc/edit-lines
-                multiple-cursors-hydra/mc/mark-all-like-this-dwim
+                multiple-cursors-hydra/mc/edit-beginnings-of-lines
+                multiple-cursors-hydra/mc/edit-ends-of-lines
                 multiple-cursors-hydra/mc/mark-all-like-this
+                multiple-cursors-hydra/mc/mark-all-words-like-this
+                multiple-cursors-hydra/mc/mark-all-symbols-like-this
+                multiple-cursors-hydra/mc/mark-all-in-region
+                multiple-cursors-hydra/mc/mark-all-like-this-in-defun
+                multiple-cursors-hydra/mc/mark-all-words-like-this-in-defun
+                multiple-cursors-hydra/mc/mark-all-symbols-like-this-in-defun
+                multiple-cursors-hydra/mc/mark-all-dwim
+                multiple-cursors-hydra/set-rectangular-region-anchor
+                multiple-cursors-hydra/mc/mark-sgml-tag-pair
+                multiple-cursors-hydra/mc/insert-numbers
+                multiple-cursors-hydra/mc/insert-letters
+                multiple-cursors-hydra/mc/sort-regions
+                multiple-cursors-hydra/mc/reverse-regions
                 multiple-cursors-hydra/nil))))
   )
 
