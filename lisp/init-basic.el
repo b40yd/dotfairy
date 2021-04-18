@@ -99,6 +99,12 @@
       sentence-end "\\([。！？]\\|……\\|[.?!][]\"')}]*\\($\\|[ \t]\\)\\)[ \t\n]*"
       sentence-end-double-space nil)
 
+(when (or IS-MAC IS-LINUX)
+  (use-package exec-path-from-shell
+    :init
+    (setq exec-path-from-shell-variables '("PATH" "MANPATH"))
+    (exec-path-from-shell-initialize)))
+
 ;; Start server
 (use-package server
   :ensure nil

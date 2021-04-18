@@ -192,11 +192,7 @@
 
 ;; Java
 (use-package lsp-java
-  :ensure t
-  :after lsp-mode
-  :if (executable-find "mvn")
-  :init
-  (use-package request :defer t))
+  :hook (java-mode . (lambda () (require 'lsp-java))))
 
 (use-package lsp-treemacs :commands lsp-treemacs-errors-list
   :after lsp-mode

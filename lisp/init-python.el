@@ -40,7 +40,7 @@
 
   :config
   ;; Env vars
-  (when (fboundp 'exec-path-from-shell-copy-env)
+  (with-eval-after-load 'exec-path-from-shell
     (exec-path-from-shell-copy-env "PYTHONPATH"))
 
   (use-package python-pytest
