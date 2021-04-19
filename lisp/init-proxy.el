@@ -23,6 +23,7 @@
 ;;
 
 ;;; Code:
+(require 'init-custom)
 (defvar socks-noproxy)
 (defvar socks-server)
 
@@ -69,9 +70,13 @@
   "Enable SOCKS proxy."
   (interactive)
   (require 'socks)
-  (setq url-gateway-method 'socks
-        socks-noproxy '("localhost")
-        socks-server '("Default server" "127.0.0.1" 1086 5))
+  (let* ((proxy (split-string dotfairy-proxy "\\s-*:\\s-*"))
+         (addr (car proxy))
+         (port (string-to-number (cadr proxy))))
+    (setq url-gateway-method 'socks
+          socks-noproxy '("localhost")
+          socks-server `("Default server" ,addr ,port 5)))
+  (setenv "all_proxy" (concat "socks5://" dotfairy-proxy))
   (dotfairy/proxy-socks-show))
 
 (defun dotfairy/proxy-socks-disable ()
@@ -79,6 +84,7 @@
   (interactive)
   (setq url-gateway-method 'native
         socks-noproxy nil)
+  (setenv "all_proxy" "")
   (dotfairy/proxy-socks-show))
 
 (defun dotfairy/proxy-socks-toggle ()
