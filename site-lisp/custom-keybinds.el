@@ -34,7 +34,6 @@
   (define-key projectile-mode-map (kbd "C-x p") 'projectile-command-map))
 
 (autoload 'org-capture-goto-target "org-capture" nil t)
-
 (map! :leader
       (:prefix-map ("a" . "appliction")
                    (:prefix ("c" . "Command log")

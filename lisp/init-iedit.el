@@ -223,21 +223,29 @@
      ("t" mc/mark-sgml-tag-pair                       "Mark the current opening and closing tag")
      ("w" mc/mark-next-like-this-word                 "Mark next like this word")
      ("W" mc/mark-previous-like-this-word             "Mark previous like this word")
-     ("<mouse-1>" mc/add-cursor-on-click                      "Bind to a mouse event to add cursors by clicking")
+     ("<mouse-1>" mc/add-cursor-on-click              "Bind to a mouse event to add cursors by clicking")
      )))
 
-  :bind (:map selected-keymap
-              ("a" . mc/mark-all-like-this)
-              ("p" . mc/mark-previous-like-this)
-              ("n" . mc/mark-next-like-this)
-              ("P" . mc/unmark-previous-like-this)
-              ("N" . mc/unmark-next-like-this)
-              ("m" . mc/mark-more-like-this-extended)
-              ("h" . mc-hide-unmatched-lines-mode)
-              ("\\" . mc/vertical-align-with-space)
-              ("#" . mc/insert-numbers) ; use num prefix to set the starting number
-              ("^" . mc/edit-beginnings-of-lines)
-              ("$" . mc/edit-ends-of-lines))
+  :bind (("C-M-<mouse-1>" . mc/add-cursor-on-click)
+         ("<mouse-1>" . mc/keyboard-quit)
+         (:map selected-keymap
+               ("a" . mc/mark-all-like-this)
+               ("p" . mc/mark-previous-like-this)
+               ("n" . mc/mark-next-like-this)
+               ("P" . mc/unmark-previous-like-this)
+               ("N" . mc/unmark-next-like-this)
+               ("m" . mc/mark-more-like-this-extended)
+               ("h" . mc-hide-unmatched-lines-mode)
+               ("\\" . mc/vertical-align-with-space)
+               ("#" . mc/insert-numbers) ; use num prefix to set the starting number
+               ("^" . mc/edit-beginnings-of-lines)
+               ("$" . mc/edit-ends-of-lines)))
+  :config (progn
+            (defun mc/prompt-for-inclusion-in-whitelist (original-command)
+              "Rewrite of `mc/prompt-for-inclusion-in-whitelist' to not ask yes/no for every newly seen command."
+              (add-to-list 'mc/cmds-to-run-for-all original-command)
+              (mc/save-lists)
+              t))
   :init
   (setq mc/list-file (locate-user-emacs-file "mc-lists"))
   (eval-after-load 'multiple-cursors-core
