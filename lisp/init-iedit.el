@@ -227,7 +227,6 @@
      )))
 
   :bind (("C-M-<mouse-1>" . mc/add-cursor-on-click)
-         ("<mouse-1>" . mc/keyboard-quit)
          (:map selected-keymap
                ("a" . mc/mark-all-like-this)
                ("p" . mc/mark-previous-like-this)
