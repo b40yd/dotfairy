@@ -181,6 +181,26 @@ If FORCE-P, overwrite the destination file if it exists, without confirmation."
               (revert-buffer t t))))
       (user-error "Unable to open %S" file))))
 
+;; Open custom file
+(defun dotfairy/open-custom-file()
+  "Open or create `custom-file'."
+  (interactive)
+  (unless (file-exists-p custom-file)
+    (if (file-exists-p dotfairy-custom-example-file)
+        (copy-file dotfairy-custom-example-file custom-file)
+      (user-error "The file `%s' doesn't exist" dotfairy-custom-example-file)))
+  (find-file custom-file))
+
+;; Reload configurations
+(defun dotfairy/reload-init-file ()
+  "Reload Emacs configurations."
+  (interactive)
+  (load user-init-file)
+  (funcall major-mode))
+
+(defun dotfairy/open-init-file()
+  (interactive)
+  (find-file user-init-file))
 
 (provide 'init-files)
 ;;; init-files.el ends here

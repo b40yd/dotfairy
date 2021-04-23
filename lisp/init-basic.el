@@ -172,16 +172,5 @@
     (revert-buffer t t)
     (message "Reverted this buffer")))
 
-;; Reload configurations
-(defun dotfairy/reload-init-file ()
-  "Reload Emacs configurations."
-  (interactive)
-  (load user-init-file)
-  (funcall major-mode))
-
-
-(defun dotfairy/open-init-file()
-  (interactive)
-  (find-file user-init-file))
 (provide 'init-basic)
 ;;; init-basic.el ends here
