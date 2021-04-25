@@ -47,9 +47,15 @@
 
 (use-package magit-todos
   :after magit
+  :init
+  (setq magit-todos-nice (if (executable-find "nice") t nil))
+  (let ((inhibit-message t))
+    (magit-todos-mode 1))
   :config
+  (transient-append-suffix 'magit-status-jump '(0 0 -1)
+    '("T " "Todos" magit-todos-jump-to-todos))
   (setq magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?")
-  (define-key magit-todos-section-map "j" nil))
+  )
 
 
 (use-package magit-gitflow
