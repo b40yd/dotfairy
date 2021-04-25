@@ -307,6 +307,11 @@
   (use-package org-preview-html
     :diminish)
 
+  (use-package org-re-reveal
+    :after ox
+    :config
+    (setq org-re-reveal-revealjs-version "4"))
+
   ;; Table of contents
   (use-package toc-org
     :hook (org-mode . toc-org-mode))

@@ -1,0 +1,10 @@
+# -*- mode: org -*-
+# name: reveal
+# key: reveal
+# --
+#+TITLE: $1
+#+DATE: `(format-time-string "%Y-%m-%d")`
+#+OPTIONS: toc:nil num:nil
+#+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js
+
+$0
