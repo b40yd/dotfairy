@@ -58,7 +58,7 @@
           (set-frame-parameter nil 'top 0)))))
 
   (with-no-warnings
-    ;; Don't save if the sate is not loaded
+    ;; Don't save if the state is not loaded
     (defvar persp-state-loaded nil
       "Whether the state is loaded.")
 
