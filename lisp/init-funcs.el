@@ -80,16 +80,6 @@
       (make-directory dotfairy-cache-dir))
   )
 
-;; Open custom file
-(defun open-custom-file()
-  "Open or create `custom-file'."
-  (interactive)
-  (unless (file-exists-p custom-file)
-    (if (file-exists-p dotfairy-custom-example-file)
-        (copy-file dotfairy-custom-example-file custom-file)
-      (user-error "The file `%s' doesn't exist" dotfairy-custom-example-file)))
-  (find-file custom-file))
-
 (defun dotfairy-set-variable (variable value &optional no-save)
   "Set the VARIABLE to VALUE, and return VALUE.
 Save to `custom-file' if NO-SAVE is nil."

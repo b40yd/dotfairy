@@ -96,6 +96,7 @@
                    :desc "Sudo this file"              "u"   #'dotfairy/sudo-this-file
                    :desc "Sudo find file"              "U"   #'dotfairy/sudo-find-file
                    :desc "Open init file"              "i"   #'dotfairy/open-init-file
+                   :desc "Open custom file"            "I"   #'dotfairy/open-custom-file
                    )
       ;;; <leader> s --- search
       (:prefix-map ("s" . "search")
