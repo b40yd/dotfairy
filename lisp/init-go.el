@@ -128,69 +128,21 @@
                  :desc "go build" "b" (cmd! (compile "go build"))
                  :desc "go clean" "c" (cmd! (compile "go clean")))
         (:prefix ("t" . "test")
-                 "t" #'+go/test-rerun
-                 "a" #'+go/test-all
-                 "s" #'+go/test-single
-                 "n" #'+go/test-nested
+                 "a" #'go-test-current-project
+                 "c" #'go-test-current-coverage
+                 "s" #'go-test-current-test
+                 "t" #'go-test-current-file
                  "g" #'go-gen-test-dwim
                  "G" #'go-gen-test-all
                  "e" #'go-gen-test-exported
                  (:prefix ("b" . "bench")
-                          "s" #'+go/bench-single
-                          "a" #'+go/bench-all)))
+                          "a" #'go-test-current-project-benchmarks
+                          "c" #'go-test-current-coverage
+                          "s" #'go-test-current-benchmark
+                          "t" #'go-test-current-file-benchmarks
+                          )))
   )
 
-(defvar +go-test-last nil
-  "The last test run.")
-
-(defun +go--spawn (cmd)
-  (save-selected-window
-    (compile cmd)))
-
-(defun +go--run-tests (args)
-  (let ((cmd (concat "go test " args)))
-    (setq +go-test-last (concat "cd " default-directory ";" cmd))
-    (+go--spawn cmd)))
-
-;;;###autoload
-(defun +go/test-rerun ()
-  (interactive)
-  (if +go-test-last
-      (+go--spawn +go-test-last)
-    (+go/test-all)))
-
-;;;###autoload
-(defun +go/test-all ()
-  (interactive)
-  (+go--run-tests ""))
-
-;;;###autoload
-(defun +go/test-nested ()
-  (interactive)
-  (+go--run-tests "./..."))
-
-;;;###autoload
-(defun +go/test-single ()
-  (interactive)
-  (if (string-match "_test\\.go" buffer-file-name)
-      (save-excursion
-        (re-search-backward "^func[ ]+\\(([[:alnum:]]*?[ ]?[*]?[[:alnum:]]+)[ ]+\\)?\\(Test[[:alnum:]_]+\\)(.*)")
-        (+go--run-tests (concat "-run" "='" (match-string-no-properties 2) "'")))
-    (error "Must be in a _test.go file")))
-
-;;;###autoload
-(defun +go/bench-all ()
-  (interactive)
-  (+go--run-tests "-test.run=NONE -test.bench=\".*\""))
-
-;;;###autoload
-(defun +go/bench-single ()
-  (interactive)
-  (if (string-match "_test\\.go" buffer-file-name)
-      (save-excursion
-        (re-search-backward "^func[ ]+\\(([[:alnum:]]*?[ ]?[*]?[[:alnum:]]+)[ ]+\\)?\\(Benchmark[[:alnum:]_]+\\)(.*)")
-        (+go--run-tests (concat "-test.run=NONE -test.bench" "='" (match-string-no-properties 2) "'")))
-    (error "Must be in a _test.go file")))
 
 (provide 'init-go)
 ;;; init-go.el ends here

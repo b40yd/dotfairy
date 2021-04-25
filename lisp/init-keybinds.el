@@ -55,10 +55,12 @@
           mac-right-option-modifier 'none
           ns-right-option-modifier  'none))
    (IS-WINDOWS
-    (setq w32-lwindow-modifier 'super
-          w32-rwindow-modifier 'super
-          ns-command-modifier 'super
-          ns-option-modifier 'meta))))
+    (setq w32-pass-lwindow-to-system nil
+          w32-pass-rwindow-to-system nil
+          w32-pass-apps-to-system nil
+          w32-lwindow-modifier 'super
+          w32-apps-modifier 'hyper)
+    (w32-register-hot-key [s-t]))))
 
 (use-package general
   :init
