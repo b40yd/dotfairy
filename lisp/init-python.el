@@ -44,6 +44,8 @@
     (exec-path-from-shell-copy-env "PYTHONPATH"))
 
   (use-package python-pytest
+    :custom
+    (python-pytest-confirm t)
     :init
     (map! :after python
           :localleader

@@ -67,6 +67,7 @@
         lsp-signature-render-documentation nil
 
         lsp-go-codelenses '((generate . t) (test . t) (tidy . t))
+        lsp-clients-python-library-directories '("/usr/local/" "/usr/")
 
         lsp-enable-file-watchers nil
         lsp-enable-folding nil
