@@ -72,7 +72,7 @@
 (use-package doom-modeline
   :custom
   (doom-modeline-icon display-icon)
-  (doom-modeline-minor-modes nil)
+  (doom-modeline-minor-modes t)
   (doom-modeline-unicode-fallback t)
   (doom-modeline-buffer-encoding t)
   :hook (after-init . doom-modeline-mode)
