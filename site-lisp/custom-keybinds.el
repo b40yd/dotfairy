@@ -54,7 +54,6 @@
                    :desc "Save and kill buffer"                "s"   #'dotfairy/save-and-kill-buffer
                    :desc "Kill other buffers"                  "o"   #'dotfairy/kill-other-buffers
                    :desc "kill matching buffers"               "m"   #'dotfairy/kill-matching-buffers
-
                    )
       ;;; <leader> c --- code
       (:prefix-map ("c" . "coding")
@@ -69,10 +68,8 @@
                    :desc "LSP Rename"                          "r"   #'lsp-rename
                    :desc "LSP describe thing at point"         "."   #'lsp-describe-thing-at-point
                    ;; :desc "LSP"                                   "l"   #'+default/lsp-command-map
-
                    :desc "Jump to symbol in current workspace" "j"   #'lsp-ivy-workspace-symbol
                    :desc "Jump to symbol in any workspace"     "J"   #'lsp-ivy-global-workspace-symbol
-
                    )
       (:prefix-map ("e" . "editor")
                    :desc "Dired change to wdired-mode" "e"  #'wdired-change-to-wdired-mode)
@@ -119,7 +116,6 @@
       (:prefix-map ("i" . "insert")
                    :desc "Snippet"                       "s"   #'yas-insert-snippet
                    :desc "Unicode"                       "u"   #'unicode-chars-list-chars
-
                    )
       ;;; <leader> n --- notes
       (:prefix-map ("n" . "notes")
@@ -175,7 +171,6 @@
                :desc "Search project"              "s" #'+default/search-project
                :desc "Search Other Project"        "S" #'+default/search-other-project
                :desc "List project todos"          "t" #'magit-todos-list
-
                (:prefix ("4" . "in other window"))
                (:prefix ("5" . "in other frame")))
 
@@ -208,20 +203,16 @@
                    :desc "Frame fullscreen"             "F" #'toggle-frame-fullscreen
                    :desc "Indent style"                 "I" #'dotfairy/toggle-indent-style
                    :desc "Line numbers"                 "l" #'dotfairy/toggle-line-numbers
-
                    :desc "Org tree slide mode"          "p" #'org-tree-slide-mode
                    :desc "Org super agenda mode"        "s" #'org-super-agenda-mode
                    :desc "Read-only mode"               "r" #'read-only-mode
-
                    :desc "Load theme"                   "T"  #'dotfairy-load-theme
                    )
 
       ;;; <leader> v --- versioning
       (:prefix-map ("v" . "versioning")
-                   :desc "Git revert file"             "R"   #'vc-revert
+                   :desc "Git revert file"            "R"   #'vc-revert
                    :desc "Git time machine"           "t"   #'git-timemachine-toggle
-
-
                    :desc "Magit dispatch"             "/"   #'magit-dispatch
                    :desc "Magit file dispatch"        "."   #'magit-file-dispatch
                    :desc "Forge dispatch"             "'"   #'forge-dispatch
@@ -264,7 +255,6 @@
 
       ;;; <leader> w --- workspaces/windows
       (:prefix-map ("w" . "workspaces/windows")
-
                    :desc "Display workspaces"           "d" #'+workspace/display
                    :desc "Rename workspace"             "r" #'+workspace/rename
                    :desc "Create workspace"             "c" #'+workspace/new
@@ -295,7 +285,9 @@
       ;;; <leader> m --- multiple cursors
       (:prefix-map ("m" . "multiple-cursors")
                    :desc "Toggle Multiple Cursors"                           "m"       #'multiple-cursors-hydra/body
-                   :desc "Use arrow keys to quickly mark/skip next/previous" "<SPC>" #'mc/mark-more-like-this-extended
+                   :desc "Use arrow keys to quickly mark/skip next/previous" "<SPC>"   #'mc/mark-more-like-this-extended
+                   :desc "Docker Management"                                 "d"       #'docker
+                   :desc "Kubernetes Overview"                               "b"       #'kubernetes-overview
                    )
 
       )

@@ -23,9 +23,14 @@
 ;;
 
 ;;; Code:
+(use-package docker
+  :ensure t)
 (use-package docker-tramp)
 (use-package dockerfile-mode
   :mode "\\Dockerfile\\'")
+(use-package kubernetes
+  :ensure t
+  :commands (kubernetes-overview))
 
 (provide 'init-docker)
 ;;; init-docker.el ends here

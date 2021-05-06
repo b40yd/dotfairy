@@ -304,5 +304,6 @@ A factory for quickly producing interaction commands, particularly for keybinds
 or aliases."
   (declare (doc-string 1) (pure t) (side-effect-free t))
   `(lambda (&rest _) (interactive) ,@body))
+
 (provide 'init-funcs)
 ;;; init-funcs.el ends here
