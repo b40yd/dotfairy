@@ -23,15 +23,9 @@
 ;;
 
 ;;; Code:
-
-;; (use-package ox-pandoc
-;;   :after ox
-;;   :init
-;;   (require 'ox-pandoc)
-;;   (add-to-list 'org-export-backends 'pandoc)
-;;   (setq org-pandoc-options
-;;         '((standalone . t)
-;;           (mathjax . t))))
+(require 'init-const)
+(require 'init-custom)
+(require 'init-funcs)
 
 (use-package org
   :init (setq org-startup-indented t)
