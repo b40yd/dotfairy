@@ -1,6 +1,6 @@
 ;;; init-ivy.el ---                                  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2020  7ym0n.q6e
+;; Copyright (C) 2020-2021  7ym0n.q6e
 
 ;; Author: 7ym0n.q6e <bb.qnyd@gmail.com>
 ;; Keywords:
@@ -479,6 +479,7 @@ This is for use in `ivy-re-builders-alist'."
 (use-package ivy-rich
   :hook (;; Must load after `counsel-projectile'
          (counsel-projectile-mode . ivy-rich-mode)
+         (ivy-rich-mode . ivy-rich-project-root-cache-mode)
          (ivy-rich-mode . (lambda ()
                             "Use abbreviate in `ivy-rich-mode'."
                             (setq ivy-virtual-abbreviate

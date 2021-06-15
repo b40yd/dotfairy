@@ -1,6 +1,6 @@
 ;;; init-dired.el ---                                -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2020  7ym0n.q6e
+;; Copyright (C) 2020-2021  7ym0n.q6e
 
 ;; Author: 7ym0n.q6e <bb.qnyd@gmail.com>
 ;; Keywords:
