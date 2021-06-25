@@ -43,6 +43,27 @@
   (with-eval-after-load 'exec-path-from-shell
     (exec-path-from-shell-copy-env "PYTHONPATH"))
 
+  (use-package pyimport
+    :defer t
+    :init
+    (map! :after python
+          :map python-mode-map
+          :localleader
+          (:prefix ("i" . "imports")
+                   :desc "Insert missing imports" "i" #'pyimport-insert-missing
+                   :desc "Remove unused imports"  "r" #'pyimport-remove-unused
+                   :desc "Optimize imports"       "o" #'+python/optimize-imports)))
+
+  (use-package py-isort
+    :defer t
+    :init
+    (map! :after python
+          :map python-mode-map
+          :localleader
+          (:prefix ("i" . "imports")
+                   :desc "Sort imports"      "s" #'py-isort-buffer
+                   :desc "Sort region"       "r" #'py-isort-region)))
+
   (use-package python-pytest
     :custom
     (python-pytest-confirm t)
