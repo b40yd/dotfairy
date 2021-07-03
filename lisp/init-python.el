@@ -30,9 +30,7 @@
   :hook ((inferior-python-mode . (lambda ()
                                    (process-query-on-exit-flag
                                     (get-process "Python"))))
-         (after-save . (lambda ()
-                         (when (and (executable-find "black") buffer-file-name)
-                           (call-process "black" nil nil nil buffer-file-name)))))
+         )
   :init
   ;; Disable readline based native completion
   (setq python-shell-completion-native-enable nil)
