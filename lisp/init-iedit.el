@@ -164,14 +164,14 @@
 
 (use-package selected
   :bind (:map selected-keymap
-              ("c" . copy-region-as-kill)
-              ("e" . er/expand-region)
-              ("E" . er/contract-region)
-              ("l" . downcase-region)
-              ("u" . upcase-region)
-              ("w" . kill-region)
-              ("W" . count-words-region)
-              ("m" . apply-macro-to-region-lines)
+              ("@" . copy-region-as-kill)
+              ("=" . er/expand-region)
+              ("-" . er/contract-region)
+              ("`'" . downcase-region)
+              ("~" . upcase-region)
+              ("|" . kill-region)
+              ("?" . count-words-region)
+              ("!" . apply-macro-to-region-lines)
               ("/" . indent-region)
               (";" . comment-or-uncomment-region))
   :init
