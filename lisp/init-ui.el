@@ -152,10 +152,6 @@
 (use-package highlight-parentheses
   :hook (prog-mode . highlight-parentheses-mode))
 
-(use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode))
-
-
 (use-package centaur-tabs
   :demand
   :config
