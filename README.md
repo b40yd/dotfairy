@@ -16,7 +16,10 @@ dotfairy is emacs.d
 auto-complete server:
 ```shell
 go get golang.org/x/tools/gopls
-go get github.com/go-delve/delve/cmd/dlv
+go get -u github.com/cweill/gotests/...
+go get -u github.com/davidrjenni/reftools/cmd/fillstruct
+go install github.com/go-delve/delve/cmd/dlv@latest
+go get github.com/fatih/gomodifytags
 ```
 
 - `Python`

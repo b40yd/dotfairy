@@ -52,6 +52,7 @@
                       "github.com/cweill/gotests/..."
                       "github.com/fatih/gomodifytags"
                       "github.com/davidrjenni/reftools/cmd/fillstruct"
+                      "github.com/110y/go-expr-completion"
                       "github.com/golangci/golangci-lint/cmd/golangci-lint@latest")
     "All necessary go tools.")
 
@@ -115,13 +116,16 @@
     :init (setq go-tag-args (list "-transform" "camelcase")))
   (use-package go-gen-test)
   (use-package gotest)
+  (use-package go-expr-completion)
   (map! :map go-mode-map
         :localleader
         "a" #'go-tag-add
         "d" #'go-tag-remove
-        "i" #'go-goto-imports      ; Go to imports
-        (:prefix ("ri" . "imports")
+        (:prefix ("l" . "imports")
                  "a" #'go-import-add
+                 "e" #'go-expr-completion
+                 "f" #'go-fill-struct
+                 "i" #'go-goto-imports      ; Go to imports
                  "r" #'go-remove-unused-imports)
         (:prefix ("b" . "build")
                  :desc "go run ." "r" (cmd! (compile "go run ."))
