@@ -143,11 +143,6 @@
       window-divider-default-right-width 1)
 (add-hook 'window-setup-hook #'window-divider-mode)
 
-;; Settings for electric-pair
-(use-package electric
-  :hook ((after-init . electric-indent-mode)
-	     (prog-mode . electric-pair-mode)))
-
 ;; Settings for highlight parentheses
 (use-package highlight-parentheses
   :hook (prog-mode . highlight-parentheses-mode))
