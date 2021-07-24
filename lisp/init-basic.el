@@ -157,13 +157,6 @@
     :hook (after-init . global-so-long-mode)
     :config (setq so-long-threshold 400)))
 
-;; Highlight the current line
-(use-package hl-line
-  :ensure t
-  :hook ((after-init . global-hl-line-mode)
-         ((dashboard-mode eshell-mode html-mode css-mode shell-mode term-mode vterm-mode) .
-          (lambda () (setq-local global-hl-line-mode nil)))))
-
 ;; File and buffer
 (defun dotfairy/revert-this-buffer ()
   "Revert the current buffer."

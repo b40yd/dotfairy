@@ -50,6 +50,7 @@
 (require 'init-company)
 (require 'init-ivy)
 (require 'init-autoinsert)
+(require 'init-tags)
 
 ;; Tools
 (require 'init-lsp)
@@ -76,6 +77,8 @@
 ;; Debugger
 (require 'init-debugger)
 
+;; Highlight
+(require 'init-highlight)
 
 (provide 'init-startup)
 ;;; init-startup.el ends here
