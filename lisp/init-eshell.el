@@ -21,6 +21,8 @@
 ;;; Commentary:
 
 ;;
+(require 'init-const)
+(require 'init-custom)
 
 ;;; Code:
 ;; Emacs command shell
