@@ -206,7 +206,6 @@
                    :desc "Org tree slide mode"          "p" #'org-tree-slide-mode
                    :desc "Org super agenda mode"        "s" #'org-super-agenda-mode
                    :desc "Read-only mode"               "r" #'read-only-mode
-                   :desc "Load theme"                   "T"  #'dotfairy-load-theme
                    )
 
       ;;; <leader> v --- versioning
