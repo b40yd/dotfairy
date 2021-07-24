@@ -62,6 +62,7 @@
 (require 'init-vterm)
 
 ;; Language
+(require 'init-elisp)
 (require 'init-clang)
 (require 'init-go)
 (require 'init-rust)
