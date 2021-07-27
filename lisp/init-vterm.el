@@ -100,16 +100,18 @@
 
 ;; Better term
 ;; @see https://github.com/akermu/emacs-libvterm#installation
-(when (and module-file-suffix           ; dynamic module
-           (executable-find "cmake")
-           (executable-find "libtool")
-           (executable-find "make"))
-  (use-package vterm
-    :init
-    (setq vterm-always-compile-module t)
-    (map! :map vterm-mode-map
-          :localleader
-          "p" #'shell-pop)))
+(unless IS-WINDOWS
+  (when (and module-file-suffix           ; dynamic module
+             (executable-find "cmake")
+             (executable-find "libtool")
+             (executable-find "make"))
+    (use-package vterm
+      :init
+      (setq vterm-always-compile-module t)
+      (map! :map vterm-mode-map
+            :localleader
+            "p" #'shell-pop)))
+  )
 ;; Shell Pop
 (use-package shell-pop
   :bind ([f9] . shell-pop)
