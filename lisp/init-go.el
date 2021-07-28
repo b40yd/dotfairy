@@ -53,7 +53,7 @@
                       "github.com/fatih/gomodifytags"
                       "github.com/davidrjenni/reftools/cmd/fillstruct"
                       "github.com/110y/go-expr-completion"
-                      "github.com/golangci/golangci-lint/cmd/golangci-lint@latest")
+                      "github.com/golangci/golangci-lint/cmd/golangci-lint")
     "All necessary go tools.")
 
   ;; Do not use the -u flag for gopls, as it will update the dependencies to incompatible versions
