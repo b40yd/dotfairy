@@ -69,25 +69,23 @@
       (user-error "Unable to find `go' in `exec-path'!"))
 
     (message "Installing go tools...")
-    (let ((proc-name "go-tools")
-          (proc-buffer "*Go Tools*"))
-      (dolist (pkg go--tools-no-update)
-        (set-process-sentinel
-         (start-process proc-name proc-buffer "go" "get" "-v" pkg)
-         (lambda (proc _)
-           (let ((status (process-exit-status proc)))
-             (if (= 0 status)
-                 (message "Installed %s" pkg)
-               (message "Failed to install %s: %d" pkg status))))))
 
-      (dolist (pkg go--tools)
-        (set-process-sentinel
-         (start-process proc-name proc-buffer "go" "get" "-u" "-v" pkg)
-         (lambda (proc _)
-           (let ((status (process-exit-status proc)))
-             (if (= 0 status)
-                 (message "Installed %s" pkg)
-               (message "Failed to install %s: %d" pkg status))))))))
+    ;; https://github.com/golang/tools/tree/master/gopls#installation
+    (async-shell-command
+     "GO111MODULE=on go get golang.org/x/tools/gopls@latest")
+
+    ;; https://staticcheck.io/docs/install
+    (async-shell-command
+     "go install honnef.co/go/tools/cmd/staticcgheck@latest")
+
+    (dolist (pkg go--tools)
+      (set-process-sentinel
+       (start-process "go-tools" "*Go Tools*" "go" "get" "-u" "-v" pkg)
+       (lambda (proc _)
+         (let ((status (process-exit-status proc)))
+           (if (= 0 status)
+               (message "Installed %s" pkg)
+             (message "Failed to install %s: %d" pkg status)))))))
 
   ;; Try to install go tools if `gopls' is not found
   (unless (executable-find "gopls")
@@ -143,7 +141,6 @@
          "e" #'go-gen-test-exported
          (:prefix ("b" . "bench")
           "a" #'go-test-current-project-benchmarks
-          "c" #'go-test-current-coverage
           "s" #'go-test-current-benchmark
           "t" #'go-test-current-file-benchmarks
           )))
