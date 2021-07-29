@@ -28,7 +28,8 @@
 
 (use-package go-mode
   :ensure t
-  :functions (go-packages-gopkgs go-update-tools)
+  :functions go-update-tools
+  :commands godoc-gogetdoc
   :mode (("\\.go\\'" . go-mode))
   :hook ((before-save . gofmt-before-save)
          (go-mode . (lambda ()
@@ -121,30 +122,31 @@
         :localleader
         "a" #'go-tag-add
         "d" #'go-tag-remove
+        "p" #'godoc-at-point
         (:prefix ("l" . "imports")
-                 "a" #'go-import-add
-                 "e" #'go-expr-completion
-                 "f" #'go-fill-struct
-                 "i" #'go-goto-imports      ; Go to imports
-                 "r" #'go-remove-unused-imports)
+         "a" #'go-import-add
+         "e" #'go-expr-completion
+         "f" #'go-fill-struct
+         "i" #'go-goto-imports      ; Go to imports
+         "r" #'go-remove-unused-imports)
         (:prefix ("b" . "build")
-                 :desc "go run ." "r" (cmd! (compile "go run ."))
-                 :desc "go build" "b" (cmd! (compile "go build"))
-                 :desc "go clean" "c" (cmd! (compile "go clean")))
+         :desc "go run ." "r" (cmd! (compile "go run ."))
+         :desc "go build" "b" (cmd! (compile "go build"))
+         :desc "go clean" "c" (cmd! (compile "go clean")))
         (:prefix ("t" . "test")
-                 "a" #'go-test-current-project
-                 "c" #'go-test-current-coverage
-                 "s" #'go-test-current-test
-                 "t" #'go-test-current-file
-                 "g" #'go-gen-test-dwim
-                 "G" #'go-gen-test-all
-                 "e" #'go-gen-test-exported
-                 (:prefix ("b" . "bench")
-                          "a" #'go-test-current-project-benchmarks
-                          "c" #'go-test-current-coverage
-                          "s" #'go-test-current-benchmark
-                          "t" #'go-test-current-file-benchmarks
-                          )))
+         "a" #'go-test-current-project
+         "c" #'go-test-current-coverage
+         "s" #'go-test-current-test
+         "t" #'go-test-current-file
+         "g" #'go-gen-test-dwim
+         "G" #'go-gen-test-all
+         "e" #'go-gen-test-exported
+         (:prefix ("b" . "bench")
+          "a" #'go-test-current-project-benchmarks
+          "c" #'go-test-current-coverage
+          "s" #'go-test-current-benchmark
+          "t" #'go-test-current-file-benchmarks
+          )))
   )
 
 
