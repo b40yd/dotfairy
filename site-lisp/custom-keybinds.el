@@ -159,7 +159,7 @@
    :desc "Open Dired"         "d"  #'+default/dired
    :desc "New frame"          "f"  #'make-frame
    :desc "Dired"              "-"  #'dired-jump
-   :desc "Find file in project rsidebar" "P" #'treemacs-find-file
+   :desc "Find file in project sidebar" "P" #'treemacs-find-file
    )
 
       ;;; <leader> p --- project
