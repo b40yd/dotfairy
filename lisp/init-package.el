@@ -55,7 +55,8 @@
        (mapcar #'symbol-name
                (mapcar #'car dotfairy-package-archives-alist)))))))
 
-(if (file-readable-p custom-file) (load custom-file))
+(if (file-exists-p custom-file)
+    (load custom-file))
 
 ;; Set ELPA packages
 (set-package-archives dotfairy-package-archives nil nil t)
