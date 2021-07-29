@@ -56,12 +56,12 @@
            when (font-installed-p font)
            return (set-face-attribute 'default nil
                                       :font font
-                                      :height (cond (IS-MAC 130)
+                                      :height (cond (IS-MAC 180)
                                                     (IS-WINDOWS 110)
-                                                    (t 100))))
+                                                    (t 130))))
 
   ;; Specify font for all unicode characters
-  (cl-loop for font in '("Apple Color Emoji" "Segoe UI Symbol" "Symbola" "Symbol")
+  (cl-loop for font in '("PowerlineSymbols" "Apple Color Emoji" "Segoe UI Symbol" "Symbola" "Symbol")
            when (font-installed-p font)
            return(set-fontset-font t 'unicode font nil 'prepend))
 
