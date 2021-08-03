@@ -106,11 +106,11 @@
              (executable-find "libtool")
              (executable-find "make"))
     (use-package vterm
+      :bind (:map vterm-mode-map
+             ([f9] . shell-pop))
       :init
       (setq vterm-always-compile-module t)
-      (map! :map vterm-mode-map
-            :localleader
-            "p" #'shell-pop)))
+      ))
   )
 ;; Shell Pop
 (use-package shell-pop
