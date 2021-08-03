@@ -28,18 +28,21 @@
   :bind (("C-x c j" . citre-jump+)
          ("C-x c k" . citre-jump-back)
          ("C-x c p" . citre-peek)
-         ("C-x c a" . citre-ace-peek))
-  :hook (prog-mode . citre-auto-enable-citre-mode)
+         ("C-x c a" . citre-ace-peek)
+         ("C-x c u" . citre-update-this-tags-file))
   :init
+  (require 'citre-config)
+  (setq citre-auto-enable-citre-mode-modes '(prog-mode))
+
   (defun citre-jump+ ()
+    "Jump to the definition of the symbol at point.
+Fallback to `xref-find-definitions'."
     (interactive)
     (condition-case _
         (citre-jump)
       (error (call-interactively #'xref-find-definitions))))
   :config
   (with-no-warnings
-    (with-eval-after-load 'cc-mode (require 'citre-lang-c))
-    (with-eval-after-load 'dired (require 'citre-lang-fileref))
     (with-eval-after-load 'projectile
       (setq citre-project-root-function #'projectile-project-root))
 
@@ -57,7 +60,7 @@
 
     (defun lsp-citre-capf-function ()
       "A capf backend that tries lsp first, then Citre."
-      (let ((lsp-result (pcase centaur-lsp
+      (let ((lsp-result (pcase dotfairy-lsp
                           ('lsp-mode
                            (and (fboundp #'lsp-completion-at-point)
                                 (lsp-completion-at-point)))
@@ -76,21 +79,6 @@
       "Enable the lsp + Citre capf backend in current buffer."
       (add-hook 'completion-at-point-functions #'lsp-citre-capf-function nil t))
 
-    (add-hook 'citre-mode-hook #'enable-lsp-citre-capf-backend)
-
-    (with-eval-after-load 'company
-      (defun company-citre (-command &optional -arg &rest _ignored)
-        "Completion backend of Citre.  Execute COMMAND with ARG and IGNORED."
-        (interactive (list 'interactive))
-        (cl-case -command
-          (interactive (company-begin-backend 'company-citre))
-          (prefix (and (bound-and-true-p citre-mode)
-                       (or (citre-get-symbol) 'stop)))
-          (meta (citre-get-property 'signature -arg))
-          (annotation (citre-capf--get-annotation -arg))
-          (candidates (all-completions -arg (citre-capf--get-collection -arg)))
-          (ignore-case (not citre-completion-case-sensitive))))
-
-      (setq company-backends '((company-capf company-citre :with company-yasnippet :separate))))))
+    (add-hook 'citre-mode-hook #'enable-lsp-citre-capf-backend)))
 (provide 'init-tags)
 ;;; init-tags.el ends here

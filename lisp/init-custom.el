@@ -151,5 +151,16 @@ If Non-nil, save and restore the frame's geometry."
   :group 'dotfairy
   :type 'boolean)
 
+(defcustom dotfairy-lsp 'lsp-mode
+  "Set language server.
+`lsp-mode': See https://github.com/emacs-lsp/lsp-mode.
+`eglot': See https://github.com/joaotavora/eglot.
+tags: Use tags file instead of language server. See https://github.com/universal-ctags/citre.
+nil means disabled."
+  :group 'dotfairy
+  :type '(choice (const :tag "LSP Mode" lsp-mode)
+                 (const :tag "Eglot" eglot)
+                 (const :tag "Disable" nil)))
+
 (provide 'init-custom)
 ;;; init-custom.el ends here
