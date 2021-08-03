@@ -97,11 +97,14 @@
   ;; Use the faster search tool: ripgrep (`rg')
   (when (executable-find "rg")
     (setq counsel-grep-base-command "rg -S --no-heading --line-number --color never %s %s")
-    (when (and IS-MAC (executable-find "gls"))
-      (setq counsel-find-file-occur-use-find nil
-            counsel-find-file-occur-cmd
-            "gls -a | grep -i -E '%s' | tr '\\n' '\\0' | xargs -0 gls -d --group-directories-first"))
     )
+  (setq counsel-fzf-cmd
+        "fd --type f --hidden --follow --exclude .git --color never || git ls-tree -r --name-only HEAD || rg --files --hidden --follow --glob '!.git' --color never || find .")
+
+  (when (and IS-MAC (executable-find "gls"))
+    (setq counsel-find-file-occur-use-find nil
+          counsel-find-file-occur-cmd
+          "gls -a | grep -i -E '%s' | tr '\\n' '\\0' | xargs -0 gls -d --group-directories-first"))
 
   :config
   (with-no-warnings
@@ -377,10 +380,10 @@ This is for use in `ivy-re-builders-alist'."
             (t . ivy-prescient-re-builder))
           ivy-prescient-sort-commands
           '(:not swiper swiper-isearch ivy-switch-buffer
-                 lsp-ivy-workspace-symbol ivy-resume ivy--restore-session
-                 counsel-grep counsel-git-grep counsel-rg counsel-ag
-                 counsel-ack counsel-fzf counsel-pt counsel-imenu
-                 counsel-yank-pop counsel-recentf counsel-buffer-or-recentf))
+            lsp-ivy-workspace-symbol ivy-resume ivy--restore-session
+            counsel-grep counsel-git-grep counsel-rg counsel-ag
+            counsel-ack counsel-fzf counsel-pt counsel-imenu
+            counsel-yank-pop counsel-recentf counsel-buffer-or-recentf))
 
     (ivy-prescient-mode 1)
     (setf (alist-get 'counsel-rg ivy-re-builders-alist) #'ivy--regex-plus))
@@ -418,40 +421,40 @@ This is for use in `ivy-re-builders-alist'."
         :localleader
         :map counsel-mode-map
         (:prefix ("i" . "ivy")
-                 "a" #'counsel-ag
-                 "A" #'counsel-apropos
-                 "B" #'counsel-bookmarked-directory
-                 (:prefix ("d" . "describe")
-                          "f" #'counsel-describe-function
-                          "v" #'counsel-describe-variable
-                          "s" #'counsel-describe-symbol
-                          "l"  #'counsel-info-lookup-symbol
-                          )
-                 "e" #'counsel-colors-emacs
-                 "f" #'counsel-find-library
-                 "F" #'counsel-faces
-                 "G" #'counsel-git
-                 "h" #'counsel-command-history
-                 "H" #'counsel-minibuffer-history
-                 "l" #'counsel-locate
-                 "L" #'counsel-load-library
-                 "m" #'counsel-mark-ring
-                 "o" #'counsel-outline
-                 "O" #'counsel-find-file-extern
-                 "p" #'counsel-pt
-                 "P" #'counsel-package
-                 "R" #'counsel-list-processes
-                 "t" #'counsel-load-theme
-                 "u" #'counsel-unicode-char
-                 "w" #'counsel-colors-web
-                 "v" #'counsel-set-variable
-                 "z" #'counsel-fzf)
+         "a" #'counsel-ag
+         "A" #'counsel-apropos
+         "B" #'counsel-bookmarked-directory
+         (:prefix ("d" . "describe")
+          "f" #'counsel-describe-function
+          "v" #'counsel-describe-variable
+          "s" #'counsel-describe-symbol
+          "l"  #'counsel-info-lookup-symbol
+          )
+         "e" #'counsel-colors-emacs
+         "f" #'counsel-find-library
+         "F" #'counsel-faces
+         "G" #'counsel-git
+         "h" #'counsel-command-history
+         "H" #'counsel-minibuffer-history
+         "l" #'counsel-locate
+         "L" #'counsel-load-library
+         "m" #'counsel-mark-ring
+         "o" #'counsel-outline
+         "O" #'counsel-find-file-extern
+         "p" #'counsel-pt
+         "P" #'counsel-package
+         "R" #'counsel-list-processes
+         "t" #'counsel-load-theme
+         "u" #'counsel-unicode-char
+         "w" #'counsel-colors-web
+         "v" #'counsel-set-variable
+         "z" #'counsel-fzf)
         (:prefix ("s" . "Search")
-                 "g" #'counsel-grep
-                 "j" #'counsel-git-grep
-                 "r" #'counsel-rg
-                 "s" #'counsel-grep-or-swiper
-                 )
+         "g" #'counsel-grep
+         "j" #'counsel-git-grep
+         "r" #'counsel-rg
+         "s" #'counsel-grep-or-swiper
+         )
         :map swiper-map
         "s" #'my-swiper-toggle-swiper-isearch
         "r" #'my-swiper-toggle-rg-dwim

@@ -73,7 +73,7 @@
          ("M-P" . symbol-overlay-switch-backward)
          ("M-C" . symbol-overlay-remove-all)
          ([M-f3] . symbol-overlay-remove-all))
-  :hook ((prog-mode . symbol-overlay-mode)
+  :hook (((prog-mode yaml-mode) . symbol-overlay-mode)
          (iedit-mode . turn-off-symbol-overlay)
          (iedit-mode-end . turn-on-symbol-overlay))
   :init (setq symbol-overlay-idle-time 0.1)
@@ -98,7 +98,7 @@
   (defun turn-on-symbol-overlay (&rest _)
     "Turn on symbol highlighting."
     (interactive)
-    (when (derived-mode-p 'prog-mode)
+    (when (derived-mode-p 'prog-mode 'yaml-mode)
       (symbol-overlay-mode 1)))
   (advice-add #'deactivate-mark :after #'turn-on-symbol-overlay))
 
@@ -117,7 +117,7 @@
 ;; Highlight indentions
 (use-package highlight-indent-guides
   :diminish
-  :hook (prog-mode . highlight-indent-guides-mode)
+  :hook ((prog-mode yaml-mode) . highlight-indent-guides-mode)
   :init (setq highlight-indent-guides-method 'character
               highlight-indent-guides-responsive 'top
               highlight-indent-guides-suppress-auto-error t)
@@ -138,7 +138,7 @@
                              (highlight-indent-guides-mode -1))))
       (advice-add #'macrostep-collapse
                   :after (lambda (&rest _)
-                           (when (derived-mode-p 'prog-mode)
+                           (when (derived-mode-p 'prog-mode 'yaml-mode)
                              (highlight-indent-guides-mode 1)))))
 
     ;; Don't display indentations in `swiper'
