@@ -167,46 +167,46 @@
              ((agenda "" ((org-agenda-span 'day)
                           (org-super-agenda-groups
                            '((:name "Today"
-                                    :time-grid t
-                                    :todo "TODAY"
-                                    :date today
-                                    :scheduled today
-                                    :order 0)
+                              :time-grid t
+                              :todo "TODAY"
+                              :date today
+                              :scheduled today
+                              :order 0)
                              (:habit t)
                              (:name "Due Today"
-                                    :deadline today
-                                    :order 2)
+                              :deadline today
+                              :order 2)
                              (:name "Due Soon"
-                                    :deadline future
-                                    :order 8)
+                              :deadline future
+                              :order 8)
                              (:name "Overdue"
-                                    :deadline past
-                                    :order 7)
+                              :deadline past
+                              :order 7)
                              ))))
               (alltodo "" ((org-agenda-overriding-header "")
                            (org-super-agenda-groups
                             '((:name "Passed Deadline"
-                                     :and (:deadline past :todo ("TODO" "WAITING" "HOLD" "NEXT"))
-                                     :face (:background "#7f1b19"))
+                               :and (:deadline past :todo ("TODO" "WAITING" "HOLD" "NEXT"))
+                               :face (:background "#7f1b19"))
                               (:name "Important"
-                                     :priority "A")
+                               :priority "A")
                               (:priority<= "B"
-                                           ;; Show this section after "Today" and "Important", because
-                                           ;; their order is unspecified, defaulting to 0. Sections
-                                           ;; are displayed lowest-number-first.
-                                           :order 1)
+                               ;; Show this section after "Today" and "Important", because
+                               ;; their order is unspecified, defaulting to 0. Sections
+                               ;; are displayed lowest-number-first.
+                               :order 1)
                               (:name "Waiting"
-                                     :todo "WAITING"
-                                     :order 9)
+                               :todo "WAITING"
+                               :order 9)
                               (:name "On hold"
-                                     :todo "HOLD"
-                                     :order 10)
+                               :todo "HOLD"
+                               :order 10)
                               (:name "On Working"
-                                     :todo "NEXT"
-                                     :order 9)
+                               :todo "NEXT"
+                               :order 9)
                               (:name "To Read"
-                                     :tag ("Read" "Book" "Books")
-                                     :todo "SOMEDAY")
+                               :tag ("Read" "Book" "Books")
+                               :todo "SOMEDAY")
                               ))))
               ))))
     (setq org-agenda-breadcrumbs-separator " ❯ ")
@@ -218,10 +218,10 @@
     :functions (org-display-inline-images
                 org-remove-inline-images)
     :bind (:map org-tree-slide-mode-map
-                ("<left>" . org-tree-slide-move-previous-tree)
-                ("<right>" . org-tree-slide-move-next-tree)
-                ("C-<tab>" . org-tree-slide-move-previous-tree)
-                ("SPC" . org-tree-slide-move-next-tree))
+           ("<left>" . org-tree-slide-move-previous-tree)
+           ("<right>" . org-tree-slide-move-next-tree)
+           ("C-<tab>" . org-tree-slide-move-previous-tree)
+           ("SPC" . org-tree-slide-move-next-tree))
     :hook ((org-tree-slide-play . (lambda ()
                                     (text-scale-increase 4)
                                     (org-display-inline-images)
@@ -235,67 +235,16 @@
     (setq org-tree-slide-skip-outline-level 4))
 
   (use-package org-roam
-    :diminish
-    :custom (org-roam-directory (file-truename dotfairy-org-dir))
+    :custom (org-roam-directory (concat dotfairy-org-dir "roam/"))
     :hook (after-init . org-roam-mode)
+    :init
+    (setq org-roam-v2-ack t)
     :config
+    (org-roam-db-autosync-mode)
     (require 'org-roam-protocol)
-    (setq org-roam-directory (concat dotfairy-org-dir "roam/")
-          org-roam-capture-templates
-          '(
-            ("d" "default" plain (function org-roam-capture--get-point)
-             "%?"
-             :file-name "%<%Y%m%d%H%M%S>-${slug}"
-             :head "#+title: ${title}\n#+roam_alias:\n\n")
-            ("g" "group")
-            ("ga" "Group A" plain (function org-roam-capture--get-point)
-             "%?"
-             :file-name "%<%Y%m%d%H%M%S>-${slug}"
-             :head "#+title: ${title}\n#+roam_alias:\n\n")
-            ("gb" "Group B" plain (function org-roam-capture--get-point)
-             "%?"
-             :file-name "%<%Y%m%d%H%M%S>-${slug}"
-             :head "#+title: ${title}\n#+roam_alias:\n\n"))
-          org-roam-capture-immediate-template
-          '("d" "default" plain (function org-roam-capture--get-point)
-            "%?"
-            :file-name "%<%Y%m%d%H%M%S>-${slug}"
-            :head "#+title: ${title}\n"
-            :unnarrowed t)
-          org-roam-capture-ref-templates
-          '(("r" "ref" plain (function org-roam-capture--get-point)
-             ""
-             :file-name "${slug}"
-             :head "#+title: ${title}\n#+roam_key: ${ref}\n"
-             :unnarrowed t)
-            ("a" "Annotation" plain (function org-roam-capture--get-point)
-             "%U ${body}\n"
-             :file-name "${slug}"
-             :head "#+title: ${title}\n#+roam_key: ${ref}\n#+roam_alias:\n"
-             :immediate-finish t
-             :unnarrowed t)
-            ))
+    (unless (file-exists-p org-roam-directory)
+      (make-directory org-roam-directory))
     )
-
-  (use-package org-roam-server
-    :ensure t
-    :hook (org-roam-server-mode . org-roam-server-browse)
-    :config
-    (defun org-roam-server-browse ()
-      (when org-roam-server-mode
-        (let ((url (format "http://%s:%d" org-roam-server-host org-roam-server-port)))
-          (browse-url url))))
-    (setq org-roam-server-host "127.0.0.1"
-          org-roam-server-port 8080
-          org-roam-server-authenticate nil
-          org-roam-server-export-inline-images t
-          org-roam-server-serve-files nil
-          org-roam-server-served-file-extensions '("pdf" "mp4" "ogv")
-          org-roam-server-network-poll t
-          org-roam-server-network-arrows nil
-          org-roam-server-network-label-truncate t
-          org-roam-server-network-label-truncate-length 60
-          org-roam-server-network-label-wrap-length 20))
 
   ;; Preview
   (use-package org-preview-html
