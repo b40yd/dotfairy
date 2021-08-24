@@ -184,9 +184,26 @@
 (use-package default-text-scale
   :hook (after-init . default-text-scale-mode)
   :bind (:map default-text-scale-mode-map
-              ("C-=" . default-text-scale-increase)
-              ("C--" . default-text-scale-decrease)
-              ("C-0" . default-text-scale-reset)))
+         ("C-=" . default-text-scale-increase)
+         ("C--" . default-text-scale-decrease)
+         ("C-0" . default-text-scale-reset)))
+
+;; Good pixel line scrolling
+(use-package good-scroll
+  :diminish
+  :hook (after-init . good-scroll-mode)
+  :bind (([remap next] . good-scroll-up-full-screen)
+         ([remap prior] . good-scroll-down-full-screen)))
+
+;; Smooth scrolling over images
+(use-package iscroll
+  :diminish
+  :hook (image-mode . iscroll-mode))
+
+;; Display ugly ^L page breaks as tidy horizontal lines
+(use-package page-break-lines
+  :diminish
+  :hook (after-init . global-page-break-lines-mode))
 
 ;; Use fixed pitch where it's sensible
 (use-package mixed-pitch
@@ -207,6 +224,50 @@
           ;; empty ;blank lines at BOB or EOB
           indentation)) ;highlight spaces/tabs at BOL depending on `indent-tabs-mode'
   )
+
+;; When `dotfairy-prettify-symbols-alist' is `nil' use font supported ligatures
+(use-package composite
+  :ensure nil
+  :unless dotfairy-prettify-symbols-alist
+  :init (defvar composition-ligature-table (make-char-table nil))
+  :hook (((prog-mode conf-mode nxml-mode markdown-mode help-mode)
+          . (lambda () (setq-local composition-function-table composition-ligature-table))))
+  :config
+  ;; support ligatures, some toned down to prevent hang
+  (let ((alist
+         '((33 . ".\\(?:\\(==\\|[!=]\\)[!=]?\\)")
+           (35 . ".\\(?:\\(###?\\|_(\\|[(:=?[_{]\\)[#(:=?[_{]?\\)")
+           (36 . ".\\(?:\\(>\\)>?\\)")
+           (37 . ".\\(?:\\(%\\)%?\\)")
+           (38 . ".\\(?:\\(&\\)&?\\)")
+           (42 . ".\\(?:\\(\\*\\*\\|[*>]\\)[*>]?\\)")
+           ;; (42 . ".\\(?:\\(\\*\\*\\|[*/>]\\).?\\)")
+           (43 . ".\\(?:\\([>]\\)>?\\)")
+           ;; (43 . ".\\(?:\\(\\+\\+\\|[+>]\\).?\\)")
+           (45 . ".\\(?:\\(-[->]\\|<<\\|>>\\|[-<>|~]\\)[-<>|~]?\\)")
+           ;; (46 . ".\\(?:\\(\\.[.<]\\|[-.=]\\)[-.<=]?\\)")
+           (46 . ".\\(?:\\(\\.<\\|[-=]\\)[-<=]?\\)")
+           (47 . ".\\(?:\\(//\\|==\\|[=>]\\)[/=>]?\\)")
+           ;; (47 . ".\\(?:\\(//\\|==\\|[*/=>]\\).?\\)")
+           (48 . ".\\(?:x[a-zA-Z]\\)")
+           (58 . ".\\(?:\\(::\\|[:<=>]\\)[:<=>]?\\)")
+           (59 . ".\\(?:\\(;\\);?\\)")
+           (60 . ".\\(?:\\(!--\\|\\$>\\|\\*>\\|\\+>\\|-[-<>|]\\|/>\\|<[-<=]\\|=[<>|]\\|==>?\\||>\\||||?\\|~[>~]\\|[$*+/:<=>|~-]\\)[$*+/:<=>|~-]?\\)")
+           (61 . ".\\(?:\\(!=\\|/=\\|:=\\|<<\\|=[=>]\\|>>\\|[=>]\\)[=<>]?\\)")
+           (62 . ".\\(?:\\(->\\|=>\\|>[-=>]\\|[-:=>]\\)[-:=>]?\\)")
+           (63 . ".\\(?:\\([.:=?]\\)[.:=?]?\\)")
+           (91 . ".\\(?:\\(|\\)[]|]?\\)")
+           ;; (92 . ".\\(?:\\([\\n]\\)[\\]?\\)")
+           (94 . ".\\(?:\\(=\\)=?\\)")
+           (95 . ".\\(?:\\(|_\\|[_]\\)_?\\)")
+           (119 . ".\\(?:\\(ww\\)w?\\)")
+           (123 . ".\\(?:\\(|\\)[|}]?\\)")
+           (124 . ".\\(?:\\(->\\|=>\\||[-=>]\\||||*>\\|[]=>|}-]\\).?\\)")
+           (126 . ".\\(?:\\(~>\\|[-=>@~]\\)[-=>@~]?\\)"))))
+    (dolist (char-regexp alist)
+      (set-char-table-range composition-ligature-table (car char-regexp)
+                            `([,(cdr char-regexp) 0 font-shape-gstring]))))
+  (set-char-table-parent composition-ligature-table composition-function-table))
 
 ;;;###autoload
 (defun dotfairy/toggle-line-numbers ()

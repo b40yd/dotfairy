@@ -48,9 +48,9 @@
           :map python-mode-map
           :localleader
           (:prefix ("i" . "imports")
-                   :desc "Insert missing imports" "i" #'pyimport-insert-missing
-                   :desc "Remove unused imports"  "r" #'pyimport-remove-unused
-                   :desc "Optimize imports"       "o" #'+python/optimize-imports)))
+           :desc "Insert missing imports" "i" #'pyimport-insert-missing
+           :desc "Remove unused imports"  "r" #'pyimport-remove-unused
+           :desc "Optimize imports"       "o" #'+python/optimize-imports)))
 
   (use-package py-isort
     :defer t
@@ -59,8 +59,8 @@
           :map python-mode-map
           :localleader
           (:prefix ("i" . "imports")
-                   :desc "Sort imports"      "s" #'py-isort-buffer
-                   :desc "Sort region"       "r" #'py-isort-region)))
+           :desc "Sort imports"      "s" #'py-isort-buffer
+           :desc "Sort region"       "r" #'py-isort-region)))
 
   (use-package python-pytest
     :custom
@@ -70,13 +70,13 @@
           :localleader
           :map python-mode-map
           (:prefix ("t" . "test")
-                   "f" #'python-pytest-file-dwim
-                   "F" #'python-pytest-file
-                   "s" #'python-pytest-function-dwim
-                   "S" #'python-pytest-function
-                   "r" #'python-pytest-repeat
-                   "p" #'python-pytest-dispatch
-                   )))
+           "f" #'python-pytest-file-dwim
+           "F" #'python-pytest-file
+           "s" #'python-pytest-function-dwim
+           "S" #'python-pytest-function
+           "r" #'python-pytest-repeat
+           "p" #'python-pytest-dispatch
+           )))
   )
 
 (provide 'init-python)
