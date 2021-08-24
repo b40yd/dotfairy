@@ -21,7 +21,8 @@
 ;;; Commentary:
 
 ;;
-
+(require 'init-custom)
+(require 'init-const)
 ;;; Code:
 ;; Prettify Symbols
 ;; e.g. display “lambda” as “λ”
@@ -29,24 +30,7 @@
   :ensure nil
   :hook (prog-mode . prettify-symbols-mode)
   :init
-  (setq-default prettify-symbols-alist '(("lambda" . ?λ)
-                                         ("<-" . ?←)
-                                         ("->" . ?→)
-                                         ("->>" . ?↠)
-                                         ("=>" . ?⇒)
-                                         ("map" . ?↦)
-                                         ("/=" . ?≠)
-                                         ("!=" . ?≠)
-                                         ("==" . ?≡)
-                                         ("<=" . ?≤)
-                                         (">=" . ?≥)
-                                         ("=<<" . (?= (Br . Bl) ?≪))
-                                         (">>=" . (?≫ (Br . Bl) ?=))
-                                         ("<=<" . ?↢)
-                                         (">=>" . ?↣)
-                                         ("&&" . ?∧)
-                                         ("||" . ?∨)
-                                         ("not" . ?¬)))
+  (setq-default prettify-symbols-alist dotfairy-prettify-symbols-alist)
   (setq prettify-symbols-unprettify-at-point 'right-edge))
 
 (use-package protobuf-mode
