@@ -21,36 +21,27 @@
 ;;; Commentary:
 
 ;;
+(require 'init-const)
+(require 'init-custom)
+(require 'init-funcs)
 
 ;;; Code:
-
-(use-package web-mode
-  :mode ("\\.html\\'")
-  :ensure t
-  :config
-  (setq web-mode-markup-indent-offset 4
-        web-mode-css-indent-offset 4
-        web-mode-code-indent-offset 4
-        web-mode-enable-current-element-highlight t
-        web-mode-enable-css-colorization t)
-  (use-package company-web
-    :config
-    (add-to-list 'company-backends 'company-web-html)
-    (add-to-list 'company-backends 'company-css))
-  )
-
 (use-package css-mode
-  :ensure t
-  :mode "\\.css\\'"
-  :config
-  (add-hook 'css-mode-hook (lambda()
-                             (add-to-list (make-local-variable 'company-backends)
-                                          '(company-css company-files company-yasnippet company-capf))))
-  (setq css-indent-offset 4))
+  :ensure nil
+  :init (setq css-indent-offset 2))
 
+;; SCSS mode
 (use-package scss-mode
-  :ensure t
-  :mode "\\scss\\'")
+  :init
+  ;; Disable complilation on save
+  (setq scss-compile-at-save nil))
+
+;; New `less-css-mde' in Emacs 26
+(unless (fboundp 'less-css-mode)
+  (use-package less-css-mode))
+
+;; JSON mode
+(use-package json-mode)
 
 ;; JavaScript
 (use-package js2-mode
@@ -60,13 +51,43 @@
   :interpreter (("node" . js2-mode)
                 ("node" . js2-jsx-mode))
   :hook ((js2-mode . js2-imenu-extras-mode)
-         (js2-mode . js2-highlight-unused-variables-mode))
+         (js2-mode . js2-highlight-unused-variables-mode)
+         (js2-mode . (lambda ()
+                       (dotfairy-set-prettify '(("()=>" . ?λ)
+                                                ("**2" . ?²)
+                                                ("**3" . ?³)
+                                                ("**4" . ?⁴)
+                                                ("**5" . ?⁵)
+                                                ("**6" . ?⁶)
+                                                ("**7" . ?⁷)
+                                                ("**8" . ?⁸)
+                                                ("**9" . ?⁹)
+                                                ("**-1" . (?⁻ (Br . Bl) ?¹))  ; ⁻¹
+                                                ("**-2" . (?⁻ (Br . Bl) ?²))  ; ⁻²
+                                                ("**-3" . (?⁻ (Br . Bl) ?³))  ; ⁻³
+                                                ("**-4" . (?⁻ (Br . Bl) ?⁴))  ; ⁻⁴
+                                                ("**-5" . (?⁻ (Br . Bl) ?⁵))  ; ⁻⁵
+                                                ("**-6" . (?⁻ (Br . Bl) ?⁶))  ; ⁻⁶
+                                                ("**-7" . (?⁻ (Br . Bl) ?⁷))  ; ⁻⁷
+                                                ("**-8" . (?⁻ (Br . Bl) ?⁸))  ; ⁻⁸
+                                                ("**-9" . (?⁻ (Br . Bl) ?⁹))  ; ⁻⁹
+                                                ("all" . ?∀)  ; custom
+                                                ("any" . ?∃)  ; custom
+                                                ("undefined" . ?∅)
+                                                ("Infinity" . ?∞))))
+                   )
+         )
+  :init (setq js-indent-level 2)
   :config
+  ;; Use default keybindings for lsp
+  (unbind-key "M-." js2-mode-map)
+
   (with-eval-after-load 'flycheck
     (when (or (executable-find "eslint_d")
               (executable-find "eslint")
               (executable-find "jshint"))
-      (setq js2-mode-show-strict-warnings nil))
+      (setq js2-mode-show-strict-warnings nil
+            js2-mode-show-parse-errors nil))
     (when (executable-find "eslint_d")
       ;; https://github.com/mantoni/eslint_d.js
       ;; npm -i -g eslint_d
@@ -77,49 +98,65 @@
     :hook (js2-mode . js2-refactor-mode)
     :config (js2r-add-keybindings-with-prefix "C-c C-m")))
 
-;; New `less-css-mde' in Emacs 26
-(unless (fboundp 'less-css-mode)
-  (use-package less-css-mode))
-
-(use-package rjsx-mode
-  :ensure t
-  :mode "\\.js\\'"
-  :config
-  (setq js2-basic-offset 4))
-
-;; npm install -g typescript
-(defun setup-tide-mode()
-  "setup function for tide"
-  (interactive)
-  (tide-setup)
-  (flycheck-mode +1)
-  (setq flycheck-check-syntax-automatically '(save mode-enabled))
-  (tide-hl-identifier-mode +1)
-  (company-mode +1))
-
-(use-package tide
-  :ensure t
-  :after (rjsx-mode company flycheck)
-  :hook (rjsx-mode . setup-tide-mode))
-
+;; Live browser JavaScript, CSS, and HTML interaction
+(use-package skewer-mode
+  :diminish
+  :hook (((js-mode js2-mode). skewer-mode)
+         (css-mode . skewer-css-mode)
+         (web-mode . skewer-html-mode)
+         (html-mode . skewer-html-mode))
+  :init
+  ;; diminish
+  (with-eval-after-load 'skewer-css
+    (diminish 'skewer-css-mode))
+  (with-eval-after-load 'skewer-html
+    (diminish 'skewer-html-mode)))
 
 (use-package typescript-mode
   :mode ("\\.ts[x]\\'" . typescript-mode))
 
-(use-package emmet-mode
-  :ensure t
-  :hook (web-mode css-mode scss-mode sgml-mode rjsx-mode)
+;; Run Mocha or Jasmine tests
+(use-package mocha
+  :config (use-package mocha-snippets))
+
+;; Major mode for CoffeeScript code
+(use-package coffee-mode
+  :config (setq coffee-tab-width 2))
+
+;; Major mode for editing web templates
+(use-package web-mode
+  :mode "\\.\\(phtml\\|php|[gj]sp\\|as[cp]x\\|erb\\|djhtml\\|html?\\|hbs\\|ejs\\|jade\\|swig\\|tm?pl\\|vue\\)$"
   :config
-  (add-hook 'emmet-mode-hook (lambda()
-                               (setq emmet-indent-after-insert t))))
+  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-css-indent-offset 2)
+  (setq web-mode-code-indent-offset 2))
+
+;; Adds node_modules/.bin directory to `exec_path'
+(use-package add-node-modules-path
+  :hook ((web-mode js-mode js2-mode) . add-node-modules-path))
 
 ;; Format HTML, CSS and JavaScript/JSON
 ;; Install: npm -g install prettier
 (use-package prettier-js
   :diminish
-  :hook ((rjsx-mode js-mode js2-mode json-mode web-mode css-mode sgml-mode html-mode)
+  :hook ((js-mode js2-mode json-mode web-mode css-mode sgml-mode html-mode)
          .
          prettier-js-mode))
+
+(use-package haml-mode)
+(use-package php-mode)
+
+(use-package tide
+  :ensure t
+  :after (typescript-mode company flycheck)
+  :hook ((typescript-mode . tide-setup)
+         (typescript-mode . tide-hl-identifier-mode)
+         (before-save . tide-format-before-save)))
+
+(use-package rjsx-mode
+  :mode "\\jsx\\|.[mc]?js\\'"
+  :interpreter "node"
+  :hook (rjsx-mode . rainbow-delimiters-mode))
 
 (provide 'init-web)
 ;;; init-web.el ends here

@@ -22,14 +22,45 @@
 
 ;;
 
+(require 'init-const)
+(require 'init-custom)
+(require 'init-funcs)
+
 ;;; Code:
-
-
 (use-package python
   :ensure t
   :hook ((inferior-python-mode . (lambda ()
                                    (process-query-on-exit-flag
                                     (get-process "Python"))))
+         (python-mode . (lambda ()
+                          (dotfairy-set-prettify '(("**2" . ?²)
+                                                   ("**3" . ?³)
+                                                   ("**4" . ?⁴)
+                                                   ("**5" . ?⁵)
+                                                   ("**6" . ?⁶)
+                                                   ("**7" . ?⁷)
+                                                   ("**8" . ?⁸)
+                                                   ("**9" . ?⁹)
+                                                   ("**-1" . (?⁻ (Br . Bl) ?¹))  ; ⁻¹
+                                                   ("**-2" . (?⁻ (Br . Bl) ?²))  ; ⁻²
+                                                   ("**-3" . (?⁻ (Br . Bl) ?³))  ; ⁻³
+                                                   ("**-4" . (?⁻ (Br . Bl) ?⁴))  ; ⁻⁴
+                                                   ("**-5" . (?⁻ (Br . Bl) ?⁵))  ; ⁻⁵
+                                                   ("**-6" . (?⁻ (Br . Bl) ?⁶))  ; ⁻⁶
+                                                   ("**-7" . (?⁻ (Br . Bl) ?⁷))  ; ⁻⁷
+                                                   ("**-8" . (?⁻ (Br . Bl) ?⁸))  ; ⁻⁸
+                                                   ("**-9" . (?⁻ (Br . Bl) ?⁹))  ; ⁻⁹
+                                                   ("sum" . ?∑)
+                                                   ("prod" . ?∏)  ; numpy.prod; unpythonic.fold.prod  https://github.com/Technologicat/unpythonic
+                                                   ("product" . ?∏)  ; pandas; also alternative name for prod in numpy
+                                                   ("and" . ?∩)
+                                                   ("or" . ?∪)
+                                                   ("not in" . ?∉)  ; "not in" is only used for testing the absence of membership.
+                                                   ("is" . ?≡)
+                                                   ("is not" . ?≢)
+                                                   ("all" . ?∀)
+                                                   ("any" . ?∃)
+                                                   ("None" . ?∅)))))
          )
   :init
   ;; Disable readline based native completion
