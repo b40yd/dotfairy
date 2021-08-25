@@ -24,6 +24,7 @@
 
 ;;; Code:
 (require 'init-const)
+(require 'init-custom)
 
 (use-package lsp-mode
   :ensure t
@@ -31,7 +32,7 @@
             lsp-rust-server)
 
   :hook ((prog-mode . (lambda ()
-                        (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode 'makefile-gmake-mode 'snippet-mode)
+                        (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode 'makefile-gmake-mode 'snippet-mode 'less-css-mode)
                           (lsp-deferred))))
          (lsp-mode . (lambda ()
                        ;; Integrate `which-key'
@@ -50,9 +51,9 @@
              lsp-install-server)
 
   :bind (:map lsp-mode-map
-              ;; ("C-c C-." . lsp-describe-thing-at-point)
-              ([remap xref-find-definitions] . lsp-find-definition)
-              ([remap xref-find-references] . lsp-find-references))
+         ;; ("C-c C-." . lsp-describe-thing-at-point)
+         ([remap xref-find-definitions] . lsp-find-definition)
+         ([remap xref-find-references] . lsp-find-references))
 
   :init
   ;; @see https://emacs-lsp.github.io/lsp-mode/page/performance

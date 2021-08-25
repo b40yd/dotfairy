@@ -28,6 +28,7 @@
 (use-package docker-tramp)
 (use-package dockerfile-mode
   :mode "\\Dockerfile\\'")
+(use-package docker-compose-mode)
 (use-package kubernetes
   :ensure t
   :commands (kubernetes-overview))

@@ -58,19 +58,26 @@
   (doom-modeline-buffer-file ((t (:inherit (mode-line bold)))))
   :custom
   (doom-themes-treemacs-theme "doom-colors")
-  :init (dotfairy-load-theme dotfairy-theme t)
   :config
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
+  )
 
-  ;; Enable customized theme
-  ;; FIXME https://github.com/emacs-lsp/lsp-treemacs/issues/89
-  (with-eval-after-load 'lsp-treemacs
-    (doom-themes-treemacs-config)))
+(use-package kaolin-themes)
+
+(when (not (eq dotfairy-theme nil))
+  (dotfairy-load-theme dotfairy-theme t)
+  )
+
+;; Enable customized theme
+;; FIXME https://github.com/emacs-lsp/lsp-treemacs/issues/89
+(with-eval-after-load 'lsp-treemacs
+  (kaolin-treemacs-theme))
 
 ;; Mode-line
 (use-package doom-modeline
   :custom
+  (size-indication-mode t)
   (doom-modeline-icon display-icon)
   (doom-modeline-minor-modes t)
   (doom-modeline-unicode-fallback t)
@@ -79,7 +86,6 @@
   :init
   ;; Prevent flash of unstyled modeline at startup
   (unless after-init-time
-    (setq doom-modeline--default-format mode-line-format)
     (setq-default mode-line-format nil))
   )
 
@@ -147,17 +153,17 @@
 (use-package highlight-parentheses
   :hook (prog-mode . highlight-parentheses-mode))
 
-(use-package centaur-tabs
-  :demand
-  :config
-  (setq centaur-tabs-set-bar 'over
-        centaur-tabs-set-icons t
-        centaur-tabs-gray-out-icons 'buffer
-        centaur-tabs-height 24
-        centaur-tabs-set-modified-marker t
-        centaur-tabs-modified-marker "•")
-  (centaur-tabs-headline-match)
-  (centaur-tabs-mode t))
+;; (use-package centaur-tabs
+;;   :demand
+;;   :config
+;;   (setq centaur-tabs-set-bar 'over
+;;         centaur-tabs-set-icons t
+;;         centaur-tabs-gray-out-icons 'buffer
+;;         centaur-tabs-height 24
+;;         centaur-tabs-set-modified-marker t
+;;         centaur-tabs-modified-marker "•")
+;;   (centaur-tabs-headline-match)
+;;   (centaur-tabs-mode t))
 
 (when dotfairy-dashboard
   (use-package dashboard
