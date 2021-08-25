@@ -25,6 +25,7 @@
 ;;; Code:
 (require 'init-const)
 (require 'init-custom)
+(require 'init-funcs)
 
 ;; Don't use GTK+ tooltip
 (when (boundp 'x-gtk-use-system-tooltips)
@@ -65,15 +66,6 @@
 
 (use-package kaolin-themes)
 
-(when (not (eq dotfairy-theme nil))
-  (dotfairy-load-theme dotfairy-theme t)
-  )
-
-;; Enable customized theme
-;; FIXME https://github.com/emacs-lsp/lsp-treemacs/issues/89
-(with-eval-after-load 'lsp-treemacs
-  (kaolin-treemacs-theme))
-
 ;; Mode-line
 (use-package doom-modeline
   :custom
@@ -105,7 +97,17 @@
                       display-time-24hr-format t
                       display-time-day-and-date t)
   ;; Display time
-  (display-time-mode 1))
+  (display-time-mode 1)
+  :config
+  (when (not (eq dotfairy-theme nil))
+    (dotfairy-load-theme dotfairy-theme t)
+    )
+
+  ;; Enable customized theme
+  ;; FIXME https://github.com/emacs-lsp/lsp-treemacs/issues/89
+  (with-eval-after-load 'lsp-treemacs
+    (kaolin-treemacs-theme))
+  )
 
 ;; need install all-the-icons fonts
 ;; web site https://github.com/domtronn/all-the-icons.el
