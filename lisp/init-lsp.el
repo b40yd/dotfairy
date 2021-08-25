@@ -44,6 +44,13 @@
                          (add-hook 'before-save-hook #'lsp-organize-imports t t))
 		               )
                    )
+         (lsp-mode . (lambda ()
+                       "Log what LSP things is the root of the current project."
+                       ;; Makes it easier to detect root resolution issues.
+                       (when-let (path (buffer-file-name (buffer-base-buffer)))
+                         (if-let (root (lsp--calculate-root (lsp-session) path))
+                             (lsp--info "Guessed project root is %s" (abbreviate-file-name root))
+                           (lsp--info "Could not guess project root.")))))
          )
   :commands (lsp-enable-which-key-integration
              lsp-format-buffer
@@ -200,9 +207,9 @@
   :after lsp-mode
   :ensure t
   :bind (:map lsp-mode-map
-              ("C-<f8>" . lsp-treemacs-errors-list)
-              ("M-<f8>" . lsp-treemacs-symbols)
-              ("S-<f8>" . lsp-treemacs-java-deps-list))
+         ("C-<f8>" . lsp-treemacs-errors-list)
+         ("M-<f8>" . lsp-treemacs-symbols)
+         ("S-<f8>" . lsp-treemacs-java-deps-list))
   :init (lsp-treemacs-sync-mode 1)
   :config
   (with-eval-after-load 'ace-window
@@ -214,6 +221,46 @@
     (when (require 'all-the-icons nil t)
       (setq lsp-treemacs-theme "Idea")))
   )
+
+(when (memq dotfairy-lsp '(lsp-mode eglot))
+  ;; Enable LSP in org babel
+  ;; https://github.com/emacs-lsp/lsp-mode/issues/377
+  (cl-defmacro lsp-org-babel-enable (lang)
+    "Support LANG in org source code block."
+    (cl-check-type lang stringp)
+    (let* ((edit-pre (intern (format "org-babel-edit-prep:%s" lang)))
+           (intern-pre (intern (format "lsp--%s" (symbol-name edit-pre)))))
+      `(progn
+         (defun ,intern-pre (info)
+           (let ((file-name (->> info caddr (alist-get :file))))
+             (unless file-name
+               (user-error "LSP:: specify `:file' property to enable"))
+
+             (setq buffer-file-name file-name)
+             (pcase dotfairy-lsp
+               ('eglot
+                (and (fboundp 'eglot-ensure) (eglot-ensure)))
+               ('lsp-mode
+                (and (fboundp 'lsp-deferred) (lsp-deferred)))
+               (_ (user-error "LSP:: invalid `dotfairy-lsp' type")))))
+         (put ',intern-pre 'function-documentation
+              (format "Enable `%s' in the buffer of org source block (%s)."
+                      dotfairy-lsp (upcase ,lang)))
+
+         (if (fboundp ',edit-pre)
+             (advice-add ',edit-pre :after ',intern-pre)
+           (progn
+             (defun ,edit-pre (info)
+               (,intern-pre info))
+             (put ',edit-pre 'function-documentation
+                  (format "Prepare local buffer environment for org source block (%s)."
+                          (upcase ,lang))))))))
+
+  (defvar org-babel-lang-list
+    '("go" "python" "ipython" "ruby" "js" "css" "sass" "C" "rust" "java"))
+  (add-to-list 'org-babel-lang-list "shell")
+  (dolist (lang org-babel-lang-list)
+    (eval `(lsp-org-babel-enable ,lang))))
 
 (provide 'init-lsp)
 ;;; init-lsp.el ends here
