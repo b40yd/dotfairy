@@ -44,13 +44,6 @@
                          (add-hook 'before-save-hook #'lsp-organize-imports t t))
 		               )
                    )
-         (lsp-mode . (lambda ()
-                       "Log what LSP things is the root of the current project."
-                       ;; Makes it easier to detect root resolution issues.
-                       (when-let (path (buffer-file-name (buffer-base-buffer)))
-                         (if-let (root (lsp--calculate-root (lsp-session) path))
-                             (lsp--info "Guessed project root is %s" (abbreviate-file-name root))
-                           (lsp--info "Could not guess project root.")))))
          )
   :commands (lsp-enable-which-key-integration
              lsp-format-buffer
@@ -88,13 +81,40 @@
         lsp-server-install-dir (concat dotfairy-etc-dir "lsp/"))
 
   :config
-
   (with-no-warnings
-    (defun my-lsp--init-if-visible (func &rest args)
-      "Not enabling lsp in `git-timemachine-mode'."
+    ;; Disable `lsp-mode' in `git-timemachine-mode'
+    (defun my-lsp--init-if-visible (fn &rest args)
       (unless (bound-and-true-p git-timemachine-mode)
-        (apply func args)))
-    (advice-add #'lsp--init-if-visible :around #'my-lsp--init-if-visible))
+        (apply fn args)))
+    (advice-add #'lsp--init-if-visible :around #'my-lsp--init-if-visible)
+
+    ;; Enable `lsp-mode' in sh/bash/zsh
+    (defun my-lsp-bash-check-sh-shell (&rest _)
+      (and (eq major-mode 'sh-mode)
+           (memq sh-shell '(sh bash zsh))))
+    (advice-add #'lsp-bash-check-sh-shell :override #'my-lsp-bash-check-sh-shell)
+
+    ;; Only display icons in GUI
+    (defun my-lsp-icons-get-symbol-kind (fn &rest args)
+      (when (display-graphic-p)
+        (apply fn args)))
+    (advice-add #'lsp-icons-get-by-symbol-kind :around #'my-lsp-icons-get-symbol-kind)
+
+    (defun my-lsp-icons-get-by-file-ext (fn &rest args)
+      (when  (display-graphic-p)
+        (apply fn args)))
+    (advice-add #'lsp-icons-get-by-file-ext :around #'my-lsp-icons-get-by-file-ext)
+
+    (defun my-lsp-icons-all-the-icons-material-icon (icon-name face fallback &optional feature)
+      (if (and (display-graphic-p)
+               (functionp 'all-the-icons-material)
+               (lsp-icons--enabled-for-feature feature))
+          (all-the-icons-material icon-name
+                                  :face face)
+        (propertize fallback 'face face)))
+    (advice-add #'lsp-icons-all-the-icons-material-icon
+                :override #'my-lsp-icons-all-the-icons-material-icon))
+
   (defun lsp-update-server ()
     "Update LSP server."
     (interactive)

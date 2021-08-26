@@ -82,7 +82,7 @@
 
   (push (abbreviate-file-name dotfairy-local-dir) projectile-globally-ignored-directories)
 
-  ;; Disable commands that won't work, as is, and that Doom already provides a
+  ;; Disable commands that won't work, as is, and that Dotfairy already provides a
   ;; better alternative for.
   (put 'projectile-ag 'disabled "Use +{ivy}/project-search instead")
   (put 'projectile-ripgrep 'disabled "Use +{ivy}/project-search instead")
@@ -118,6 +118,10 @@
 
     ;; FIXME: too slow while getting submodule files on Windows
     (setq projectile-git-submodule-command nil))
+
+  ;; Support Perforce project
+  (let ((val (or (getenv "P4CONFIG") ".p4config")))
+    (add-to-list 'projectile-project-root-files-bottom-up val))
 
   (setq projectile-completion-system 'ivy)
 

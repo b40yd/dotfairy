@@ -136,7 +136,7 @@ If no project is active, return all buffers."
 ;;;###autoload
 (defun dotfairy-real-buffer-p (buffer-or-name)
   "Returns t if BUFFER-OR-NAME is a 'real' buffer.
-A real buffer is a useful buffer; a first class citizen in Doom. Real ones
+A real buffer is a useful buffer; a first class citizen in Dotfairy. Real ones
 should get special treatment, because we will be spending most of our time in
 them. Unreal ones should be low-profile and easy to cast aside, so we can focus
 on real ones.

@@ -26,7 +26,7 @@
 (defvar +workspaces-main "main"
   "The name of the primary and initial workspace, which cannot be deleted.")
 
-(defvar +workspaces-switch-project-function #'doom-project-find-file
+(defvar +workspaces-switch-project-function #'dotfairy-project-find-file
   "The function to run after `projectile-switch-project' or
 `counsel-projectile-switch-project'. This function must take one argument: the
 new project directory.")

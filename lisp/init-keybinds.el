@@ -390,7 +390,7 @@ localleader prefix."
 
 ;; We use a prefix commands instead of general's :prefix/:non-normal-prefix
 ;; properties because general is incredibly slow binding keys en mass with them
-;; in conjunction with :states -- an effective doubling of Doom's startup time!
+;; in conjunction with :states -- an effective doubling of Dotfairy's startup time!
 (define-prefix-command 'dotfairy/leader 'dotfairy-leader-map)
 (define-key dotfairy-leader-map [override-state] 'all)
 
