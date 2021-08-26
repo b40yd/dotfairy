@@ -48,6 +48,10 @@
   (push '(tool-bar-lines . 0)   default-frame-alist)
   (push '(vertical-scroll-bars) default-frame-alist))
 
+;; Make certain buffers grossly incandescent
+(use-package solaire-mode
+  :hook (after-load-theme . solaire-global-mode))
+
 ;; Settings for UI theme
 ;; theme:
 ;;     doom-monokai-classic
@@ -59,12 +63,16 @@
   (doom-modeline-buffer-file ((t (:inherit (mode-line bold)))))
   :custom
   (doom-themes-treemacs-theme "doom-colors")
+  :init (dotfairy-load-theme dotfairy-theme t)
   :config
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
+  ;; Enable customized theme
+  ;; FIXME https://github.com/emacs-lsp/lsp-treemacs/issues/89
+  (with-eval-after-load 'lsp-treemacs
+    (doom-themes-treemacs-config))
   )
 
-(use-package kaolin-themes)
 
 ;; Mode-line
 (use-package doom-modeline
@@ -98,15 +106,6 @@
                       display-time-day-and-date t)
   ;; Display time
   (display-time-mode 1)
-  :config
-  (when (not (eq dotfairy-theme nil))
-    (dotfairy-load-theme dotfairy-theme t)
-    )
-
-  ;; Enable customized theme
-  ;; FIXME https://github.com/emacs-lsp/lsp-treemacs/issues/89
-  (with-eval-after-load 'lsp-treemacs
-    (kaolin-treemacs-theme))
   )
 
 ;; need install all-the-icons fonts
