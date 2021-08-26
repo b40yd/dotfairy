@@ -36,12 +36,6 @@
                       (add-hook 'before-save-hook #'lsp-format-buffer t t)
                       (add-hook 'before-save-hook #'lsp-organize-imports t t))))
   :config
-  (use-package company-go
-    :ensure t
-    :config
-    (add-hook 'go-mode-hook (lambda ()
-                              (add-to-list (make-local-variable 'company-backends)
-                                           '(company-go company-files company-yasnippet company-capf)))))
   ;; Env vars
   (with-eval-after-load 'exec-path-from-shell
     (exec-path-from-shell-copy-envs '("GOPATH" "GO111MODULE" "GOPROXY")))

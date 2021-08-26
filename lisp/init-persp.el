@@ -35,8 +35,12 @@
          (persp-mode . persp-load-frame))
   :init (setq persp-keymap-prefix (kbd "C-x p")
               persp-nil-name "default"
-              persp-set-last-persp-for-new-frames nil
+              persp-nil-hidden t
+              persp-autokill-buffer-on-remove 'kill-weak
+              persp-reset-windows-on-nil-window-conf nil
+              persp-set-last-persp-for-new-frames t
               persp-kill-foreign-buffer-behaviour 'kill
+              persp-auto-save-opt (if noninteractive 0 1) ; auto-save on kill
               persp-auto-resume-time (if dotfairy-dashboard 0 1.0))
   :config
   (setq persp-save-dir (concat dotfairy-etc-dir "workspaces/"))
