@@ -117,10 +117,14 @@ yet."
          (host (plist-get server :hostname))
          (totp-key (if (string-empty-p (plist-get server :totp-key))
                        ""
-                     (format "-o $(oathtool --totp -b %s)" (plist-get server :totp-key))))
+                     (with-temp-buffer
+                       (or (apply #'call-process "oathtool" nil t nil (list "--totp" "-b" (plist-get server :totp-key)))
+                           "")
+                       (string-trim (buffer-string)))
+                     ))
          (totp-message (if (string-empty-p (plist-get server :totp-message))
                            ""
-                         (format "-O %s" (plist-get server :totp-message))))
+                         (format "%s" (plist-get server :totp-message))))
          )
     (if (string-empty-p password)
         (set-buffer (apply 'make-term
@@ -139,13 +143,14 @@ yet."
                                session-name
                                "sshpass"
                                nil
-                               (list "-p" password totp-key "ssh" host "-l" username "-p" port)))
+                               (list "-p" password "-o" totp-key "ssh" host "-l" username "-p" port)))
           (set-buffer (apply 'make-term
                              session-name
                              "sshpass"
                              nil
-                             (list "-p" password totp-key totp-message "ssh" host "-l" username "-p" port)))
+                             (list "-p" password "-o" totp-key "-O" totp-message "ssh" host "-l" username "-p" port)))
           )))
+    (print (list "-p" password "-o" totp-key "-O" totp-message "ssh" host "-l" username "-p" port))
     (define-key term-mode-map (kbd "C-c c-b") 'switch-to-buffer)
     (term-mode)
     (term-char-mode)
