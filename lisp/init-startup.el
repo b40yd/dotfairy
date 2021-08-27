@@ -61,6 +61,7 @@
 (require 'init-restclient)
 (require 'init-docker)
 (require 'init-vterm)
+(require 'init-ssh)
 
 ;; Language
 (require 'init-elisp)
