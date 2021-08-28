@@ -99,6 +99,14 @@ yet."
   "Get the session associated with the current buffer."
   (or dotfairy--ssh-session (setq dotfairy--ssh-session (dotfairy--ssh-load-default-session))))
 
+(defun term-handle-close ()
+  "Close current term buffer when `exit' from term buffer."
+  (when (ignore-errors (get-buffer-process (current-buffer)))
+    (set-process-sentinel (get-buffer-process (current-buffer))
+                          (lambda (proc change)
+                            (when (string-match "\\(finished\\|exited\\)" change)
+                              (kill-buffer (process-buffer proc)))))))
+
 ;;
 ;; sshpass for MacOS
 ;; curl -L https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb -o sshpass.rb
@@ -125,36 +133,71 @@ yet."
          (totp-message (if (string-empty-p (plist-get server :totp-message))
                            ""
                          (format "%s" (plist-get server :totp-message))))
-         )
+         (index 1)
+         term-name)
+    (while (buffer-live-p (get-buffer (format "*%s<%s>*" session-name index)))
+      (setq index (1+ index)))
+    (setq term-name (format "%s<%s>" session-name index))
     (if (string-empty-p password)
         (set-buffer (apply 'make-term
-                           session-name
+                           term-name
                            "ssh"
                            nil
                            (list host "-l" username "-p" port)))
       (if (string-empty-p totp-key)
           (set-buffer (apply 'make-term
-                             session-name
+                             term-name
                              "sshpass"
                              nil
                              (list "-p" password "ssh" host "-l" username "-p" port)))
         (if (string-empty-p totp-message)
             (set-buffer (apply 'make-term
-                               session-name
+                               term-name
                                "sshpass"
                                nil
                                (list "-p" password "-o" totp-key "ssh" host "-l" username "-p" port)))
           (set-buffer (apply 'make-term
-                             session-name
+                             term-name
                              "sshpass"
                              nil
                              (list "-p" password "-o" totp-key "-O" totp-message "ssh" host "-l" username "-p" port)))
           )))
-    (define-key term-mode-map (kbd "C-c c-b") 'switch-to-buffer)
+    (define-key term-raw-map (kbd "C-c C-b") 'switch-to-buffer)
+    (define-key term-raw-map (kbd "C-c C-a") 'dotfairy/add-this-ssh-session-to-groups)
+    (define-key term-raw-map (kbd "C-c C-r") 'dotfairy/remove-this-ssh-session-from-groups)
+    (define-key term-raw-map (kbd "C-c M-a") 'dotfairy/show-ssh-session-groups)
     (term-mode)
     (term-char-mode)
-    (switch-to-buffer (format "*%s*" session-name))
+    (term-handle-close)
+    (add-hook 'kill-buffer-hook 'term-kill-buffer-hook)
+    (switch-to-buffer (format "*%s*" term-name))
     ))
+
+
+(defun term-kill-buffer-hook ()
+  "Function that hook `kill-buffer-hook'."
+  (when (eq major-mode 'term-mode)
+    ;; Quit the current subjob
+    ;; when have alive process with current term buffer.
+    ;; Must do this job BEFORE `multi-term-switch-after-close' action.
+    (when (term-check-proc (current-buffer))
+      ;; Quit sub-process.
+      (term-quit-subjob))
+    (switch-to-buffer "*scratch*")))
+
+(defun dotfairy--send-cmd-to-buffer (&optional buffer string)
+  "Send STRING to a shell process associated with BUFFER.
+By default, BUFFER is \"*terminal*\" and STRING is empty."
+  (let ((process (get-buffer-process (or buffer "*terminal*"))))
+    (when (process-live-p process)
+      (with-current-buffer (process-buffer process)
+        (let ((input (or string "")))
+          (cond ((derived-mode-p 'comint-mode)
+                 (insert input)
+                 (comint-send-input))
+                ((derived-mode-p 'term-mode)
+                 (term-send-string process input)
+                 (term-send-input))))))))
 
 (defun dotfairy--filter-ssh-session ()
   "filter ssh session name list."
@@ -217,6 +260,100 @@ yet."
           (setf (dotfairy-ssh-session-servers let-sessions)
                 (-remove-item server (dotfairy-ssh-session-servers let-sessions)))
           (dotfairy--ssh-persist-session (dotfairy-ssh-session))))))
+
+;; ssh-manager-mode
+(cl-defstruct dotfairy-ssh-session-groups
+  ;; contains the folders that are part of the current session
+  servers
+  (metadata (make-hash-table :test 'equal)))
+
+(defvar dotfairy--ssh-session-groups nil
+  "Contain the `dotfairy-ssh-session-groups' for the current Emacs instance.")
+
+(defun dotfairy-ssh-session-groups ()
+  (or dotfairy--ssh-session-groups (setq dotfairy--ssh-session-groups (make-dotfairy-ssh-session-groups))))
+
+(defun dotfairy/show-ssh-session-groups ()
+  "Show ssh server groups."
+  (interactive)
+  (message (format "%s" (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups)))))
+
+(defun dotfairy/add-this-ssh-session-to-groups ()
+  "Add this ssh server session to groups."
+  (interactive)
+  (cl-pushnew (buffer-name) (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups)) :test 'equal))
+
+(defun dotfairy/remove-this-ssh-session-from-groups ()
+  "Remove this ssh server session from groups."
+  (interactive)
+  (setf (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups))
+        (-remove-item (buffer-name) (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups))))
+  )
+
+(defun dotfairy/remove-ssh-session-from-groups (session)
+  "Remove ssh server session from groups."
+  (interactive  (list (completing-read "Select server to connect: "
+                                       (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups))
+                                       )))
+
+  (setf (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups))
+        (-remove-item session (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups)))))
+
+(defun dotfairy-ssh-send-cmd-to-session-groups (cmd)
+  (let ((current-buf (current-buffer)))
+    (dolist (server (->> (dotfairy-ssh-session-groups)
+                         (dotfairy-ssh-session-groups-servers)))
+      (dotfairy--send-cmd-to-buffer server cmd))
+    (switch-to-buffer current-buf)))
+
+(defvar ssh-manager-mode-map nil "keymap for `ssh-manager-mode'")
+
+(setq ssh-manager-mode-map (make-sparse-keymap))
+
+(define-key ssh-manager-mode-map (kbd "C-c C-c") 'dotfairy/execute-buffer-cmd-to-ssh)
+(define-key ssh-manager-mode-map (kbd "C-c C-e") 'dotfairy/execute-region-cmd-to-ssh)
+(define-key ssh-manager-mode-map (kbd "C-c C-.") 'dotfairy/execute-current-line-cmd-to-ssh)
+
+(define-derived-mode ssh-manager-mode prog-mode "SSH Manager Mode"
+  (font-lock-fontify-buffer)
+  (use-local-map ssh-manager-mode-map))
+
+(defun dotfairy/execute-current-line-cmd-to-ssh ()
+  "Execute command to ssh server groups."
+  (interactive)
+  (let ((line (dotfairy/read-current-line-cmd)))
+    (dotfairy-ssh-send-cmd-to-session-groups line)
+    ;; (reindent-then-newline-and-indent)
+    ))
+
+(defun dotfairy/read-current-line-cmd ()
+  "Read current line command."
+  (interactive)
+  (buffer-substring-no-properties
+   (line-beginning-position)
+   (line-end-position)))
+
+(defun dotfairy/execute-region-cmd-to-ssh ()
+  "Execute region cmd to ssh"
+  (interactive)
+  (let ((begin (region-beginning))
+        (end (region-end)))
+    (dotfairy-ssh-send-cmd-to-session-groups (buffer-substring begin end))))
+
+(defun dotfairy/execute-buffer-cmd-to-ssh ()
+  "Execute buffer cmd to ssh"
+  (interactive)
+  (dotfairy-ssh-send-cmd-to-session-groups (buffer-substring-no-properties (point-min) (point-max)))
+  )
+
+(defun ssh-manager ()
+  (interactive)
+  (let ((buffer (generate-new-buffer "*SSH Manager*")))
+    (set-buffer-major-mode buffer)
+    (switch-to-buffer buffer)
+    (funcall 'ssh-manager-mode)
+    (setq buffer-offer-save t)))
+
 
 (provide 'init-ssh)
 ;;; init-ssh.el ends here
