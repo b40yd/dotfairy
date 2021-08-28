@@ -206,5 +206,18 @@ yet."
     (dotfairy--ssh-persist-session (dotfairy-ssh-session))
     (dotfairy-connect-ssh let-plist)))
 
+(defun dotfairy/remove-ssh-server (session)
+  "Remove session from the list of servers."
+  (interactive (list (completing-read "Select server to connect: "
+                                      (dotfairy--filter-ssh-session)
+                                      )))
+  (dolist (server (->> (dotfairy-ssh-session)
+                       (dotfairy-ssh-session-servers)))
+    (if (string= session (plist-get server :session-name))
+        (let* ((let-sessions (dotfairy-ssh-session)))
+          (setf (dotfairy-ssh-session-servers let-sessions)
+                (-remove-item server (dotfairy-ssh-session-servers let-sessions)))
+          (dotfairy--ssh-persist-session (dotfairy-ssh-session))))))
+
 (provide 'init-ssh)
 ;;; init-ssh.el ends here
