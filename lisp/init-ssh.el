@@ -150,7 +150,6 @@ yet."
                              nil
                              (list "-p" password "-o" totp-key "-O" totp-message "ssh" host "-l" username "-p" port)))
           )))
-    (print (list "-p" password "-o" totp-key "-O" totp-message "ssh" host "-l" username "-p" port))
     (define-key term-mode-map (kbd "C-c c-b") 'switch-to-buffer)
     (term-mode)
     (term-char-mode)
