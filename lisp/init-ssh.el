@@ -26,7 +26,106 @@
 (require 'cl-generic)
 (require 'cl-lib)
 (require 'dash)
+(require 'term)
+(require 'f)
 
+;; ssh-manager-mode
+(cl-defstruct dotfairy-ssh-session-groups
+  ;; contains the folders that are part of the current session
+  servers
+  (metadata (make-hash-table :test 'equal)))
+
+(defvar dotfairy--ssh-session-groups nil
+  "Contain the `dotfairy-ssh-session-groups' for the current Emacs instance.")
+
+(defun dotfairy-ssh-session-groups ()
+  (or dotfairy--ssh-session-groups (setq dotfairy--ssh-session-groups (make-dotfairy-ssh-session-groups))))
+
+(defun dotfairy/show-ssh-session-groups ()
+  "Show ssh server groups."
+  (interactive)
+  (message (format "%s" (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups)))))
+
+(defun dotfairy/add-this-ssh-session-to-groups ()
+  "Add this ssh server session to groups."
+  (interactive)
+  (cl-pushnew (buffer-name) (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups)) :test 'equal))
+
+(defun dotfairy/remove-this-ssh-session-from-groups ()
+  "Remove this ssh server session from groups."
+  (interactive)
+  (dotfairy--remove-buffer-name-from-groups (buffer-name)))
+
+(defun dotfairy--remove-buffer-name-from-groups (buf-name)
+  "Remove buffer name from groups."
+
+  (setf (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups))
+        (-remove-item buf-name (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups)))))
+
+(defun dotfairy/remove-ssh-session-from-groups (session)
+  "Remove ssh server session from groups."
+  (interactive  (list (completing-read "Select server to connect: "
+                                       (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups))
+                                       )))
+  (dotfairy--remove-buffer-name-from-groups session)
+  )
+
+(defun dotfairy-ssh-send-cmd-to-session-groups (cmd)
+  (let ((current-buf (current-buffer)))
+    (dolist (server (->> (dotfairy-ssh-session-groups)
+                         (dotfairy-ssh-session-groups-servers)))
+      (dotfairy--send-cmd-to-buffer server cmd))
+    (switch-to-buffer current-buf)))
+
+(defvar ssh-manager-mode-map nil "keymap for `ssh-manager-mode'")
+
+(setq ssh-manager-mode-map (make-sparse-keymap))
+
+(define-key ssh-manager-mode-map (kbd "C-c C-c") 'dotfairy/execute-buffer-cmd-to-ssh)
+(define-key ssh-manager-mode-map (kbd "C-c C-e") 'dotfairy/execute-region-cmd-to-ssh)
+(define-key ssh-manager-mode-map (kbd "C-c C-.") 'dotfairy/execute-current-line-cmd-to-ssh)
+
+(define-derived-mode ssh-manager-mode prog-mode "SSH Manager Mode"
+  (font-lock-fontify-buffer)
+  (use-local-map ssh-manager-mode-map))
+
+(defun dotfairy/execute-current-line-cmd-to-ssh ()
+  "Execute command to ssh server groups."
+  (interactive)
+  (let ((line (dotfairy/read-current-line-cmd)))
+    (dotfairy-ssh-send-cmd-to-session-groups line)
+    (reindent-then-newline-and-indent)
+    ))
+
+(defun dotfairy/read-current-line-cmd ()
+  "Read current line command."
+  (interactive)
+  (buffer-substring-no-properties
+   (line-beginning-position)
+   (line-end-position)))
+
+(defun dotfairy/execute-region-cmd-to-ssh ()
+  "Execute region cmd to ssh"
+  (interactive)
+  (let ((begin (region-beginning))
+        (end (region-end)))
+    (dotfairy-ssh-send-cmd-to-session-groups (buffer-substring begin end))))
+
+(defun dotfairy/execute-buffer-cmd-to-ssh ()
+  "Execute buffer cmd to ssh"
+  (interactive)
+  (dotfairy-ssh-send-cmd-to-session-groups (buffer-substring-no-properties (point-min) (point-max)))
+  )
+
+(defun ssh-manager ()
+  (interactive)
+  (let ((buffer (generate-new-buffer "*SSH Manager*")))
+    (set-buffer-major-mode buffer)
+    (switch-to-buffer buffer)
+    (funcall 'ssh-manager-mode)
+    (setq buffer-offer-save t)))
+
+;; ssh connect session
 (cl-defstruct dotfairy-ssh-session
   ;; contains the folders that are part of the current session
   servers
@@ -58,15 +157,15 @@ See #2049"
 
 (defun dotfairy--ssh-info (format &rest args)
   "Display dotfairy info message with FORMAT with ARGS."
-  (dotfairy--ssh-message "%s :: %s" (propertize "LSP" 'face 'success) (apply #'format format args)))
+  (dotfairy--ssh-message "%s :: %s" (propertize "SSH" 'face 'success) (apply #'format format args)))
 
 (defun dotfairy--ssh-warn (format &rest args)
   "Display dotfairy warn message with FORMAT with ARGS."
-  (dotfairy--ssh-message "%s :: %s" (propertize "LSP" 'face 'warning) (apply #'format format args)))
+  (dotfairy--ssh-message "%s :: %s" (propertize "SSH" 'face 'warning) (apply #'format format args)))
 
 (defun dotfairy--ssh-error (format &rest args)
   "Display dotfairy error message with FORMAT with ARGS."
-  (dotfairy--ssh-message "%s :: %s" (propertize "LSP" 'face 'error) (apply #'format format args)))
+  (dotfairy--ssh-message "%s :: %s" (propertize "SSH" 'face 'error) (apply #'format format args)))
 (defun dotfairy--ssh-read-from-file (file)
   "Read FILE content."
   (when (file-exists-p file)
@@ -105,7 +204,8 @@ yet."
     (set-process-sentinel (get-buffer-process (current-buffer))
                           (lambda (proc change)
                             (when (string-match "\\(finished\\|exited\\)" change)
-                              (kill-buffer (process-buffer proc)))))))
+                              (kill-buffer (process-buffer proc)))
+                            ))))
 
 ;;
 ;; sshpass for MacOS
@@ -179,10 +279,11 @@ yet."
   (when (eq major-mode 'term-mode)
     ;; Quit the current subjob
     ;; when have alive process with current term buffer.
-    ;; Must do this job BEFORE `multi-term-switch-after-close' action.
     (when (term-check-proc (current-buffer))
       ;; Quit sub-process.
       (term-quit-subjob))
+    (dotfairy--ssh-info "remove %s from server groups." (buffer-name (current-buffer)))
+    (dotfairy--remove-buffer-name-from-groups (buffer-name (current-buffer)))
     (switch-to-buffer "*scratch*")))
 
 (defun dotfairy--send-cmd-to-buffer (&optional buffer string)
@@ -216,7 +317,7 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
                        (dotfairy-ssh-session-servers)))
     (if (equal (plist-get server :session-name) session)
         (dotfairy-connect-ssh server)
-      (dotfairy--ssh-error "not connect."))))
+      )))
 
 (defun dotfairy/create-remote-ssh (session-name host port user password totp-key totp-message)
   "Connect to a remote host by SSH."
@@ -260,100 +361,6 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
           (setf (dotfairy-ssh-session-servers let-sessions)
                 (-remove-item server (dotfairy-ssh-session-servers let-sessions)))
           (dotfairy--ssh-persist-session (dotfairy-ssh-session))))))
-
-;; ssh-manager-mode
-(cl-defstruct dotfairy-ssh-session-groups
-  ;; contains the folders that are part of the current session
-  servers
-  (metadata (make-hash-table :test 'equal)))
-
-(defvar dotfairy--ssh-session-groups nil
-  "Contain the `dotfairy-ssh-session-groups' for the current Emacs instance.")
-
-(defun dotfairy-ssh-session-groups ()
-  (or dotfairy--ssh-session-groups (setq dotfairy--ssh-session-groups (make-dotfairy-ssh-session-groups))))
-
-(defun dotfairy/show-ssh-session-groups ()
-  "Show ssh server groups."
-  (interactive)
-  (message (format "%s" (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups)))))
-
-(defun dotfairy/add-this-ssh-session-to-groups ()
-  "Add this ssh server session to groups."
-  (interactive)
-  (cl-pushnew (buffer-name) (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups)) :test 'equal))
-
-(defun dotfairy/remove-this-ssh-session-from-groups ()
-  "Remove this ssh server session from groups."
-  (interactive)
-  (setf (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups))
-        (-remove-item (buffer-name) (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups))))
-  )
-
-(defun dotfairy/remove-ssh-session-from-groups (session)
-  "Remove ssh server session from groups."
-  (interactive  (list (completing-read "Select server to connect: "
-                                       (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups))
-                                       )))
-
-  (setf (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups))
-        (-remove-item session (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups)))))
-
-(defun dotfairy-ssh-send-cmd-to-session-groups (cmd)
-  (let ((current-buf (current-buffer)))
-    (dolist (server (->> (dotfairy-ssh-session-groups)
-                         (dotfairy-ssh-session-groups-servers)))
-      (dotfairy--send-cmd-to-buffer server cmd))
-    (switch-to-buffer current-buf)))
-
-(defvar ssh-manager-mode-map nil "keymap for `ssh-manager-mode'")
-
-(setq ssh-manager-mode-map (make-sparse-keymap))
-
-(define-key ssh-manager-mode-map (kbd "C-c C-c") 'dotfairy/execute-buffer-cmd-to-ssh)
-(define-key ssh-manager-mode-map (kbd "C-c C-e") 'dotfairy/execute-region-cmd-to-ssh)
-(define-key ssh-manager-mode-map (kbd "C-c C-.") 'dotfairy/execute-current-line-cmd-to-ssh)
-
-(define-derived-mode ssh-manager-mode prog-mode "SSH Manager Mode"
-  (font-lock-fontify-buffer)
-  (use-local-map ssh-manager-mode-map))
-
-(defun dotfairy/execute-current-line-cmd-to-ssh ()
-  "Execute command to ssh server groups."
-  (interactive)
-  (let ((line (dotfairy/read-current-line-cmd)))
-    (dotfairy-ssh-send-cmd-to-session-groups line)
-    ;; (reindent-then-newline-and-indent)
-    ))
-
-(defun dotfairy/read-current-line-cmd ()
-  "Read current line command."
-  (interactive)
-  (buffer-substring-no-properties
-   (line-beginning-position)
-   (line-end-position)))
-
-(defun dotfairy/execute-region-cmd-to-ssh ()
-  "Execute region cmd to ssh"
-  (interactive)
-  (let ((begin (region-beginning))
-        (end (region-end)))
-    (dotfairy-ssh-send-cmd-to-session-groups (buffer-substring begin end))))
-
-(defun dotfairy/execute-buffer-cmd-to-ssh ()
-  "Execute buffer cmd to ssh"
-  (interactive)
-  (dotfairy-ssh-send-cmd-to-session-groups (buffer-substring-no-properties (point-min) (point-max)))
-  )
-
-(defun ssh-manager ()
-  (interactive)
-  (let ((buffer (generate-new-buffer "*SSH Manager*")))
-    (set-buffer-major-mode buffer)
-    (switch-to-buffer buffer)
-    (funcall 'ssh-manager-mode)
-    (setq buffer-offer-save t)))
-
 
 (provide 'init-ssh)
 ;;; init-ssh.el ends here
