@@ -28,6 +28,7 @@
 (require 'dash)
 (require 'term)
 (require 'f)
+(require 'init-funcs)
 
 ;; ssh-manager-mode
 (cl-defstruct dotfairy-ssh-session-groups
