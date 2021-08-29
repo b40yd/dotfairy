@@ -262,6 +262,7 @@ yet."
                              nil
                              (list "-p" password "-o" totp-key "-O" totp-message "ssh" host "-l" username "-p" port)))
           )))
+    (define-key term-raw-map (kbd "M-x") 'execute-extended-command)
     (define-key term-raw-map (kbd "C-c C-b") 'switch-to-buffer)
     (define-key term-raw-map (kbd "C-c C-a") 'dotfairy/add-this-ssh-session-to-groups)
     (define-key term-raw-map (kbd "C-c C-r") 'dotfairy/remove-this-ssh-session-from-groups)
