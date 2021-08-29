@@ -363,5 +363,28 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
                 (-remove-item server (dotfairy-ssh-session-servers let-sessions)))
           (dotfairy--ssh-persist-session (dotfairy-ssh-session))))))
 
+
+(defun install-ssh-manager-tools ()
+  "Install SSH manager tools"
+  (interactive)
+  (if (not (executable-find "sshpass"))
+      (dotfairy-exec-process "sh" "-c" (concat
+                                        "rm -rf /tmp/sshpass &&"
+                                        " git"
+                                        " clone"
+                                        " https://github.com/dora38/sshpass"
+                                        " /tmp/sshpass"
+                                        " &&"
+                                        " cd /tmp/sshpass"
+                                        " &&"
+                                        " ./bootstrap"
+                                        " &&"
+                                        " ./configure --prefix=/usr/local "
+                                        "&&"
+                                        " make install; cd -")))
+  (if (not (executable-find "oathtool"))
+      (dotfairy--ssh-info "your need install oathtool if used 2FA."))
+  (dotfairy--ssh-info "installed."))
+
 (provide 'init-ssh)
 ;;; init-ssh.el ends here
