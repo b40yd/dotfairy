@@ -164,5 +164,10 @@
 (use-package tldr)
 (use-package command-log-mode)
 
+;; pip3 install sqlparse
+(use-package sqlformat
+  :commands (sqlformat sqlformat-buffer sqlformat-region)
+  :hook (sql-mode . sqlformat-on-save-mode))
+
 (provide 'init-prog)
 ;;; init-prog.el ends here

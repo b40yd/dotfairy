@@ -25,7 +25,16 @@ go get github.com/fatih/gomodifytags
 - `Python`
 auto-complete server:
 ```shell
-pip3 install trepan3k autopep8 python-language-server pyls-mypy pyls-isort pyls-black jupyter mccabe pydocstyle pyflakes pylint rope flake8-mypy ptvsd -i https://mirrors.aliyun.com/pypi/simple/
+pip3 install trepan3k autopep8 \
+    python-language-server pyls-mypy \
+    pyls-isort pyls-black jupyter mccabe \
+    pydocstyle pyflakes pylint rope \
+    flake8-mypy ptvsd -i https://mirrors.aliyun.com/pypi/simple/
+```
+- `SQL`
+sqlformat tools, need install sqlparse.
+```shell
+pip3 install sqlparse
 ```
 - `BASH`
 auto-complete server:
@@ -69,6 +78,17 @@ auto-complete server:
 
 ```
 install-package rustup rust-analyzer
+```
+- SSH Manager
+need install `sshpass` and `oathtool`.
+`M-x`: `install-ssh-manager-tools`
+MacOS:
+```shell
+brew install oath-toolkit
+```
+ArchLinux:
+```shell
+sudo pacman -Syy oath-toolkit
 ```
 
 ## Usage

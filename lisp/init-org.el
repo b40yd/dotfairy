@@ -212,6 +212,44 @@
     (setq org-agenda-breadcrumbs-separator " ❯ ")
     )
 
+  ;; Babel
+  (setq org-confirm-babel-evaluate nil
+        org-src-fontify-natively t
+        org-src-tab-acts-natively t)
+
+  (defvar load-language-list '((emacs-lisp . t)
+                               (perl . t)
+                               (python . t)
+                               (ruby . t)
+                               (js . t)
+                               (css . t)
+                               (sass . t)
+                               (C . t)
+                               (sql . t)
+                               (java . t)
+                               (plantuml . t)))
+
+  ;; ob-sh renamed to ob-shell since 26.1.
+  (if (>= emacs-major-version 26)
+      (cl-pushnew '(shell . t) load-language-list)
+    (cl-pushnew '(sh . t) load-language-list))
+
+  (use-package ob-go
+    :init (cl-pushnew '(go . t) load-language-list))
+
+  (use-package ob-rust
+    :init (cl-pushnew '(rust . t) load-language-list))
+
+  (use-package ob-http
+    :init (cl-pushnew '(http . t) load-language-list))
+
+  ;; Use mermadi-cli: npm install -g @mermaid-js/mermaid-cli
+  (use-package ob-mermaid
+    :init (cl-pushnew '(mermaid . t) load-language-list))
+
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               load-language-list)
+
   ;; Presentation
   (use-package org-tree-slide
     :diminish
