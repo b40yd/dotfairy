@@ -234,46 +234,40 @@ yet."
          (totp-message (if (string-empty-p (plist-get server :totp-message))
                            ""
                          (format "%s" (plist-get server :totp-message))))
-         (index 1)
-         term-name)
+         (index 1))
     (while (buffer-live-p (get-buffer (format "*%s<%s>*" session-name index)))
       (setq index (1+ index)))
-    (setq term-name (format "%s<%s>" session-name index))
-    (if (string-empty-p password)
-        (set-buffer (apply 'make-term
-                           term-name
-                           "ssh"
-                           nil
-                           (list host "-l" username "-p" port)))
-      (if (string-empty-p totp-key)
-          (set-buffer (apply 'make-term
-                             term-name
-                             "sshpass"
-                             nil
-                             (list "-p" password "ssh" host "-l" username "-p" port)))
-        (if (string-empty-p totp-message)
-            (set-buffer (apply 'make-term
-                               term-name
-                               "sshpass"
-                               nil
-                               (list "-p" password "-o" totp-key "ssh" host "-l" username "-p" port)))
-          (set-buffer (apply 'make-term
-                             term-name
-                             "sshpass"
-                             nil
-                             (list "-p" password "-o" totp-key "-O" totp-message "ssh" host "-l" username "-p" port)))
-          )))
-    (define-key term-raw-map (kbd "M-x") 'execute-extended-command)
-    (define-key term-raw-map (kbd "C-c C-b") 'switch-to-buffer)
-    (define-key term-raw-map (kbd "C-c C-a") 'dotfairy/add-this-ssh-session-to-groups)
-    (define-key term-raw-map (kbd "C-c C-r") 'dotfairy/remove-this-ssh-session-from-groups)
-    (define-key term-raw-map (kbd "C-c M-a") 'dotfairy/show-ssh-session-groups)
-    (term-mode)
-    (term-char-mode)
-    (term-handle-close)
-    (add-hook 'kill-buffer-hook 'term-kill-buffer-hook)
-    (switch-to-buffer (format "*%s*" term-name))
-    ))
+    (let* ((argv '())
+           (term-name (format "%s<%s>" session-name index)))
+      (if (not (string-empty-p password))
+          (setq argv (append argv `("-p" ,password))))
+      (if (not (string-empty-p totp-key))
+          (setq argv (append argv `("-o" ,totp-key))))
+      (if (not (string-empty-p totp-message))
+          (setq argv (append argv `("-O" ,totp-message))))
+      (if (string-empty-p host)
+          (dotfairy--ssh-error "SSH hostname must be set. it's cannot empty.")
+        (setq argv (append argv `("ssh" ,host)))
+        (if (not (string-empty-p username))
+            (setq argv (append argv `("-l" ,username))))
+        (if (not (string-empty-p port))
+            (progn
+              (setq argv (append argv `("-p" ,port)))
+              (set-buffer (apply 'make-term term-name
+                                 "sshpass"
+                                 nil
+                                 argv))
+              (define-key term-raw-map (kbd "M-x") 'execute-extended-command)
+              (define-key term-raw-map (kbd "C-c C-b") 'switch-to-buffer)
+              (define-key term-raw-map (kbd "C-c C-a") 'dotfairy/add-this-ssh-session-to-groups)
+              (define-key term-raw-map (kbd "C-c C-r") 'dotfairy/remove-this-ssh-session-from-groups)
+              (define-key term-raw-map (kbd "C-c M-a") 'dotfairy/show-ssh-session-groups)
+              (term-mode)
+              (term-char-mode)
+              (term-handle-close)
+              (add-hook 'kill-buffer-hook 'term-kill-buffer-hook)
+              (switch-to-buffer (format "*%s*" term-name)))))
+      )))
 
 
 (defun term-kill-buffer-hook ()
@@ -324,21 +318,9 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
 (defun dotfairy/create-remote-ssh (session-name host port user password totp-key totp-message)
   "Connect to a remote host by SSH."
   (interactive "sSesion name: \nsHost: \nsPort (default 22): \nsUser: \nsPassword: \nsTOTP key: \nsTOTP message: ")
-  (let* ((port (if (equal port "")
+  (let* ((port (if (string-empty-p port)
                    "22"
                  port))
-         (let-password (if (not (equal password ""))
-                           (format "-p %s" password)
-                         ""))
-         (let-totp-key (if (not (equal totp-key ""))
-                           (if (executable-find "oathtool")
-                               (format "oathtool --totp -b %s" totp-key)
-                             "")
-                         ""))
-         (let-totp-message (if (not (equal totp-message ""))
-                               (format "-o %s" totp-message)
-                             ""))
-         (switches (list host "-l" user "-p" port))
          (let-plist (list :session-name session-name
                           :username  user
                           :password  password
@@ -346,6 +328,11 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
                           :hostport  port
                           :totp-key  totp-key
                           :totp-message  totp-message)))
+    (if (string-empty-p password)
+        (dotfairy--ssh-warn "your not setting ssh connect password."))
+    (if (not (string-empty-p totp-key))
+        (if (not (executable-find "oathtool"))
+            (dotfairy--ssh-error "oathtool not found. your need install it.")))
     (cl-pushnew let-plist
                 (dotfairy-ssh-session-servers (dotfairy-ssh-session)) :test 'equal)
     (dotfairy--ssh-persist-session (dotfairy-ssh-session))
