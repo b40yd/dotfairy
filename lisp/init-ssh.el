@@ -208,6 +208,20 @@ yet."
                               (kill-buffer (process-buffer proc)))
                             ))))
 
+(defun docker--init-term-mode (term-name)
+  "Init term mode"
+  (progn
+    (define-key term-raw-map (kbd "M-x") 'execute-extended-command)
+    (define-key term-raw-map (kbd "C-c C-b") 'switch-to-buffer)
+    (define-key term-raw-map (kbd "C-c C-a") 'dotfairy/add-this-ssh-session-to-groups)
+    (define-key term-raw-map (kbd "C-c C-r") 'dotfairy/remove-this-ssh-session-from-groups)
+    (define-key term-raw-map (kbd "C-c M-a") 'dotfairy/show-ssh-session-groups)
+    (term-mode)
+    (term-char-mode)
+    (term-handle-close)
+    (add-hook 'kill-buffer-hook 'term-kill-buffer-hook)
+    (switch-to-buffer (format "*%s*" term-name))))
+
 ;;
 ;; sshpass for MacOS
 ;; curl -L https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb -o sshpass.rb
@@ -220,10 +234,11 @@ yet."
 ;; sudo yum install sshpass
 (defun dotfairy-connect-ssh (server)
   (let* ((session-name (plist-get server :session-name))
-         (username (plist-get server :username))
-         (password (plist-get server :password))
-         (port (plist-get server :hostport))
-         (host (plist-get server :hostname))
+         (kind (plist-get server :kind))
+         (username (plist-get server :remote-user))
+         (password (plist-get server :remote-password))
+         (port (plist-get server :remote-port))
+         (host (plist-get server :remote-host))
          (totp-key (if (string-empty-p (plist-get server :totp-key))
                        ""
                      (with-temp-buffer
@@ -234,40 +249,76 @@ yet."
          (totp-message (if (string-empty-p (plist-get server :totp-message))
                            ""
                          (format "%s" (plist-get server :totp-message))))
+         (proxy-host (plist-get server :proxy-host))
+         (proxy-port (plist-get server :proxy-port))
+         (proxy-user (plist-get server :proxy-user))
          (index 1))
     (while (buffer-live-p (get-buffer (format "*%s<%s>*" session-name index)))
       (setq index (1+ index)))
-    (let* ((argv '())
-           (term-name (format "%s<%s>" session-name index)))
-      (if (not (string-empty-p password))
-          (setq argv (append argv `("-p" ,password))))
-      (if (not (string-empty-p totp-key))
-          (setq argv (append argv `("-o" ,totp-key))))
-      (if (not (string-empty-p totp-message))
-          (setq argv (append argv `("-O" ,totp-message))))
-      (if (string-empty-p host)
-          (dotfairy--ssh-error "SSH hostname must be set. it's cannot empty.")
-        (setq argv (append argv `("ssh" ,host)))
-        (if (not (string-empty-p username))
-            (setq argv (append argv `("-l" ,username))))
-        (if (not (string-empty-p port))
-            (progn
-              (setq argv (append argv `("-p" ,port)))
-              (set-buffer (apply 'make-term term-name
-                                 "sshpass"
-                                 nil
-                                 argv))
-              (define-key term-raw-map (kbd "M-x") 'execute-extended-command)
-              (define-key term-raw-map (kbd "C-c C-b") 'switch-to-buffer)
-              (define-key term-raw-map (kbd "C-c C-a") 'dotfairy/add-this-ssh-session-to-groups)
-              (define-key term-raw-map (kbd "C-c C-r") 'dotfairy/remove-this-ssh-session-from-groups)
-              (define-key term-raw-map (kbd "C-c M-a") 'dotfairy/show-ssh-session-groups)
-              (term-mode)
-              (term-char-mode)
-              (term-handle-close)
-              (add-hook 'kill-buffer-hook 'term-kill-buffer-hook)
-              (switch-to-buffer (format "*%s*" term-name)))))
-      )))
+    (cond ((string= kind "proxy")
+           (if (or (string-empty-p host)
+                   (string-empty-p proxy-host))
+               (dotfairy--ssh-error "<Proxy host> and <Remote host> must be set. please check its.")
+             (progn
+               (let* ((argv '())
+                      (term-argv '())
+                      (term-name (format "%s<%s>" session-name index)))
+                 (if (not (string-empty-p totp-key))
+                     (setq argv (append argv `("-o" ,totp-key))))
+                 (if (not (string-empty-p totp-message))
+                     (setq argv (append argv `("-O" ,totp-message))))
+                 (if (length> argv 0)
+                     (let ((remote-server (format "%s@%s" username host))
+                           (proxy-server (format "%s@%s:%s" proxy-user proxy-host proxy-port)))
+                       (setq term-argv
+                             `("-p"
+                               ,password
+                               ,@argv
+                               "ssh"
+                               ,remote-server
+                               "-p"
+                               ,port
+                               "-J"
+                               ,proxy-server))
+                       )
+                   (setq term-argv
+                         (list "-p"
+                               password
+                               "ssh"
+                               (format "%s@%s" username host)
+                               "-p"
+                               port
+                               "-J"
+                               (format "%s@%s:%s" proxy-user proxy-host proxy-port))))
+                 (set-buffer (apply 'make-term term-name
+                                    "sshpass"
+                                    nil
+                                    term-argv))
+                 (docker--init-term-mode term-name)
+                 ))))
+          ((string= kind "direct")
+           (let* ((argv '())
+                  (term-name (format "%s<%s>" session-name index)))
+             (if (not (string-empty-p password))
+                 (setq argv (append argv `("-p" ,password))))
+             (if (not (string-empty-p totp-key))
+                 (setq argv (append argv `("-o" ,totp-key))))
+             (if (not (string-empty-p totp-message))
+                 (setq argv (append argv `("-O" ,totp-message))))
+             (if (string-empty-p host)
+                 (dotfairy--ssh-error "SSH hostname must be set. it's cannot empty.")
+               (setq argv (append argv `("ssh" ,host)))
+               (if (not (string-empty-p username))
+                   (setq argv (append argv `("-l" ,username))))
+               (if (not (string-empty-p port))
+                   (progn
+                     (setq argv (append argv `("-p" ,port)))
+                     (set-buffer (apply 'make-term term-name
+                                        "sshpass"
+                                        nil
+                                        argv))
+                     (docker--init-term-mode term-name))))
+             )))))
 
 
 (defun term-kill-buffer-hook ()
@@ -315,28 +366,58 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
         (dotfairy-connect-ssh server)
       )))
 
-(defun dotfairy/create-remote-ssh (session-name host port user password totp-key totp-message)
-  "Connect to a remote host by SSH."
-  (interactive "sSesion name: \nsHost: \nsPort (default 22): \nsUser: \nsPassword: \nsTOTP key: \nsTOTP message: ")
-  (let* ((port (if (string-empty-p port)
-                   "22"
-                 port))
-         (let-plist (list :session-name session-name
-                          :username  user
-                          :password  password
-                          :hostname  host
-                          :hostport  port
-                          :totp-key  totp-key
-                          :totp-message  totp-message)))
-    (if (string-empty-p password)
-        (dotfairy--ssh-warn "your not setting ssh connect password."))
-    (if (not (string-empty-p totp-key))
-        (if (not (executable-find "oathtool"))
-            (dotfairy--ssh-error "oathtool not found. your need install it.")))
-    (cl-pushnew let-plist
-                (dotfairy-ssh-session-servers (dotfairy-ssh-session)) :test 'equal)
-    (dotfairy--ssh-persist-session (dotfairy-ssh-session))
-    (dotfairy-connect-ssh let-plist)))
+(defun dotfairy/create-ssh-remote (kind)
+  "docstring"
+  (interactive (list (completing-read "Select connect style: " '(proxy direct))))
+  (let* ((ssh-session '())
+         (session-name (read-string "Session Name: ")))
+    (if (string-empty-p session-name)
+        (dotfairy--ssh-error "session name cannot empty.")
+      (setq ssh-session (plist-put ssh-session :session-name session-name))
+      (setq ssh-session (plist-put ssh-session :kind kind))
+      (if (string= kind "proxy")
+          (let* ((proxy-host (read-string "Proxy hostname: " ""))
+                 (proxy-port (read-string "Proxy port(22): " ""))
+                 (proxy-user (read-string "Proxy username(root): " "")))
+            (setq ssh-session (plist-put ssh-session :proxy-host proxy-host))
+            (setq ssh-session (plist-put ssh-session :proxy-port (if (string-empty-p proxy-port)
+                                                                     "22"
+                                                                   proxy-port)))
+            (setq ssh-session (plist-put ssh-session :proxy-user (if (string-empty-p proxy-user)
+                                                                     "root"
+                                                                   proxy-user)))
+            ))
+      (let* ((remote-host (read-string "Remote hostname: " ""))
+             (remote-port (read-string "Remote hostport(22): " ""))
+             (remote-user (read-string "Remote username(root): " ""))
+             (remote-password (read-passwd "Remote password: "))
+             (totp-key (read-string "2FA(TOTP) key: "))
+             (totp-message (read-string "2FA(TOTP) message: " "")))
+        (setq ssh-session (plist-put ssh-session :remote-host remote-host))
+        (setq ssh-session (plist-put ssh-session :remote-port (if (string-empty-p remote-port)
+                                                                  "22"
+                                                                remote-port)))
+        (setq ssh-session (plist-put ssh-session :remote-user (if (string-empty-p remote-user)
+                                                                  "root"
+                                                                remote-user)))
+        (setq ssh-session (plist-put ssh-session :remote-password (if (string-empty-p remote-password)
+                                                                      (dotfairy--ssh-warn "remote connect password is empty.")
+                                                                    remote-password)))
+        (setq ssh-session (plist-put ssh-session :totp-key totp-key))
+        (setq ssh-session (plist-put ssh-session :totp-message totp-message))
+        (cl-pushnew ssh-session
+                    (dotfairy-ssh-session-servers (dotfairy-ssh-session)) :test 'equal)
+        (dotfairy--ssh-persist-session (dotfairy-ssh-session))
+        (cond ((string= (plist-get ssh-session :kind) "proxy")
+               (if (or (string-empty-p (plist-get ssh-session :proxy-host))
+                       (string-empty-p (plist-get ssh-session :remote-host)))
+                   (dotfairy--ssh-error "<Proxy host> and <Remote host> must be set. please check its.")
+                 (dotfairy-connect-ssh ssh-session)))
+              ((string= (plist-get ssh-session :kind) "direct")
+               (if (string-empty-p (plist-get ssh-session :remote-host))
+                   (dotfairy--ssh-error "<Remote host> must be set. it's cannot empty.")
+                 (dotfairy-connect-ssh ssh-session)))))
+      )))
 
 (defun dotfairy/remove-ssh-server (session)
   "Remove session from the list of servers."
