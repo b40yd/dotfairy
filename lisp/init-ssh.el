@@ -29,6 +29,7 @@
 (require 'term)
 (require 'f)
 (require 'dired)
+(require 'subr-x)
 
 ;; ssh-manager-mode
 (cl-defstruct dotfairy-ssh-session-groups
@@ -425,8 +426,7 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
 (defun dotfairy/create-ssh-remote (kind)
   "docstring"
   (interactive (list (completing-read "Select connect style: " '(proxy direct))))
-  (let* ((ssh-session (dotfairy--read-session-config-from-minibuffer
-                       (completing-read "Select connect style: " '(proxy direct)))))
+  (let* ((ssh-session (dotfairy--read-session-config-from-minibuffer kind)))
     (cl-pushnew ssh-session
                 (dotfairy-ssh-session-servers (dotfairy-ssh-session)) :test 'equal)
     (dotfairy--ssh-persist-session (dotfairy-ssh-session))
@@ -544,7 +544,7 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
                          (files (dired-get-marked-files)))
                     (push remote-dir-or-file dotfairy-remote-dir-or-files)
                     (cond ((string= method "upload")
-                           (if (length= files 0)
+                           (if (= (length files) 0)
                                (when-let ((ask (downcase (read-string "upload current buffer file(y-or-n):"))))
                                  (if (or (string= ask "y")
                                          (string= ask "yes"))
