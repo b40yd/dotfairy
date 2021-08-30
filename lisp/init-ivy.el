@@ -416,7 +416,14 @@ This is for use in `ivy-re-builders-alist'."
   (use-package counsel-world-clock)
 
   ;; Tramp ivy interface
-  (use-package counsel-tramp)
+  (use-package counsel-tramp
+    :config
+    ;; tramp support 2FA(TOTP)
+    (setq
+     tramp-password-prompt-regexp
+     "^.*\\([pP]assword\\|passphrase\\|Response\\|[vV]erification code\\).*:\0? *")
+    )
+
   (map! :after ivy
         :localleader
         :map counsel-mode-map

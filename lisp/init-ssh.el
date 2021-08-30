@@ -28,7 +28,7 @@
 (require 'dash)
 (require 'term)
 (require 'f)
-(require 'init-funcs)
+(require 'dired)
 
 ;; ssh-manager-mode
 (cl-defstruct dotfairy-ssh-session-groups
@@ -496,6 +496,86 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
   (if (not (executable-find "oathtool"))
       (dotfairy--ssh-info "your need install oathtool if used 2FA."))
   (dotfairy--ssh-info "installed."))
+
+(defcustom dotfairy-remote-dir-or-files nil
+  "Path to dotfairy (or compatible) executable."
+  :type '()
+  :group 'dotfairy)
+
+(defun dotfairy--upload-or-download-files-to-remote-host (server method)
+  (let ((argv '())
+        (password (plist-get server :remote-password))
+        (totp-key (if (string-empty-p (plist-get server :totp-key))
+                      ""
+                    (with-temp-buffer
+                      (or (apply #'call-process "oathtool" nil t nil (list "--totp" "-b" (plist-get server :totp-key)))
+                          "")
+                      (string-trim (buffer-string)))
+                    ))
+        (totp-message (plist-get server :totp-message))
+        (proxy-host (plist-get server :proxy-host))
+        (proxy-port (plist-get server :proxy-port))
+        (proxy-user (plist-get server :proxy-user))
+        (host (plist-get server :remote-host))
+        (port (plist-get server :remote-port))
+        (user (plist-get server :remote-user)))
+    (progn
+      (if (not (string-empty-p password))
+          (setq argv (append argv `("-p" ,password))))
+      (if (not (string-empty-p totp-key))
+          (setq argv (append argv `("-o" ,totp-key))))
+      (if (not (string-empty-p totp-message))
+          (setq argv (append argv `("-O" ,totp-message))))
+      (if (string-empty-p host)
+          (dotfairy--ssh-error "SSH hostname must be set. it's cannot empty.")
+        (if (executable-find "scp")
+            (progn
+              (setq argv (append argv `("scp" "-r")))
+              (if (and (not (string= proxy-host nil))
+                       (not (string= proxy-user nil))
+                       (not (string= proxy-port nil)))
+                  (setq argv (append argv `("-J" ,(format "%s@%s:%s" proxy-user proxy-host proxy-port)))))
+              (if (not (string-empty-p port))
+                  (setq argv (append argv `("-P" ,port))))
+              (if (and (not (string-empty-p host))
+                       (not (string-empty-p user)))
+                  (let* ((remote-dir-or-file (completing-read "Remote Dir or file: " dotfairy-remote-dir-or-files
+                                                              nil nil (format "/home/%s" user)))
+                         (files (dired-get-marked-files)))
+                    (push remote-dir-or-file dotfairy-remote-dir-or-files)
+                    (cond ((string= method "upload")
+                           (if (length= files 0)
+                               (when-let ((ask (downcase (read-string "upload current buffer file(y-or-n):"))))
+                                 (if (or (string= ask "y")
+                                         (string= ask "yes"))
+                                     (setq argv (append argv `(,(buffer-file-name) ,(format "%s@%s:%s" user host remote-dir-or-file))))
+                                   ))
+                             (if (not (string-empty-p remote-dir-or-file))
+                                 (setq argv (append argv `(,@files ,(format "%s@%s:%s" user host remote-dir-or-file)))))
+                             ))
+                          ((string= method "download")
+                           (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,(dired-current-directory))))))
+                    ))))))))
+
+(defun dotfairy/upload-or-download-files-to-remote-host (method)
+  "SCP files send to remote host"
+  (interactive (list (completing-read "Select upload or download: "
+                                      '(upload download)
+                                      )))
+  (let ((session-name (completing-read "Select server to connect: "
+                                       (dotfairy--filter-ssh-session)
+                                       )))
+    (dolist (session (->> (dotfairy-ssh-session)
+                          (dotfairy-ssh-session-servers)))
+      (if (string= session-name (plist-get session :session-name))
+          (if-let ((argv (dotfairy--upload-or-download-files-to-remote-host session method)))
+              (apply 'dotfairy-exec-process "sshpass" argv)
+            )))))
+
+(with-eval-after-load 'dired
+  (progn
+    (define-key dired-mode-map (kbd "C-c C-<return>") 'dotfairy/upload-or-download-files-to-remote-host)
+    ))
 
 (provide 'init-ssh)
 ;;; init-ssh.el ends here
