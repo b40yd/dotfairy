@@ -62,6 +62,7 @@
 (require 'init-docker)
 (require 'init-vterm)
 (require 'init-ssh)
+(require 'init-dict)
 
 ;; Language
 (require 'init-elisp)
