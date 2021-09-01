@@ -195,18 +195,6 @@
          ("C--" . default-text-scale-decrease)
          ("C-0" . default-text-scale-reset)))
 
-;; Good pixel line scrolling
-(use-package good-scroll
-  :diminish
-  :hook (after-init . good-scroll-mode)
-  :bind (([remap next] . good-scroll-up-full-screen)
-         ([remap prior] . good-scroll-down-full-screen)))
-
-;; Smooth scrolling over images
-(use-package iscroll
-  :diminish
-  :hook (image-mode . iscroll-mode))
-
 ;; Display ugly ^L page breaks as tidy horizontal lines
 (use-package page-break-lines
   :diminish
