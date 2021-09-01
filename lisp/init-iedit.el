@@ -51,8 +51,12 @@
   :diminish
   :hook (after-init . global-auto-revert-mode))
 
-;; delete hungry
-(use-package hungry-delete)
+;; Hungry deletion
+(use-package hungry-delete
+  :diminish
+  :hook (after-init . global-hungry-delete-mode)
+  :init (setq hungry-delete-except-modes
+              '(help-mode minibuffer-mode minibuffer-inactive-mode calc-mode)))
 
 ;; ;; Drag stuff (lines, words, region, etc...) around
 (use-package drag-stuff
@@ -79,14 +83,14 @@
 (use-package rect
   :ensure nil
   :bind (:map text-mode-map
-              ("<C-return>" . rect-hydra/body)
-              :map prog-mode-map
-              ("<C-return>" . rect-hydra/body))
+         ("<C-return>" . rect-hydra/body)
+         :map prog-mode-map
+         ("<C-return>" . rect-hydra/body))
   :init (with-eval-after-load 'org
           (bind-key "<C-M-return>" #'rect-hydra/body org-mode-map))
   :pretty-hydra
   ((:title (pretty-hydra-title "Rectangle" 'material "border_all" :height 1.1 :v-adjust -0.225)
-           :color amaranth :body-pre (rectangle-mark-mode) :post (deactivate-mark) :quit-key ("q" "C-g"))
+    :color amaranth :body-pre (rectangle-mark-mode) :post (deactivate-mark) :quit-key ("q" "C-g"))
    ("Move"
     (("h" backward-char "←")
      ("j" next-line "↓")
@@ -132,10 +136,18 @@
 (use-package delsel
   :hook (after-init . delete-selection-mode))
 
-;; edit undo tree
 (use-package undo-tree
+  :diminish
+  :hook (after-init . global-undo-tree-mode)
   :init
-  (global-undo-tree-mode))
+  (setq undo-tree-visualizer-timestamps t
+        undo-tree-enable-undo-in-region nil
+        undo-tree-auto-save-history nil)
+
+  ;; HACK: keep the diff window
+  (with-no-warnings
+    (make-variable-buffer-local 'undo-tree-visualizer-diff)
+    (setq-default undo-tree-visualizer-diff t)))
 
 ;; Increase selected region by semantic units
 (use-package expand-region
@@ -344,6 +356,7 @@
          ([remap isearch-query-replace] . anzu-isearch-query-replace)
          ([remap isearch-query-replace-regexp] . anzu-isearch-query-replace-regexp))
   :hook (after-init . global-anzu-mode))
+
 ;; Redefine M-< and M-> for some modes
 (use-package beginend
   :diminish (beginend-mode beginend-global-mode)
@@ -352,7 +365,6 @@
   (mapc (lambda (pair)
           (add-hook (car pair) (lambda () (diminish (cdr pair)))))
         beginend-modes))
-
 
 ;; Jump to things in Emacs tree-style
 (use-package avy
@@ -366,6 +378,16 @@
                 avy-all-windows-alt t
                 avy-background t
                 avy-style 'pre))
+
+;; Kill text between the point and the character CHAR
+(use-package avy-zap
+  :bind (("M-z" . avy-zap-to-char-dwim)
+         ("M-Z" . avy-zap-up-to-char-dwim)))
+
+;; Jump to Chinese characters
+(use-package ace-pinyin
+  :diminish
+  :hook (after-init . ace-pinyin-global-mode))
 
 (use-package mwim
   :bind (([remap move-beginning-of-line] . mwim-beginning-of-code-or-line)
@@ -417,24 +439,28 @@
 (use-package hideshow
   :diminish hs-minor-mode
   :bind (:map hs-minor-mode-map
-              ("C-`" . hs-toggle-hiding)))
+         ("C-c `'" . hs-toggle-hiding)))
 
 ;; Flexible text folding
 (use-package origami
   :pretty-hydra
   ((:title (pretty-hydra-title "Origami" 'octicon "fold" :height 1.1 :v-adjust -0.05)
-           :color amaranth :quit-key "q")
+    :color amaranth :quit-key "q")
    ("Node"
     ((":" origami-recursively-toggle-node "toggle recursively")
      ("a" origami-toggle-all-nodes "toggle all")
      ("t" origami-toggle-node "toggle current")
-     ("o" origami-show-only-node "only show current"))
+     ("o" origami-open-node "open current")
+     ("c" origami-close-node "close current")
+     ("s" origami-show-only-node "only show current"))
     "Actions"
     (("u" origami-undo "undo")
      ("d" origami-redo "redo")
-     ("r" origami-reset "reset"))))
+     ("r" origami-reset "reset")
+     ("n" origami-next-fold "next fold")
+     ("p" origami-previous-fold "previous fold"))))
   :bind (:map origami-mode-map
-              ("C-`" . origami-hydra/body))
+         ("C-`" . origami-hydra/body))
   :hook (prog-mode . origami-mode)
   :init (setq origami-show-fold-header t)
   :config (face-spec-reset-face 'origami-fold-header-face)
@@ -443,7 +469,6 @@
   ;; https://github.com/emacs-lsp/lsp-origami/
   (use-package lsp-origami
     :hook ((lsp-after-open . lsp-origami-try-enable))))
-
 
 (provide 'init-iedit)
 ;;; init-iedit.el ends here

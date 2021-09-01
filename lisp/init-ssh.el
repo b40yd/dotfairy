@@ -23,6 +23,7 @@
 ;;
 
 ;;; Code:
+
 (require 'cl-generic)
 (require 'cl-lib)
 (require 'dash)
@@ -32,92 +33,89 @@
 (require 'subr-x)
 
 ;; ssh-manager-mode
-(cl-defstruct dotfairy-ssh-session-groups
+(cl-defstruct ssh-manager-session-groups
   ;; contains the folders that are part of the current session
   servers
   (metadata (make-hash-table :test 'equal)))
 
-(defvar dotfairy--ssh-session-groups nil
-  "Contain the `dotfairy-ssh-session-groups' for the current Emacs instance.")
+(defvar ssh-manager--session-groups nil
+  "Contain the `ssh-manager-session-groups' for the current Emacs instance.")
 
-(defun dotfairy-ssh-session-groups ()
-  (or dotfairy--ssh-session-groups (setq dotfairy--ssh-session-groups (make-dotfairy-ssh-session-groups))))
+(defun ssh-manager-session-groups ()
+  (or ssh-manager--session-groups (setq ssh-manager--session-groups (make-ssh-manager-session-groups))))
 
-(defun dotfairy/show-ssh-session-groups ()
+(defun ssh-manager-show-ssh-session-groups ()
   "Show ssh server groups."
   (interactive)
-  (message (format "%s" (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups)))))
+  (message (format "%s" (ssh-manager-session-groups-servers (ssh-manager-session-groups)))))
 
-(defun dotfairy/add-this-ssh-session-to-groups ()
+(defun ssh-manager-add-this-ssh-session-to-groups ()
   "Add this ssh server session to groups."
   (interactive)
-  (cl-pushnew (buffer-name) (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups)) :test 'equal))
+  (cl-pushnew (buffer-name) (ssh-manager-session-groups-servers (ssh-manager-session-groups)) :test 'equal))
 
-(defun dotfairy/remove-this-ssh-session-from-groups ()
+(defun ssh-manager-remove-this-ssh-session-from-groups ()
   "Remove this ssh server session from groups."
   (interactive)
-  (dotfairy--remove-buffer-name-from-groups (buffer-name)))
+  (ssh-manager--remove-buffer-name-from-groups (buffer-name)))
 
-(defun dotfairy--remove-buffer-name-from-groups (buf-name)
+(defun ssh-manager--remove-buffer-name-from-groups (buf-name)
   "Remove buffer name from groups."
 
-  (setf (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups))
-        (-remove-item buf-name (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups)))))
+  (setf (ssh-manager-session-groups-servers (ssh-manager-session-groups))
+        (-remove-item buf-name (ssh-manager-session-groups-servers (ssh-manager-session-groups)))))
 
-(defun dotfairy/remove-ssh-session-from-groups (session)
+(defun ssh-manager-remove-ssh-session-from-groups (session)
   "Remove ssh server session from groups."
   (interactive  (list (completing-read "Select server to connect: "
-                                       (dotfairy-ssh-session-groups-servers (dotfairy-ssh-session-groups))
-                                       )))
-  (dotfairy--remove-buffer-name-from-groups session)
-  )
+                                       (ssh-manager-session-groups-servers (ssh-manager-session-groups)))))
+  (ssh-manager--remove-buffer-name-from-groups session))
 
-(defun dotfairy-ssh-send-cmd-to-session-groups (cmd)
+(defun ssh-manager-send-cmd-to-session-groups (cmd)
   (let ((current-buf (current-buffer)))
-    (dolist (server (->> (dotfairy-ssh-session-groups)
-                         (dotfairy-ssh-session-groups-servers)))
-      (dotfairy--send-cmd-to-buffer server cmd))
+    (dolist (server (->> (ssh-manager-session-groups)
+                         (ssh-manager-session-groups-servers)))
+      (ssh-manager--send-cmd-to-buffer server cmd))
     (switch-to-buffer current-buf)))
 
 (defvar ssh-manager-mode-map nil "keymap for `ssh-manager-mode'")
 
 (setq ssh-manager-mode-map (make-sparse-keymap))
 
-(define-key ssh-manager-mode-map (kbd "C-c C-c") 'dotfairy/execute-buffer-cmd-to-ssh)
-(define-key ssh-manager-mode-map (kbd "C-c C-e") 'dotfairy/execute-region-cmd-to-ssh)
-(define-key ssh-manager-mode-map (kbd "C-c C-.") 'dotfairy/execute-current-line-cmd-to-ssh)
+(define-key ssh-manager-mode-map (kbd "C-c C-c") 'ssh-manager-execute-buffer-cmd-to-ssh)
+(define-key ssh-manager-mode-map (kbd "C-c C-e") 'ssh-manager-execute-region-cmd-to-ssh)
+(define-key ssh-manager-mode-map (kbd "C-c C-.") 'ssh-manager-execute-current-line-cmd-to-ssh)
 
 (define-derived-mode ssh-manager-mode prog-mode "SSH Manager Mode"
-  (font-lock-fontify-buffer)
+  (with-no-warnings
+    (font-lock-fontify-buffer))
   (use-local-map ssh-manager-mode-map))
 
-(defun dotfairy/execute-current-line-cmd-to-ssh ()
+(defun ssh-manager-execute-current-line-cmd-to-ssh ()
   "Execute command to ssh server groups."
   (interactive)
-  (let ((line (dotfairy/read-current-line-cmd)))
-    (dotfairy-ssh-send-cmd-to-session-groups line)
-    (reindent-then-newline-and-indent)
-    ))
+  (let ((line (ssh-manager-read-current-line-cmd)))
+    (ssh-manager-send-cmd-to-session-groups line)
+    (reindent-then-newline-and-indent)))
 
-(defun dotfairy/read-current-line-cmd ()
+(defun ssh-manager-read-current-line-cmd ()
   "Read current line command."
   (interactive)
   (buffer-substring-no-properties
    (line-beginning-position)
    (line-end-position)))
 
-(defun dotfairy/execute-region-cmd-to-ssh ()
+(defun ssh-manager-execute-region-cmd-to-ssh ()
   "Execute region cmd to ssh"
   (interactive)
   (let ((begin (region-beginning))
         (end (region-end)))
-    (dotfairy-ssh-send-cmd-to-session-groups (buffer-substring begin end))))
+    (ssh-manager-send-cmd-to-session-groups (buffer-substring begin end))))
 
-(defun dotfairy/execute-buffer-cmd-to-ssh ()
+(defun ssh-manager-execute-buffer-cmd-to-ssh ()
   "Execute buffer cmd to ssh"
   (interactive)
-  (dotfairy-ssh-send-cmd-to-session-groups (buffer-substring-no-properties (point-min) (point-max)))
-  )
+  (ssh-manager-send-cmd-to-session-groups (buffer-substring-no-properties (point-min) (point-max))))
 
 (defun ssh-manager ()
   (interactive)
@@ -128,52 +126,52 @@
     (setq buffer-offer-save t)))
 
 ;; ssh connect session
-(cl-defstruct dotfairy-ssh-session
+(cl-defstruct ssh-manager-session
   ;; contains the folders that are part of the current session
   servers
   (metadata (make-hash-table :test 'equal)))
 
-(defcustom dotfairy-ssh-session-file (expand-file-name (locate-user-emacs-file ".dotfairy-ssh-session-v1"))
+(defcustom ssh-manager-session-file (expand-file-name (locate-user-emacs-file ".ssh-manager-session-v1"))
   "File where session information is stored."
-  :group 'dotfairy
+  :group 'ssh-manager
   :type 'file)
 
-(defvar dotfairy--ssh-session nil
-  "Contain the `dotfairy-ssh-session' for the current Emacs instance.")
-(defvar dotfairy--ssh-show-message t
-  "If non-nil, show debug message from `dotfairy'.")
+(defvar ssh-manager--session nil
+  "Contain the `ssh-manager-session' for the current Emacs instance.")
+(defvar ssh-manager--show-message t
+  "If non-nil, show debug message from `ssh-manager'.")
 
-(defun dotfairy--ssh-message  (format &rest args)
+(defun ssh-manager--message  (format &rest args)
   "Wrapper for `message'
 We `inhibit-message' the message when the cursor is in the
 minibuffer and when emacs version is before emacs 27 due to the
-fact that we often use `dotfairy--ssh-info', `dotfairy--ssh-warn' and `dotfairy--ssh-error'
+fact that we often use `ssh-manager--info', `ssh-manager--warn' and `ssh-manager--error'
 in async context and the call to these function is removing the
 minibuffer prompt. The issue with async messages is already fixed
 in emacs 27.
 See #2049"
-  (when dotfairy--ssh-show-message
+  (when ssh-manager--show-message
     (let ((inhibit-message (and (minibufferp)
                                 (version< emacs-version "27.0"))))
       (apply #'message format args))))
 
-(defun dotfairy--ssh-info (format &rest args)
-  "Display dotfairy info message with FORMAT with ARGS."
-  (dotfairy--ssh-message "%s :: %s" (propertize "SSH" 'face 'success) (apply #'format format args)))
+(defun ssh-manager--info (format &rest args)
+  "Display ssh-manager info message with FORMAT with ARGS."
+  (ssh-manager--message "%s :: %s" (propertize "SSH" 'face 'success) (apply #'format format args)))
 
-(defun dotfairy--ssh-warn (format &rest args)
-  "Display dotfairy warn message with FORMAT with ARGS."
-  (dotfairy--ssh-message "%s :: %s" (propertize "SSH" 'face 'warning) (apply #'format format args)))
+(defun ssh-manager--warn (format &rest args)
+  "Display ssh-manager warn message with FORMAT with ARGS."
+  (ssh-manager--message "%s :: %s" (propertize "SSH" 'face 'warning) (apply #'format format args)))
 
-(defun dotfairy--ssh-error (format &rest args)
-  "Display dotfairy error message with FORMAT with ARGS."
-  (dotfairy--ssh-message "%s :: %s" (propertize "SSH" 'face 'error) (apply #'format format args)))
-(defun dotfairy--ssh-read-from-file (file)
+(defun ssh-manager--error (format &rest args)
+  "Display ssh-manager error message with FORMAT with ARGS."
+  (ssh-manager--message "%s :: %s" (propertize "SSH" 'face 'error) (apply #'format format args)))
+(defun ssh-manager--read-from-file (file)
   "Read FILE content."
   (when (file-exists-p file)
     (cl-first (read-from-string (f-read-text file 'utf-8)))))
 
-(defun dotfairy--ssh-persist (file-name to-persist)
+(defun ssh-manager--persist (file-name to-persist)
   "Persist TO-PERSIST in FILE-NAME.
 This function creates the parent directories if they don't exist
 yet."
@@ -183,44 +181,43 @@ yet."
     (apply #'f-mkdir (f-split (f-parent file-name)))
     (f-write-text (prin1-to-string to-persist) 'utf-8 file-name)))
 
-(defun dotfairy--ssh-persist-session (session)
-  "Persist SESSION to `dotfairy-ssh-session-file'."
-  (dotfairy--ssh-persist dotfairy-ssh-session-file (make-dotfairy-ssh-session
-                                                :servers (dotfairy-ssh-session-servers session))))
-(defun dotfairy--ssh-load-default-session ()
+(defun ssh-manager--persist-session (session)
+  "Persist SESSION to `ssh-manager-session-file'."
+  (ssh-manager--persist ssh-manager-session-file (make-ssh-manager-session
+                                                  :servers (ssh-manager-session-servers session))))
+(defun ssh-manager--load-default-session ()
   "Load default session."
-  (setq dotfairy--ssh-session (or (condition-case err
-                                  (dotfairy--ssh-read-from-file dotfairy-ssh-session-file)
-                                (error (dotfairy--ssh-error "Failed to parse the session %s, starting with clean one."
-                                                        (error-message-string err))
-                                       nil))
-                              (make-dotfairy-ssh-session))))
+  (setq ssh-manager--session (or (condition-case err
+                                     (ssh-manager--read-from-file ssh-manager-session-file)
+                                   (error (ssh-manager--error "Failed to parse the session %s, starting with clean one."
+                                                              (error-message-string err))
+                                          nil))
+                                 (make-ssh-manager-session))))
 
-(defun dotfairy-ssh-session ()
+(defun ssh-manager-session ()
   "Get the session associated with the current buffer."
-  (or dotfairy--ssh-session (setq dotfairy--ssh-session (dotfairy--ssh-load-default-session))))
+  (or ssh-manager--session (setq ssh-manager--session (ssh-manager--load-default-session))))
 
-(defun term-handle-close ()
+(defun ssh-manager--term-handle-close ()
   "Close current term buffer when `exit' from term buffer."
   (when (ignore-errors (get-buffer-process (current-buffer)))
     (set-process-sentinel (get-buffer-process (current-buffer))
                           (lambda (proc change)
                             (when (string-match "\\(finished\\|exited\\)" change)
-                              (kill-buffer (process-buffer proc)))
-                            ))))
+                              (kill-buffer (process-buffer proc)))))))
 
-(defun docker--init-term-mode (term-name)
+(defun ssh-manager--init-term-mode (term-name)
   "Init term mode"
   (progn
     (define-key term-raw-map (kbd "M-x") 'execute-extended-command)
     (define-key term-raw-map (kbd "C-c C-b") 'switch-to-buffer)
-    (define-key term-raw-map (kbd "C-c C-a") 'dotfairy/add-this-ssh-session-to-groups)
-    (define-key term-raw-map (kbd "C-c C-r") 'dotfairy/remove-this-ssh-session-from-groups)
-    (define-key term-raw-map (kbd "C-c M-a") 'dotfairy/show-ssh-session-groups)
+    (define-key term-raw-map (kbd "C-c C-a") 'ssh-manager-add-this-ssh-session-to-groups)
+    (define-key term-raw-map (kbd "C-c C-r") 'ssh-manager-remove-this-ssh-session-from-groups)
+    (define-key term-raw-map (kbd "C-c M-a") 'ssh-manager-show-ssh-session-groups)
     (term-mode)
     (term-char-mode)
-    (term-handle-close)
-    (add-hook 'kill-buffer-hook 'term-kill-buffer-hook)
+    (ssh-manager--term-handle-close)
+    (add-hook 'kill-buffer-hook 'ssh-managerterm-kill-buffer-hook)
     (switch-to-buffer (format "*%s*" term-name))))
 
 ;;
@@ -233,7 +230,7 @@ yet."
 ;; sshpass for Linux(debian, centos)
 ;; sudo apt-get install sshpass
 ;; sudo yum install sshpass
-(defun dotfairy-connect-ssh (server)
+(defun ssh-manager-connect-ssh (server)
   (let* ((session-name (plist-get server :session-name))
          (kind (plist-get server :kind))
          (username (plist-get server :remote-user))
@@ -245,8 +242,7 @@ yet."
                      (with-temp-buffer
                        (or (apply #'call-process "oathtool" nil t nil (list "--totp" "-b" (plist-get server :totp-key)))
                            "")
-                       (string-trim (buffer-string)))
-                     ))
+                       (string-trim (buffer-string)))))
          (totp-message (if (string-empty-p (plist-get server :totp-message))
                            ""
                          (format "%s" (plist-get server :totp-message))))
@@ -259,7 +255,7 @@ yet."
     (cond ((string= kind "proxy")
            (if (or (string-empty-p host)
                    (string-empty-p proxy-host))
-               (dotfairy--ssh-error "<Proxy host> and <Remote host> must be set. please check its.")
+               (ssh-manager--error "<Proxy host> and <Remote host> must be set. please check its.")
              (progn
                (let* ((argv '())
                       (term-argv '())
@@ -268,7 +264,7 @@ yet."
                      (setq argv (append argv `("-o" ,totp-key))))
                  (if (not (string-empty-p totp-message))
                      (setq argv (append argv `("-O" ,totp-message))))
-                 (if (length> argv 0)
+                 (if (>= (length argv) 0)
                      (let ((remote-server (format "%s@%s" username host))
                            (proxy-server (format "%s@%s:%s" proxy-user proxy-host proxy-port)))
                        (setq term-argv
@@ -280,8 +276,7 @@ yet."
                                "-p"
                                ,port
                                "-J"
-                               ,proxy-server))
-                       )
+                               ,proxy-server)))
                    (setq term-argv
                          (list "-p"
                                password
@@ -295,8 +290,7 @@ yet."
                                     "sshpass"
                                     nil
                                     term-argv))
-                 (docker--init-term-mode term-name)
-                 ))))
+                 (ssh-manager--init-term-mode term-name)))))
           ((string= kind "direct")
            (let* ((argv '())
                   (term-name (format "%s<%s>" session-name index)))
@@ -307,7 +301,7 @@ yet."
              (if (not (string-empty-p totp-message))
                  (setq argv (append argv `("-O" ,totp-message))))
              (if (string-empty-p host)
-                 (dotfairy--ssh-error "SSH hostname must be set. it's cannot empty.")
+                 (ssh-manager--error "SSH hostname must be set. it's cannot empty.")
                (setq argv (append argv `("ssh" ,host)))
                (if (not (string-empty-p username))
                    (setq argv (append argv `("-l" ,username))))
@@ -318,11 +312,10 @@ yet."
                                         "sshpass"
                                         nil
                                         argv))
-                     (docker--init-term-mode term-name))))
-             )))))
+                     (ssh-manager--init-term-mode term-name)))))))))
 
 
-(defun term-kill-buffer-hook ()
+(defun ssh-managerterm-kill-buffer-hook ()
   "Function that hook `kill-buffer-hook'."
   (when (eq major-mode 'term-mode)
     ;; Quit the current subjob
@@ -330,11 +323,12 @@ yet."
     (when (term-check-proc (current-buffer))
       ;; Quit sub-process.
       (term-quit-subjob))
-    (dotfairy--ssh-info "remove %s from server groups." (buffer-name (current-buffer)))
-    (dotfairy--remove-buffer-name-from-groups (buffer-name (current-buffer)))
-    (switch-to-buffer "*scratch*")))
+    (ssh-manager--info "removed %s from server groups." (buffer-name (current-buffer)))
+    (ssh-manager--remove-buffer-name-from-groups (buffer-name (current-buffer)))
+    ;; (switch-to-buffer "*scratch*")
+    ))
 
-(defun dotfairy--send-cmd-to-buffer (&optional buffer string)
+(defun ssh-manager--send-cmd-to-buffer (&optional buffer string)
   "Send STRING to a shell process associated with BUFFER.
 By default, BUFFER is \"*terminal*\" and STRING is empty."
   (let ((process (get-buffer-process (or buffer "*terminal*"))))
@@ -348,34 +342,31 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
                  (term-send-string process input)
                  (term-send-input))))))))
 
-(defun dotfairy--filter-ssh-session ()
+(defun ssh-manager--filter-ssh-session ()
   "filter ssh session name list."
   (let ((lst '()))
-    (dolist (server (->> (dotfairy-ssh-session)
-                         (dotfairy-ssh-session-servers)))
+    (dolist (server (->> (ssh-manager-session)
+                         (ssh-manager-session-servers)))
       (setq lst (append lst (list (plist-get server :session-name)))))
     lst))
 
-(defun dotfairy/ssh-server-switch-to (session)
+(defun ssh-manager-switch-to-server (session)
   "Select ssh server to connect."
   (interactive (list (completing-read "Select server to connect: "
-                                      (dotfairy--filter-ssh-session)
-                                      )))
-  (dolist (server (->> (dotfairy-ssh-session)
-                       (dotfairy-ssh-session-servers)))
+                                      (ssh-manager--filter-ssh-session))))
+  (dolist (server (->> (ssh-manager-session)
+                       (ssh-manager-session-servers)))
     (if (equal (plist-get server :session-name) session)
-        (dotfairy-connect-ssh server)
-      )))
+        (ssh-manager-connect-ssh server))))
 
 
-(defun dotfairy--read-session-config-from-minibuffer (kind &optional ssh-session-config)
+(defun ssh-manager--read-session-config-from-minibuffer (kind &optional ssh-session-config)
   "Read session config from minibuffer."
   (let* ((ssh-session '())
          (session-name (read-string "Session Name: " (if (not (equal ssh-session-config nil))
-                                                         (plist-get ssh-session-config :session-name))
-                                    )))
+                                                         (plist-get ssh-session-config :session-name)))))
     (if (string-empty-p session-name)
-        (dotfairy--ssh-error "session name cannot empty.")
+        (ssh-manager--error "session name cannot empty.")
       (setq ssh-session (plist-put ssh-session :session-name session-name))
       (setq ssh-session (plist-put ssh-session :kind kind))
       (if (string= kind "proxy")
@@ -391,8 +382,7 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
                                                                    proxy-port)))
             (setq ssh-session (plist-put ssh-session :proxy-user (if (string-empty-p proxy-user)
                                                                      "root"
-                                                                   proxy-user)))
-            ))
+                                                                   proxy-user)))))
       (let* ((remote-host (read-string "Remote hostname: " (if (not (equal ssh-session-config nil))
                                                                (plist-get ssh-session-config :remote-host))))
              (remote-port (read-string "Remote hostport(22): " (if (not (equal ssh-session-config nil))
@@ -400,7 +390,7 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
              (remote-user (read-string "Remote username(root): " (if (not (equal ssh-session-config nil))
                                                                      (plist-get ssh-session-config :remote-user))))
              (remote-password (read-passwd "Remote password: "))
-             (totp-key (read-string "2FA(TOTP) key: " (if (not (equal ssh-session-config nil))
+             (totp-key (read-passwd "2FA(TOTP) key: " (if (not (equal ssh-session-config nil))
                                                           (plist-get ssh-session-config :totp-key))))
              (totp-message (read-string "2FA(TOTP) message: " (if (not (equal ssh-session-config nil))
                                                                   (plist-get ssh-session-config :totp-message)))))
@@ -414,95 +404,94 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
         (setq ssh-session (plist-put ssh-session :remote-password (if (string-empty-p remote-password)
                                                                       (let ((passwd (plist-get ssh-session-config :remote-password)))
                                                                         (if (string-empty-p passwd)
-                                                                            (dotfairy--ssh-warn "remote connect password is empty.")
+                                                                            (ssh-manager--warn "remote connect password is empty.")
                                                                           passwd))
                                                                     remote-password)))
         (setq ssh-session (plist-put ssh-session :totp-key totp-key))
-        (setq ssh-session (plist-put ssh-session :totp-message totp-message))
-        ))
-    ssh-session)
-  )
+        (setq ssh-session (plist-put ssh-session :totp-message totp-message))))
+    ssh-session))
 
-(defun dotfairy/create-ssh-remote (kind)
+(defun ssh-manager-create-ssh-remote (kind)
   "docstring"
   (interactive (list (completing-read "Select connect style: " '(proxy direct))))
-  (let* ((ssh-session (dotfairy--read-session-config-from-minibuffer kind)))
+  (let* ((ssh-session (ssh-manager--read-session-config-from-minibuffer kind)))
     (cl-pushnew ssh-session
-                (dotfairy-ssh-session-servers (dotfairy-ssh-session)) :test 'equal)
-    (dotfairy--ssh-persist-session (dotfairy-ssh-session))
+                (ssh-manager-session-servers (ssh-manager-session)) :test 'equal)
+    (ssh-manager--persist-session (ssh-manager-session))
     (cond ((string= (plist-get ssh-session :kind) "proxy")
            (if (or (string-empty-p (plist-get ssh-session :proxy-host))
                    (string-empty-p (plist-get ssh-session :remote-host)))
-               (dotfairy--ssh-error "<Proxy host> and <Remote host> must be set. please check its.")
-             (dotfairy-connect-ssh ssh-session)))
+               (ssh-manager--error "<Proxy host> and <Remote host> must be set. please check its.")
+             (ssh-manager-connect-ssh ssh-session)))
           ((string= (plist-get ssh-session :kind) "direct")
            (if (string-empty-p (plist-get ssh-session :remote-host))
-               (dotfairy--ssh-error "<Remote host> must be set. it's cannot empty.")
-             (dotfairy-connect-ssh ssh-session)))))
-  )
+               (ssh-manager--error "<Remote host> must be set. it's cannot empty.")
+             (ssh-manager-connect-ssh ssh-session))))))
 
 
-(defun dotfairy/edit-ssh-session-config (session)
+(defun ssh-manager-edit-ssh-session-config (session)
   "Edit ssh session config."
   (interactive (list (completing-read "Select server to edit: "
-                                      (dotfairy--filter-ssh-session)
-                                      )))
+                                      (ssh-manager--filter-ssh-session))))
 
-  (dolist (server (->> (dotfairy-ssh-session)
-                       (dotfairy-ssh-session-servers)))
+  (dolist (server (->> (ssh-manager-session)
+                       (ssh-manager-session-servers)))
     (if (string= session (plist-get server :session-name))
-        (let* ((let-sessions (dotfairy-ssh-session)))
-          (cl-pushnew (dotfairy--read-session-config-from-minibuffer (completing-read "Select connect style: " '(proxy direct))
-                                                                     server)
-                      (dotfairy-ssh-session-servers (dotfairy-ssh-session)) :test 'equal)
-          (setf (dotfairy-ssh-session-servers let-sessions)
-                (-remove-item server (dotfairy-ssh-session-servers let-sessions)))
-          )
-      ))
-  )
+        (let* ((let-sessions (ssh-manager-session)))
+          (cl-pushnew (ssh-manager--read-session-config-from-minibuffer (completing-read "Select connect style: " '(proxy direct))
+                                                                        server)
+                      (ssh-manager-session-servers (ssh-manager-session)) :test 'equal)
+          (setf (ssh-manager-session-servers let-sessions)
+                (-remove-item server (ssh-manager-session-servers let-sessions)))))))
 
-(defun dotfairy/remove-ssh-server (session)
+(defun ssh-manager-remove-ssh-server (session)
   "Remove session from the list of servers."
   (interactive (list (completing-read "Select server to connect: "
-                                      (dotfairy--filter-ssh-session)
-                                      )))
-  (dolist (server (->> (dotfairy-ssh-session)
-                       (dotfairy-ssh-session-servers)))
+                                      (ssh-manager--filter-ssh-session))))
+  (dolist (server (->> (ssh-manager-session)
+                       (ssh-manager-session-servers)))
     (if (string= session (plist-get server :session-name))
-        (let* ((let-sessions (dotfairy-ssh-session)))
-          (setf (dotfairy-ssh-session-servers let-sessions)
-                (-remove-item server (dotfairy-ssh-session-servers let-sessions)))
-          (dotfairy--ssh-persist-session (dotfairy-ssh-session))))))
+        (let* ((let-sessions (ssh-manager-session)))
+          (setf (ssh-manager-session-servers let-sessions)
+                (-remove-item server (ssh-manager-session-servers let-sessions)))
+          (ssh-manager--persist-session (ssh-manager-session))))))
 
 
-(defun install-ssh-manager-tools ()
+(defun ssh-manager-install-tools ()
   "Install SSH manager tools"
   (interactive)
   (if (not (executable-find "sshpass"))
-      (dotfairy-exec-process "sh" "-c" (concat
-                                        "rm -rf /tmp/sshpass &&"
-                                        " git"
-                                        " clone"
-                                        " https://github.com/dora38/sshpass"
-                                        " /tmp/sshpass"
-                                        " &&"
-                                        " cd /tmp/sshpass"
-                                        " &&"
-                                        " ./bootstrap"
-                                        " &&"
-                                        " ./configure --prefix=/usr/local "
-                                        "&&"
-                                        " make install; cd -")))
+      (ssh-manager-exec-process "sh" "-c" (concat
+                                           "rm -rf /tmp/sshpass &&"
+                                           " git"
+                                           " clone"
+                                           " https://github.com/dora38/sshpass"
+                                           " /tmp/sshpass"
+                                           " &&"
+                                           " cd /tmp/sshpass"
+                                           " &&"
+                                           " ./bootstrap"
+                                           " &&"
+                                           " ./configure --prefix=/usr/local "
+                                           "&&"
+                                           " make install; cd -")))
   (if (not (executable-find "oathtool"))
-      (dotfairy--ssh-info "your need install oathtool if used 2FA."))
-  (dotfairy--ssh-info "installed."))
+      (ssh-manager--info "your need install oathtool if used 2FA."))
+  (ssh-manager--info "installed."))
 
-(defcustom dotfairy-remote-dir-or-files nil
-  "Path to dotfairy (or compatible) executable."
-  :type '()
-  :group 'dotfairy)
+;; ssh connect session
+(cl-defstruct ssh-manager-remote-history
+  ;; remote  dir or file history.
+  folders
+  (metadata (make-hash-table :test 'equal)))
 
-(defun dotfairy--upload-or-download-files-to-remote-host (server method)
+(defvar ssh-manager--remote-history nil
+  "Contain the `ssh-manager-session-groups' for the current Emacs instance.")
+
+(defun ssh-manager-remote-history ()
+  (or ssh-manager--remote-history (setq ssh-manager--remote-history (make-ssh-manager-remote-history))))
+
+(defun ssh-manager--upload-or-download-files-to-remote-host (server method)
   (let ((argv '())
         (password (plist-get server :remote-password))
         (totp-key (if (string-empty-p (plist-get server :totp-key))
@@ -510,8 +499,7 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
                     (with-temp-buffer
                       (or (apply #'call-process "oathtool" nil t nil (list "--totp" "-b" (plist-get server :totp-key)))
                           "")
-                      (string-trim (buffer-string)))
-                    ))
+                      (string-trim (buffer-string)))))
         (totp-message (plist-get server :totp-message))
         (proxy-host (plist-get server :proxy-host))
         (proxy-port (plist-get server :proxy-port))
@@ -527,7 +515,7 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
       (if (not (string-empty-p totp-message))
           (setq argv (append argv `("-O" ,totp-message))))
       (if (string-empty-p host)
-          (dotfairy--ssh-error "SSH hostname must be set. it's cannot empty.")
+          (ssh-manager--error "SSH hostname must be set. it's cannot empty.")
         (if (executable-find "scp")
             (progn
               (setq argv (append argv `("scp" "-r")))
@@ -539,43 +527,68 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
                   (setq argv (append argv `("-P" ,port))))
               (if (and (not (string-empty-p host))
                        (not (string-empty-p user)))
-                  (let* ((remote-dir-or-file (completing-read "Remote Dir or file: " dotfairy-remote-dir-or-files
-                                                              nil nil (format "/home/%s" user)))
+                  (let* ((remote-dir-or-file (completing-read (format "Remote dir or file (/home/%s): " user)
+                                                              (ssh-manager-remote-history-folders (ssh-manager-remote-history))
+                                                              nil nil))
                          (files (dired-get-marked-files)))
-                    (push remote-dir-or-file dotfairy-remote-dir-or-files)
+                    (if (string-empty-p remote-dir-or-file)
+                        (setq remote-dir-or-file (format "/home/%s" user)))
+                    (cl-pushnew remote-dir-or-file (ssh-manager-remote-history-folders (ssh-manager-remote-history)) :test 'equal)
                     (cond ((string= method "upload")
                            (if (= (length files) 0)
                                (when-let ((ask (downcase (read-string "upload current buffer file(y-or-n):"))))
                                  (if (or (string= ask "y")
                                          (string= ask "yes"))
-                                     (setq argv (append argv `(,(buffer-file-name) ,(format "%s@%s:%s" user host remote-dir-or-file))))
-                                   ))
+                                     (setq argv (append argv `(,(buffer-file-name) ,(format "%s@%s:%s" user host remote-dir-or-file))))))
                              (if (not (string-empty-p remote-dir-or-file))
-                                 (setq argv (append argv `(,@files ,(format "%s@%s:%s" user host remote-dir-or-file)))))
-                             ))
+                                 (setq argv (append argv `(,@files ,(format "%s@%s:%s" user host remote-dir-or-file)))))))
                           ((string= method "download")
-                           (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,(dired-current-directory))))))
-                    ))))))))
+                           (if (derived-mode-p 'dired-mode)
+                               (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,(dired-current-directory))))
+                             (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,default-directory))))))))))))))
 
-(defun dotfairy/upload-or-download-files-to-remote-host (method)
+;;;###autoload
+(defun ssh-manager-exec-process (command &rest args)
+  "Execute COMMAND with ARGS synchronously.
+Unlike `ssh-manager-call-process', this pipes output to `standard-output' on the fly to
+simulate 'exec' in the shell, so batch scripts could run external programs
+synchronously without sacrificing their output.
+Warning: freezes indefinitely on any stdin prompt."
+  ;; FIXME Is there any way to handle prompts?
+  (with-temp-buffer
+    (cons (let ((process
+                 (make-process :name "ssh-manager"
+                               :buffer (current-buffer)
+                               :command (cons command (remq nil args))
+                               :connection-type 'pipe))
+                done-p)
+            (set-process-filter
+             process (lambda (_process output)
+                       (princ output (current-buffer))
+                       (princ output)))
+            (set-process-sentinel
+             process (lambda (process _event)
+                       (when (memq (process-status process) '(exit stop))
+                         (setq done-p t))))
+            (while (not done-p)
+              (sit-for 0.1))
+            (process-exit-status process))
+          (string-trim (buffer-string)))))
+
+(defun ssh-manager-upload-or-download-files-to-remote-host (method)
   "SCP files send to remote host"
   (interactive (list (completing-read "Select upload or download: "
-                                      '(upload download)
-                                      )))
+                                      '(upload download))))
   (let ((session-name (completing-read "Select server to connect: "
-                                       (dotfairy--filter-ssh-session)
-                                       )))
-    (dolist (session (->> (dotfairy-ssh-session)
-                          (dotfairy-ssh-session-servers)))
+                                       (ssh-manager--filter-ssh-session))))
+    (dolist (session (->> (ssh-manager-session)
+                          (ssh-manager-session-servers)))
       (if (string= session-name (plist-get session :session-name))
-          (if-let ((argv (dotfairy--upload-or-download-files-to-remote-host session method)))
-              (apply 'dotfairy-exec-process "sshpass" argv)
-            )))))
-
-(with-eval-after-load 'dired
-  (progn
-    (define-key dired-mode-map (kbd "C-c C-<return>") 'dotfairy/upload-or-download-files-to-remote-host)
-    ))
+          (if-let ((argv (ssh-manager--upload-or-download-files-to-remote-host session method)))
+              (apply 'ssh-manager-exec-process "sshpass" argv))))
+    (if (and (string= method "download")
+             (derived-mode-p 'dired-mode))
+        (revert-buffer))))
 
 (provide 'init-ssh)
 ;;; init-ssh.el ends here

@@ -106,15 +106,12 @@
              (executable-find "libtool")
              (executable-find "make"))
     (use-package vterm
-      :bind (:map vterm-mode-map
-             ([f9] . shell-pop))
       :init
-      (setq vterm-always-compile-module t)
-      ))
-  )
+      (setq vterm-always-compile-module t))))
 ;; Shell Pop
 (use-package shell-pop
-  :bind ([f9] . shell-pop)
+  :bind (("C-`" . shell-pop)
+         ([f9] . shell-pop))
   :init (setq shell-pop-window-size 30
               shell-pop-shell-type
               (cond ((fboundp 'vterm) '("vterm" "*vterm*" #'vterm))
