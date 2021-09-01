@@ -586,9 +586,11 @@ Warning: freezes indefinitely on any stdin prompt."
       (if (string= session-name (plist-get session :session-name))
           (if-let ((argv (ssh-manager--upload-or-download-files-to-remote-host session method)))
               (apply 'ssh-manager-exec-process "sshpass" argv))))
-    (if (and (string= method "download")
-             (derived-mode-p 'dired-mode))
-        (revert-buffer))))
+    (if (derived-mode-p 'dired-mode)
+        (cond ((string= method "download")
+               (revert-buffer))
+              ((string= method "upload")
+               (dired-unmark-all-marks))))))
 
 (provide 'init-ssh)
 ;;; init-ssh.el ends here
