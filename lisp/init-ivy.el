@@ -32,7 +32,6 @@
    ("C-r"   . swiper-isearch-backward)
    :map ivy-minibuffer-map
    ("C-w" . ivy-yank-word)
-   ("C-`" . ivy-avy)
 
    :map counsel-find-file-map
    ("C-h" . counsel-up-directory)

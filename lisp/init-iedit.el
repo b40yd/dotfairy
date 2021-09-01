@@ -439,7 +439,7 @@
 (use-package hideshow
   :diminish hs-minor-mode
   :bind (:map hs-minor-mode-map
-         ("C-c `'" . hs-toggle-hiding)))
+         ("C-c ~" . hs-toggle-hiding)))
 
 ;; Flexible text folding
 (use-package origami
@@ -460,7 +460,7 @@
      ("n" origami-next-fold "next fold")
      ("p" origami-previous-fold "previous fold"))))
   :bind (:map origami-mode-map
-         ("C-`" . origami-hydra/body))
+         ("C-c `" . origami-hydra/body))
   :hook (prog-mode . origami-mode)
   :init (setq origami-show-fold-header t)
   :config (face-spec-reset-face 'origami-fold-header-face)
