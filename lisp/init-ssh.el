@@ -491,7 +491,8 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
 (defun ssh-manager-remote-history ()
   (or ssh-manager--remote-history (setq ssh-manager--remote-history (make-ssh-manager-remote-history))))
 
-(defun ssh-manager--upload-or-download-files-to-remote-host (server method)
+
+(defun ssh-manager--use-scp-upload-or-download-files (server method)
   (let ((argv '())
         (password (plist-get server :remote-password))
         (totp-key (if (string-empty-p (plist-get server :totp-key))
@@ -548,6 +549,10 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
                              (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,default-directory))))))))))))))
 
 ;;;###autoload
+(defun ssh-manager--replace-in-string (what with in)
+  (replace-regexp-in-string (regexp-quote what) with in nil 'literal))
+
+;;;###autoload
 (defun ssh-manager-exec-process (command &rest args)
   "Execute COMMAND with ARGS synchronously.
 Unlike `ssh-manager-call-process', this pipes output to `standard-output' on the fly to
@@ -575,22 +580,81 @@ Warning: freezes indefinitely on any stdin prompt."
             (process-exit-status process))
           (string-trim (buffer-string)))))
 
+
+(defun ssh-manager--use-rsync-upload-or-download-files (server method)
+  (progn
+    (let ((argv '())
+          (password (plist-get server :remote-password))
+          (totp-key (if (string-empty-p (plist-get server :totp-key))
+                        ""
+                      (with-temp-buffer
+                        (or (apply #'call-process "oathtool" nil t nil (list "--totp" "-b" (plist-get server :totp-key)))
+                            "")
+                        (string-trim (buffer-string)))))
+          (totp-message (plist-get server :totp-message))
+          (proxy-host (plist-get server :proxy-host))
+          (proxy-port (plist-get server :proxy-port))
+          (proxy-user (plist-get server :proxy-user))
+          (host (plist-get server :remote-host))
+          (port (plist-get server :remote-port))
+          (user (plist-get server :remote-user)))
+      (if (not (string-empty-p password))
+          (setq argv (append argv `("sshpass" "-p" ,password))))
+      (if (not (string-empty-p totp-key))
+          (setq argv (append argv `("-o" ,totp-key))))
+      (if (not (string-empty-p totp-message))
+          (setq argv (append argv `("-O" ,(format "'%s'" totp-message)))))
+      (if (and (not (string= proxy-host nil))
+               (not (string= proxy-user nil))
+               (not (string= proxy-port nil)))
+          (setq argv (append argv `("ssh" "-J" ,(format "%s@%s:%s" proxy-user proxy-host proxy-port))))
+        (setq argv (append argv `("ssh"))))
+      (if (not (string-empty-p port))
+          (setq argv (append argv `("-p" ,port))))
+      (setq argv (list "rsync" "-r" "-P" (concat "--rsh=\"" (mapconcat 'identity argv " ") "\"")))
+      (if (and (not (string-empty-p host))
+               (not (string-empty-p user)))
+          (let* ((remote-dir-or-file (completing-read (format "Remote dir or file (/home/%s): " user)
+                                                      (ssh-manager-remote-history-folders (ssh-manager-remote-history))
+                                                      nil nil))
+                 (files (dired-get-marked-files)))
+            (if (string-empty-p remote-dir-or-file)
+                (setq remote-dir-or-file (format "/home/%s" user)))
+            (cl-pushnew remote-dir-or-file (ssh-manager-remote-history-folders (ssh-manager-remote-history)) :test 'equal)
+            (cond ((string= method "upload")
+                   (if (= (length files) 0)
+                       (when-let ((ask (downcase (read-string "upload current buffer file(y-or-n):"))))
+                         (if (or (string= ask "y")
+                                 (string= ask "yes"))
+                             (setq argv (append argv `(,(buffer-file-name) ,(format "%s@%s:%s" user host remote-dir-or-file))))))
+                     (if (not (string-empty-p remote-dir-or-file))
+                         (setq argv (append argv `(,@files ,(format "%s@%s:%s" user host remote-dir-or-file)))))))
+                  ((string= method "download")
+                   (if (derived-mode-p 'dired-mode)
+                       (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,(dired-current-directory))))
+                     (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,default-directory)))))))))))
+
+
 (defun ssh-manager-upload-or-download-files-to-remote-host (method)
   "SCP files send to remote host"
   (interactive (list (completing-read "Select upload or download: "
                                       '(upload download))))
-  (let ((session-name (completing-read "Select server to connect: "
+  (let ((cmd nil)
+        (session-name (completing-read "Select server to connect: "
                                        (ssh-manager--filter-ssh-session))))
     (dolist (session (->> (ssh-manager-session)
                           (ssh-manager-session-servers)))
       (if (string= session-name (plist-get session :session-name))
-          (if-let ((argv (ssh-manager--upload-or-download-files-to-remote-host session method)))
-              (apply 'ssh-manager-exec-process "sshpass" argv))))
+          (cond ((executable-find "rsync")
+                 (if-let ((argv (ssh-manager--use-rsync-upload-or-download-files session method)))
+                     (ssh-manager-exec-process "sh" "-c" (mapconcat 'identity argv " "))))
+                ((executable-find "scp")
+                 (if-let ((argv (ssh-manager--use-scp-upload-or-download-files session method)))
+                     (apply 'ssh-manager-exec-process "sshpass" argv))))))
     (if (derived-mode-p 'dired-mode)
         (cond ((string= method "download")
                (revert-buffer))
               ((string= method "upload")
                (dired-unmark-all-marks))))))
-
 (provide 'init-ssh)
 ;;; init-ssh.el ends here
