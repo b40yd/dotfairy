@@ -281,8 +281,7 @@
     (org-roam-db-autosync-mode)
     (require 'org-roam-protocol)
     (unless (file-exists-p org-roam-directory)
-      (make-directory org-roam-directory))
-    )
+      (make-directory org-roam-directory)))
 
   ;; Preview
   (use-package org-preview-html

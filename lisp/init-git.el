@@ -69,17 +69,20 @@
   (git-timemachine-minibuffer-author-face ((t (:inherit success))))
   (git-timemachine-minibuffer-detail-face ((t (:inherit warning))))
   :bind (:map vc-prefix-map
-              ("t" . git-timemachine))
-  :hook (before-revert . (lambda ()
-                           (when (bound-and-true-p git-timemachine-mode)
-                             (user-error "Cannot revert the timemachine buffer")))))
+         ("t" . git-timemachine))
+  :hook ((git-timemachine-mode . (lambda ()
+                                   "Display different colors in mode-line."
+                                   (face-remap-add-relative 'mode-line 'custom-saved)))
+         (before-revert . (lambda ()
+                            (when (bound-and-true-p git-timemachine-mode)
+                              (user-error "Cannot revert the timemachine buffer"))))))
 
 ;; Pop up last commit information of current line
 (use-package git-messenger
   :bind (:map vc-prefix-map
-              ("p" . git-messenger:popup-message)
-              :map git-messenger-map
-              ("m" . git-messenger:copy-message))
+         ("p" . git-messenger:popup-message)
+         :map git-messenger-map
+         ("m" . git-messenger:copy-message))
   :init (setq git-messenger:show-detail t
               git-messenger:use-magit-popup t)
   :config
