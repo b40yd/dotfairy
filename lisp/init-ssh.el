@@ -209,16 +209,25 @@ yet."
 (defun ssh-manager--init-term-mode (term-name)
   "Init term mode"
   (progn
+    (setq term-setup-hook '(lambda ()
+                             (setq keyboard-translate-table "\C-@\C-a\C-b\C-d\C-f\C-g\C-?")))
     (define-key term-raw-map (kbd "M-x") 'execute-extended-command)
     (define-key term-raw-map (kbd "C-c C-b") 'switch-to-buffer)
     (define-key term-raw-map (kbd "C-c C-a") 'ssh-manager-add-this-ssh-session-to-groups)
     (define-key term-raw-map (kbd "C-c C-r") 'ssh-manager-remove-this-ssh-session-from-groups)
     (define-key term-raw-map (kbd "C-c M-a") 'ssh-manager-show-ssh-session-groups)
+    (define-key term-raw-map (kbd "C-y") 'term-paste)
+    (define-key term-raw-map (kbd "C-s") 'isearch-forward)
+    (define-key term-raw-map (kbd "C-r") 'isearch-backward)
     (term-mode)
+    (normal-erase-is-backspace-mode)
     (term-char-mode)
+
     (ssh-manager--term-handle-close)
     (add-hook 'kill-buffer-hook 'ssh-managerterm-kill-buffer-hook)
-    (switch-to-buffer (format "*%s*" term-name))))
+    (switch-to-buffer (format "*%s*" term-name))
+    ;; use backspace delete
+    (term-send-raw-string "stty erase '^?'\n")))
 
 ;;
 ;; sshpass for MacOS
@@ -313,7 +322,6 @@ yet."
                                         nil
                                         argv))
                      (ssh-manager--init-term-mode term-name)))))))))
-
 
 (defun ssh-managerterm-kill-buffer-hook ()
   "Function that hook `kill-buffer-hook'."
@@ -537,10 +545,8 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
                     (cl-pushnew remote-dir-or-file (ssh-manager-remote-history-folders (ssh-manager-remote-history)) :test 'equal)
                     (cond ((string= method "upload")
                            (if (= (length files) 0)
-                               (when-let ((ask (downcase (read-string "upload current buffer file(y-or-n):"))))
-                                 (if (or (string= ask "y")
-                                         (string= ask "yes"))
-                                     (setq argv (append argv `(,(buffer-file-name) ,(format "%s@%s:%s" user host remote-dir-or-file))))))
+                               (when-let ((ask (y-or-n-p "upload current buffer file? ")))
+                                 (setq argv (append argv `(,(buffer-file-name) ,(format "%s@%s:%s" user host remote-dir-or-file)))))
                              (if (not (string-empty-p remote-dir-or-file))
                                  (setq argv (append argv `(,@files ,(format "%s@%s:%s" user host remote-dir-or-file)))))))
                           ((string= method "download")
@@ -548,7 +554,6 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
                                (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,(dired-current-directory))))
                              (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,default-directory))))))))))))))
 
-;;;###autoload
 (defun ssh-manager--replace-in-string (what with in)
   (replace-regexp-in-string (regexp-quote what) with in nil 'literal))
 
@@ -579,7 +584,6 @@ Warning: freezes indefinitely on any stdin prompt."
               (sit-for 0.1))
             (process-exit-status process))
           (string-trim (buffer-string)))))
-
 
 (defun ssh-manager--use-rsync-upload-or-download-files (server method)
   (progn
@@ -623,10 +627,8 @@ Warning: freezes indefinitely on any stdin prompt."
             (cl-pushnew remote-dir-or-file (ssh-manager-remote-history-folders (ssh-manager-remote-history)) :test 'equal)
             (cond ((string= method "upload")
                    (if (= (length files) 0)
-                       (when-let ((ask (downcase (read-string "upload current buffer file(y-or-n):"))))
-                         (if (or (string= ask "y")
-                                 (string= ask "yes"))
-                             (setq argv (append argv `(,(buffer-file-name) ,(format "%s@%s:%s" user host remote-dir-or-file))))))
+                       (when-let ((ask (y-or-n-p "upload current buffer file? ")))
+                         (setq argv (append argv `(,(buffer-file-name) ,(format "%s@%s:%s" user host remote-dir-or-file)))))
                      (if (not (string-empty-p remote-dir-or-file))
                          (setq argv (append argv `(,@files ,(format "%s@%s:%s" user host remote-dir-or-file)))))))
                   ((string= method "download")
