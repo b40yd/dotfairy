@@ -1,9 +1,12 @@
-;;; init-ssh.el ---                                   -*- lexical-binding: t; -*-
+;;; ssh-manager.el --- A SSH manager remote servers  tools -*- lexical-binding: t -*-
 
 ;; Copyright © 2021, 7ym0n, all rights reserved.
 
 ;; Author: 7ym0n <bb.qnyd@gmail.com>
-;; Keywords:
+;; Keywords: ssh, tools
+;; URL: https://github.com/7ym0n/dotfairy-ssh-manager
+;; Version: 0.1.0
+;; Package-Requires: ((emacs "27.1") (dash "2.19.0") (f "0.20.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -19,11 +22,11 @@
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-
 ;;
+;; A ssh session manager and files upload or download tools for Emacs.
+;; It's like `xshell', `mobaxterm' or other tools same work.
 
 ;;; Code:
-
 (require 'cl-generic)
 (require 'cl-lib)
 (require 'dash)
@@ -262,67 +265,33 @@ yet."
          (index 1))
     (while (buffer-live-p (get-buffer (format "*%s<%s>*" session-name index)))
       (setq index (1+ index)))
-    (cond ((string= kind "proxy")
-           (if (or (string-empty-p host)
-                   (string-empty-p proxy-host))
-               (ssh-manager--error "<Proxy host> and <Remote host> must be set. please check its.")
-             (progn
-               (let* ((argv '())
-                      (term-argv '())
-                      (term-name (format "%s<%s>" session-name index)))
-                 (if (not (string-empty-p totp-key))
-                     (setq argv (append argv `("-o" ,totp-key))))
-                 (if (not (string-empty-p totp-message))
-                     (setq argv (append argv `("-O" ,totp-message))))
-                 (if (>= (length argv) 0)
-                     (let ((remote-server (format "%s@%s" username host))
-                           (proxy-server (format "%s@%s:%s" proxy-user proxy-host proxy-port)))
-                       (setq term-argv
-                             `("-p"
-                               ,password
-                               ,@argv
-                               "ssh"
-                               ,remote-server
-                               "-p"
-                               ,port
-                               "-J"
-                               ,proxy-server)))
-                   (setq term-argv
-                         (list "-p"
-                               password
-                               "ssh"
-                               (format "%s@%s" username host)
-                               "-p"
-                               port
-                               "-J"
-                               (format "%s@%s:%s" proxy-user proxy-host proxy-port))))
-                 (set-buffer (apply 'make-term term-name
-                                    "sshpass"
-                                    nil
-                                    term-argv))
-                 (ssh-manager--init-term-mode term-name)))))
-          ((string= kind "direct")
-           (let* ((argv '())
-                  (term-name (format "%s<%s>" session-name index)))
-             (if (not (string-empty-p password))
-                 (setq argv (append argv `("-p" ,password))))
-             (if (not (string-empty-p totp-key))
-                 (setq argv (append argv `("-o" ,totp-key))))
-             (if (not (string-empty-p totp-message))
-                 (setq argv (append argv `("-O" ,totp-message))))
-             (if (string-empty-p host)
-                 (ssh-manager--error "SSH hostname must be set. it's cannot empty.")
-               (setq argv (append argv `("ssh" ,host)))
-               (if (not (string-empty-p username))
-                   (setq argv (append argv `("-l" ,username))))
-               (if (not (string-empty-p port))
-                   (progn
-                     (setq argv (append argv `("-p" ,port)))
-                     (set-buffer (apply 'make-term term-name
-                                        "sshpass"
-                                        nil
-                                        argv))
-                     (ssh-manager--init-term-mode term-name)))))))))
+    (let* ((argv '())
+           (term-name (format "%s<%s>" session-name index)))
+      (if (not (string-empty-p password))
+          (setq argv (append argv `("-p" ,password))))
+      (if (not (string-empty-p totp-key))
+          (setq argv (append argv `("-o" ,totp-key))))
+      (if (not (string-empty-p totp-message))
+          (setq argv (append argv `("-O" ,totp-message))))
+      (setq argv (append argv `("ssh" "-o" "StrictHostKeychecking=no")))
+      (if (and (not (string-empty-p username))
+               (not (string-empty-p host)))
+          (setq argv (append argv `(,(format "%s@%s" username host))))
+        (ssh-manager--error "SSH hostname and username must be set. it's cannot empty."))
+      (if (not (string-empty-p port))
+          (setq argv (append argv `("-p" ,port))))
+      (if (and (string= kind "proxy")
+               (not (string= proxy-host nil))
+               (not (string= proxy-user nil))
+               (not (string= proxy-port nil)))
+          (setq argv (append argv `("-J" ,(format "%s@%s:%s" proxy-user proxy-host proxy-port))))
+        (ssh-manager--error "<Proxy host> and <Remote host> must be set. please check its."))
+      (ssh-manager--info (mapconcat 'identity `("sshpass" ,@argv) " "))
+      (set-buffer (apply 'make-term term-name
+                         "sshpass"
+                         nil
+                         argv))
+      (ssh-manager--init-term-mode term-name))))
 
 (defun ssh-managerterm-kill-buffer-hook ()
   "Function that hook `kill-buffer-hook'."
@@ -421,7 +390,7 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
     ssh-session))
 
 (defun ssh-manager-create-ssh-remote (kind)
-  "docstring"
+  "Create and connect SSH session."
   (interactive (list (completing-read "Select connect style: " '(proxy direct))))
   (let* ((ssh-session (ssh-manager--read-session-config-from-minibuffer kind)))
     (cl-pushnew ssh-session
@@ -497,6 +466,7 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
   (ssh-manager--info "installed."))
 
 (defun ssh-manager--use-scp-upload-or-download-files (server method)
+  "Use scp command upload or download files"
   (let ((argv '())
         (password (plist-get server :remote-password))
         (totp-key (if (string-empty-p (plist-get server :totp-key))
@@ -523,7 +493,7 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
           (ssh-manager--error "SSH hostname must be set. it's cannot empty.")
         (if (executable-find "scp")
             (progn
-              (setq argv (append argv `("scp" "-r")))
+              (setq argv (append argv `("scp" "-r" "-o" "StrictHostKeychecking=no")))
               (if (and (not (string= proxy-host nil))
                        (not (string= proxy-user nil))
                        (not (string= proxy-port nil)))
@@ -532,24 +502,27 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
                   (setq argv (append argv `("-P" ,port))))
               (if (and (not (string-empty-p host))
                        (not (string-empty-p user)))
-                  (let* ((remote-dir-or-file (completing-read (format "Remote dir or file (/home/%s): " user)
+
+                  (let* ((remote-dir-or-file (completing-read (format "Set remote file path (/home/%s): " user)
                                                               (ssh-manager-session-folders (ssh-manager-session))
                                                               nil nil))
-                         (files (dired-get-marked-files)))
+                         (target nil))
                     (if (string-empty-p remote-dir-or-file)
                         (setq remote-dir-or-file (format "/home/%s" user)))
                     (cl-pushnew remote-dir-or-file (ssh-manager-session-folders (ssh-manager-session)) :test 'equal)
                     (ssh-manager--persist-session (ssh-manager-session))
                     (cond ((string= method "upload")
-                           (if (= (length files) 0)
-                               (when-let ((ask (y-or-n-p "upload current buffer file? ")))
-                                 (setq argv (append argv `(,(buffer-file-name) ,(format "%s@%s:%s" user host remote-dir-or-file)))))
-                             (if (not (string-empty-p remote-dir-or-file))
-                                 (setq argv (append argv `(,@files ,(format "%s@%s:%s" user host remote-dir-or-file)))))))
+                           (if (derived-mode-p 'dired-mode)
+                               (setq argv (append argv `(,@(dired-get-marked-files) ,(format "%s@%s:%s" user host remote-dir-or-file))))
+                             (if-let ((ask (y-or-n-p "upload current buffer file? ")))
+                                 (setq target (buffer-file-name))
+                               (setq target (read-file-name "Set upload for files: " )))
+                             (setq argv (append argv `(,target ,(format "%s@%s:%s" user host remote-dir-or-file))))))
                           ((string= method "download")
                            (if (derived-mode-p 'dired-mode)
                                (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,(dired-current-directory))))
-                             (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,default-directory))))))))))))))
+                             (setq target (read-file-name "Set download to: "))
+                             (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,target))))))))))))))
 
 (defun ssh-manager--replace-in-string (what with in)
   (replace-regexp-in-string (regexp-quote what) with in nil 'literal))
@@ -583,6 +556,7 @@ Warning: freezes indefinitely on any stdin prompt."
           (string-trim (buffer-string)))))
 
 (defun ssh-manager--use-rsync-upload-or-download-files (server method)
+  "Use rsync command tool upload or download files."
   (progn
     (let ((argv '())
           (password (plist-get server :remote-password))
@@ -608,39 +582,39 @@ Warning: freezes indefinitely on any stdin prompt."
       (if (and (not (string= proxy-host nil))
                (not (string= proxy-user nil))
                (not (string= proxy-port nil)))
-          (setq argv (append argv `("ssh" "-J" ,(format "%s@%s:%s" proxy-user proxy-host proxy-port))))
-        (setq argv (append argv `("ssh"))))
+          (setq argv (append argv `("ssh" "-o" "'StrictHostKeychecking=no'" "-J" ,(format "%s@%s:%s" proxy-user proxy-host proxy-port))))
+        (setq argv (append argv `("ssh" "-o" "'StrictHostKeychecking=no'"))))
       (if (not (string-empty-p port))
           (setq argv (append argv `("-p" ,port))))
       (setq argv (list "rsync" "-r" "-P" (concat "--rsh=\"" (mapconcat 'identity argv " ") "\"")))
       (if (and (not (string-empty-p host))
                (not (string-empty-p user)))
-          (let* ((remote-dir-or-file (completing-read (format "Remote dir or file (/home/%s): " user)
+          (let* ((remote-dir-or-file (completing-read (format "Set remote file path (/home/%s): " user)
                                                       (ssh-manager-session-folders (ssh-manager-session))
                                                       nil nil))
-                 (files (dired-get-marked-files)))
+                 (target nil))
             (if (string-empty-p remote-dir-or-file)
                 (setq remote-dir-or-file (format "/home/%s" user)))
             (cl-pushnew remote-dir-or-file (ssh-manager-session-folders (ssh-manager-session)) :test 'equal)
             (ssh-manager--persist-session (ssh-manager-session))
             (cond ((string= method "upload")
-                   (if (= (length files) 0)
-                       (when-let ((ask (y-or-n-p "upload current buffer file? ")))
-                         (setq argv (append argv `(,(buffer-file-name) ,(format "%s@%s:%s" user host remote-dir-or-file)))))
-                     (if (not (string-empty-p remote-dir-or-file))
-                         (setq argv (append argv `(,@files ,(format "%s@%s:%s" user host remote-dir-or-file)))))))
+                   (if (derived-mode-p 'dired-mode)
+                       (setq argv (append argv `(,@(dired-get-marked-files) ,(format "%s@%s:%s" user host remote-dir-or-file))))
+                     (if-let ((ask (y-or-n-p "upload current buffer file? ")))
+                         (setq target (buffer-file-name))
+                       (setq target (read-file-name "Set upload for files: " )))
+                     (setq argv (append argv `(,target ,(format "%s@%s:%s" user host remote-dir-or-file))))))
                   ((string= method "download")
                    (if (derived-mode-p 'dired-mode)
                        (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,(dired-current-directory))))
-                     (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,default-directory)))))))))))
-
+                     (setq target (read-file-name "Set download to: "))
+                     (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,target)))))))))))
 
 (defun ssh-manager-upload-or-download-files-to-remote-host (method)
-  "SCP files send to remote host"
+  "SSH upload or download files."
   (interactive (list (completing-read "Select upload or download: "
                                       '(upload download))))
-  (let ((cmd nil)
-        (session-name (completing-read "Select server to connect: "
+  (let ((session-name (completing-read "Select connect to server: "
                                        (ssh-manager--filter-ssh-session))))
     (dolist (session (->> (ssh-manager-session)
                           (ssh-manager-session-servers)))
@@ -657,5 +631,5 @@ Warning: freezes indefinitely on any stdin prompt."
               ((string= method "upload")
                (dired-unmark-all-marks))))))
 
-(provide 'init-ssh)
-;;; init-ssh.el ends here
+(provide 'ssh-manager)
+;;; ssh-manager.el ends here
