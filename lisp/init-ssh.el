@@ -129,6 +129,7 @@
 (cl-defstruct ssh-manager-session
   ;; contains the folders that are part of the current session
   servers
+  folders
   (metadata (make-hash-table :test 'equal)))
 
 (defcustom ssh-manager-session-file (expand-file-name (locate-user-emacs-file ".ssh-manager-session-v1"))
@@ -184,7 +185,8 @@ yet."
 (defun ssh-manager--persist-session (session)
   "Persist SESSION to `ssh-manager-session-file'."
   (ssh-manager--persist ssh-manager-session-file (make-ssh-manager-session
-                                                  :servers (ssh-manager-session-servers session))))
+                                                  :servers (ssh-manager-session-servers session)
+                                                  :folders (ssh-manager-session-folders session))))
 (defun ssh-manager--load-default-session ()
   "Load default session."
   (setq ssh-manager--session (or (condition-case err
@@ -222,7 +224,6 @@ yet."
     (term-mode)
     (normal-erase-is-backspace-mode)
     (term-char-mode)
-
     (ssh-manager--term-handle-close)
     (add-hook 'kill-buffer-hook 'ssh-managerterm-kill-buffer-hook)
     (switch-to-buffer (format "*%s*" term-name))
@@ -464,6 +465,14 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
                 (-remove-item server (ssh-manager-session-servers let-sessions)))
           (ssh-manager--persist-session (ssh-manager-session))))))
 
+(defun ssh-manager-remove-history-file-from-ssh-server (history)
+  "Remove history file from the list of folders."
+  (interactive (list (completing-read "Select remove from folders: "
+                                      (ssh-manager-session-folders (ssh-manager-session)))))
+  (let* ((let-sessions (ssh-manager-session)))
+    (setf (ssh-manager-session-folders let-sessions)
+          (-remove-item history (ssh-manager-session-folders let-sessions)))
+    (ssh-manager--persist-session (ssh-manager-session))))
 
 (defun ssh-manager-install-tools ()
   "Install SSH manager tools"
@@ -486,19 +495,6 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
   (if (not (executable-find "oathtool"))
       (ssh-manager--info "your need install oathtool if used 2FA."))
   (ssh-manager--info "installed."))
-
-;; ssh connect session
-(cl-defstruct ssh-manager-remote-history
-  ;; remote  dir or file history.
-  folders
-  (metadata (make-hash-table :test 'equal)))
-
-(defvar ssh-manager--remote-history nil
-  "Contain the `ssh-manager-session-groups' for the current Emacs instance.")
-
-(defun ssh-manager-remote-history ()
-  (or ssh-manager--remote-history (setq ssh-manager--remote-history (make-ssh-manager-remote-history))))
-
 
 (defun ssh-manager--use-scp-upload-or-download-files (server method)
   (let ((argv '())
@@ -537,12 +533,13 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
               (if (and (not (string-empty-p host))
                        (not (string-empty-p user)))
                   (let* ((remote-dir-or-file (completing-read (format "Remote dir or file (/home/%s): " user)
-                                                              (ssh-manager-remote-history-folders (ssh-manager-remote-history))
+                                                              (ssh-manager-session-folders (ssh-manager-session))
                                                               nil nil))
                          (files (dired-get-marked-files)))
                     (if (string-empty-p remote-dir-or-file)
                         (setq remote-dir-or-file (format "/home/%s" user)))
-                    (cl-pushnew remote-dir-or-file (ssh-manager-remote-history-folders (ssh-manager-remote-history)) :test 'equal)
+                    (cl-pushnew remote-dir-or-file (ssh-manager-session-folders (ssh-manager-session)) :test 'equal)
+                    (ssh-manager--persist-session (ssh-manager-session))
                     (cond ((string= method "upload")
                            (if (= (length files) 0)
                                (when-let ((ask (y-or-n-p "upload current buffer file? ")))
@@ -619,12 +616,13 @@ Warning: freezes indefinitely on any stdin prompt."
       (if (and (not (string-empty-p host))
                (not (string-empty-p user)))
           (let* ((remote-dir-or-file (completing-read (format "Remote dir or file (/home/%s): " user)
-                                                      (ssh-manager-remote-history-folders (ssh-manager-remote-history))
+                                                      (ssh-manager-session-folders (ssh-manager-session))
                                                       nil nil))
                  (files (dired-get-marked-files)))
             (if (string-empty-p remote-dir-or-file)
                 (setq remote-dir-or-file (format "/home/%s" user)))
-            (cl-pushnew remote-dir-or-file (ssh-manager-remote-history-folders (ssh-manager-remote-history)) :test 'equal)
+            (cl-pushnew remote-dir-or-file (ssh-manager-session-folders (ssh-manager-session)) :test 'equal)
+            (ssh-manager--persist-session (ssh-manager-session))
             (cond ((string= method "upload")
                    (if (= (length files) 0)
                        (when-let ((ask (y-or-n-p "upload current buffer file? ")))
@@ -658,5 +656,6 @@ Warning: freezes indefinitely on any stdin prompt."
                (revert-buffer))
               ((string= method "upload")
                (dired-unmark-all-marks))))))
+
 (provide 'init-ssh)
 ;;; init-ssh.el ends here
