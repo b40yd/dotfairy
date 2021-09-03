@@ -1,4 +1,4 @@
-;;; ssh-manager.el --- A SSH manager remote servers  tools -*- lexical-binding: t -*-
+;;; init-ssh.el --- A SSH manager remote servers  tools -*- lexical-binding: t -*-
 
 ;; Copyright © 2021, 7ym0n, all rights reserved.
 
@@ -631,5 +631,5 @@ Warning: freezes indefinitely on any stdin prompt."
               ((string= method "upload")
                (dired-unmark-all-marks))))))
 
-(provide 'ssh-manager)
+(provide 'init-ssh)
 ;;; ssh-manager.el ends here
