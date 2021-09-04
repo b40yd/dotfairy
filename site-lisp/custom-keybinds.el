@@ -166,13 +166,16 @@
 
       ;;; <leader> p --- project
   (:prefix ("p" . "project")
-   :desc "Find file in other project"  "F" #'dotfairy/find-file-in-other-project
-   :desc "Kill project buffers"        "k" #'dotfairy/kill-project-buffers
-   :desc "Browse in other project"     "o" #'dotfairy/browse-in-other-project
-   :desc "Browse project"              "p" #'+default/browse-project
-   :desc "Search project"              "s" #'+default/search-project
-   :desc "Search Other Project"        "S" #'+default/search-other-project
-   :desc "List project todos"          "t" #'magit-todos-list
+   :desc "Add to workspace"                "a" #'lsp-workspace-folders-add
+   :desc "Remove blacklist from workspace" "r" #'lsp-workspace-blacklist-remove
+   :desc "Restart current workspace"       "R" #'lsp-workspace-restart
+   :desc "Find file in other project"      "F" #'dotfairy/find-file-in-other-project
+   :desc "Kill project buffers"            "k" #'dotfairy/kill-project-buffers
+   :desc "Browse in other project"         "o" #'dotfairy/browse-in-other-project
+   :desc "Browse project"                  "p" #'+default/browse-project
+   :desc "Search project"                  "s" #'+default/search-project
+   :desc "Search Other Project"            "S" #'+default/search-other-project
+   :desc "List project todos"              "t" #'magit-todos-list
    (:prefix ("4" . "in other window"))
    (:prefix ("5" . "in other frame")))
 
