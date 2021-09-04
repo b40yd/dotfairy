@@ -72,6 +72,12 @@
 
 ;; default workspace
 (setq default-directory "~/")
-
+;; .authinfo
+;; machine git.scanbuf.net/api/v4 login <your_git_user>^forge password <your_git_auth_token>
+;;
+(with-eval-after-load 'forge
+  ;; (push '("git.scanbuf.net" "git.scanbuf.net/api/v4" forge-gitlab-repository) forge-alist)
+  ;; (push '("git.scanbuf.net" "git.scanbuf.net/api/v4" forge-github-repository) forge-alist)
+  )
 ;; (byte-recompile-directory package-user-dir 0 0) ;
 ;;; config.el ends here
