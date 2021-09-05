@@ -252,10 +252,9 @@ If you do not like default setup, modify it, with (KEY . COMMAND) format."
   "Use term-send-raw-string \"\C-m\" instead term-send-input.
 Because term-send-input have bug that will duplicate input when you C-a and C-m in terminal."
   (interactive)
-  (term-send-raw-string "\C-m")
-  )
+  (term-send-raw-string "\C-m"))
 
-(defun term-send-M-x ()
+(defun ssh-manager-term-send-M-x ()
   "Type M-x in term-mode."
   (interactive)
   (term-send-raw-string "\ex"))
