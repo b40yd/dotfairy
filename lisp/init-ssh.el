@@ -50,7 +50,7 @@
 (defun ssh-manager-show-ssh-session-groups ()
   "Show ssh server groups."
   (interactive)
-  (message (format "%s" (ssh-manager-session-groups-servers (ssh-manager-session-groups)))))
+  (print (ssh-manager-session-groups-servers (ssh-manager-session-groups))))
 
 (defun ssh-manager-add-this-ssh-session-to-groups ()
   "Add this ssh server session to groups."
@@ -81,13 +81,12 @@
       (ssh-manager--send-cmd-to-buffer server cmd))
     (switch-to-buffer current-buf)))
 
-(defvar ssh-manager-mode-map nil "keymap for `ssh-manager-mode'")
-
-(setq ssh-manager-mode-map (make-sparse-keymap))
-
-(define-key ssh-manager-mode-map (kbd "C-c C-c") 'ssh-manager-execute-buffer-cmd-to-ssh)
-(define-key ssh-manager-mode-map (kbd "C-c C-e") 'ssh-manager-execute-region-cmd-to-ssh)
-(define-key ssh-manager-mode-map (kbd "C-c C-.") 'ssh-manager-execute-current-line-cmd-to-ssh)
+(defvar ssh-manager-mode-map (let ((keymap (make-sparse-keymap)))
+                               (define-key keymap (kbd "C-c C-c") 'ssh-manager-execute-buffer-cmd-to-ssh)
+                               (define-key keymap (kbd "C-c C-e") 'ssh-manager-execute-region-cmd-to-ssh)
+                               (define-key keymap (kbd "C-c C-.") 'ssh-manager-execute-current-line-cmd-to-ssh)
+                               keymap)
+  "keymap for `ssh-manager-mode'")
 
 (define-derived-mode ssh-manager-mode prog-mode "SSH Manager Mode"
   (with-no-warnings
@@ -211,27 +210,106 @@ yet."
                             (when (string-match "\\(finished\\|exited\\)" change)
                               (kill-buffer (process-buffer proc)))))))
 
+;;; This code is referenced from multi-term.el
+(defcustom ssh-manager--term-unbind-key-list
+  '("C-z" "C-x" "C-c" "C-h" "C-y" "<ESC>")
+  "The key list that will need to be unbind."
+  :type 'list
+  :group 'ssh-manager)
+
+(defcustom ssh-manager--term-bind-key-alist
+  '(
+    ("C-c C-c" . term-interrupt-subjob)
+    ("<escape>" . ssh-manager-term-send-esc)
+    ("C-p" . previous-line)
+    ("C-n" . next-line)
+    ("C-s" . isearch-forward)
+    ("C-r" . isearch-backward)
+    ("C-m" . ssh-manager-term-send-return)
+    ("C-y" . term-paste)
+    ("M-o" . term-send-backspace)
+    ("M-p" . term-send-up)
+    ("M-n" . term-send-down)
+    ("M-M" . ssh-manager-term-send-forward-kill-word)
+    ("M-N" . ssh-manager-term-send-backward-kill-word)
+    ("<C-backspace>" . ssh-manager-term-send-backward-kill-word)
+    ("C-c C-a" . ssh-manager-add-this-ssh-session-to-groups)
+    ("C-c C-r" . ssh-manager-remove-this-ssh-session-from-groups)
+    ("C-c M-a" . ssh-manager-show-ssh-session-groups)
+    ("M-," . term-send-raw)
+    ("M-." . comint-dynamic-complete))
+  "The key alist that will need to be bind.
+If you do not like default setup, modify it, with (KEY . COMMAND) format."
+  :type 'alist
+  :group 'ssh-manager)
+
+(defun ssh-manager-term-send-esc ()
+  "Send ESC in term mode."
+  (interactive)
+  (term-send-raw-string "\e"))
+
+(defun ssh-manager-term-send-return ()
+  "Use term-send-raw-string \"\C-m\" instead term-send-input.
+Because term-send-input have bug that will duplicate input when you C-a and C-m in terminal."
+  (interactive)
+  (term-send-raw-string "\C-m")
+  )
+
+(defun term-send-M-x ()
+  "Type M-x in term-mode."
+  (interactive)
+  (term-send-raw-string "\ex"))
+
+(defun ssh-manager-term-send-backward-kill-word ()
+  "Backward kill word in term mode."
+  (interactive)
+  (term-send-raw-string "\C-w"))
+
+(defun ssh-manager-term-send-forward-kill-word ()
+  "Kill word in term mode."
+  (interactive)
+  (term-send-raw-string "\ed"))
+
+(defun ssh-manager-keystroke-setup ()
+  "Keystroke setup of `term-char-mode'.
+By default, the key bindings of `term-char-mode' conflict with user's keystroke.
+So this function unbinds some keys with `term-raw-map',
+and binds some keystroke with `term-raw-map'."
+  (let (bind-key bind-command)
+    ;; Unbind base key that conflict with user's keys-tokes.
+    (cl-dolist (unbind-key ssh-manager--term-unbind-key-list)
+      (cond
+       ((stringp unbind-key) (setq unbind-key (read-kbd-macro unbind-key)))
+       ((vectorp unbind-key) nil)
+       (t (signal 'wrong-type-argument (list 'array unbind-key))))
+      (define-key term-raw-map unbind-key nil))
+    ;; Add some i use keys.
+    ;; If you don't like my keystroke,
+    ;; just modified `term-bind-key-alist'
+    (cl-dolist (element ssh-manager--term-bind-key-alist)
+      (setq bind-key (car element))
+      (setq bind-command (cdr element))
+      (cond
+       ((stringp bind-key) (setq bind-key (read-kbd-macro bind-key)))
+       ((vectorp bind-key) nil)
+       (t (signal 'wrong-type-argument (list 'array bind-key))))
+      (define-key term-raw-map bind-key bind-command))))
+;;; end
+
 (defun ssh-manager--init-term-mode (term-name)
   "Init term mode"
-  (progn
-    (setq term-setup-hook '(lambda ()
-                             (setq keyboard-translate-table "\C-@\C-a\C-b\C-d\C-f\C-g\C-?")))
-    (define-key term-raw-map (kbd "M-x") 'execute-extended-command)
-    (define-key term-raw-map (kbd "C-c C-b") 'switch-to-buffer)
-    (define-key term-raw-map (kbd "C-c C-a") 'ssh-manager-add-this-ssh-session-to-groups)
-    (define-key term-raw-map (kbd "C-c C-r") 'ssh-manager-remove-this-ssh-session-from-groups)
-    (define-key term-raw-map (kbd "C-c M-a") 'ssh-manager-show-ssh-session-groups)
-    (define-key term-raw-map (kbd "C-y") 'term-paste)
-    (define-key term-raw-map (kbd "C-s") 'isearch-forward)
-    (define-key term-raw-map (kbd "C-r") 'isearch-backward)
-    (term-mode)
-    (normal-erase-is-backspace-mode)
-    (term-char-mode)
-    (ssh-manager--term-handle-close)
-    (add-hook 'kill-buffer-hook 'ssh-managerterm-kill-buffer-hook)
-    (switch-to-buffer (format "*%s*" term-name))
-    ;; use backspace delete
-    (term-send-raw-string "stty erase '^?'\n")))
+  (setq tty-setup-hook '(lambda ()
+                          (setq keyboard-translate-table "\C-@\C-a\C-b\C-d\C-f\C-g\C-?")))
+  (remove-hook 'term-mode-hook 'ssh-manager-keystroke-setup)
+  (add-hook 'term-mode-hook 'ssh-manager-keystroke-setup)
+  (term-mode)
+  (normal-erase-is-backspace-mode)
+  (term-char-mode)
+  (ssh-manager--term-handle-close)
+  (add-hook 'kill-buffer-hook 'ssh-manager-term-kill-buffer-hook)
+  (switch-to-buffer (format "*%s*" term-name))
+  ;; use backspace delete
+  (term-send-raw-string "stty erase '^?'\n"))
 
 ;;
 ;; sshpass for MacOS
@@ -293,7 +371,7 @@ yet."
                          argv))
       (ssh-manager--init-term-mode term-name))))
 
-(defun ssh-managerterm-kill-buffer-hook ()
+(defun ssh-manager-term-kill-buffer-hook ()
   "Function that hook `kill-buffer-hook'."
   (when (eq major-mode 'term-mode)
     ;; Quit the current subjob
@@ -482,47 +560,47 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
         (host (plist-get server :remote-host))
         (port (plist-get server :remote-port))
         (user (plist-get server :remote-user)))
-    (progn
-      (if (not (string-empty-p password))
-          (setq argv (append argv `("-p" ,password))))
-      (if (not (string-empty-p totp-key))
-          (setq argv (append argv `("-o" ,totp-key))))
-      (if (not (string-empty-p totp-message))
-          (setq argv (append argv `("-O" ,totp-message))))
-      (if (string-empty-p host)
-          (ssh-manager--error "SSH hostname must be set. it's cannot empty.")
-        (if (executable-find "scp")
-            (progn
-              (setq argv (append argv `("scp" "-r" "-o" "StrictHostKeychecking=no")))
-              (if (and (not (string= proxy-host nil))
-                       (not (string= proxy-user nil))
-                       (not (string= proxy-port nil)))
-                  (setq argv (append argv `("-J" ,(format "%s@%s:%s" proxy-user proxy-host proxy-port)))))
-              (if (not (string-empty-p port))
-                  (setq argv (append argv `("-P" ,port))))
-              (if (and (not (string-empty-p host))
-                       (not (string-empty-p user)))
 
-                  (let* ((remote-dir-or-file (completing-read (format "Set remote file path (/home/%s): " user)
-                                                              (ssh-manager-session-folders (ssh-manager-session))
-                                                              nil nil))
-                         (target nil))
-                    (if (string-empty-p remote-dir-or-file)
-                        (setq remote-dir-or-file (format "/home/%s" user)))
-                    (cl-pushnew remote-dir-or-file (ssh-manager-session-folders (ssh-manager-session)) :test 'equal)
-                    (ssh-manager--persist-session (ssh-manager-session))
-                    (cond ((string= method "upload")
-                           (if (derived-mode-p 'dired-mode)
-                               (setq argv (append argv `(,@(dired-get-marked-files) ,(format "%s@%s:%s" user host remote-dir-or-file))))
-                             (if-let ((ask (y-or-n-p "upload current buffer file? ")))
-                                 (setq target (buffer-file-name))
-                               (setq target (read-file-name "Set upload for files: " )))
-                             (setq argv (append argv `(,target ,(format "%s@%s:%s" user host remote-dir-or-file))))))
-                          ((string= method "download")
-                           (if (derived-mode-p 'dired-mode)
-                               (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,(dired-current-directory))))
-                             (setq target (read-file-name "Set download to: "))
-                             (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,target))))))))))))))
+    (if (not (string-empty-p password))
+        (setq argv (append argv `("-p" ,password))))
+    (if (not (string-empty-p totp-key))
+        (setq argv (append argv `("-o" ,totp-key))))
+    (if (not (string-empty-p totp-message))
+        (setq argv (append argv `("-O" ,totp-message))))
+    (if (string-empty-p host)
+        (ssh-manager--error "SSH hostname must be set. it's cannot empty.")
+      (if (not (executable-find "scp"))
+          (ssh-manager--warn "not found scp command line.")
+        (setq argv (append argv `("scp" "-r" "-o" "StrictHostKeychecking=no")))
+        (if (and (not (string= proxy-host nil))
+                 (not (string= proxy-user nil))
+                 (not (string= proxy-port nil)))
+            (setq argv (append argv `("-J" ,(format "%s@%s:%s" proxy-user proxy-host proxy-port)))))
+        (if (not (string-empty-p port))
+            (setq argv (append argv `("-P" ,port))))
+        (if (and (not (string-empty-p host))
+                 (not (string-empty-p user)))
+
+            (let* ((remote-dir-or-file (completing-read (format "Set remote file path (/home/%s): " user)
+                                                        (ssh-manager-session-folders (ssh-manager-session))
+                                                        nil nil))
+                   (target nil))
+              (if (string-empty-p remote-dir-or-file)
+                  (setq remote-dir-or-file (format "/home/%s" user)))
+              (cl-pushnew remote-dir-or-file (ssh-manager-session-folders (ssh-manager-session)) :test 'equal)
+              (ssh-manager--persist-session (ssh-manager-session))
+              (cond ((string= method "upload")
+                     (if (derived-mode-p 'dired-mode)
+                         (setq argv (append argv `(,@(dired-get-marked-files) ,(format "%s@%s:%s" user host remote-dir-or-file))))
+                       (if-let ((ask (y-or-n-p "upload current buffer file? ")))
+                           (setq target (buffer-file-name))
+                         (setq target (read-file-name "Set upload for files: " )))
+                       (setq argv (append argv `(,target ,(format "%s@%s:%s" user host remote-dir-or-file))))))
+                    ((string= method "download")
+                     (if (derived-mode-p 'dired-mode)
+                         (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,(dired-current-directory))))
+                       (setq target (read-file-name "Set download to: "))
+                       (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,target))))))))))))
 
 (defun ssh-manager--replace-in-string (what with in)
   (replace-regexp-in-string (regexp-quote what) with in nil 'literal))
@@ -557,58 +635,58 @@ Warning: freezes indefinitely on any stdin prompt."
 
 (defun ssh-manager--use-rsync-upload-or-download-files (server method)
   "Use rsync command tool upload or download files."
-  (progn
-    (let ((argv '())
-          (password (plist-get server :remote-password))
-          (totp-key (if (string-empty-p (plist-get server :totp-key))
-                        ""
-                      (with-temp-buffer
-                        (or (apply #'call-process "oathtool" nil t nil (list "--totp" "-b" (plist-get server :totp-key)))
-                            "")
-                        (string-trim (buffer-string)))))
-          (totp-message (plist-get server :totp-message))
-          (proxy-host (plist-get server :proxy-host))
-          (proxy-port (plist-get server :proxy-port))
-          (proxy-user (plist-get server :proxy-user))
-          (host (plist-get server :remote-host))
-          (port (plist-get server :remote-port))
-          (user (plist-get server :remote-user)))
-      (if (not (string-empty-p password))
-          (setq argv (append argv `("sshpass" "-p" ,password))))
-      (if (not (string-empty-p totp-key))
-          (setq argv (append argv `("-o" ,totp-key))))
-      (if (not (string-empty-p totp-message))
-          (setq argv (append argv `("-O" ,(format "'%s'" totp-message)))))
-      (if (and (not (string= proxy-host nil))
-               (not (string= proxy-user nil))
-               (not (string= proxy-port nil)))
-          (setq argv (append argv `("ssh" "-o" "'StrictHostKeychecking=no'" "-J" ,(format "%s@%s:%s" proxy-user proxy-host proxy-port))))
-        (setq argv (append argv `("ssh" "-o" "'StrictHostKeychecking=no'"))))
-      (if (not (string-empty-p port))
-          (setq argv (append argv `("-p" ,port))))
-      (setq argv (list "rsync" "-r" "-P" (concat "--rsh=\"" (mapconcat 'identity argv " ") "\"")))
-      (if (and (not (string-empty-p host))
-               (not (string-empty-p user)))
-          (let* ((remote-dir-or-file (completing-read (format "Set remote file path (/home/%s): " user)
-                                                      (ssh-manager-session-folders (ssh-manager-session))
-                                                      nil nil))
-                 (target nil))
-            (if (string-empty-p remote-dir-or-file)
-                (setq remote-dir-or-file (format "/home/%s" user)))
-            (cl-pushnew remote-dir-or-file (ssh-manager-session-folders (ssh-manager-session)) :test 'equal)
-            (ssh-manager--persist-session (ssh-manager-session))
-            (cond ((string= method "upload")
-                   (if (derived-mode-p 'dired-mode)
-                       (setq argv (append argv `(,@(dired-get-marked-files) ,(format "%s@%s:%s" user host remote-dir-or-file))))
-                     (if-let ((ask (y-or-n-p "upload current buffer file? ")))
-                         (setq target (buffer-file-name))
-                       (setq target (read-file-name "Set upload for files: " )))
-                     (setq argv (append argv `(,target ,(format "%s@%s:%s" user host remote-dir-or-file))))))
-                  ((string= method "download")
-                   (if (derived-mode-p 'dired-mode)
-                       (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,(dired-current-directory))))
-                     (setq target (read-file-name "Set download to: "))
-                     (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,target)))))))))))
+
+  (let ((argv '())
+        (password (plist-get server :remote-password))
+        (totp-key (if (string-empty-p (plist-get server :totp-key))
+                      ""
+                    (with-temp-buffer
+                      (or (apply #'call-process "oathtool" nil t nil (list "--totp" "-b" (plist-get server :totp-key)))
+                          "")
+                      (string-trim (buffer-string)))))
+        (totp-message (plist-get server :totp-message))
+        (proxy-host (plist-get server :proxy-host))
+        (proxy-port (plist-get server :proxy-port))
+        (proxy-user (plist-get server :proxy-user))
+        (host (plist-get server :remote-host))
+        (port (plist-get server :remote-port))
+        (user (plist-get server :remote-user)))
+    (if (not (string-empty-p password))
+        (setq argv (append argv `("sshpass" "-p" ,password))))
+    (if (not (string-empty-p totp-key))
+        (setq argv (append argv `("-o" ,totp-key))))
+    (if (not (string-empty-p totp-message))
+        (setq argv (append argv `("-O" ,(format "'%s'" totp-message)))))
+    (if (and (not (string= proxy-host nil))
+             (not (string= proxy-user nil))
+             (not (string= proxy-port nil)))
+        (setq argv (append argv `("ssh" "-o" "'StrictHostKeychecking=no'" "-J" ,(format "%s@%s:%s" proxy-user proxy-host proxy-port))))
+      (setq argv (append argv `("ssh" "-o" "'StrictHostKeychecking=no'"))))
+    (if (not (string-empty-p port))
+        (setq argv (append argv `("-p" ,port))))
+    (setq argv (list "rsync" "-r" "-P" (concat "--rsh=\"" (mapconcat 'identity argv " ") "\"")))
+    (if (and (not (string-empty-p host))
+             (not (string-empty-p user)))
+        (let* ((remote-dir-or-file (completing-read (format "Set remote file path (/home/%s): " user)
+                                                    (ssh-manager-session-folders (ssh-manager-session))
+                                                    nil nil))
+               (target nil))
+          (if (string-empty-p remote-dir-or-file)
+              (setq remote-dir-or-file (format "/home/%s" user)))
+          (cl-pushnew remote-dir-or-file (ssh-manager-session-folders (ssh-manager-session)) :test 'equal)
+          (ssh-manager--persist-session (ssh-manager-session))
+          (cond ((string= method "upload")
+                 (if (derived-mode-p 'dired-mode)
+                     (setq argv (append argv `(,@(dired-get-marked-files) ,(format "%s@%s:%s" user host remote-dir-or-file))))
+                   (if-let ((ask (y-or-n-p "upload current buffer file? ")))
+                       (setq target (buffer-file-name))
+                     (setq target (read-file-name "Set upload for files: " )))
+                   (setq argv (append argv `(,target ,(format "%s@%s:%s" user host remote-dir-or-file))))))
+                ((string= method "download")
+                 (if (derived-mode-p 'dired-mode)
+                     (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,(dired-current-directory))))
+                   (setq target (read-file-name "Set download to: "))
+                   (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,target))))))))))
 
 (defun ssh-manager-upload-or-download-files-to-remote-host (method)
   "SSH upload or download files."
