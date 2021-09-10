@@ -63,6 +63,7 @@
 (require 'init-vterm)
 (require 'init-ssh)
 (require 'init-dict)
+(require 'init-pass)
 
 ;; Language
 (require 'init-elisp)

@@ -361,9 +361,8 @@ and binds some keystroke with `term-raw-map'."
                (not (string= proxy-host nil))
                (not (string= proxy-user nil))
                (not (string= proxy-port nil)))
-          (setq argv (append argv `("-J" ,(format "%s@%s:%s" proxy-user proxy-host proxy-port))))
-        (ssh-manager--error "<Proxy host> and <Remote host> must be set. please check its."))
-      (ssh-manager--info (mapconcat 'identity `("sshpass" ,@argv) " "))
+          (setq argv (append argv `("-J" ,(format "%s@%s:%s" proxy-user proxy-host proxy-port)))))
+      ;; (ssh-manager--info (mapconcat 'identity `("sshpass" ,@argv) " "))
       (set-buffer (apply 'make-term term-name
                          "sshpass"
                          nil
@@ -379,9 +378,7 @@ and binds some keystroke with `term-raw-map'."
       ;; Quit sub-process.
       (term-quit-subjob))
     (ssh-manager--info "removed %s from server groups." (buffer-name (current-buffer)))
-    (ssh-manager--remove-buffer-name-from-groups (buffer-name (current-buffer)))
-    ;; (switch-to-buffer "*scratch*")
-    ))
+    (ssh-manager--remove-buffer-name-from-groups (buffer-name (current-buffer)))))
 
 (defun ssh-manager--send-cmd-to-buffer (&optional buffer string)
   "Send STRING to a shell process associated with BUFFER.
@@ -489,15 +486,18 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
   (interactive (list (completing-read "Select server to edit: "
                                       (ssh-manager--filter-ssh-session))))
 
-  (dolist (server (->> (ssh-manager-session)
-                       (ssh-manager-session-servers)))
-    (if (string= session (plist-get server :session-name))
-        (let* ((let-sessions (ssh-manager-session)))
-          (cl-pushnew (ssh-manager--read-session-config-from-minibuffer (completing-read "Select connect style: " '(proxy direct))
-                                                                        server)
-                      (ssh-manager-session-servers (ssh-manager-session)) :test 'equal)
-          (setf (ssh-manager-session-servers let-sessions)
-                (-remove-item server (ssh-manager-session-servers let-sessions)))))))
+  (let* ((let-sessions (ssh-manager-session))
+         (let-server nil))
+    (dolist (server (->> let-sessions
+                         (ssh-manager-session-servers)))
+      (if (string= session (plist-get server :session-name))
+          (setq let-server server)))
+    (cl-pushnew (ssh-manager--read-session-config-from-minibuffer (completing-read "Select connect style: " '(proxy direct))
+                                                                  let-server)
+                (ssh-manager-session-servers let-sessions) :test 'equal)
+    (setf (ssh-manager-session-servers let-sessions)
+          (-remove-item let-server (ssh-manager-session-servers let-sessions)))
+    (ssh-manager--persist-session let-sessions)))
 
 (defun ssh-manager-remove-ssh-server (session)
   "Remove session from the list of servers."
