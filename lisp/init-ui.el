@@ -70,8 +70,7 @@
   ;; Enable customized theme
   ;; FIXME https://github.com/emacs-lsp/lsp-treemacs/issues/89
   (with-eval-after-load 'lsp-treemacs
-    (doom-themes-treemacs-config))
-  )
+    (doom-themes-treemacs-config)))
 
 
 ;; Mode-line
@@ -86,8 +85,7 @@
   :init
   ;; Prevent flash of unstyled modeline at startup
   (unless after-init-time
-    (setq-default mode-line-format nil))
-  )
+    (setq-default mode-line-format nil)))
 
 (use-package minions
   :hook (doom-modeline-mode . minions-mode))
@@ -111,8 +109,6 @@
 ;; need install all-the-icons fonts
 ;; web site https://github.com/domtronn/all-the-icons.el
 (use-package all-the-icons
-  :init (unless (or IS-WINDOWS (font-installed-p "all-the-icons"))
-          (all-the-icons-install-fonts t))
   :commands (all-the-icons-octicon
              all-the-icons-faicon
              all-the-icons-fileicon
