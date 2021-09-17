@@ -32,7 +32,7 @@
             lsp-rust-server)
 
   :hook ((prog-mode . (lambda ()
-                        (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode 'makefile-gmake-mode 'snippet-mode 'web-mode 'less-css-mode)
+                        (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode 'makefile-gmake-mode 'snippet-mode 'web-mode 'less-css-mode 'so-long-mode)
                           (lsp-deferred))))
          (lsp-mode . (lambda ()
                        ;; Integrate `which-key'
