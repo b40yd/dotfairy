@@ -227,7 +227,7 @@ yet."
     ("C-r" . isearch-backward)
     ("C-m" . ssh-manager-term-send-return)
     ("C-y" . term-paste)
-    ("M-o" . term-send-backspace)
+    ("<backspace>" . term-send-backspace)
     ("M-p" . term-send-up)
     ("M-n" . term-send-down)
     ("M-M" . ssh-manager-term-send-forward-kill-word)
@@ -297,8 +297,6 @@ and binds some keystroke with `term-raw-map'."
 
 (defun ssh-manager--init-term-mode (term-name)
   "Init term mode"
-  (setq tty-setup-hook '(lambda ()
-                          (setq keyboard-translate-table "\C-@\C-a\C-b\C-d\C-f\C-g\C-?")))
   (remove-hook 'term-mode-hook 'ssh-manager-keystroke-setup)
   (add-hook 'term-mode-hook 'ssh-manager-keystroke-setup)
   (term-mode)
