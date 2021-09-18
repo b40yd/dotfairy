@@ -134,6 +134,17 @@ If FORCE-P, overwrite the destination file if it exists, without confirmation."
       (set-visited-file-name new-name)
       (rename-buffer new-name))))
 
+(defun sudo-file-path (file)
+  (let ((host (or (file-remote-p file 'host) "localhost")))
+    (concat "/" (when (file-remote-p file)
+                  (concat (file-remote-p file 'method) ":"
+                          (if-let (user (file-remote-p file 'user))
+                              (concat user "@" host)
+                            host)
+                          "|"))
+            "sudo:root@" host
+            ":" (or (file-remote-p file 'localname)
+                    file))))
 
 (defun dotfairy/sudo-file-path (file)
   (let ((host (or (file-remote-p file 'host) "localhost")))
