@@ -49,7 +49,7 @@
 (setq confirm-kill-emacs 'y-or-n-p)
 
 ;; Fonts
-(when (display-graphic-p)
+(defun dotfairy-set-fonts ()
   ;; Set default font
   (cl-loop for font in '("Source Code Pro" "SF Mono" "Hack" "Fira Code"
                          "Menlo" "Monaco" "DejaVu Sans Mono" "Consolas")
@@ -69,6 +69,14 @@
   (cl-loop for font in '("WenQuanYi Zen Hei Mono" "WenQuanYi Micro Hei" "Microsoft Yahei")
            when (font-installed-p font)
            return (set-fontset-font t '(#x4e00 . #x9fff) font)))
+
+(if (daemonp)
+    (add-hook 'after-make-frame-functions
+              (lambda (frame)
+                (select-frame frame)
+                (dotfairy-set-fonts)))
+  (when (display-graphic-p)
+    (dotfairy-set-fonts)))
 
 ;; default workspace
 (setq default-directory "~/")
