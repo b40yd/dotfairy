@@ -106,7 +106,7 @@
              (executable-find "libtool")
              (executable-find "make"))
     (use-package vterm
-      :commands (vterm--internal)
+      :commands (vterm--internal vterm-posframe-toggle)
       :init
       (setq vterm-always-compile-module t)
       :config
@@ -154,6 +154,7 @@
                 ;; Focus the child frame
                 (select-frame-set-input-focus vterm-posframe--frame)))))
         (bind-key "C-`" #'vterm-posframe-toggle)))))
+
 ;; Shell Pop
 (use-package shell-pop
   :bind (("C-`" . (lambda ()
