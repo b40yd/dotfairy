@@ -70,34 +70,6 @@
   (defalias 'define-key! #'general-def)
   (defalias 'undefine-key! #'general-unbind))
 
-
-(defun dotfairy-rpartial (fn &rest args)
-  "Return a partial application of FUN to right-hand ARGS.
-ARGS is a list of the last N arguments to pass to FUN. The result is a new
-function which does the same as FUN, except that the last N arguments are fixed
-at the values with which this function was called."
-  (declare (side-effect-free t))
-  (lambda (&rest pre-args)
-    (apply fn (append pre-args args))))
-
-(defun dotfairy-lookup-key (keys &rest keymaps)
-  "Like `lookup-key', but search active keymaps if KEYMAP is omitted."
-  (if keymaps
-      (cl-some (dotfairy-rpartial #'lookup-key keys) keymaps)
-    (cl-loop for keymap
-             in (append (cl-loop for alist in emulation-mode-map-alists
-                                 append (mapcar #'cdr
-                                                (if (symbolp alist)
-                                                    (if (boundp alist) (symbol-value alist))
-                                                  alist)))
-                        (list (current-local-map))
-                        (mapcar #'cdr minor-mode-overriding-map-alist)
-                        (mapcar #'cdr minor-mode-map-alist)
-                        (list (current-global-map)))
-             if (keymapp keymap)
-             if (lookup-key keymap keys)
-             return it)))
-
 (defun dotfairy-unquote (exp)
   "Return EXP unquoted."
   (declare (pure t) (side-effect-free t))
