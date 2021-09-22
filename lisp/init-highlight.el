@@ -163,9 +163,7 @@
   :ensure nil
   :hook ((after-init . global-hl-line-mode)
          ((dashboard-mode eshell-mode shell-mode term-mode vterm-mode) .
-          (lambda () (setq-local global-hl-line-mode nil))))
-  :config
-  (set-face-background hl-line-face "#2F4F4F"))
+          (lambda () (setq-local global-hl-line-mode nil)))))
 
 ;; Highlight matching parens
 (use-package paren
