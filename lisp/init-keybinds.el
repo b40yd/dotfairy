@@ -27,19 +27,19 @@
 (require 'init-custom)
 (require 'init-funcs)
 
-(defvar dotfairy-leader-key "SPC"
+(defvar doom-leader-key "SPC"
   "The leader prefix key for users.")
 
-(defvar dotfairy-leader-alt-key "M-SPC"
+(defvar doom-leader-alt-key "M-SPC"
   "An alternative leader prefix key, used for Insert and Emacs states, and for users.")
 
-(defvar dotfairy-localleader-key "SPC m"
+(defvar doom-localleader-key "SPC m"
   "The localleader prefix key, for major-mode specific commands.")
 
-(defvar dotfairy-localleader-alt-key "M-SPC m"
+(defvar doom-localleader-alt-key "M-SPC m"
   "The localleader prefix key, for major-mode specific commands.")
 
-(defvar dotfairy-leader-map (make-sparse-keymap)
+(defvar doom-leader-map (make-sparse-keymap)
   "An overriding keymap for <leader> keys.")
 
 ;; Key Modifiers
@@ -70,30 +70,30 @@
   (defalias 'define-key! #'general-def)
   (defalias 'undefine-key! #'general-unbind))
 
-(defun dotfairy-unquote (exp)
+(defun doom-unquote (exp)
   "Return EXP unquoted."
   (declare (pure t) (side-effect-free t))
   (while (memq (car-safe exp) '(quote function))
     (setq exp (cadr exp)))
   exp)
 
-(defun dotfairy-enlist (exp)
+(defun doom-enlist (exp)
   "Return EXP wrapped in a list, or as-is if already a list."
   (declare (pure t) (side-effect-free t))
   (if (listp exp) exp (list exp)))
 
-(defun dotfairy-keyword-name (keyword)
+(defun doom-keyword-name (keyword)
   "Returns the string name of KEYWORD (`keywordp') minus the leading colon."
   (declare (pure t) (side-effect-free t))
   (cl-check-type keyword keyword)
   (substring (symbol-name keyword) 1))
 
-(defun dotfairy--resolve-hook-forms (hooks)
+(defun doom--resolve-hook-forms (hooks)
   "Converts a list of modes into a list of hook symbols.
 If a mode is quoted, it is left as is. If the entire HOOKS list is quoted, the
 list is returned as-is."
   (declare (pure t) (side-effect-free t))
-  (let ((hook-list (dotfairy-enlist (dotfairy-unquote hooks))))
+  (let ((hook-list (doom-enlist (doom-unquote hooks))))
     (if (eq (car-safe hooks) 'quote)
         hook-list
       (cl-loop for hook in hook-list
@@ -101,7 +101,7 @@ list is returned as-is."
                collect (cadr hook)
                else collect (intern (format "%s-hook" (symbol-name hook)))))))
 
-(defun dotfairy--setq-hook-fns (hooks rest &optional singles)
+(defun doom--setq-hook-fns (hooks rest &optional singles)
   (unless (or singles (= 0 (% (length rest) 2)))
     (signal 'wrong-number-of-arguments (list #'evenp (length rest))))
   (cl-loop with vars = (let ((args rest)
@@ -112,13 +112,13 @@ list is returned as-is."
                                    (cons (pop args) (pop args)))
                                  vars))
                          (nreverse vars))
-           for hook in (dotfairy--resolve-hook-forms hooks)
+           for hook in (doom--resolve-hook-forms hooks)
            for mode = (string-remove-suffix "-hook" (symbol-name hook))
            append
            (cl-loop for (var . val) in vars
                     collect
                     (list var val hook
-                          (intern (format "dotfairy--setq-%s-for-%s-h"
+                          (intern (format "doom--setq-%s-for-%s-h"
                                           var mode))))))
 
 
@@ -139,7 +139,7 @@ This macro accepts, in order:
                      (when (looking-at-p "\\s-*(")
                        (lisp-indent-defform state indent-point))))
            (debug t))
-  (let* ((hook-forms (dotfairy--resolve-hook-forms hooks))
+  (let* ((hook-forms (doom--resolve-hook-forms hooks))
          (func-forms ())
          (defn-forms ())
          append-p
@@ -162,8 +162,8 @@ This macro accepts, in order:
             ((memq first '(quote function))
              (setq func-forms
                    (if (cdr rest)
-                       (mapcar #'dotfairy-unquote rest)
-                     (dotfairy-enlist (dotfairy-unquote (car rest))))))
+                       (mapcar #'doom-unquote rest)
+                     (doom-enlist (doom-unquote (car rest))))))
 
             ((setq func-forms (list `(lambda (&rest _) ,@rest)))))
       (dolist (hook hook-forms)
@@ -191,7 +191,7 @@ If N and M = 1, there's no benefit to using this macro over `remove-hook'.
 \(fn HOOKS &rest [SYM VAL]...)"
   (declare (indent 1))
   (macroexp-progn
-   (cl-loop for (var val hook fn) in (dotfairy--setq-hook-fns hooks var-vals)
+   (cl-loop for (var val hook fn) in (doom--setq-hook-fns hooks var-vals)
             collect `(defun ,fn (&rest _)
                        ,(format "%s = %s" var (pp-to-string val))
                        (setq-local ,var ,val))
@@ -204,7 +204,7 @@ If N and M = 1, there's no benefit to using this macro over `remove-hook'.
   (declare (indent 1))
   (macroexp-progn
    (cl-loop for (_var _val hook fn)
-            in (dotfairy--setq-hook-fns hooks vars 'singles)
+            in (doom--setq-hook-fns hooks vars 'singles)
             collect `(remove-hook ',hook #',fn))))
 
 
@@ -221,7 +221,7 @@ DOCSTRING and BODY are as in `defun'.
     (setq docstring nil))
   (let (where-alist)
     (while (keywordp (car body))
-      (push `(cons ,(pop body) (dotfairy-enlist ,(pop body)))
+      (push `(cons ,(pop body) (doom-enlist ,(pop body)))
             where-alist))
     `(progn
        (defun ,symbol ,arglist ,docstring ,@body)
@@ -239,13 +239,13 @@ testing advice (when combined with `rotate-text').
     (unless (stringp docstring)
       (push docstring body))
     (while (keywordp (car body))
-      (push `(cons ,(pop body) (dotfairy-enlist ,(pop body)))
+      (push `(cons ,(pop body) (doom-enlist ,(pop body)))
             where-alist))
     `(dolist (targets (list ,@(nreverse where-alist)))
        (dolist (target (cdr targets))
          (advice-remove target #',symbol)))))
 
-(defvar dotfairy-disabled-packages ()
+(defvar doom-disabled-packages ()
   "A list of packages that should be ignored by `use-package!' and `after!'.")
 
 (defmacro after! (package &rest body)
@@ -270,7 +270,7 @@ This is a wrapper around `eval-after-load' that:
 4. Prevents eager expansion pulling in autoloaded macros all at once"
   (declare (indent defun) (debug t))
   (if (symbolp package)
-      (unless (memq package (bound-and-true-p dotfairy-disabled-packages))
+      (unless (memq package (bound-and-true-p doom-disabled-packages))
         (list (if (or (not (bound-and-true-p byte-compile-current-file))
                       (require package nil 'noerror))
                   #'progn
@@ -294,7 +294,7 @@ This is a wrapper around `eval-after-load' that:
 
 ;; HACK `map!' uses this instead of `define-leader-key!' because it consumes
 ;; 20-30% more startup time, so we reimplement it ourselves.
-(defmacro dotfairy--define-leader-key (&rest keys)
+(defmacro doom--define-leader-key (&rest keys)
   (let (prefix forms wkforms)
     (while keys
       (let ((key (pop keys))
@@ -304,21 +304,21 @@ This is a wrapper around `eval-after-load' that:
               (setq prefix def))
           (when prefix
             (setq key `(general--concat t ,prefix ,key)))
-          (let* ((udef (cdr-safe (dotfairy-unquote def)))
+          (let* ((udef (cdr-safe (doom-unquote def)))
                  (bdef (if (general--extended-def-p udef)
                            (general--extract-def (general--normalize-extended-def udef))
                          def)))
             (unless (eq bdef :ignore)
-              (push `(define-key dotfairy-leader-map (general--kbd ,key)
+              (push `(define-key doom-leader-map (general--kbd ,key)
                        ,bdef)
                     forms))
             (when-let (desc (cadr (memq :which-key udef)))
               (prependq!
                wkforms `((which-key-add-key-based-replacements
-                           (general--concat t dotfairy-leader-alt-key ,key)
+                           (general--concat t doom-leader-alt-key ,key)
                            ,desc)
                          (which-key-add-key-based-replacements
-                           (general--concat t dotfairy-leader-key ,key)
+                           (general--concat t doom-leader-key ,key)
                            ,desc))))))))
     (macroexp-progn
      (append (and wkforms `((after! which-key ,@(nreverse wkforms))))
@@ -332,11 +332,11 @@ This is a wrapper around `eval-after-load' that:
   "Define <leader> keys.
 Uses `general-define-key' under the hood, but does not support :states,
 :wk-full-keys or :keymaps. Use `map!' for a more convenient interface.
-See `dotfairy-leader-key' and `dotfairy-leader-alt-key' to change the leader prefix."
+See `doom-leader-key' and `doom-leader-alt-key' to change the leader prefix."
   `(general-define-key
     :states nil
     :wk-full-keys nil
-    :keymaps 'dotfairy-leader-map
+    :keymaps 'doom-leader-map
     ,@args))
 
 (defmacro define-localleader-key! (&rest args)
@@ -344,7 +344,7 @@ See `dotfairy-leader-key' and `dotfairy-leader-alt-key' to change the leader pre
 Uses `general-define-key' under the hood, but does not support :major-modes,
 :states, :prefix or :non-normal-prefix. Use `map!' for a more convenient
 interface.
-See `dotfairy-localleader-key' and `dotfairy-localleader-alt-key' to change the
+See `doom-localleader-key' and `doom-localleader-alt-key' to change the
 localleader prefix."
   (if (featurep 'evil)
       ;; :non-normal-prefix doesn't apply to non-evil sessions (only evil's
@@ -352,35 +352,35 @@ localleader prefix."
       `(general-define-key
         :states '(normal visual motion emacs insert)
         :major-modes t
-        :prefix dotfairy-localleader-key
-        :non-normal-prefix dotfairy-localleader-alt-key
+        :prefix doom-localleader-key
+        :non-normal-prefix doom-localleader-alt-key
         ,@args)
     `(general-define-key
       :major-modes t
-      :prefix dotfairy-localleader-alt-key
+      :prefix doom-localleader-alt-key
       ,@args)))
 
 ;; We use a prefix commands instead of general's :prefix/:non-normal-prefix
 ;; properties because general is incredibly slow binding keys en mass with them
 ;; in conjunction with :states -- an effective doubling of Dotfairy's startup time!
-(define-prefix-command 'dotfairy/leader 'dotfairy-leader-map)
-(define-key dotfairy-leader-map [override-state] 'all)
+(define-prefix-command 'doom/leader 'doom-leader-map)
+(define-key doom-leader-map [override-state] 'all)
 
-;; Bind `dotfairy-leader-key' and `dotfairy-leader-alt-key' as late as possible to give
+;; Bind `doom-leader-key' and `doom-leader-alt-key' as late as possible to give
 ;; the user a chance to modify them.
 (add-hook! 'after-init-hook
-           (defun dotfairy-init-leader-keys-h ()
-             "Bind `dotfairy-leader-key' and `dotfairy-leader-alt-key'."
+           (defun doom-init-leader-keys-h ()
+             "Bind `doom-leader-key' and `doom-leader-alt-key'."
              (let ((map general-override-mode-map))
                (if (not (featurep 'evil))
                    (progn
-                     (cond ((equal dotfairy-leader-alt-key "C-c")
-                            (set-keymap-parent dotfairy-leader-map mode-specific-map))
-                           ((equal dotfairy-leader-alt-key "C-x")
-                            (set-keymap-parent dotfairy-leader-map ctl-x-map)))
-                     (define-key map (kbd dotfairy-leader-alt-key) 'dotfairy/leader))
-                 (evil-define-key* '(normal visual motion) map (kbd dotfairy-leader-key) 'dotfairy/leader)
-                 (evil-define-key* '(emacs insert) map (kbd dotfairy-leader-alt-key) 'dotfairy/leader))
+                     (cond ((equal doom-leader-alt-key "C-c")
+                            (set-keymap-parent doom-leader-map mode-specific-map))
+                           ((equal doom-leader-alt-key "C-x")
+                            (set-keymap-parent doom-leader-map ctl-x-map)))
+                     (define-key map (kbd doom-leader-alt-key) 'doom/leader))
+                 (evil-define-key* '(normal visual motion) map (kbd doom-leader-key) 'doom/leader)
+                 (evil-define-key* '(emacs insert) map (kbd doom-leader-alt-key) 'doom/leader))
                (general-override-mode +1))))
 
 
@@ -397,17 +397,17 @@ localleader prefix."
         which-key-side-window-slot -10)
   (which-key-mode)
   :config
-  (defvar dotfairy--initial-which-key-replacement-alist which-key-replacement-alist)
+  (defvar doom--initial-which-key-replacement-alist which-key-replacement-alist)
   ;; general improvements to which-key readability
   (which-key-setup-side-window-bottom)
 
-  (which-key-add-key-based-replacements dotfairy-leader-key "<leader>")
-  (which-key-add-key-based-replacements dotfairy-localleader-key "<localleader>"))
+  (which-key-add-key-based-replacements doom-leader-key "<leader>")
+  (which-key-add-key-based-replacements doom-localleader-key "<localleader>"))
 
 
 ;;
 ;;; `map!' macro
-(defvar dotfairy-evil-state-alist
+(defvar doom-evil-state-alist
   '((?n . normal)
     (?v . visual)
     (?i . insert)
@@ -418,71 +418,71 @@ localleader prefix."
     (?g . global))
   "A list of cons cells that map a letter to a evil state symbol.")
 
-(defun dotfairy--map-keyword-to-states (keyword)
+(defun doom--map-keyword-to-states (keyword)
   "Convert a KEYWORD into a list of evil state symbols.
 For example, :nvi will map to (list 'normal 'visual 'insert). See
-`dotfairy-evil-state-alist' to customize this."
-  (cl-loop for l across (dotfairy-keyword-name keyword)
-           if (assq l dotfairy-evil-state-alist) collect (cdr it)
+`doom-evil-state-alist' to customize this."
+  (cl-loop for l across (doom-keyword-name keyword)
+           if (assq l doom-evil-state-alist) collect (cdr it)
            else do (error "not a valid state: %s" l)))
 
 
 ;; specials
-(defvar dotfairy--map-forms nil)
-(defvar dotfairy--map-fn nil)
-(defvar dotfairy--map-batch-forms nil)
-(defvar dotfairy--map-state '(:dummy t))
-(defvar dotfairy--map-parent-state nil)
-(defvar dotfairy--map-evil-p nil)
-(after! evil (setq dotfairy--map-evil-p t))
+(defvar doom--map-forms nil)
+(defvar doom--map-fn nil)
+(defvar doom--map-batch-forms nil)
+(defvar doom--map-state '(:dummy t))
+(defvar doom--map-parent-state nil)
+(defvar doom--map-evil-p nil)
+(after! evil (setq doom--map-evil-p t))
 
-(defun dotfairy--map-process (rest)
-  (let ((dotfairy--map-fn dotfairy--map-fn)
-        dotfairy--map-state
-        dotfairy--map-forms
+(defun doom--map-process (rest)
+  (let ((doom--map-fn doom--map-fn)
+        doom--map-state
+        doom--map-forms
         desc)
     (while rest
       (let ((key (pop rest)))
         (cond ((listp key)
-               (dotfairy--map-nested nil key))
+               (doom--map-nested nil key))
 
               ((keywordp key)
                (pcase key
                  (:leader
-                  (dotfairy--map-commit)
-                  (setq dotfairy--map-fn 'dotfairy--define-leader-key))
+                  (doom--map-commit)
+                  (setq doom--map-fn 'doom--define-leader-key))
                  (:localleader
-                  (dotfairy--map-commit)
-                  (setq dotfairy--map-fn 'define-localleader-key!))
+                  (doom--map-commit)
+                  (setq doom--map-fn 'define-localleader-key!))
                  (:after
-                  (dotfairy--map-nested (list 'after! (pop rest)) rest)
+                  (doom--map-nested (list 'after! (pop rest)) rest)
                   (setq rest nil))
                  (:desc
                   (setq desc (pop rest)))
                  (:map
-                  (dotfairy--map-set :keymaps `(quote ,(dotfairy-enlist (pop rest)))))
+                  (doom--map-set :keymaps `(quote ,(doom-enlist (pop rest)))))
                  (:mode
-                  (push (cl-loop for m in (dotfairy-enlist (pop rest))
+                  (push (cl-loop for m in (doom-enlist (pop rest))
                                  collect (intern (concat (symbol-name m) "-map")))
                         rest)
                   (push :map rest))
                  ((or :when :unless)
-                  (dotfairy--map-nested (list (intern (dotfairy-keyword-name key)) (pop rest)) rest)
+                  (doom--map-nested (list (intern (doom-keyword-name key)) (pop rest)) rest)
                   (setq rest nil))
                  (:prefix-map
                   (cl-destructuring-bind (prefix . desc)
-                      (dotfairy-enlist (pop rest))
-                    (let ((keymap (intern (format "dotfairy-leader-%s-map" desc))))
+                      (doom-enlist (pop rest))
+                    (let ((keymap (intern (format "doom-leader-%s-map" desc))))
                       (setq rest
                             (append (list :desc desc prefix keymap
                                           :prefix prefix)
                                     rest))
                       (push `(defvar ,keymap (make-sparse-keymap))
-                            dotfairy--map-forms))))
+                            doom--map-forms))))
                  (:prefix
                   (cl-destructuring-bind (prefix . desc)
-                      (dotfairy-enlist (pop rest))
-                    (dotfairy--map-set (if dotfairy--map-fn :infix :prefix)
+                      (doom-enlist (pop rest))
+                    (doom--map-set (if doom--map-fn :infix :prefix)
                                        prefix)
                     (when (stringp desc)
                       (setq rest (append (list :desc desc "" nil) rest)))))
@@ -492,50 +492,50 @@ For example, :nvi will map to (list 'normal 'visual 'insert). See
                          (outer (pop rest)))
                     (push `(map! (:map evil-inner-text-objects-map ,key ,inner)
                                  (:map evil-outer-text-objects-map ,key ,outer))
-                          dotfairy--map-forms)))
+                          doom--map-forms)))
                  (_
                   (condition-case _
-                      (dotfairy--map-def (pop rest) (pop rest)
-                                         (dotfairy--map-keyword-to-states key)
+                      (doom--map-def (pop rest) (pop rest)
+                                         (doom--map-keyword-to-states key)
                                          desc)
                     (error
                      (error "Not a valid `map!' property: %s" key)))
                   (setq desc nil))))
 
-              ((dotfairy--map-def key (pop rest) nil desc)
+              ((doom--map-def key (pop rest) nil desc)
                (setq desc nil)))))
 
-    (dotfairy--map-commit)
-    (macroexp-progn (nreverse (delq nil dotfairy--map-forms)))))
+    (doom--map-commit)
+    (macroexp-progn (nreverse (delq nil doom--map-forms)))))
 
-(defun dotfairy--map-append-keys (prop)
-  (let ((a (plist-get dotfairy--map-parent-state prop))
-        (b (plist-get dotfairy--map-state prop)))
+(defun doom--map-append-keys (prop)
+  (let ((a (plist-get doom--map-parent-state prop))
+        (b (plist-get doom--map-state prop)))
     (if (and a b)
         `(general--concat t ,a ,b)
       (or a b))))
 
-(defun dotfairy--map-nested (wrapper rest)
-  (dotfairy--map-commit)
-  (let ((dotfairy--map-parent-state (dotfairy--map-state)))
+(defun doom--map-nested (wrapper rest)
+  (doom--map-commit)
+  (let ((doom--map-parent-state (doom--map-state)))
     (push (if wrapper
-              (append wrapper (list (dotfairy--map-process rest)))
-            (dotfairy--map-process rest))
-          dotfairy--map-forms)))
+              (append wrapper (list (doom--map-process rest)))
+            (doom--map-process rest))
+          doom--map-forms)))
 
-(defun dotfairy--map-set (prop &optional value)
-  (unless (equal (plist-get dotfairy--map-state prop) value)
-    (dotfairy--map-commit))
-  (setq dotfairy--map-state (plist-put dotfairy--map-state prop value)))
+(defun doom--map-set (prop &optional value)
+  (unless (equal (plist-get doom--map-state prop) value)
+    (doom--map-commit))
+  (setq doom--map-state (plist-put doom--map-state prop value)))
 
-(defun dotfairy--map-def (key def &optional states desc)
+(defun doom--map-def (key def &optional states desc)
   (when (or (memq 'global states)
             (null states))
     (setq states (cons 'nil (delq 'global states))))
   (when desc
     (let (unquoted)
       (cond ((and (listp def)
-                  (keywordp (car-safe (setq unquoted (dotfairy-unquote def)))))
+                  (keywordp (car-safe (setq unquoted (doom-unquote def)))))
              (setq def (list 'quote (plist-put unquoted :which-key desc))))
             ((setq def (cons 'list
                              (if (and (equal key "")
@@ -545,29 +545,29 @@ For example, :nvi will map to (list 'normal 'visual 'insert). See
                                           :which-key desc))))))))
   (dolist (state states)
     (push (list key def)
-          (alist-get state dotfairy--map-batch-forms)))
+          (alist-get state doom--map-batch-forms)))
   t)
 
-(defun dotfairy--map-commit ()
-  (when dotfairy--map-batch-forms
-    (cl-loop with attrs = (dotfairy--map-state)
-             for (state . defs) in dotfairy--map-batch-forms
-             if (or dotfairy--map-evil-p (not state))
-             collect `(,(or dotfairy--map-fn 'general-define-key)
+(defun doom--map-commit ()
+  (when doom--map-batch-forms
+    (cl-loop with attrs = (doom--map-state)
+             for (state . defs) in doom--map-batch-forms
+             if (or doom--map-evil-p (not state))
+             collect `(,(or doom--map-fn 'general-define-key)
                        ,@(if state `(:states ',state)) ,@attrs
                        ,@(mapcan #'identity (nreverse defs)))
              into forms
-             finally do (push (macroexp-progn forms) dotfairy--map-forms))
-    (setq dotfairy--map-batch-forms nil)))
+             finally do (push (macroexp-progn forms) doom--map-forms))
+    (setq doom--map-batch-forms nil)))
 
-(defun dotfairy--map-state ()
+(defun doom--map-state ()
   (let ((plist
-         (append (list :prefix (dotfairy--map-append-keys :prefix)
-                       :infix  (dotfairy--map-append-keys :infix)
+         (append (list :prefix (doom--map-append-keys :prefix)
+                       :infix  (doom--map-append-keys :infix)
                        :keymaps
-                       (append (plist-get dotfairy--map-parent-state :keymaps)
-                               (plist-get dotfairy--map-state :keymaps)))
-                 dotfairy--map-state
+                       (append (plist-get doom--map-parent-state :keymaps)
+                               (plist-get doom--map-state :keymaps)))
+                 doom--map-state
                  nil))
         newplist)
     (while plist
@@ -583,7 +583,7 @@ For example, :nvi will map to (list 'normal 'visual 'insert). See
   "A convenience macro for defining keybinds, powered by `general'.
 If evil isn't loaded, evil-specific bindings are ignored.
 Properties
-  :leader [...]                   an alias for (:prefix dotfairy-leader-key ...)
+  :leader [...]                   an alias for (:prefix doom-leader-key ...)
   :localleader [...]              bind to localleader; requires a keymap
   :mode [MODE(s)] [...]           inner keybinds are applied to major MODE(s)
   :map [KEYMAP(s)] [...]          inner keybinds are applied to KEYMAP(S)
@@ -617,7 +617,7 @@ States
   Don't
     (map! :n :leader :desc \"Description\" \"C-c\" #'dosomething)
     (map! :leader :n :desc \"Description\" \"C-c\" #'dosomething)"
-  (dotfairy--map-process rest))
+  (doom--map-process rest))
 
 (provide 'init-keybinds)
 ;;; init-keybinds.el ends here

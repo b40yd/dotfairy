@@ -25,8 +25,8 @@
 ;;; Code:
 
 ;; Sensible deafult key bindings for non-evil users
-(setq dotfairy-leader-alt-key "C-c"
-      dotfairy-localleader-alt-key "M-m")
+(setq doom-leader-alt-key "C-c"
+      doom-localleader-alt-key "M-m")
 
 ;; persp-mode and projectile in different prefixes
 (setq persp-keymap-prefix (kbd "C-c w"))
