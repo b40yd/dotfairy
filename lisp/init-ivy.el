@@ -387,6 +387,11 @@ This is for use in `ivy-re-builders-alist'."
     (ivy-prescient-mode 1)
     (setf (alist-get 'counsel-rg ivy-re-builders-alist) #'ivy--regex-plus))
 
+  ;; Additional key bindings for Ivy
+  (use-package ivy-hydra
+    :commands ivy-hydra-read-action
+    :init (setq ivy-read-action-function #'ivy-hydra-read-action))
+
   ;; Ivy integration for Projectile
   (use-package counsel-projectile
     :hook (counsel-mode . counsel-projectile-mode)
