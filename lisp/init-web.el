@@ -137,11 +137,9 @@
 
 ;; Format HTML, CSS and JavaScript/JSON
 ;; Install: npm -g install prettier
-(use-package prettier-js
+(use-package prettier
   :diminish
-  :hook ((js-mode js2-mode json-mode web-mode css-mode sgml-mode html-mode)
-         .
-         prettier-js-mode))
+  :hook (after-init . global-prettier-mode))
 
 (use-package haml-mode)
 (use-package php-mode)
