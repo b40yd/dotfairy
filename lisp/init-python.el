@@ -64,8 +64,7 @@
          )
   :init
   ;; Disable readline based native completion
-  (setq python-shell-completion-native-enable nil
-        prettier-mode-sync-config-flag nil)
+  (setq python-shell-completion-native-enable nil)
 
   :config
   ;; Default to Python 3. Prefer the versioned Python binaries since some
