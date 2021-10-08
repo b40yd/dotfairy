@@ -404,13 +404,6 @@ This is for use in `ivy-re-builders-alist'."
   ;; Integrate yasnippet
   (use-package ivy-yasnippet)
 
-  ;; Select from xref candidates with Ivy
-  (use-package ivy-xref
-    :init
-    (when (boundp 'xref-show-definitions-function)
-      (setq xref-show-definitions-function #'ivy-xref-show-defs))
-    (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
-
   ;; Display world clock using Ivy
   (use-package counsel-world-clock)
 
