@@ -425,7 +425,7 @@
                           (upcase ,lang))))))))
 
   (defvar org-babel-lang-list
-    '("go" "python" "ipython" "ruby" "js" "css" "sass" "C" "rust" "java"))
+    '("go" "python" "ipython" "ruby" "js" "css" "sass" "c" "rust" "java" "cpp" "c++"))
   (add-to-list 'org-babel-lang-list "shell")
   (dolist (lang org-babel-lang-list)
     (eval `(lsp-org-babel-enable ,lang))))
