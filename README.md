@@ -2,7 +2,7 @@
 
 Dotfairy is simple configure emacs.d, It's work on GNU/Linux, MacOS and Wondows 7 later(Some component functions may not work properly).
 
-# Feature
+## Feature
 
 - Clean and Fast.
 - Quick fuzzy search.
@@ -28,7 +28,7 @@ Dotfairy is simple configure emacs.d, It's work on GNU/Linux, MacOS and Wondows 
 
 ## Usage
 
-### Introduction
+## Introduction
 
 Please read [blog](https://scanbuf.net/post/manual/how-do-myself-custom-editor/).
 
