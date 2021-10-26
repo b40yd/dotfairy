@@ -2,9 +2,33 @@
 
 Dotfairy is simple configure emacs.d, It's work on GNU/Linux, MacOS and Wondows 7 later(Some component functions may not work properly).
 
+# Feature
+
+- Clean and Fast.
+- Quick fuzzy search.
+- Better Org/Markdown/Hugo support.
+- Support multiple programming languages
+
+  - C/C++/Java/Python/Shell/Golang/Rust
+  - JavaScript/Typescript/JSON/YAML
+  - HTML/CSS/XML/React
+
+- Auto completion.
+- Fly syntax check.
+- Fly spell check.
+- Git integration.
+- Project/Workspace integration.
+- Pomodor integration.
+- Support Docker/K8s.
+- Support SSH manager.
+- Support Pass manager password.
+- Better Chinese support:
+  - Chinese calendar
+  - Youdao/Fanyi
+
 ## Usage
 
-### introduction
+### Introduction
 
 Please read [blog](https://scanbuf.net/post/manual/how-do-myself-custom-editor/).
 
