@@ -226,5 +226,10 @@
           (setq xref-show-definitions-function #'ivy-xref-show-defs))
         (setq xref-show-xrefs-function #'ivy-xref-show-xrefs)))))
 
+
+;; align table
+(use-package valign
+  :hook ((org-mode markdown-mode) . valign-mode))
+
 (provide 'init-prog)
 ;;; init-prog.el ends here

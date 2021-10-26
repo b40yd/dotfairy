@@ -324,8 +324,7 @@ when exporting org-mode to '(html hugo md odt)."
                (concat "\\(" fix-regexp "\\) *\n *\\(" fix-regexp "\\)")
                "\\1\\2"
                contents)))
-        (list paragraph fixed-contents info))))
-  )
+        (list paragraph fixed-contents info)))))
 
 (provide 'init-org)
 ;;; init-org.el ends here
