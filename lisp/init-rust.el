@@ -10,8 +10,9 @@
   (setq rustic-flycheck-setup-mode-line-p nil)
 
   :hook ((rustic-mode . (lambda ()
-                          (lsp-ui-doc-mode)
-                          (company-mode))))
+                          (dotfairy-set-prettify '(("fn" . ?ƒ)
+                                                   ("string" . ?𝕊)))
+                          )))
   :config
   (setq rust-indent-method-chain t)
 

@@ -53,7 +53,14 @@
   :hook ((js2-mode . js2-imenu-extras-mode)
          (js2-mode . js2-highlight-unused-variables-mode)
          (js2-mode . (lambda ()
-                       (dotfairy-set-prettify '(("()=>" . ?λ)
+                       (dotfairy-set-prettify '(
+                                                ("function" . ?ƒ)
+                                                ("function()" . ?λ)
+                                                ("() =>" . ?λ)
+                                                ("()=>" . ?λ)
+                                                ("null" . ?∅)
+                                                ("===" . ?≡)
+                                                ("!==" . ?≢)
                                                 ("**2" . ?²)
                                                 ("**3" . ?³)
                                                 ("**4" . ?⁴)
@@ -74,9 +81,8 @@
                                                 ("all" . ?∀)  ; custom
                                                 ("any" . ?∃)  ; custom
                                                 ("undefined" . ?∅)
-                                                ("Infinity" . ?∞))))
-                   )
-         )
+                                                ("String" . ?𝕊)
+                                                ("Infinity" . ?∞))))))
   :init (setq js-indent-level 2)
   :config
   ;; Use default keybindings for lsp

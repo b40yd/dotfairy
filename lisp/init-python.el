@@ -50,6 +50,13 @@
                                                    ("**-7" . (?⁻ (Br . Bl) ?⁷))  ; ⁻⁷
                                                    ("**-8" . (?⁻ (Br . Bl) ?⁸))  ; ⁻⁸
                                                    ("**-9" . (?⁻ (Br . Bl) ?⁹))  ; ⁻⁹
+                                                   ("def" . ?ƒ)
+                                                   ("lambda" . ?λ)
+                                                   ("===" . ?≡)
+                                                   ("yield" . ?⟻)
+                                                   ("str" . ?𝕊)
+                                                   ("in" . ?∈)
+                                                   ("not" . ?¬)
                                                    ("sum" . ?∑)
                                                    ("prod" . ?∏)  ; numpy.prod; unpythonic.fold.prod  https://github.com/Technologicat/unpythonic
                                                    ("product" . ?∏)  ; pandas; also alternative name for prod in numpy
@@ -60,8 +67,9 @@
                                                    ("is not" . ?≢)
                                                    ("all" . ?∀)
                                                    ("any" . ?∃)
-                                                   ("None" . ?∅)))))
-         )
+                                                   ("False" . ?𝔽)
+                                                   ("True" . ?𝕋)
+                                                   ("None" . ?∅))))))
   :init
   ;; Disable readline based native completion
   (setq python-shell-completion-native-enable nil)

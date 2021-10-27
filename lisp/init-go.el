@@ -33,6 +33,11 @@
   :mode (("\\.go\\'" . go-mode))
   :hook ((before-save . gofmt-before-save)
          (go-mode . (lambda ()
+                      (dotfairy-set-prettify '(("func()" . ?λ)
+                                               ("func" . ?ƒ)
+                                               ("map" . ?↦)
+                                               ("string" . ?𝕊)
+                                               ("nil" . ?∅)))
                       (add-hook 'before-save-hook #'lsp-format-buffer t t)
                       (add-hook 'before-save-hook #'lsp-organize-imports t t))))
   :config
