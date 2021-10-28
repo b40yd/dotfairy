@@ -201,13 +201,15 @@
 
   :bind (("C-M-<mouse-1>" . mc/add-cursor-on-click)
          ("<mouse-1>" . mc/keyboard-quit)
+         ("C->" . mc/mark-next-lines)
+         ("C-<" . mc/mark-previous-lines)
          ("<double-mouse-1>" . mouse-set-point))
-  :config (progn
-            (defun mc/prompt-for-inclusion-in-whitelist (original-command)
-              "Rewrite of `mc/prompt-for-inclusion-in-whitelist' to not ask yes/no for every newly seen command."
-              (add-to-list 'mc/cmds-to-run-for-all original-command)
-              (mc/save-lists)
-              t))
+  :config
+  (defun mc/prompt-for-inclusion-in-whitelist (original-command)
+    "Rewrite of `mc/prompt-for-inclusion-in-whitelist' to not ask yes/no for every newly seen command."
+    (add-to-list 'mc/cmds-to-run-once 'swiper-mc)
+    (add-to-list 'mc/cmds-to-run-once original-command))
+
   :init
   (setq mc/list-file (locate-user-emacs-file "mc-lists")))
 
