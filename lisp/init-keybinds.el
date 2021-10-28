@@ -80,7 +80,7 @@
 (defun doom-enlist (exp)
   "Return EXP wrapped in a list, or as-is if already a list."
   (declare (pure t) (side-effect-free t))
-  (if (listp exp) exp (list exp)))
+  (if (proper-list-p exp) exp (list exp)))
 
 (defun doom-keyword-name (keyword)
   "Returns the string name of KEYWORD (`keywordp') minus the leading colon."
@@ -471,7 +471,8 @@ For example, :nvi will map to (list 'normal 'visual 'insert). See
                   (setq rest nil))
                  (:prefix-map
                   (cl-destructuring-bind (prefix . desc)
-                      (doom-enlist (pop rest))
+                      (let ((arg (pop rest)))
+                        (if (consp arg) arg (list arg)))
                     (let ((keymap (intern (format "doom-leader-%s-map" desc))))
                       (setq rest
                             (append (list :desc desc prefix keymap
@@ -481,9 +482,10 @@ For example, :nvi will map to (list 'normal 'visual 'insert). See
                             doom--map-forms))))
                  (:prefix
                   (cl-destructuring-bind (prefix . desc)
-                      (doom-enlist (pop rest))
+                      (let ((arg (pop rest)))
+                        (if (consp arg) arg (list arg)))
                     (doom--map-set (if doom--map-fn :infix :prefix)
-                                       prefix)
+                                   prefix)
                     (when (stringp desc)
                       (setq rest (append (list :desc desc "" nil) rest)))))
                  (:textobj
@@ -496,8 +498,8 @@ For example, :nvi will map to (list 'normal 'visual 'insert). See
                  (_
                   (condition-case _
                       (doom--map-def (pop rest) (pop rest)
-                                         (doom--map-keyword-to-states key)
-                                         desc)
+                                     (doom--map-keyword-to-states key)
+                                     desc)
                     (error
                      (error "Not a valid `map!' property: %s" key)))
                   (setq desc nil))))
