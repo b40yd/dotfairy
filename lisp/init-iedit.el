@@ -203,7 +203,9 @@
          ("<mouse-1>" . mc/keyboard-quit)
          ("C->" . mc/mark-next-lines)
          ("C-<" . mc/mark-previous-lines)
-         ("<double-mouse-1>" . mouse-set-point))
+         ("<double-mouse-1>" . mouse-set-point)
+         :map mc/keymap
+         ("C-|" . mc/vertical-align-with-space))
   :config
   (defun mc/prompt-for-inclusion-in-whitelist (original-command)
     "Rewrite of `mc/prompt-for-inclusion-in-whitelist' to not ask yes/no for every newly seen command."
