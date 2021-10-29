@@ -198,22 +198,59 @@
      ("W" mc/mark-previous-like-this-word             "Mark previous like this word")
      ("<mouse-1>" mc/add-cursor-on-click              "Bind to a mouse event to add cursors by clicking")
      )))
-
   :bind (("C-M-<mouse-1>" . mc/add-cursor-on-click)
          ("<mouse-1>" . mc/keyboard-quit)
          ("C->" . mc/mark-next-lines)
          ("C-<" . mc/mark-previous-lines)
          ("<double-mouse-1>" . mouse-set-point)
+         ("C-M-SPC" . set-rectangular-region-anchor)
+         ("C->" . mc/mark-next-like-this)
+         ("C-<" . mc/mark-previous-like-this)
+         ("C-c C->" . mc/mark-all-like-this)
+         ("C-c SPC" . mc/edit-lines)
          :map mc/keymap
          ("C-|" . mc/vertical-align-with-space))
   :config
-  (defun mc/prompt-for-inclusion-in-whitelist (original-command)
-    "Rewrite of `mc/prompt-for-inclusion-in-whitelist' to not ask yes/no for every newly seen command."
-    (add-to-list 'mc/cmds-to-run-once 'swiper-mc)
-    (add-to-list 'mc/cmds-to-run-once original-command))
+  (defun my-append-to-list (list-var elements)
+    "Append ELEMENTS to the end of LIST-VAR.
 
+The return value is the new value of LIST-VAR."
+    (unless (consp elements)
+      (error "ELEMENTS must be a list"))
+    (let ((list (symbol-value list-var)))
+      (if list
+          (setcdr (last list) elements)
+        (set list-var elements)))
+    (symbol-value list-var))
+
+  (with-eval-after-load 'multiple-cursors-core
+    (my-append-to-list 'mc--default-cmds-to-run-once '(swiper-mc
+                                                       multiple-cursors-hydra/body
+                                                       multiple-cursors-hydra/mc/mark-next-like-this
+                                                       multiple-cursors-hydra/mc/mark-next-like-this-word
+                                                       multiple-cursors-hydra/mc/mark-next-word-like-this
+                                                       multiple-cursors-hydra/mc/mark-previous-like-this
+                                                       multiple-cursors-hydra/mc/mark-previous-like-this-word
+                                                       multiple-cursors-hydra/mc/mark-previous-word-like-this
+                                                       multiple-cursors-hydra/mc/add-cursor-on-click
+                                                       multiple-cursors-hydra/mc/mark-pop
+                                                       multiple-cursors-hydra/mc/unmark-next-like-this
+                                                       multiple-cursors-hydra/mc/unmark-previous-like-this
+                                                       multiple-cursors-hydra/mc/skip-to-next-like-this
+                                                       multiple-cursors-hydra/mc/skip-to-previous-like-this
+                                                       multiple-cursors-hydra/mc/edit-lines
+                                                       multiple-cursors-hydra/mc/mark-all-like-this
+                                                       multiple-cursors-hydra/mc/mark-all-words-like-this
+                                                       multiple-cursors-hydra/mc/mark-all-like-this-in-defun
+                                                       multiple-cursors-hydra/mc/mark-all-words-like-this-in-defun
+                                                       multiple-cursors-hydra/mc/mark-all-dwim
+                                                       multiple-cursors-hydra/nil))
+    (mc/save-lists))
+  (with-eval-after-load 'hungry-delete
+    (add-to-list 'mc--default-cmds-to-run-for-all 'hungry-delete-backward)
+    (mc/save-lists))
   :init
-  (setq mc/list-file (locate-user-emacs-file "mc-lists")))
+  (setq mc/list-file (concat dotfairy-etc-dir "mc-lists.el")))
 
 ;; Smartly select region, rectangle, multi cursors
 (use-package smart-region
