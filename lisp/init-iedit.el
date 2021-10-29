@@ -225,6 +225,8 @@ The return value is the new value of LIST-VAR."
 
   (with-eval-after-load 'multiple-cursors-core
     (my-append-to-list 'mc--default-cmds-to-run-once '(swiper-mc
+                                                       mouse-drag-region-rectangle
+                                                       mc/vertical-align-with-space
                                                        multiple-cursors-hydra/body
                                                        multiple-cursors-hydra/mc/mark-next-like-this
                                                        multiple-cursors-hydra/mc/mark-next-like-this-word
@@ -245,6 +247,7 @@ The return value is the new value of LIST-VAR."
                                                        multiple-cursors-hydra/mc/mark-all-words-like-this-in-defun
                                                        multiple-cursors-hydra/mc/mark-all-dwim
                                                        multiple-cursors-hydra/nil))
+    ;; (my-append-to-list 'mc--default-cmds-to-run-for-all '(mc/vertical-align-with-space))
     (mc/save-lists))
   (with-eval-after-load 'hungry-delete
     (add-to-list 'mc--default-cmds-to-run-for-all 'hungry-delete-backward)
