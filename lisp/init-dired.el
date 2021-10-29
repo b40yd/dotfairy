@@ -120,7 +120,13 @@
 
     (setq dired-omit-files
           (concat dired-omit-files
-                  "\\|^.DS_Store$\\|^.projectile$\\|^.git*\\|^.svn$\\|^.vscode$\\|\\.js\\.meta$\\|\\.meta$\\|\\.elc$\\|^.emacs.*"))))
+                  "\\|^\\.DS_Store\\'"
+                  "\\|^\\.project\\(?:ile\\)?\\'"
+                  "\\|^\\.\\(?:svn\\|git\\)\\'"
+                  "\\|^\\.ccls-cache\\'"
+                  "\\|\\(?:\\.js\\)?\\.meta\\'"
+                  "\\|\\.\\(?:elc\\|o\\|pyo\\|swp\\|class\\)\\'"
+                  "\\|^.vscode$\\|^.emacs.*\\'"))))
 
 
 ;; `find-dired' alternative using `fd'
