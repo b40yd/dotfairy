@@ -28,7 +28,6 @@
 (use-package dap-mode
   :ensure t
   :defines dap-python-executable
-  :functions dap-hydra/nil
   :diminish
   :bind (:map lsp-mode-map
          ("<f5>" . dap-debug)
@@ -36,7 +35,6 @@
 
   :hook ((after-init . dap-auto-configure-mode)
          (dap-stopped . (lambda (_args) (dap-hydra)))
-         (dap-terminated . (lambda (_args) (dap-hydra/nil)))
          (python-mode . (lambda () (require 'dap-python)))
          (ruby-mode . (lambda () (require 'dap-ruby)))
          (go-mode . (lambda () (require 'dap-go)))
