@@ -24,6 +24,7 @@
 
 ;;; Code:
 (require 'cl-lib)
+(require 'dash)
 
 (use-package adaptive-wrap
   :commands global-word-wrap-mode
