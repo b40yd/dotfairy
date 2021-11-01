@@ -36,6 +36,7 @@
 
 ;; editor
 (require 'init-iedit)
+(require 'init-wordwrap)
 
 ;; Project
 (require 'init-projectile)
