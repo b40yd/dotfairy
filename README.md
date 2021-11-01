@@ -1,5 +1,9 @@
 # Dotfairy
 
+![Linux](https://img.shields.io/badge/-Linux-blue?logo=Linux&style=flat&logoColor=white)
+![Apple](https://img.shields.io/badge/-MacOS-blue?logo=apple&style=flat&logoColor=white)
+![Windows](https://img.shields.io/badge/-Windows-blue?logo=windows&style=flat&logoColor=white)
+
 Dotfairy is simple configure emacs.d, It's work on GNU/Linux, MacOS and Wondows 7 later(Some component functions may not work properly).
 
 ## Feature
