@@ -23,6 +23,7 @@
 ;;
 
 ;;; Code:
+
 ;;;###autoload
 (defun +ivy/compile ()
   "Execute a compile command from the current buffer's directory."
