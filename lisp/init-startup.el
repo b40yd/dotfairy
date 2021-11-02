@@ -53,9 +53,9 @@
 (require 'init-ivy)
 (require 'init-autoinsert)
 (require 'init-tags)
+(require 'init-lsp)
 
 ;; Tools
-(require 'init-lsp)
 (require 'init-git)
 (require 'init-eshell)
 (require 'init-dired)
