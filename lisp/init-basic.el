@@ -65,6 +65,11 @@
         w32-pipe-read-delay 0              ; faster IPC
         w32-pipe-buffer-size (* 64 1024))) ; read more at a time (was 4K)
 
+(unless IS-MAC
+  (setq command-line-ns-option-alist nil))
+(unless IS-LINUX
+  (setq command-line-x-option-alist nil))
+
 ;; Increase how much is read from processes in a single chunk (default is 4kb)
 (setq read-process-output-max #x10000)  ; 64kb
 

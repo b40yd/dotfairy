@@ -24,48 +24,30 @@
 
 ;;; Code:
 
-(setq byte-compile-warnings '(cl-functions))
-
 ;; Speed up startup
-(defvar centaur-gc-cons-threshold (if (display-graphic-p) 64000000 1600000)
-  "The default value to use for `gc-cons-threshold'. If you experience freezing,
-decrease this. If you experience stuttering, increase this.")
+(setq auto-mode-case-fold nil)
 
-(defvar centaur-gc-cons-upper-limit (if (display-graphic-p) 512000000 128000000)
-  "The temporary value for `gc-cons-threshold' to defer it.")
+(unless (or (daemonp) noninteractive)
+  (let ((old-file-name-handler-alist file-name-handler-alist))
+    ;; If `file-name-handler-alist' is nil, no 256 colors in TUI
+    ;; @see https://emacs-china.org/t/spacemacs-centaur-emacs/3802/839
+    (setq file-name-handler-alist
+          (unless (display-graphic-p)
+            '(("\\(?:\\.tzst\\|\\.zst\\|\\.dz\\|\\.txz\\|\\.xz\\|\\.lzma\\|\\.lz\\|\\.g?z\\|\\.\\(?:tgz\\|svgz\\|sifz\\)\\|\\.tbz2?\\|\\.bz2\\|\\.Z\\)\\(?:~\\|\\.~[-[:alnum:]:#@^._]+\\(?:~[[:digit:]]+\\)?~\\)?\\'" . jka-compr-handler))))
+    (add-hook 'emacs-startup-hook
+              (lambda ()
+                "Recover file name handlers."
+                (setq file-name-handler-alist
+                      (delete-dups (append file-name-handler-alist
+                                           old-file-name-handler-alist)))))))
 
-(defvar default-file-name-handler-alist file-name-handler-alist)
-
-(setq file-name-handler-alist nil)
-(setq gc-cons-threshold centaur-gc-cons-upper-limit
+(setq gc-cons-threshold most-positive-fixnum
       gc-cons-percentage 0.5)
 (add-hook 'emacs-startup-hook
           (lambda ()
-            "Restore defalut values after startup."
-            (setq file-name-handler-alist default-file-name-handler-alist)
-            (setq gc-cons-threshold centaur-gc-cons-threshold
-                  gc-cons-percentage 0.1)
-
-            ;; GC automatically while unfocusing the frame
-            ;; `focus-out-hook' is obsolete since 27.1
-            (if (boundp 'after-focus-change-function)
-                (add-function :after after-focus-change-function
-                              (lambda ()
-                                (unless (frame-focus-state)
-                                  (garbage-collect))))
-              (add-hook 'focus-out-hook 'garbage-collect))
-
-            ;; Avoid GCs while using `ivy'/`counsel'/`swiper' and `helm', etc.
-            ;; @see http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold/
-            (defun my-minibuffer-setup-hook ()
-              (setq gc-cons-threshold centaur-gc-cons-upper-limit))
-
-            (defun my-minibuffer-exit-hook ()
-              (setq gc-cons-threshold centaur-gc-cons-threshold))
-
-            (add-hook 'minibuffer-setup-hook #'my-minibuffer-setup-hook)
-            (add-hook 'minibuffer-exit-hook #'my-minibuffer-exit-hook)))
-
+            "Recover GC values after startup."
+            (setq gc-cons-threshold 800000
+                  gc-cons-percentage 0.1)))
 
 ;; (setq user-emacs-directory (expand-file-name "lisp" load-file-name))
 
@@ -75,7 +57,13 @@ decrease this. If you experience stuttering, increase this.")
   (dolist (dir '("lisp" "site-lisp"))
     (push (expand-file-name dir user-emacs-directory) load-path)))
 
+(defun add-subdirs-to-load-path (&rest _)
+  "Add subdirectories to `load-path'."
+  (let ((default-directory (expand-file-name "site-lisp" user-emacs-directory)))
+    (normal-top-level-add-subdirs-to-load-path)))
+
 (advice-add #'package-initialize :after #'custom-config-load-path)
+(advice-add #'package-initialize :after #'add-subdirs-to-load-path)
 (custom-config-load-path)
 
 ;; Load the heart of dotfairy
@@ -85,13 +73,4 @@ decrease this. If you experience stuttering, increase this.")
 (require 'custom-ivy)
 (require 'custom-workspace)
 (require 'custom-keybinds)
-;; (setq garbage-collection-messages t) ; for debug
-(defun my-cleanup-gc ()
-  "Clean up gc."
-  (setq gc-cons-threshold  67108864) ; 64M
-  (setq gc-cons-percentage 0.1) ; original value
-  (garbage-collect))
-
-(run-with-idle-timer 4 nil #'my-cleanup-gc)
-
 ;;; init.el ends here

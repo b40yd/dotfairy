@@ -32,7 +32,7 @@
             lsp-rust-server)
 
   :hook ((prog-mode . (lambda ()
-                        (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode 'makefile-gmake-mode 'snippet-mode 'web-mode 'less-css-mode 'so-long-mode)
+                        (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode 'makefile-gmake-mode 'snippet-mode 'web-mode 'less-css-mode)
                           (lsp-deferred))))
          (lsp-mode . (lambda ()
                        ;; Integrate `which-key'
@@ -67,13 +67,19 @@
         lsp-eldoc-enable-hover nil
         lsp-signature-render-documentation nil
 
-        lsp-go-codelenses '((generate . t) (test . t) (tidy . t))
         lsp-clients-python-library-directories '("/usr/local/" "/usr/")
 
         lsp-enable-file-watchers nil
         lsp-enable-folding nil
         lsp-enable-symbol-highlighting nil
         lsp-enable-text-document-color nil
+
+        lsp-disabled-clients '(so-long-mode
+                               makefile-mode
+                               makefile-gmake-mode
+                               snippet-mode
+                               web-mode
+                               less-css-mode)
 
         lsp-enable-indentation nil
         lsp-enable-on-type-formatting nil
