@@ -231,5 +231,10 @@
 (use-package valign
   :hook ((org-mode markdown-mode) . valign-mode))
 
+
+(use-package dash-at-point
+  :bind (("C-c ." . dash-at-point)
+         ("C-c ," . dash-at-point-with-docset)))
+
 (provide 'init-prog)
 ;;; init-prog.el ends here

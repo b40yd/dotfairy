@@ -133,5 +133,7 @@
 (when (executable-find "fd")
   (use-package fd-dired))
 
+(use-package ranger)
+
 (provide 'init-dired)
 ;;; init-dired.el ends here
