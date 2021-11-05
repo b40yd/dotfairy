@@ -138,11 +138,17 @@
         (cond ((and (fboundp 'posframe-workable-p) (posframe-workable-p))
                (let ((buffer-name "*git-messenger*"))
                  (posframe-show buffer-name
-                                :string popuped-message
+                                :string (concat (propertize "\n" 'face '(:height 0.3))
+                                                popuped-message
+                                                "\n"
+                                                (propertize "\n" 'face '(:height 0.3)))
                                 :left-fringe 8
                                 :right-fringe 8
+                                :max-width (round (* (frame-width) 0.62))
+                                :max-height (round (* (frame-height) 0.62))
                                 :internal-border-width 1
-                                :internal-border-color (face-foreground 'font-lock-comment-face))
+                                :internal-border-color (face-foreground 'font-lock-comment-face nil t)
+                                :background-color (face-background 'tooltip nil t))
                  (unwind-protect
                      (push (read-event) unread-command-events)
                    (posframe-delete buffer-name))))
