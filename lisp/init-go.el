@@ -23,8 +23,8 @@
 ;;
 
 ;;; Code:
-
-
+(require 'init-basic)
+(require 'init-funcs)
 
 (use-package go-mode
   :ensure t
@@ -43,7 +43,11 @@
   :config
   ;; Env vars
   (with-eval-after-load 'exec-path-from-shell
-    (exec-path-from-shell-copy-envs '("GOPATH" "GO111MODULE" "GOPROXY")))
+    (exec-path-from-shell-copy-envs '("GOPATH" "GO111MODULE" "GOPROXY"))
+    (if (executable-find "go")
+        (exec-path-from-shell-setenv "PATH" (format "%s/bin" (cdr (dotfairy-call-process "go" "env" "GOPATH"))))
+      (user-error "Unable to find `go' in `exec-path'!"))
+    (exec-path-from-shell-initialize))
 
   ;; Install or update tools
   (defvar go--tools '("golang.org/x/tools/gopls"
@@ -67,7 +71,7 @@
 
     (dolist (pkg go--tools)
       (set-process-sentinel
-       (start-process "go-tools" "*Go Tools*" "go" "install" "-v" "-x" (concat pkg "@latest"))
+       (start-process "go-tools" "*Go Tools*" "go" "install" "-v" (concat pkg "@latest"))
        (lambda (proc _)
          (let ((status (process-exit-status proc)))
            (if (= 0 status)
