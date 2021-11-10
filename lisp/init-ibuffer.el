@@ -73,11 +73,11 @@
           "Project: ")))
 
 ;; Group ibuffer's list by vc root
-(use-package ibuffer-vc
-  :hook ((ibuffer . (lambda ()
-                      (ibuffer-vc-set-filter-groups-by-vc-root)
-                      (unless (eq ibuffer-sorting-mode 'filename/process)
-                        (ibuffer-do-sort-by-filename/process))))))
+;; (use-package ibuffer-vc
+;;   :hook ((ibuffer . (lambda ()
+;;                       (ibuffer-vc-set-filter-groups-by-vc-root)
+;;                       (unless (eq ibuffer-sorting-mode 'filename/process)
+;;                         (ibuffer-do-sort-by-filename/process))))))
 
 (provide 'init-ibuffer)
 ;;; init-ibuffer.el ends here
