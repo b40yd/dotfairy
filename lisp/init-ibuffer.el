@@ -23,6 +23,8 @@
 ;;
 
 ;;; Code:
+(require 'init-custom)
+(require 'init-funcs)
 
 (use-package ibuffer
   :ensure nil
@@ -31,7 +33,14 @@
   :config
   ;; Display icons for buffers
   (use-package all-the-icons-ibuffer
-    :init (all-the-icons-ibuffer-mode 1))
+    :init
+    (setq all-the-icons-ibuffer-icon t)
+    (all-the-icons-ibuffer-mode 1))
+
+  ;; Use human readable Size column instead of original one
+  (define-ibuffer-column size
+    (:name "Size" :inline t :header-mouse-map ibuffer-size-header-map)
+    (file-size-human-readable (buffer-size)))
 
   (with-eval-after-load 'counsel
     (with-no-warnings
@@ -62,6 +71,13 @@
                                     :height 1.0)
              " ")
           "Project: ")))
+
+;; Group ibuffer's list by vc root
+(use-package ibuffer-vc
+  :hook ((ibuffer . (lambda ()
+                      (ibuffer-vc-set-filter-groups-by-vc-root)
+                      (unless (eq ibuffer-sorting-mode 'filename/process)
+                        (ibuffer-do-sort-by-filename/process))))))
 
 (provide 'init-ibuffer)
 ;;; init-ibuffer.el ends here
