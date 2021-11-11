@@ -58,6 +58,24 @@
 (if (file-exists-p custom-file)
     (load custom-file))
 
+;; Load custom-post file
+(defun load-custom-post-file ()
+  "Load custom-post file."
+  (cond ((file-exists-p dotfairy-custom-post-org-file)
+         (and (fboundp 'org-babel-load-file)
+              (org-babel-load-file dotfairy-custom-post-org-file)))
+        ((file-exists-p dotfairy-custom-post-file)
+         (load dotfairy-custom-post-file))))
+(add-hook 'after-init-hook #'load-custom-post-file)
+
+;; HACK: DO NOT copy package-selected-packages to init/custom file forcibly.
+;; https://github.com/jwiegley/use-package/issues/383#issuecomment-247801751
+(defun my-save-selected-packages (&optional value)
+  "Set `package-selected-packages' to VALUE but don't save to `custom-file'."
+  (when value
+    (setq package-selected-packages value)))
+(advice-add 'package--save-selected-packages :override #'my-save-selected-packages)
+
 ;; Set ELPA packages
 (set-package-archives dotfairy-package-archives nil nil t)
 

@@ -78,5 +78,16 @@ whichever is found first. Must end in a slash.")
   (expand-file-name "config.el" dotfairy-emacs-dir)
   "Custom example file of Dotfairy Emacs.")
 
+(defconst dotfairy-custom-post-file
+  (expand-file-name "config.el" user-emacs-directory)
+  "Custom file after startup.
+Put private configurations to override defaults here.")
+
+(defconst dotfairy-custom-post-org-file
+  (expand-file-name "config.org" user-emacs-directory)
+  "Custom org file after startup.
+Put private configurations to override defaults here.
+Loaded by `org-babel-load-file'.")
+
 (provide 'init-const)
 ;;; init-const.el ends here
