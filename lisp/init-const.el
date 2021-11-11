@@ -75,7 +75,7 @@ Defaults to ~/.config/dotfairy, ~/.dotfairy.d or the value of the DOTFAIRYDIR en
 whichever is found first. Must end in a slash.")
 
 (defconst dotfairy-custom-example-file
-  (expand-file-name "config.el" dotfairy-emacs-dir)
+  (expand-file-name "config-example.el" dotfairy-emacs-dir)
   "Custom example file of Dotfairy Emacs.")
 
 (defconst dotfairy-custom-post-file
