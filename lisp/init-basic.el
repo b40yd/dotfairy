@@ -122,7 +122,8 @@
       adaptive-fill-regexp "[ t]+|[ t]*([0-9]+.|*+)[ t]*"
       adaptive-fill-first-line-regexp "^* *$"
       sentence-end "\\([。！？]\\|……\\|[.?!][]\"')}]*\\($\\|[ \t]\\)\\)[ \t\n]*"
-      sentence-end-double-space nil)
+      sentence-end-double-space nil
+      word-wrap-by-category t)
 
 (when (or IS-MAC IS-LINUX (daemonp))
   (use-package exec-path-from-shell
