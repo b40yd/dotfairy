@@ -29,8 +29,22 @@
   :ensure nil
   :config
   ;; Always delete and copy recursively
-  (setq dired-recursive-deletes 'always
-        dired-recursive-copies 'always)
+  (setq dired-auto-revert-buffer t  ; don't prompt to revert; just do it
+        dired-dwim-target t  ; suggest a target for moving/copying intelligently
+        dired-hide-details-hide-symlink-targets nil
+        ;; Always copy/delete recursively
+        dired-recursive-copies  'always
+        dired-recursive-deletes 'always
+        ;; Ask whether destination dirs should get created when copying/removing files.
+        dired-create-destination-dirs 'ask
+        ;; Where to store image caches
+        image-dired-dir (concat dotfairy-cache-dir "image-dired/")
+        image-dired-db-file (concat image-dired-dir "db.el")
+        image-dired-gallery-dir (concat image-dired-dir "gallery/")
+        image-dired-temp-image-file (concat image-dired-dir "temp-image")
+        image-dired-temp-rotate-image-file (concat image-dired-dir "temp-rotate-image")
+        ;; Screens are larger nowadays, we can afford slightly larger thumbnails
+        image-dired-thumb-size 150)
 
   ;; Quick sort dired buffers via hydra
   (use-package dired-quick-sort
@@ -133,7 +147,57 @@
 (when (executable-find "fd")
   (use-package fd-dired))
 
-(use-package ranger)
+(use-package ranger
+  :after dired
+  :init (setq ranger-override-dired t)
+  :config
+  (unless (file-directory-p image-dired-dir)
+    (make-directory image-dired-dir))
+
+  (defadvice! +dired--cleanup-header-line-a ()
+    "Ranger fails to clean up `header-line-format' when it is closed, so..."
+    :before #'ranger-revert
+    (dolist (buffer (buffer-list))
+      (when (buffer-live-p buffer)
+        (with-current-buffer buffer
+          (when (equal header-line-format '(:eval (ranger-header-line)))
+            (setq header-line-format nil))))))
+
+  (defadvice! +dired--cleanup-mouse1-bind-a ()
+    "Ranger binds an anonymous function to mouse-1 after previewing a buffer
+that prevents the user from escaping the window with the mouse. This command is
+never cleaned up if the buffer already existed before ranger was initialized, so
+we have to clean it up ourselves."
+    :after #'ranger-setup-preview
+    (when (window-live-p ranger-preview-window)
+      (with-current-buffer (window-buffer ranger-preview-window)
+        (local-unset-key [mouse-1]))))
+
+  (defadvice! +dired--ranger-travel-a ()
+    "Temprorary fix for this function until ralesi/ranger.el#236 gets merged."
+    :override #'ranger-travel
+    (interactive)
+    (let ((prompt "Travel: "))
+      (cond
+       ((bound-and-true-p helm-mode)
+        (ranger-find-file (helm-read-file-name prompt)))
+       ((bound-and-true-p ivy-mode)
+        (ivy-read prompt 'read-file-name-internal
+                  :matcher #'counsel--find-file-matcher
+                  :action
+                  (lambda (x)
+                    (with-ivy-window
+                      (ranger-find-file (expand-file-name x default-directory))))))
+       ((bound-and-true-p ido-mode)
+        (ranger-find-file (ido-read-file-name prompt)))
+       (t
+        (ranger-find-file (read-file-name prompt))))))
+  (setq ranger-cleanup-on-disable t
+        ranger-excluded-extensions '("mkv" "iso" "mp4")
+        ranger-deer-show-details t
+        ranger-max-preview-size 10
+        ranger-show-literal nil
+        ranger-hide-cursor nil))
 
 (provide 'init-dired)
 ;;; init-dired.el ends here
