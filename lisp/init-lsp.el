@@ -82,13 +82,6 @@
            lsp-enable-symbol-highlighting nil
            lsp-enable-text-document-color nil
 
-           lsp-disabled-clients '(so-long-mode
-                                  makefile-mode
-                                  makefile-gmake-mode
-                                  snippet-mode
-                                  web-mode
-                                  less-css-mode)
-
            lsp-enable-indentation nil
            lsp-enable-on-type-formatting nil
            lsp-session-file (concat dotfairy-etc-dir "lsp-session")
@@ -96,6 +89,14 @@
 
      :config
      (with-no-warnings
+       ;;Select what codelenses should be enabled or not.
+       (with-eval-after-load 'lsp-go
+         (setq lsp-go-codelenses '((generate . t)
+                                   (regenerate_cgo . t)
+                                   (upgrade_dependency . t)
+                                   (test . t)
+                                   (tidy . t))))
+
        ;; Disable `lsp-mode' in `git-timemachine-mode'
        (defun my-lsp--init-if-visible (fn &rest args)
          (unless (bound-and-true-p git-timemachine-mode)
