@@ -92,8 +92,6 @@
        ;;Select what codelenses should be enabled or not.
        (with-eval-after-load 'lsp-go
          (setq lsp-go-codelenses '((generate . t)
-                                   (regenerate_cgo . t)
-                                   (upgrade_dependency . t)
                                    (test . t)
                                    (tidy . t))))
 
