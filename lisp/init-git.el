@@ -23,14 +23,77 @@
 ;;
 
 ;;; Code:
+(require 'init-const)
+(require 'init-custom)
 
 (use-package magit
   :ensure t
+  :commands (+magit/quit +magit/quit-all)
   :bind
   (("C-x g" . magit-status))
   :config
+  (define-key magit-mode-map "q" #'+magit/quit)
+  (define-key magit-mode-map "Q" #'+magit/quit-all)
   ;; modeline magit status update, But doing so isn't good for performance
   (setq auto-revert-check-vc-info t)
+  (defvar +magit--stale-p nil)
+
+  (defun +magit--revert-buffer (buffer)
+    (with-current-buffer buffer
+      (kill-local-variable '+magit--stale-p)
+      (when buffer-file-name
+        (if (buffer-modified-p (current-buffer))
+            (when (bound-and-true-p vc-mode)
+              (vc-refresh-state)
+              (force-mode-line-update))
+          (revert-buffer t t t)))))
+
+;;;###autoload
+  (defun +magit-mark-stale-buffers-h ()
+    "Revert all visible buffers and mark buried buffers as stale.
+Stale buffers are reverted when they are switched to, assuming they haven't been
+modified."
+    (dolist (buffer (buffer-list))
+      (when (buffer-live-p buffer)
+        (if (get-buffer-window buffer)
+            (+magit--revert-buffer buffer)
+          (with-current-buffer buffer
+            (setq-local +magit--stale-p t))))))
+  ;;;###autoload
+  (defun +magit/quit (&optional kill-buffer)
+    "Bury the current magit buffer.
+If KILL-BUFFER, kill this buffer instead of burying it.
+If the buried/killed magit buffer was the last magit buffer open for this repo,
+kill all magit buffers for this repo."
+    (interactive "P")
+    (let ((topdir (magit-toplevel)))
+      (funcall magit-bury-buffer-function kill-buffer)
+      (or (cl-find-if (lambda (win)
+                        (with-selected-window win
+                          (and (derived-mode-p 'magit-mode)
+                               (equal magit--default-directory topdir))))
+                      (window-list))
+          (+magit/quit-all))))
+
+;;;###autoload
+  (defun +magit/quit-all ()
+    "Kill all magit buffers for the current repository."
+    (interactive)
+    (mapc #'+magit--kill-buffer (magit-mode-get-buffers))
+    (+magit-mark-stale-buffers-h))
+
+  (defun +magit--kill-buffer (buf)
+    "TODO"
+    (when (and (bufferp buf) (buffer-live-p buf))
+      (let ((process (get-buffer-process buf)))
+        (if (not (processp process))
+            (kill-buffer buf)
+          (with-current-buffer buf
+            (if (process-live-p process)
+                (run-with-timer 5 nil #'+magit--kill-buffer buf)
+              (kill-process process)
+              (kill-buffer buf)))))))
+
   ;; Access Git forges from Magit
   ;; see config: https://magit.vc/manual/ghub/Storing-a-Token.html#Storing-a-Token
   ;; writting like as gitlib.com:
@@ -42,8 +105,9 @@
                   '(("#" 5 t (:right-align t) number nil)
                     ("Title" 60 t nil title  nil)
                     ("State" 6 t nil state nil)
-                    ("Updated" 10 t nill updated nil)))))
-  )
+                    ("Updated" 10 t nill updated nil)))
+      :config
+      (setq forge-database-file (concat dotfairy-etc-dir "forge/forge-database.sqlite")))))
 
 (use-package magit-todos
   :after magit
@@ -52,16 +116,18 @@
   (let ((inhibit-message t))
     (magit-todos-mode 1))
   :config
-  (transient-append-suffix 'magit-status-jump '(0 0 -1)
-    '("T " "Todos" magit-todos-jump-to-todos))
-  (setq magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?")
-  )
+  (setq magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?"))
 
 
 (use-package magit-gitflow
   :hook (magit-mode . turn-on-magit-gitflow)
   :config
-  (define-key magit-mode-map "@" 'magit-gitflow-popup))
+  (define-key magit-mode-map "@" 'magit-gitflow-popup)
+  (transient-replace-suffix 'magit-dispatch 'magit-worktree
+    '("@" "Gitflow" magit-gitflow-popup))
+
+  (transient-append-suffix 'magit-dispatch '(0 -1 -1)
+    '("*" "Worktree" magit-worktree)))
 
 ;; Walk through git revisions of a file
 (use-package git-timemachine
@@ -170,7 +236,7 @@
   :diminish
   :pretty-hydra
   ((:title (pretty-hydra-title "Smerge" 'octicon "diff")
-           :color pink :quit-key "q")
+    :color pink :quit-key "q")
    ("Move"
     (("n" smerge-next "next")
      ("p" smerge-prev "previous"))
@@ -197,7 +263,7 @@
              (bury-buffer))
       "Save and bury buffer" :exit t))))
   :bind (:map smerge-mode-map
-              ("C-c v m" . smerge-mode-hydra/body))
+         ("C-c v m" . smerge-mode-hydra/body))
   :hook ((find-file . (lambda ()
                         (save-excursion
                           (goto-char (point-min))
