@@ -196,6 +196,8 @@ we have to clean it up ourselves."
         ranger-excluded-extensions '("mkv" "iso" "mp4")
         ranger-deer-show-details t
         ranger-max-preview-size 10
+        ranger-show-hidden t
+        ranger-dont-show-binary t
         ranger-show-literal nil
         ranger-hide-cursor nil))
 
