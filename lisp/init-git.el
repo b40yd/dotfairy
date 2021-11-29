@@ -278,6 +278,16 @@ kill all magit buffers for this repo."
   :bind (:map vc-prefix-map
          ("C-c v B" . browse-at-remote)))
 
+;; Show git blame info
+(use-package blamer
+  :custom-face (blamer-face ((t (:inherit completions-annotations :height 0.85))))
+  :hook (after-init . global-blamer-mode)
+  :init (setq blamer-idle-time 0.5
+              blamer-min-offset 40
+              blamer-author-formatter "%s "
+              blamer-datetime-formatter "[%s] "
+              blamer-commit-formatter "- %s"))
+
 ;; Git related modes
 (use-package git-modes)
 
