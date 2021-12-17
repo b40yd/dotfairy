@@ -41,9 +41,6 @@
                                    flow
                                    graphql
                                    html
-                                   json
-                                   json5
-                                   json-stringify
                                    less
                                    lua
                                    markdown
