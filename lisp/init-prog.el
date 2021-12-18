@@ -25,40 +25,6 @@
 (require 'init-const)
 ;;; Code:
 
-;; Format HTML, CSS and JavaScript/JSON ...
-;; Install: npm -g install prettier
-(use-package prettier
-  :diminish
-  :hook (after-init . global-prettier-mode)
-  :init
-  (setq prettier-enabled-parsers '(angular
-                                   babel
-                                   babel-flow
-                                   babel-ts
-                                   css
-                                   elm
-                                   espree
-                                   flow
-                                   graphql
-                                   html
-                                   less
-                                   lua
-                                   markdown
-                                   mdx
-                                   meriyah
-                                   postgresql
-                                   pug
-                                   scss
-                                   sh
-                                   solidity
-                                   svelte
-                                   swift
-                                   toml
-                                   typescript
-                                   vue
-                                   xml
-                                   yaml)))
-
 ;; Prettify Symbols
 ;; e.g. display “lambda” as “λ”
 (use-package prog-mode
