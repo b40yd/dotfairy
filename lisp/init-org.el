@@ -222,62 +222,60 @@ prepended to the element after the #+HEADER: tag."
             ("HOLD" "✰")
             ("WAITING" "☕")
             ("CANCELLED" "✘")
-            ("DONE" "✔")))
-
-    )
+            ("DONE" "✔"))))
 
   (use-package org-super-agenda
-    :hook (org-mode . org-super-agenda-mode)
+    :hook ((org-agenda-mode org-mode) . org-super-agenda-mode)
     :config
     (setq org-agenda-custom-commands
-          '(("z" "Next View"
+          '(("z" "Super view"
              ((agenda "" ((org-agenda-span 'day)
                           (org-super-agenda-groups
                            '((:name "Today"
                               :time-grid t
-                              :todo "TODAY"
                               :date today
                               :scheduled today
-                              :order 0)
-                             (:habit t)
+                              :order 1)
                              (:name "Due Today"
                               :deadline today
                               :order 2)
                              (:name "Due Soon"
                               :deadline future
-                              :order 8)
+                              :order 2)
                              (:name "Overdue"
                               :deadline past
-                              :order 7)
-                             ))))
+                              :order 1)))))
               (alltodo "" ((org-agenda-overriding-header "")
                            (org-super-agenda-groups
                             '((:name "Passed Deadline"
                                :and (:deadline past :todo ("TODO" "WAITING" "HOLD" "NEXT"))
                                :face (:background "#7f1b19"))
                               (:name "Important"
-                               :priority "A")
-                              (:priority<= "B"
-                               ;; Show this section after "Today" and "Important", because
-                               ;; their order is unspecified, defaulting to 0. Sections
-                               ;; are displayed lowest-number-first.
+                               :tag "Important"
+                               :priority "A"
                                :order 1)
+                              (:name "Issues"
+                               :and (:tag "Issue" :todo ("TODO" "WAITING" "HOLD" "NEXT"))
+                               :order 1)
+                              (:name "Next to do"
+                               :todo ("TODO" "NEXT")
+                               :order 2)
                               (:name "Waiting"
                                :todo "WAITING"
-                               :order 9)
-                              (:name "On hold"
-                               :todo "HOLD"
-                               :order 10)
-                              (:name "On Working"
-                               :todo "NEXT"
-                               :order 9)
-                              (:name "To Read"
-                               :tag ("Read" "Book" "Books")
-                               :todo "SOMEDAY")
-                              ))))
-              ))))
-    (setq org-agenda-breadcrumbs-separator " ❯ ")
-    )
+                               :order 3)
+                              (:name "On Hold"
+                               :todo ("SOMEDAY" "HOLD")
+                               :order 4)
+                              (:name "Projects"
+                               :tag "Project"
+                               :order 14)
+                              (:name "Research"
+                               :tag "Research"
+                               :order 15)
+                              (:name "To read"
+                               :tag "Book"
+                               :order 30)))))))))
+    (setq org-agenda-breadcrumbs-separator " ❯ "))
 
   ;; Babel
   (setq org-confirm-babel-evaluate nil
