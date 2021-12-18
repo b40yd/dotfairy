@@ -153,10 +153,17 @@ install-json-server() {
     fi
 }
 
+
+install-mermaid-cli() {
+  if type npm &> /dev/null;then
+     npm install -g @mermaid-js/mermaid-cli --registry=https://registry.npm.taobao.org
+  fi
+}
+
 install-css-server() {
-    if type npm &> /dev/null;then
-        npm install -g vscode-css-languageserver-bin --registry=https://registry.npm.taobao.org
-    fi
+  if type npm &> /dev/null;then
+     npm install -g vscode-css-languageserver-bin --registry=https://registry.npm.taobao.org
+  fi
 }
 
 install-html-server() {
@@ -206,6 +213,7 @@ install-all() {
     install-html-server
     install-rustup
     install-clang
+    install-mermaid-cli
 }
 
 install-fonts() {

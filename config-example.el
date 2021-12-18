@@ -78,6 +78,21 @@
   (when (display-graphic-p)
     (dotfairy-set-fonts)))
 
+;;setting ssh sessions
+;; (setq ssh-manager-sessions '((:session-name "demo"
+;;                               :kind "proxy"
+;;                               :proxy-host "localhost"
+;;                               :proxy-port "22"
+;;                               :proxy-user "root"
+;;                               :proxy-password ""
+;;                               :remote-host "127.0.0.1"
+;;                               :remote-port "22"
+;;                               :remote-user "root"
+;;                               :remote-password ""
+;;                               :totp-kind "FreeOTP" ; default '(FreeOTP custom)
+;;                               :totp-key ""
+;;                               :totp-message "verification code:")))
+
 ;; default workspace
 (setq default-directory "~/")
 ;; .authinfo
@@ -87,5 +102,10 @@
   ;; (push '("git.scanbuf.net" "git.scanbuf.net/api/v4" "git.scanbuf.net" forge-gitlab-repository) forge-alist)
   ;; (push '("git.scanbuf.net" "git.scanbuf.net/api/v4" "git.scanbuf.net" forge-github-repository) forge-alist)
   )
+
+;; setting proxy
+;; (dotfairy/proxy-http-toggle)
+;; (dotfairy/proxy-socks-toggle)
+
 ;; (byte-recompile-directory package-user-dir 0 0) ;
 ;;; config.el ends here

@@ -36,7 +36,7 @@
 (require 'subr-x)
 
 (defcustom ssh-manager-sessions '()
-  "Set user full name."
+  "Set ssh connect session."
   :group 'ssh-manager
   :type '((:session-name "demo"
            :kind "proxy"

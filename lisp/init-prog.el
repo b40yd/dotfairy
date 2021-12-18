@@ -198,6 +198,55 @@
 (use-package memory-usage)
 (use-package tldr)
 (use-package command-log-mode)
+(use-package mermaid-mode)
+(use-package plantuml-mode
+  :config
+  (setq plantuml-jar-path (expand-file-name "plantuml.jar" dotfairy-local-dir)))
+
+(use-package devdocs
+  :bind (:map prog-mode-map
+         ("M-<f1>" . devdocs-dwim))
+  :init
+  (defvar devdocs-major-mode-docs-alist
+    '((c-mode . ("C"))
+      (c++-mode . ("C++"))
+      (python-mode . ("Python 3.9" "Python 3.8"))
+      (ruby-mode . ("Ruby 3"))
+      (go-mode . ("Go"))
+      (rustic-mode . ("Rust"))
+      (css-mode . ("CSS"))
+      (html-mode . ("HTML"))
+      (js-mode . ("JavaScript" "JQuery"))
+      (js2-mode . ("JavaScript" "JQuery"))
+      (emacs-lisp-mode . ("Elisp")))
+    "Alist of MAJOR-MODE and list of docset names.")
+
+  (mapc
+   (lambda (e)
+     (add-hook (intern (format "%s-hook" (car e)))
+               (lambda ()
+                 (setq-local devdocs-current-docs (cdr e)))))
+   devdocs-major-mode-docs-alist)
+
+  (defun devdocs-dwim()
+    "Look up a DevDocs documentation entry.
+Install the doc if it's not installed."
+    (interactive)
+    ;; Install the doc if it's not installed
+    (mapc
+     (lambda (str)
+       (let* ((docs (split-string str " "))
+              (doc (if (length= docs 1)
+                       (downcase (car docs))
+                     (concat (downcase (car docs)) "~" (downcase (cdr docs))))))
+         (unless (and (file-directory-p devdocs-data-dir)
+                      (directory-files devdocs-data-dir nil "^[^.]"))
+           (message "Installing %s..." str)
+           (devdocs-install doc))))
+     (alist-get major-mode devdocs-major-mode-docs-alist))
+
+    ;; Lookup the symbol at point
+    (devdocs-lookup nil (thing-at-point 'symbol t))))
 
 ;; pip3 install sqlparse
 (use-package sqlformat
@@ -232,6 +281,12 @@
 (use-package dash-at-point
   :bind (("C-c ." . dash-at-point)
          ("C-c ," . dash-at-point-with-docset)))
+
+;; Batch Mode eXtras
+(use-package bmx-mode
+  :after company
+  :diminish
+  :hook (after-init . bmx-mode-setup-defaults))
 
 (provide 'init-prog)
 ;;; init-prog.el ends here

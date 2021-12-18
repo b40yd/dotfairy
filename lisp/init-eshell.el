@@ -125,7 +125,7 @@
   (use-package esh-autosuggest
     :defines ivy-display-functions-alist
     :bind (:map eshell-mode-map
-                ([remap eshell-pcomplete] . completion-at-point))
+           ([remap eshell-pcomplete] . completion-at-point))
     :hook ((eshell-mode . esh-autosuggest-mode)
            (eshell-mode . eshell-setup-ivy-completion))
     :init (defun eshell-setup-ivy-completion ()
@@ -143,6 +143,11 @@
   (use-package eshell-z
     :hook (eshell-mode . (lambda () (require 'eshell-z)))))
 
+;; Fish shell
+(use-package fish-mode
+  :hook (fish-mode . (lambda ()
+                       (add-hook 'before-save-hook
+                                 #'fish_indent-before-save))))
 
 (provide 'init-eshell)
 ;;; init-eshell.el ends here
