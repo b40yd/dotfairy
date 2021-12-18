@@ -54,7 +54,6 @@
 ;; for centos, you need llvm-devel, cppunit-devl
 ;; install gcc-4.9, cmake 3.1 and download rtags from github and make it
 ;;
-
 (use-package rtags
   :ensure t
   :config
@@ -65,8 +64,7 @@
   (define-key c-mode-base-map (kbd "M-.")
     (function rtags-find-symbol-at-point))
   (define-key c-mode-base-map (kbd "M-,")
-    (function rtags-find-references-at-point))
-  )
+    (function rtags-find-references-at-point)))
 
 ;;
 ;; cmake-ide enable rdm(rtags) auto start and rc(rtags) to watch directory
@@ -74,8 +72,7 @@
 (use-package cmake-ide
   :ensure t
   :config
-  (cmake-ide-setup)
-  )
+  (cmake-ide-setup))
 
 
 ;;
@@ -88,8 +85,7 @@
   :config
   (add-hook 'cmake-mode-hook (lambda()
                                (add-to-list (make-local-variable 'company-backends)
-                                            'company-cmake)))
-  )
+                                            'company-cmake))))
 
 ;;
 ;; for c formatting
@@ -99,8 +95,7 @@
   :config
   (setq clang-format-style-option "llvm")
   (add-hook 'c-mode-hook (lambda() (add-hook 'before-save-hook 'clang-format-buffer)))
-  (add-hook 'c++-mode-hook (lambda() (add-hook 'before-save-hook 'clang-format-buffer)))
-  )
+  (add-hook 'c++-mode-hook (lambda() (add-hook 'before-save-hook 'clang-format-buffer))))
 
 (provide 'init-clang)
 ;;; init-clang.el ends here
