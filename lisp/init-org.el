@@ -146,12 +146,9 @@ prepended to the element after the #+HEADER: tag."
         org-src-tab-acts-natively t
         org-duration-format '((special . h:mm))
         org-directory dotfairy-org-dir ;; needs to be defined for `org-default-notes-file'
-        org-default-notes-file (expand-file-name "notes.org" org-directory))
-
-  (with-eval-after-load 'plantuml-mode
-    (setq org-plantuml-jar-path plantuml-jar-path))
-
-  (setq org-enforce-todo-checkbox-dependencies t
+        org-default-notes-file (expand-file-name "notes.org" org-directory)
+        org-agenda-files `(,dotfairy-org-dir)
+        org-enforce-todo-checkbox-dependencies t
         org-enforce-todo-dependencies t
         org-hide-leading-stars t
         org-log-done 'time
@@ -169,7 +166,6 @@ prepended to the element after the #+HEADER: tag."
         org-pretty-entities t
         org-odd-levels-only t
         org-list-allow-alphabetical t
-        org-agenda-files `(,dotfairy-org-dir)
         org-capture-templates
         `(("b" "book" entry (file ,(concat org-directory "/book.org"))
            "*  %^{Title} %?\n%U\n%a\n")
@@ -185,8 +181,7 @@ prepended to the element after the #+HEADER: tag."
         ;; Targets include this file and any file contributing to the agenda -
         ;; up to 5 levels deep
         org-refile-targets '((org-agenda-files :maxlevel . 5)
-                             (nil :maxlevel . 5))
-        )
+                             (nil :maxlevel . 5)))
 
   (use-package org-fancy-priorities
     :diminish
@@ -207,15 +202,15 @@ prepended to the element after the #+HEADER: tag."
                                                "🐰" "🐱" "🐲" "🐳" "🐴" "🐵" "🐶" "🐷" "🐸" "🐹" "🐺" "🐻"
                                                "🐼" "𝍖" "🩠" "🩡" "🩢" "🩣" "🩤" "🩥" "🩦")
           org-superstar-leading-bullet ?\s
-          org-hide-leading-stars t)
-    (setq org-superstar-item-bullet-alist
+          org-hide-leading-stars t
+          org-superstar-item-bullet-alist
           '((?* . ?🞿)
             (?+ . ?⮚)
             (?- . ?•)
-            ))
-    ;; Enable custom bullets for TODO items
-    (setq org-superstar-special-todo-items t)
-    (setq org-superstar-todo-bullet-alist
+            )
+          ;; Enable custom bullets for TODO items
+          org-superstar-special-todo-items t
+          org-superstar-todo-bullet-alist
           '(("TODO" "⚐")
             ("NEXT" "⚛")
             ("SOMEDAY" "🌅")
@@ -239,12 +234,12 @@ prepended to the element after the #+HEADER: tag."
                              (:name "Due Today"
                               :deadline today
                               :order 2)
-                             (:name "Due Soon"
+                             (:name "Next Work"
                               :deadline future
                               :order 2)
                              (:name "Overdue"
                               :deadline past
-                              :order 1)))))
+                              :order 3)))))
               (alltodo "" ((org-agenda-overriding-header "")
                            (org-super-agenda-groups
                             '((:name "Passed Deadline"
@@ -293,6 +288,9 @@ prepended to the element after the #+HEADER: tag."
                                (sql . t)
                                (java . t)
                                (plantuml . t)))
+
+  (when (featurep 'plantuml-mode)
+    (setq org-plantuml-jar-path plantuml-jar-path))
 
   ;; ob-sh renamed to ob-shell since 26.1.
   (if (>= emacs-major-version 26)
