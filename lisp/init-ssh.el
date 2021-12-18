@@ -60,8 +60,7 @@
                                                    (string-trim (buffer-string)))))
                                     (:name "Custom"
                                      :function (lambda (totp-key)
-                                                 (setq totp-key (read-string "Enter TOTP key: "))
-                                                 )))
+                                                 (setq totp-key (read-string "Enter TOTP key: ")))))
   "Set totp callback function."
   :group 'ssh-manager
   :type '())
