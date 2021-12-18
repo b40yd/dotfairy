@@ -217,9 +217,9 @@ Lisp function does not specify a special indentation."
   :custom-face
   (macrostep-expansion-highlight-face ((t (:inherit tooltip :extend t))))
   :bind (:map emacs-lisp-mode-map
-              ("C-c e" . macrostep-expand)
-              :map lisp-interaction-mode-map
-              ("C-c e" . macrostep-expand)))
+         ("C-c e" . macrostep-expand)
+         :map lisp-interaction-mode-map
+         ("C-c e" . macrostep-expand)))
 
 ;; A better *Help* buffer
 (use-package helpful
