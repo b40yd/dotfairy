@@ -61,9 +61,9 @@
                                     (:name "Custom"
                                      :function (lambda (totp-key)
                                                  (setq totp-key (read-string "Enter TOTP key: ")))))
-  "Set totp callback function."
+  "Set totp verification code hook."
   :group 'ssh-manager
-  :type '())
+  :type 'list)
 
 (defun ssh-manager--all-totp-name ()
   (let ((names '()))
