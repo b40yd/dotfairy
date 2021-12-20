@@ -23,7 +23,7 @@
 
 ;;; Commentary:
 ;;
-;; A ssh session manager and files upload or download tools for Emacs.
+;; A SSH session manager and files upload or download tools for Emacs.
 ;; It's like `xshell', `mobaxterm' or other tools same work.
 
 ;;; Code:
@@ -36,7 +36,7 @@
 (require 'subr-x)
 
 (defcustom ssh-manager-sessions '()
-  "Set ssh connect session."
+  "Set SSH connect session."
   :group 'ssh-manager
   :type '((:session-name "demo"
            :kind "proxy"
@@ -66,6 +66,7 @@
   :type 'list)
 
 (defun ssh-manager--all-totp-name ()
+  "Lookup all TOTP name."
   (let ((names '()))
     (dolist (hook ssh-manager-totp-hooks)
       (let ((name  (plist-get hook :name)))
@@ -73,6 +74,7 @@
     names))
 
 (defun ssh-manager-lookup-totp-func (name value)
+  "Lookup TOTP hook function."
   (let ((fun nil))
     (dolist (hook ssh-manager-totp-hooks)
       (if (string= name  (plist-get hook :name))
@@ -93,17 +95,17 @@
   (or ssh-manager--session-groups (setq ssh-manager--session-groups (make-ssh-manager-session-groups))))
 
 (defun ssh-manager-show-ssh-session-groups ()
-  "Show ssh server groups."
+  "Show SSH server groups."
   (interactive)
   (print (ssh-manager-session-groups-servers (ssh-manager-session-groups))))
 
 (defun ssh-manager-add-this-ssh-session-to-groups ()
-  "Add this ssh server session to groups."
+  "Add this SSH server session to groups."
   (interactive)
   (cl-pushnew (buffer-name) (ssh-manager-session-groups-servers (ssh-manager-session-groups)) :test 'equal))
 
 (defun ssh-manager-remove-this-ssh-session-from-groups ()
-  "Remove this ssh server session from groups."
+  "Remove this SSH server session from groups."
   (interactive)
   (ssh-manager--remove-buffer-name-from-groups (buffer-name)))
 
@@ -114,7 +116,7 @@
         (-remove-item buf-name (ssh-manager-session-groups-servers (ssh-manager-session-groups)))))
 
 (defun ssh-manager-remove-ssh-session-from-groups (session)
-  "Remove ssh server session from groups."
+  "Remove SSH server session from groups."
   (interactive  (list (completing-read "Select server to connect: "
                                        (ssh-manager-session-groups-servers (ssh-manager-session-groups)))))
   (ssh-manager--remove-buffer-name-from-groups session))
@@ -139,7 +141,7 @@
   (use-local-map ssh-manager-mode-map))
 
 (defun ssh-manager-execute-current-line-cmd-to-ssh ()
-  "Execute command to ssh server groups."
+  "Execute command to SSH server groups."
   (interactive)
   (let ((line (ssh-manager-read-current-line-cmd)))
     (ssh-manager-send-cmd-to-session-groups line)
@@ -153,18 +155,19 @@
    (line-end-position)))
 
 (defun ssh-manager-execute-region-cmd-to-ssh ()
-  "Execute region cmd to ssh"
+  "Execute region cmd to SSH"
   (interactive)
   (let ((begin (region-beginning))
         (end (region-end)))
     (ssh-manager-send-cmd-to-session-groups (buffer-substring begin end))))
 
 (defun ssh-manager-execute-buffer-cmd-to-ssh ()
-  "Execute buffer cmd to ssh"
+  "Execute buffer cmd to SSH"
   (interactive)
   (ssh-manager-send-cmd-to-session-groups (buffer-substring-no-properties (point-min) (point-max))))
 
 (defun ssh-manager ()
+  "Enable SSH manager mode"
   (interactive)
   (let ((buffer (generate-new-buffer "*SSH Manager*")))
     (set-buffer-major-mode buffer)
@@ -172,7 +175,7 @@
     (funcall 'ssh-manager-mode)
     (setq buffer-offer-save t)))
 
-;; ssh connect session
+;; SSH connect session
 (cl-defstruct ssh-manager-session
   ;; contains the folders that are part of the current session
   servers
@@ -364,6 +367,7 @@ and binds some keystroke with `term-raw-map'."
 ;; sudo apt-get install sshpass
 ;; sudo yum install sshpass
 (defun ssh-manager-connect-ssh (server)
+  "connect to remote server"
   (let* ((session-name (plist-get server :session-name))
          (kind (intern (plist-get server :kind)))
          (username (plist-get server :remote-user))
@@ -436,7 +440,7 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
                  (term-send-input))))))))
 
 (defun ssh-manager--filter-ssh-session ()
-  "filter ssh session name list."
+  "Filter SSH session name list."
   (let ((lst '()))
     (dolist (server (->> (ssh-manager-session)
                          (ssh-manager-session-servers)))
@@ -446,7 +450,7 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
     lst))
 
 (defun ssh-manager-switch-to-server (session)
-  "Select ssh server to connect."
+  "Select SSH server to connect."
   (interactive (list (completing-read "Select server to connect: "
                                       (ssh-manager--filter-ssh-session))))
   (let ((connect '()))
@@ -559,7 +563,7 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
 
 
 (defun ssh-manager-edit-ssh-session-config (session)
-  "Edit ssh session config."
+  "Edit SSH session config."
   (interactive (list (completing-read "Select server to edit: "
                                       (ssh-manager--filter-ssh-session))))
 
@@ -619,6 +623,7 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
   (ssh-manager--info "installed."))
 
 (defun ssh-manager--replace-in-string (what with in)
+  "Replace substring."
   (replace-regexp-in-string (regexp-quote what) with in nil 'literal))
 
 ;;;###autoload
@@ -656,8 +661,12 @@ Warning: freezes indefinitely on any stdin prompt."
          (password (if (string= kind 'proxy)
                        (plist-get server :proxy-password)
                      (plist-get server :remote-password)))
-         (totp-key (ssh-manager-lookup-totp-func (plist-get server :totp-kind)
-                                                 (plist-get server :totp-key)))
+         (totp-kind (plist-get server :totp-kind))
+         (totp-key (if (or (null totp-kind)
+                           (string= totp-kind ""))
+                       ""
+                     (ssh-manager-lookup-totp-func totp-kind
+                                                   (plist-get server :totp-key))))
          (totp-message (plist-get server :totp-message))
          (proxy-host (plist-get server :proxy-host))
          (proxy-port (plist-get server :proxy-port))
@@ -672,14 +681,12 @@ Warning: freezes indefinitely on any stdin prompt."
                (setq argv (append argv `("-o" ,totp-key))))
            (if (not (string-empty-p totp-message))
                (setq argv (append argv `("-O" ,(format "'%s'" totp-message)))))
-           (if (and (not (string= proxy-host nil))
-                    (not (string= proxy-user nil))
-                    (not (string= proxy-port nil)))
+           (if (string= kind 'proxy)
                (setq argv (append argv `("ssh" "-o" "'StrictHostKeychecking=no'" "-J" ,(format "%s@%s:%s" proxy-user proxy-host proxy-port))))
              (setq argv (append argv `("ssh" "-o" "'StrictHostKeychecking=no'"))))
            (if (not (string-empty-p port))
                (setq argv (append argv `("-p" ,port))))
-           (setq argv (list "rsync" "-r" "-P" (concat "--rsh=\"" (mapconcat 'identity argv " ") "\""))))
+           (setq argv (list "rsync" "-r" "-P" (concat "-e \"" (mapconcat 'identity argv " ") "\""))))
           ((string= cmd "scp")
            (if (not (string-empty-p password))
                (setq argv (append argv `("-p" ,password))))
@@ -690,9 +697,7 @@ Warning: freezes indefinitely on any stdin prompt."
            (if (string-empty-p host)
                (ssh-manager--error "SSH hostname must be set. it's cannot empty.")
              (setq argv (append argv `("scp" "-r" "-o" "StrictHostKeychecking=no")))
-             (if (and (not (string= proxy-host nil))
-                      (not (string= proxy-user nil))
-                      (not (string= proxy-port nil)))
+             (if (string= kind 'proxy)
                  (setq argv (append argv `("-J" ,(format "%s@%s:%s" proxy-user proxy-host proxy-port)))))
              (if (not (string-empty-p port))
                  (setq argv (append argv `("-P" ,port)))))))
