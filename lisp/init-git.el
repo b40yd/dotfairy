@@ -32,6 +32,12 @@
   :bind
   (("C-x g" . magit-status))
   :config
+  (with-eval-after-load 'transient
+    (defun my-transient-file (file-name)
+      (concat dotfairy-local-dir (convert-standard-filename file-name)))
+    (setq transient-history-file (my-transient-file "transient/history.el")
+          transient-values-file (my-transient-file "transient/values.el")
+          transient-levels-file (my-transient-file "transient/levels.el")))
   (define-key magit-mode-map "q" #'+magit/quit)
   (define-key magit-mode-map "Q" #'+magit/quit-all)
   ;; modeline magit status update, But doing so isn't good for performance
