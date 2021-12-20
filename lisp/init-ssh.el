@@ -52,15 +52,18 @@
            :totp-key ""
            :totp-message "verification code:")))
 
+
+
 (defcustom ssh-manager-totp-hooks '((:name "FreeOTP"
-                                     :function (lambda (totp-key)
+                                     :function (lambda (&rest args)
                                                  (with-temp-buffer
-                                                   (or (apply #'call-process "oathtool" nil t nil (list "--totp" "-b" totp-key))
+                                                   (or (apply
+                                                        #'call-process "oathtool" nil t nil `("--totp" "-b" ,@args))
                                                        "")
                                                    (string-trim (buffer-string)))))
                                     (:name "Custom"
-                                     :function (lambda (totp-key)
-                                                 (setq totp-key (read-string "Enter TOTP key: ")))))
+                                     :function (lambda (&rest args)
+                                                 (setq args (read-string "Enter TOTP key: ")))))
   "Set totp verification code hook."
   :group 'ssh-manager
   :type 'list)
@@ -73,14 +76,16 @@
         (push name names)))
     names))
 
-(defun ssh-manager-lookup-totp-func (name value)
-  "Lookup TOTP hook function."
+(defun ssh-manager-lookup-totp-func (name &rest args)
+  "Lookup TOTP hook function.
+Argument NAME TOTP kind name.
+Optional argument ARGS TOTP handler function args."
   (let ((fun nil))
     (dolist (hook ssh-manager-totp-hooks)
       (if (string= name  (plist-get hook :name))
           (setq fun (plist-get hook :function))))
     (if (not (equal fun nil))
-        (funcall fun value))))
+        (apply fun args))))
 
 ;; ssh-manager-mode
 (cl-defstruct ssh-manager-session-groups
@@ -92,6 +97,7 @@
   "Contain the `ssh-manager-session-groups' for the current Emacs instance.")
 
 (defun ssh-manager-session-groups ()
+  "Get all session by group."
   (or ssh-manager--session-groups (setq ssh-manager--session-groups (make-ssh-manager-session-groups))))
 
 (defun ssh-manager-show-ssh-session-groups ()
@@ -110,18 +116,20 @@
   (ssh-manager--remove-buffer-name-from-groups (buffer-name)))
 
 (defun ssh-manager--remove-buffer-name-from-groups (buf-name)
-  "Remove buffer name from groups."
+  "Remove buffer name from groups.
+Argument BUF-NAME select buffer name."
 
   (setf (ssh-manager-session-groups-servers (ssh-manager-session-groups))
         (-remove-item buf-name (ssh-manager-session-groups-servers (ssh-manager-session-groups)))))
 
 (defun ssh-manager-remove-ssh-session-from-groups (session)
-  "Remove SSH server session from groups."
+  "Remove SSH server SESSION from groups."
   (interactive  (list (completing-read "Select server to connect: "
                                        (ssh-manager-session-groups-servers (ssh-manager-session-groups)))))
   (ssh-manager--remove-buffer-name-from-groups session))
 
 (defun ssh-manager-send-cmd-to-session-groups (cmd)
+  "Send CMD to session."
   (let ((current-buf (current-buffer)))
     (dolist (server (->> (ssh-manager-session-groups)
                          (ssh-manager-session-groups-servers)))
@@ -133,7 +141,7 @@
                                (define-key keymap (kbd "C-c C-e") 'ssh-manager-execute-region-cmd-to-ssh)
                                (define-key keymap (kbd "C-c C-.") 'ssh-manager-execute-current-line-cmd-to-ssh)
                                keymap)
-  "keymap for `ssh-manager-mode'")
+  "Keymap for `ssh-manager-mode'.")
 
 (define-derived-mode ssh-manager-mode prog-mode "SSH Manager Mode"
   (with-no-warnings
@@ -155,19 +163,19 @@
    (line-end-position)))
 
 (defun ssh-manager-execute-region-cmd-to-ssh ()
-  "Execute region cmd to SSH"
+  "Execute region cmd to SSH."
   (interactive)
   (let ((begin (region-beginning))
         (end (region-end)))
     (ssh-manager-send-cmd-to-session-groups (buffer-substring begin end))))
 
 (defun ssh-manager-execute-buffer-cmd-to-ssh ()
-  "Execute buffer cmd to SSH"
+  "Execute buffer cmd to SSH."
   (interactive)
   (ssh-manager-send-cmd-to-session-groups (buffer-substring-no-properties (point-min) (point-max))))
 
 (defun ssh-manager ()
-  "Enable SSH manager mode"
+  "Enable SSH manager mode."
   (interactive)
   (let ((buffer (generate-new-buffer "*SSH Manager*")))
     (set-buffer-major-mode buffer)
@@ -193,29 +201,24 @@
   "If non-nil, show debug message from `ssh-manager'.")
 
 (defun ssh-manager--message  (format &rest args)
-  "Wrapper for `message'
-We `inhibit-message' the message when the cursor is in the
-minibuffer and when emacs version is before emacs 27 due to the
-fact that we often use `ssh-manager--info', `ssh-manager--warn' and `ssh-manager--error'
-in async context and the call to these function is removing the
-minibuffer prompt. The issue with async messages is already fixed
-in emacs 27.
-See #2049"
+  "Wapper for message.
+Argument FORMAT format.
+Optional argument ARGS."
   (when ssh-manager--show-message
     (let ((inhibit-message (and (minibufferp)
                                 (version< emacs-version "27.0"))))
       (apply #'message format args))))
 
 (defun ssh-manager--info (format &rest args)
-  "Display ssh-manager info message with FORMAT with ARGS."
+  "Display `ssh-manager' info message with FORMAT with ARGS."
   (ssh-manager--message "%s :: %s" (propertize "SSH" 'face 'success) (apply #'format format args)))
 
 (defun ssh-manager--warn (format &rest args)
-  "Display ssh-manager warn message with FORMAT with ARGS."
+  "Display `ssh-manager' warn message with FORMAT with ARGS."
   (ssh-manager--message "%s :: %s" (propertize "SSH" 'face 'warning) (apply #'format format args)))
 
 (defun ssh-manager--error (format &rest args)
-  "Display ssh-manager error message with FORMAT with ARGS."
+  "Display `ssh-manager' error message with FORMAT with ARGS."
   (ssh-manager--message "%s :: %s" (propertize "SSH" 'face 'error) (apply #'format format args)))
 (defun ssh-manager--read-from-file (file)
   "Read FILE content."
@@ -241,7 +244,7 @@ yet."
   "Load default session."
   (setq ssh-manager--session (or (condition-case err
                                      (ssh-manager--read-from-file ssh-manager-session-file)
-                                   (error (ssh-manager--error "Failed to parse the session %s, starting with clean one."
+                                   (error (ssh-manager--error "Failed to parse the session %s, starting with clean one? "
                                                               (error-message-string err))
                                           nil))
                                  (make-ssh-manager-session))))
@@ -297,13 +300,13 @@ If you do not like default setup, modify it, with (KEY . COMMAND) format."
   (term-send-raw-string "\e"))
 
 (defun ssh-manager-term-send-return ()
-  "Use term-send-raw-string \"\C-m\" instead term-send-input.
-Because term-send-input have bug that will duplicate input when you C-a and C-m in terminal."
+  "Use `term-send-raw-string' \\C\\-m instead `term-send-input'.
+Because `term-send-input' have bug that will duplicate input when you \\C\\-a and \\C\\-m in terminal."
   (interactive)
   (term-send-raw-string "\C-m"))
 
 (defun ssh-manager-term-send-M-x ()
-  "Type M-x in term-mode."
+  "Type \\M\\-x in `term-mode'."
   (interactive)
   (term-send-raw-string "\ex"))
 
@@ -320,8 +323,8 @@ Because term-send-input have bug that will duplicate input when you C-a and C-m 
 (defun ssh-manager-keystroke-setup ()
   "Keystroke setup of `term-char-mode'.
 By default, the key bindings of `term-char-mode' conflict with user's keystroke.
-So this function unbinds some keys with `term-raw-map',
-and binds some keystroke with `term-raw-map'."
+  So this function unbinds some keys with `term-raw-map',
+  and binds some keystroke with `term-raw-map'."
   (let (bind-key bind-command)
     ;; Unbind base key that conflict with user's keys-tokes.
     (cl-dolist (unbind-key ssh-manager--term-unbind-key-list)
@@ -344,7 +347,8 @@ and binds some keystroke with `term-raw-map'."
 ;;; end
 
 (defun ssh-manager--init-term-mode (term-name)
-  "Init term mode"
+  "Init term mode.
+Argument TERM-NAME set name."
   (remove-hook 'term-mode-hook 'ssh-manager-keystroke-setup)
   (add-hook 'term-mode-hook 'ssh-manager-keystroke-setup)
   (term-mode)
@@ -367,7 +371,7 @@ and binds some keystroke with `term-raw-map'."
 ;; sudo apt-get install sshpass
 ;; sudo yum install sshpass
 (defun ssh-manager-connect-ssh (server)
-  "connect to remote server"
+  "Connect to remote SERVER."
   (let* ((session-name (plist-get server :session-name))
          (kind (intern (plist-get server :kind)))
          (username (plist-get server :remote-user))
@@ -399,7 +403,7 @@ and binds some keystroke with `term-raw-map'."
       (if (and (not (string-empty-p username))
                (not (string-empty-p host)))
           (setq argv (append argv `(,(format "%s@%s" username host))))
-        (ssh-manager--error "SSH hostname and username must be set. it's cannot empty."))
+        (ssh-manager--error "SSH hostname and username must be set. it cannot empty. "))
       (if (not (string-empty-p port))
           (setq argv (append argv `("-p" ,port))))
       (if (and (string= kind "proxy")
@@ -450,7 +454,8 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
     lst))
 
 (defun ssh-manager-switch-to-server (session)
-  "Select SSH server to connect."
+  "Select SSH server to connect.
+Argument SESSION server session info."
   (interactive (list (completing-read "Select server to connect: "
                                       (ssh-manager--filter-ssh-session))))
   (let ((connect '()))
@@ -468,12 +473,13 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
         (ssh-manager-connect-ssh connect))))
 
 (defun ssh-manager--read-session-config-from-minibuffer (&optional ssh-session-config)
-  "Read session config from minibuffer."
+  "Read session config from minibuffer.
+Optional argument SSH-SESSION-CONFIG set session config."
   (let* ((ssh-session '())
          (session-name (read-string "Session Name: " (if (not (equal ssh-session-config nil))
                                                          (plist-get ssh-session-config :session-name)))))
     (if (string-empty-p session-name)
-        (ssh-manager--error "session name cannot empty.")
+        (ssh-manager--error "Session name cannot empty. ")
       (let* ((kind (completing-read "Select connect style: " '(proxy direct)))
              (proxy-host (if (string= kind 'proxy)
                              (read-string "Proxy hostname: "
@@ -502,7 +508,7 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
              (remote-user (read-string "Remote username(root): " (if (not (equal ssh-session-config nil))
                                                                      (plist-get ssh-session-config :remote-user))))
              (remote-password (read-passwd "Remote password: "))
-             (totp-enable (y-or-n-p "Are you use TOTP?"))
+             (totp-enable (y-or-n-p "Are you use TOTP? "))
              (totp-kind (if totp-enable
                             (completing-read "Select TOTP kind: "
                                              (ssh-manager--all-totp-name))))
@@ -526,7 +532,7 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
                                proxy-user)
                 :proxy-password ,(if (and (string-empty-p proxy-password)
                                           (string= kind 'proxy))
-                                     (ssh-manager--error "proxy connect password is empty.")
+                                     (ssh-manager--error "Proxy connect password cannot empty. ")
                                    proxy-password)
                 :remote-host ,remote-host
                 :remote-port ,(if (string-empty-p remote-port)
@@ -537,7 +543,7 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
                                 remote-user)
                 :remote-password ,(if (and (string-empty-p remote-password)
                                            (not (string= kind 'proxy)))
-                                      (ssh-manager--error "remote connect password is empty.")
+                                      (ssh-manager--error "Remote connect password cannot empty. ")
                                     remote-password)
                 :totp-kind ,totp-kind
                 :totp-key ,totp-key
@@ -554,16 +560,16 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
     (cond ((string= (plist-get ssh-session :kind) 'proxy)
            (if (or (string-empty-p (plist-get ssh-session :proxy-host))
                    (string-empty-p (plist-get ssh-session :remote-host)))
-               (ssh-manager--error "<Proxy host> and <Remote host> must be set. please check its.")
+               (ssh-manager--error "<Proxy host> and <Remote host> must be set. please check it. ")
              (ssh-manager-connect-ssh ssh-session)))
           ((string= (plist-get ssh-session :kind) 'direct)
            (if (string-empty-p (plist-get ssh-session :remote-host))
-               (ssh-manager--error "<Remote host> must be set. it's cannot empty.")
+               (ssh-manager--error "<Remote host> must be set. it cannot empty. ")
              (ssh-manager-connect-ssh ssh-session))))))
 
 
 (defun ssh-manager-edit-ssh-session-config (session)
-  "Edit SSH session config."
+  "Edit SSH SESSION config."
   (interactive (list (completing-read "Select server to edit: "
                                       (ssh-manager--filter-ssh-session))))
 
@@ -580,7 +586,7 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
     (ssh-manager--persist-session let-sessions)))
 
 (defun ssh-manager-remove-ssh-server (session)
-  "Remove session from the list of servers."
+  "Remove SESSION from the list of servers."
   (interactive (list (completing-read "Select server to connect: "
                                       (ssh-manager--filter-ssh-session))))
   (dolist (server (->> (ssh-manager-session)
@@ -592,7 +598,7 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
           (ssh-manager--persist-session (ssh-manager-session))))))
 
 (defun ssh-manager-remove-history-file-from-ssh-server (history)
-  "Remove history file from the list of folders."
+  "Remove HISTORY file from the list of folders."
   (interactive (list (completing-read "Select remove from folders: "
                                       (ssh-manager-session-folders (ssh-manager-session)))))
   (let* ((let-sessions (ssh-manager-session)))
@@ -601,7 +607,7 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
     (ssh-manager--persist-session (ssh-manager-session))))
 
 (defun ssh-manager-install-tools ()
-  "Install SSH manager tools"
+  "Install SSH manager tools."
   (interactive)
   (if (not (executable-find "sshpass"))
       (ssh-manager-exec-process "sh" "-c" (concat
@@ -623,15 +629,21 @@ By default, BUFFER is \"*terminal*\" and STRING is empty."
   (ssh-manager--info "installed."))
 
 (defun ssh-manager--replace-in-string (what with in)
-  "Replace substring."
+  "Replace substring.
+Argument WHAT regexp.
+Argument WITH string.
+Argument IN substring."
   (replace-regexp-in-string (regexp-quote what) with in nil 'literal))
 
 ;;;###autoload
 (defun ssh-manager-exec-process (command &rest args)
   "Execute COMMAND with ARGS synchronously.
-Unlike `ssh-manager-call-process', this pipes output to `standard-output' on the fly to
-simulate 'exec' in the shell, so batch scripts could run external programs
+Unlike `ssh-manager-call-process',
+this pipes output to `standard-output' on the fly to
+simulate 'exec' in the shell,
+so batch scripts could run external programs
 synchronously without sacrificing their output.
+
 Warning: freezes indefinitely on any stdin prompt."
   ;; FIXME Is there any way to handle prompts?
   (with-temp-buffer
@@ -655,7 +667,10 @@ Warning: freezes indefinitely on any stdin prompt."
           (string-trim (buffer-string)))))
 
 (defun ssh-manager--upload-or-download-files (server method cmd)
-  "Use rsync command tool upload or download files."
+  "Use rsync command tool upload or download files.
+Argument SERVER SSH session.
+Argument METHOD select download or upload.
+Argument CMD use rsync or scp."
   (let* ((argv '())
          (kind (plist-get server :kind))
          (password (if (string= kind 'proxy)
@@ -695,7 +710,7 @@ Warning: freezes indefinitely on any stdin prompt."
            (if (not (string-empty-p totp-message))
                (setq argv (append argv `("-O" ,totp-message))))
            (if (string-empty-p host)
-               (ssh-manager--error "SSH hostname must be set. it's cannot empty.")
+               (ssh-manager--error "SSH hostname must be set. HOST cannot empty. ")
              (setq argv (append argv `("scp" "-r" "-o" "StrictHostKeychecking=no")))
              (if (string= kind 'proxy)
                  (setq argv (append argv `("-J" ,(format "%s@%s:%s" proxy-user proxy-host proxy-port)))))
@@ -714,7 +729,7 @@ Warning: freezes indefinitely on any stdin prompt."
           (cond ((string= method "upload")
                  (if (derived-mode-p 'dired-mode)
                      (setq argv (append argv `(,@(dired-get-marked-files) ,(format "%s@%s:%s" user host remote-dir-or-file))))
-                   (if-let ((ask (y-or-n-p "upload current buffer file? ")))
+                   (if-let ((ask (y-or-n-p "Upload current buffer file? ")))
                        (setq target (buffer-file-name))
                      (setq target (read-file-name "Set upload for files: " )))
                    (setq argv (append argv `(,target ,(format "%s@%s:%s" user host remote-dir-or-file))))))
@@ -725,7 +740,8 @@ Warning: freezes indefinitely on any stdin prompt."
                    (setq argv (append argv `(,(format "%s@%s:%s" user host remote-dir-or-file) ,target))))))))))
 
 (defun ssh-manager-upload-or-download-files-to-remote-host (method)
-  "SSH upload or download files."
+  "SSH upload or download files.
+Argument METHOD select download or upload."
   (interactive (list (completing-read "Select upload or download: "
                                       '(upload download))))
   (let ((session-name (completing-read "Select connect to server: "
