@@ -262,13 +262,13 @@ yet."
                               (kill-buffer (process-buffer proc)))))))
 
 ;;; This code is referenced from multi-term.el
-(defcustom ssh-manager--term-unbind-key-list
+(defcustom ssh-manager-term-unbind-key-list
   '("C-z" "C-x" "C-c" "C-h" "C-y" "<ESC>")
   "The key list that will need to be unbind."
   :type 'list
   :group 'ssh-manager)
 
-(defcustom ssh-manager--term-bind-key-alist
+(defcustom ssh-manager-term-bind-key-alist
   '(
     ("C-c C-c" . term-interrupt-subjob)
     ("<escape>" . ssh-manager-term-send-esc)
@@ -327,7 +327,7 @@ By default, the key bindings of `term-char-mode' conflict with user's keystroke.
   and binds some keystroke with `term-raw-map'."
   (let (bind-key bind-command)
     ;; Unbind base key that conflict with user's keys-tokes.
-    (cl-dolist (unbind-key ssh-manager--term-unbind-key-list)
+    (cl-dolist (unbind-key ssh-manager-term-unbind-key-list)
       (cond
        ((stringp unbind-key) (setq unbind-key (read-kbd-macro unbind-key)))
        ((vectorp unbind-key) nil)
@@ -336,7 +336,7 @@ By default, the key bindings of `term-char-mode' conflict with user's keystroke.
     ;; Add some i use keys.
     ;; If you don't like my keystroke,
     ;; just modified `term-bind-key-alist'
-    (cl-dolist (element ssh-manager--term-bind-key-alist)
+    (cl-dolist (element ssh-manager-term-bind-key-alist)
       (setq bind-key (car element))
       (setq bind-command (cdr element))
       (cond
@@ -400,10 +400,11 @@ Argument TERM-NAME set name."
       (if (not (string-empty-p totp-message))
           (setq argv (append argv `("-O" ,totp-message))))
       (setq argv (append argv `("ssh" "-o" "StrictHostKeychecking=no")))
-      (if (and (not (string-empty-p username))
-               (not (string-empty-p host)))
-          (setq argv (append argv `(,(format "%s@%s" username host))))
-        (ssh-manager--error "SSH hostname and username must be set. it cannot empty. "))
+      (if (not (string-empty-p username))
+          (setq username (format "%s@" username)))
+      (if (not (string-empty-p host))
+          (setq argv (append argv `(,(format "%s%s" username host))))
+        (ssh-manager--error "SSH hostname must be set. it cannot empty. "))
       (if (not (string-empty-p port))
           (setq argv (append argv `("-p" ,port))))
       (if (and (string= kind "proxy")
@@ -411,7 +412,7 @@ Argument TERM-NAME set name."
                (not (string= proxy-user nil))
                (not (string= proxy-port nil)))
           (setq argv (append argv `("-J" ,(format "%s@%s:%s" proxy-user proxy-host proxy-port)))))
-      ;; (ssh-manager--info (mapconcat 'identity `("sshpass" ,@argv) " "))
+      (ssh-manager--info (mapconcat 'identity `("sshpass" ,@argv) " "))
       (set-buffer (apply 'make-term term-name
                          "sshpass"
                          nil
@@ -541,10 +542,7 @@ Optional argument SSH-SESSION-CONFIG set session config."
                 :remote-user ,(if (string-empty-p remote-user)
                                   "root"
                                 remote-user)
-                :remote-password ,(if (and (string-empty-p remote-password)
-                                           (not (string= kind 'proxy)))
-                                      (ssh-manager--error "Remote connect password cannot empty. ")
-                                    remote-password)
+                :remote-password ,remote-password
                 :totp-kind ,totp-kind
                 :totp-key ,totp-key
                 :totp-message ,totp-message))))
@@ -760,6 +758,5 @@ Argument METHOD select download or upload."
                (revert-buffer))
               ((string= method "upload")
                (dired-unmark-all-marks))))))
-
 (provide 'init-ssh)
 ;;; ssh-manager.el ends here
