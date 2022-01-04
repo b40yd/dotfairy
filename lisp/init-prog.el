@@ -254,5 +254,12 @@ Install the doc if it's not installed."
   :diminish
   :hook (after-init . bmx-mode-setup-defaults))
 
+;; Tree-sitter
+(use-package tree-sitter
+  :ensure tree-sitter-langs
+  :diminish
+  :hook ((after-init . global-tree-sitter-mode)
+         (tree-sitter-after-on . tree-sitter-hl-mode)))
+
 (provide 'init-prog)
 ;;; init-prog.el ends here
