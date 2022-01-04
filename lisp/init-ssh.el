@@ -412,7 +412,7 @@ Argument TERM-NAME set name."
                (not (string= proxy-user nil))
                (not (string= proxy-port nil)))
           (setq argv (append argv `("-J" ,(format "%s@%s:%s" proxy-user proxy-host proxy-port)))))
-      (ssh-manager--info (mapconcat 'identity `("sshpass" ,@argv) " "))
+      ;; (ssh-manager--info (mapconcat 'identity `("sshpass" ,@argv) " "))
       (set-buffer (apply 'make-term term-name
                          "sshpass"
                          nil
