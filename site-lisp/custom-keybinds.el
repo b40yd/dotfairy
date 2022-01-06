@@ -38,15 +38,11 @@
   (:prefix-map ("a" . "appliction")
    (:prefix ("c" . "Command log")
     :desc "Enable command log mode"    "e" #'command-log-mode
-    :desc "Toggle command log buffer"  "g" #'clm/toggle-command-log-buffer
-    :desc "Clear command log"          "c" #'clm/command-log-clear
-    )
+    :desc "Toggle command log buffer"  "g" #'clm/toggle-command-log-buffer)
    :desc "Music Player"                        "b"   #'bongo
    :desc "Reading"                             "r"   #'olivetti-mode
-   :desc "Quick Run"                           "R"   #'quickrun-hydra/body
-   :desc "LSP UI imenu"                        "u"   #'lsp-ui-imenu
+   :desc "Quick Run"                           "R"   #'quickrun-hydra/body)
 
-   )
   (:prefix-map ("b" . "buffers")
    :desc "Kill all buffers"                    "a"   #'dotfairy/kill-all-buffers
    :desc "Kill this buffer in all windows"     "A"   #'dotfairy/kill-this-buffer-in-all-windows
@@ -106,19 +102,16 @@
    :desc "Search other directory"       "D" #'+default/search-other-cwd
    :desc "Counsel grep or swiper"       "g" #'counsel-grep-or-swiper
    :desc "Jump to symbol"               "i" #'imenu
-   :desc "Jump to visible link"         "l" #'link-hint-open-link
    :desc "Jump to link"                 "L" #'ffap-menu
    :desc "Jump to bookmark"             "m" #'bookmark-jump
    :desc "Search project"               "p" #'+default/search-project
    :desc "Search other project"         "P" #'+default/search-other-project
    :desc "Search buffer"                "s" #'+default/search-buffer
-   :desc "Search buffer for thing at point" "S" #'swiper-isearch-thing-at-point
-   )
+   :desc "Search buffer for thing at point" "S" #'swiper-isearch-thing-at-point)
       ;;; <leader> i --- insert
   (:prefix-map ("i" . "insert")
    :desc "Snippet"                       "s"   #'yas-insert-snippet
-   :desc "Unicode"                       "u"   #'unicode-chars-list-chars
-   )
+   :desc "Unicode"                       "u"   #'unicode-property-table-internal)
       ;;; <leader> n --- notes
   (:prefix-map ("n" . "notes")
    :desc "Org agenda"                     "a" #'org-agenda
@@ -139,15 +132,13 @@
     :desc "Search Forever"      "s" #'org-journal-search-forever)
 
    (:prefix ("r" . "roam")
-    :desc "Switch to buffer"              "b" #'org-roam-switch-to-buffer
+    :desc "Switch to buffer"              "b" #'org-roam-buffer-toggle
     :desc "Org Roam Capture"              "c" #'org-roam-capture
-    :desc "Find file"                     "f" #'org-roam-find-file
+    :desc "Find Node"                     "f" #'org-roam-node-find
     :desc "Show graph"                    "g" #'org-roam-graph
-    :desc "Insert"                        "i" #'org-roam-insert
-    :desc "Insert (skipping org-capture)" "I" #'org-roam-insert-immediate
-    :desc "Org Roam"                      "r" #'org-roam
+    :desc "Insert"                        "i" #'org-roam-node-insert
     :desc "Tag"                           "t" #'org-roam-tag-add
-    :desc "Un-tag"                        "T" #'org-roam-tag-delete
+    :desc "Un-tag"                        "T" #'org-roam-tag-remove
     (:prefix ("d" . "by date")
      :desc "Arbitrary date" "d" #'org-roam-dailies-find-date
      :desc "Today"          "t" #'org-roam-dailies-find-today
@@ -161,8 +152,7 @@
    :desc "Open Dired"         "d"  #'+default/dired
    :desc "New frame"          "f"  #'make-frame
    :desc "Dired"              "-"  #'dired-jump
-   :desc "Find file in project sidebar" "P" #'treemacs-find-file
-   )
+   :desc "Find file in project sidebar" "P" #'treemacs-find-file)
 
       ;;; <leader> p --- project
   (:prefix ("p" . "project")
@@ -199,8 +189,7 @@
    :desc "Insert snippet"        "i" #'yas-insert-snippet
    :desc "Find global snippet"   "/" #'yas-visit-snippet-file
    :desc "Reload snippets"       "r" #'yas-reload-all
-   :desc "Read snippets name from minibuffer" "y" #'ivy-yasnippet
-   )
+   :desc "Read snippets name from minibuffer" "y" #'ivy-yasnippet)
 
       ;;; <leader> t --- toggle
   (:prefix-map ("t" . "toggle")
@@ -209,8 +198,7 @@
    :desc "Line numbers"                 "l" #'dotfairy/toggle-line-numbers
    :desc "Org tree slide mode"          "p" #'org-tree-slide-mode
    :desc "Org super agenda mode"        "s" #'org-super-agenda-mode
-   :desc "Read-only mode"               "r" #'read-only-mode
-   )
+   :desc "Read-only mode"               "r" #'read-only-mode)
 
       ;;; <leader> v --- versioning
   (:prefix-map ("v" . "versioning")
@@ -221,7 +209,7 @@
    :desc "Forge dispatch"             "'"   #'forge-dispatch
    :desc "Magit status"               "g"   #'magit-status
    :desc "Magit status here"          "G"   #'magit-status-here
-   :desc "Magit file delete"          "x"   #'magit-file-delete
+   :desc "Magit file restore"         "x"   #'magit-file-checkout
    :desc "Magit blame"                "B"   #'magit-blame-addition
    :desc "Magit clone"                "C"   #'magit-clone
    :desc "Magit fetch"                "F"   #'magit-fetch
@@ -230,31 +218,15 @@
    :desc "Git unstage file"           "U"   #'magit-unstage-file
    (:prefix ("f" . "find")
     :desc "Find file"                 "f"   #'magit-find-file
-    :desc "Find gitconfig file"       "g"   #'magit-find-git-config-file
-    :desc "Find commit"               "c"   #'magit-show-commit
-    :desc "Find issue"                "i"   #'forge-visit-issue
-    :desc "Find pull request"         "p"   #'forge-visit-pullreq)
-   (:prefix ("o" . "open in browser")
-    :desc "Browse file or region"     "."   #'dotfairy/browse-at-remote
-    :desc "Browse remote"             "r"   #'forge-browse-remote
-    :desc "Browse commit"             "c"   #'forge-browse-commit
-    :desc "Browse an issue"           "i"   #'forge-browse-issue
-    :desc "Browse a pull request"     "p"   #'forge-browse-pullreq
-    :desc "Browse issues"             "I"   #'forge-browse-issues
-    :desc "Browse pull requests"      "P"   #'forge-browse-pullreqs)
+    :desc "Find commit"               "c"   #'magit-show-commit)
    (:prefix ("l" . "list")
     :desc "List repositories"         "r"   #'magit-list-repositories
-    :desc "List submodules"           "s"   #'magit-list-submodules
-    :desc "List issues"               "i"   #'forge-list-issues
-    :desc "List pull requests"        "p"   #'forge-list-pullreqs
-    :desc "List notifications"        "n"   #'forge-list-notifications)
+    :desc "List submodules"           "s"   #'magit-list-submodules)
    (:prefix ("c" . "create")
     :desc "Initialize repo"           "r"   #'magit-init
     :desc "Clone repo"                "R"   #'magit-clone
     :desc "Commit"                    "c"   #'magit-commit-create
-    :desc "Fixup"                     "f"   #'magit-commit-fixup
-    :desc "Issue"                     "i"   #'forge-create-issue
-    :desc "Pull request"              "p"   #'forge-create-pullreq))
+    :desc "Fixup"                     "f"   #'magit-commit-fixup))
 
       ;;; <leader> w --- workspaces/windows
   (:prefix-map ("w" . "workspaces/windows")
@@ -291,9 +263,6 @@
    :desc "Toggle Multiple Cursors"                           "m"       #'multiple-cursors-hydra/body
    :desc "Use arrow keys to quickly mark/skip next/previous" "<SPC>"   #'mc/mark-more-like-this-extended
    :desc "Docker Management"                                 "d"       #'docker
-   :desc "Kubernetes Overview"                               "b"       #'kubernetes-overview
-   )
-
-  )
+   :desc "Kubernetes Overview"                               "b"       #'kubernetes-overview))
 (provide 'custom-keybinds)
 ;;; custom-keybinds.el ends here

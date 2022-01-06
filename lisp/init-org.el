@@ -344,7 +344,11 @@ prepended to the element after the #+HEADER: tag."
     (org-roam-db-autosync-mode)
     (require 'org-roam-protocol)
     (unless (file-exists-p org-roam-directory)
-      (make-directory org-roam-directory)))
+      (make-directory org-roam-directory))
+    (use-package org-roam-ui
+      :init
+      (when (featurep 'xwidget-internal)
+        (setq org-roam-ui-browser-function #'xwidget-webkit-browse-url))))
 
   ;; Preview
   (use-package org-preview-html
