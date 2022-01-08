@@ -207,7 +207,6 @@
          ("C->" . mc/mark-next-like-this)
          ("C-<" . mc/mark-previous-like-this)
          ("C-c C->" . mc/mark-all-like-this)
-         ("C-c SPC" . mc/edit-lines)
          :map mc/keymap
          ("C-|" . mc/vertical-align-with-space))
   :config

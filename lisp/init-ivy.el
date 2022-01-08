@@ -45,38 +45,6 @@
   :hook ((after-init . ivy-mode)
          (ivy-mode . counsel-mode))
   :init
-  (define-key!
-    [remap swiper-backward]          #'counsel-grep-or-swiper-backward
-    [remap dired]                    #'counsel-dired
-    [remap insert-char]              #'counsel-unicode-char
-    [remap recentf-open-files]       #'counsel-recentf
-    [remap apropos]                  #'counsel-apropos
-    [remap bookmark-jump]            #'counsel-bookmark
-    [remap compile]                  #'+ivy/compile
-    [remap describe-bindings]        #'counsel-descbinds
-    [remap describe-face]            #'counsel-faces
-    [remap describe-function]        #'counsel-describe-function
-    [remap describe-variable]        #'counsel-describe-variable
-    [remap describe-symbol]          #'counsel-describe-symbol
-    [remap execute-extended-command] #'counsel-M-x
-    [remap find-file]                #'counsel-find-file
-    [remap find-library]             #'counsel-find-library
-    [remap imenu]                    #'counsel-imenu
-    [remap info-lookup-symbol]       #'counsel-info-lookup-symbol
-    [remap load-theme]               #'counsel-load-theme
-    [remap locate]                   #'counsel-locate
-    [remap org-goto]                 #'counsel-org-goto
-    [remap org-set-tags-command]     #'counsel-org-tag
-    [remap projectile-compile-project] #'+ivy/project-compile
-    [remap recentf-open-files]       #'counsel-recentf
-    [remap set-variable]             #'counsel-set-variable
-    [remap swiper]                   #'counsel-grep-or-swiper
-    [remap unicode-chars-list-chars] #'counsel-unicode-char
-    [remap yank-pop]                 #'counsel-yank-pop
-    [remap switch-to-buffer]              #'+ivy/switch-buffer
-    [remap switch-to-buffer-other-window] #'+ivy/switch-buffer-other-window
-    [remap persp-switch-to-buffer]        #'+ivy/switch-workspace-buffer)
-
   (setq enable-recursive-minibuffers t) ; Allow commands in minibuffers
   (setq ivy-use-selectable-prompt t
         ivy-use-virtual-buffers t    ; Enable bookmarks and recentf
@@ -104,7 +72,6 @@
     (setq counsel-find-file-occur-use-find nil
           counsel-find-file-occur-cmd
           "gls -a | grep -i -E '%s' | tr '\\n' '\\0' | xargs -0 gls -d --group-directories-first"))
-
   :config
   (with-no-warnings
     ;; Display an arrow with the selected item
@@ -413,60 +380,72 @@ This is for use in `ivy-re-builders-alist'."
     ;; tramp support 2FA(TOTP)
     (setq
      tramp-password-prompt-regexp
-     "^.*\\([pP]assword\\|passphrase\\|Response\\|[vV]erification code\\).*:\0? *")
-    )
+     "^.*\\([pP]assword\\|passphrase\\|Response\\|[vV]erification code\\).*:\0? *"))
+  (define-key!
+    [remap swiper-backward]          #'counsel-grep-or-swiper-backward
+    [remap dired]                    #'counsel-dired
+    [remap insert-char]              #'counsel-unicode-char
+    [remap recentf-open-files]       #'counsel-recentf
+    [remap apropos]                  #'counsel-apropos
+    [remap bookmark-jump]            #'counsel-bookmark
+    [remap compile]                  #'+ivy/compile
+    [remap describe-bindings]        #'counsel-descbinds
+    [remap describe-face]            #'counsel-faces
+    [remap describe-function]        #'counsel-describe-function
+    [remap describe-variable]        #'counsel-describe-variable
+    [remap describe-symbol]          #'counsel-describe-symbol
+    [remap execute-extended-command] #'counsel-M-x
+    [remap find-file]                #'counsel-find-file
+    [remap find-library]             #'counsel-find-library
+    [remap imenu]                    #'counsel-imenu
+    [remap info-lookup-symbol]       #'counsel-info-lookup-symbol
+    [remap load-theme]               #'counsel-load-theme
+    [remap locate]                   #'counsel-locate
+    [remap org-goto]                 #'counsel-org-goto
+    [remap org-set-tags-command]     #'counsel-org-tag
+    [remap projectile-compile-project] #'+ivy/project-compile
+    [remap recentf-open-files]       #'counsel-recentf
+    [remap set-variable]             #'counsel-set-variable
+    [remap swiper]                   #'counsel-grep-or-swiper
+    [remap unicode-chars-list-chars] #'counsel-unicode-char
+    [remap yank-pop]                 #'counsel-yank-pop
+    [remap switch-to-buffer]              #'+ivy/switch-buffer
+    [remap switch-to-buffer-other-window] #'+ivy/switch-buffer-other-window
+    [remap persp-switch-to-buffer]        #'+ivy/switch-workspace-buffer)
 
-  (map! :localleader
-        :after ivy
-        :map counsel-mode-map
-        (:prefix ("i" . "ivy")
-         "a" #'counsel-ag
-         "A" #'counsel-apropos
-         "B" #'counsel-bookmarked-directory
-         (:prefix ("d" . "describe")
-          "f" #'counsel-describe-function
-          "v" #'counsel-describe-variable
-          "s" #'counsel-describe-symbol
-          "l"  #'counsel-info-lookup-symbol
-          )
-         "e" #'counsel-colors-emacs
-         "f" #'counsel-find-library
-         "F" #'counsel-faces
-         "G" #'counsel-git
-         "h" #'counsel-command-history
-         "H" #'counsel-minibuffer-history
-         "l" #'counsel-locate
-         "L" #'counsel-load-library
-         "m" #'counsel-mark-ring
-         "o" #'counsel-outline
-         "O" #'counsel-find-file-extern
-         "p" #'counsel-pt
-         "P" #'counsel-package
-         "R" #'counsel-list-processes
-         "t" #'counsel-load-theme
-         "u" #'counsel-unicode-char
-         "w" #'counsel-colors-web
-         "v" #'counsel-set-variable
-         "z" #'counsel-fzf)
-        (:prefix ("s" . "Search")
-         "g" #'counsel-grep
-         "j" #'counsel-git-grep
-         "r" #'counsel-rg
-         "s" #'counsel-grep-or-swiper
-         )
-        :map swiper-map
-        "s" #'my-swiper-toggle-swiper-isearch
-        "r" #'my-swiper-toggle-rg-dwim
-        "R"  #'my-swiper-toggle-counsel-rg
-        :map counsel-ag-map
-        "s" #'my-swiper-toggle-swiper-isearch
-        "r" #'my-swiper-toggle-rg-dwim
-        "R"  #'my-swiper-toggle-counsel-rg
-        :map counsel-find-file-map
-        "f" #'my-counsel-find-file-toggle-fzf
-        )
-
-  )
+  (map! :leader
+    (:prefix ("I" . "ivy")
+     :desc "apropos" "A" #'counsel-apropos
+     :desc "bookmarked-directory" "B" #'counsel-bookmarked-directory
+     (:prefix ("d" . "describe")
+      :desc "describe function" "f" #'counsel-describe-function
+      :desc "describe variable" "v" #'counsel-describe-variable
+      :desc "describe symbol" "s" #'counsel-describe-symbol
+      :desc "info lookup symbol" "l"  #'counsel-info-lookup-symbol)
+     :desc "colors emacs" "e" #'counsel-colors-emacs
+     :desc "find library" "f" #'counsel-find-library
+     :desc "faces" "F" #'counsel-faces
+     :desc "git" "G" #'counsel-git
+     :desc "command history" "h" #'counsel-command-history
+     :desc "minibuffer history" "H" #'counsel-minibuffer-history
+     :desc "locate" "l" #'counsel-locate
+     :desc "load library" "L" #'counsel-load-library
+     :desc "mark ring" "m" #'counsel-mark-ring
+     :desc "outline" "o" #'counsel-outline
+     :desc "find file extern" "O" #'counsel-find-file-extern
+     :desc "pt" "p" #'counsel-pt
+     :desc "package" "P" #'counsel-package
+     :desc "list processes" "R" #'counsel-list-processes
+     :desc "load theme" "t" #'counsel-load-theme
+     :desc "unicode char" "u" #'counsel-unicode-char
+     :desc "colors web" "w" #'counsel-colors-web
+     :desc "set variable" "v" #'counsel-set-variable
+     :desc "fzf" "z" #'counsel-fzf)
+    (:prefix ("S" . "Search")
+     :desc "grep" "g" #'counsel-grep
+     :desc "git grep" "j" #'counsel-git-grep
+     :desc "rg" "r" #'counsel-rg
+     :desc "grep or swiper" "s" #'counsel-grep-or-swiper)))
 
 ;; Better experience with icons
 ;; Enable it before`ivy-rich-mode' for better performance

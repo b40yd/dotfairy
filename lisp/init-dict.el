@@ -25,19 +25,24 @@
 ;;; Code:
 ;; A multi dictionaries interface
 (use-package fanyi
-  :bind (("C-c d f" . fanyi-dwim)
-         ("C-c d d" . fanyi-dwim2)
-         ("C-c d h" . fanyi-from-history)))
+  :init
+  (map! :leader
+    (:prefix ("d" . "dictionaries")
+     "f" #'fanyi-dwim
+     "d" #'fanyi-dwim2
+     "h" #'fanyi-from-history)))
 
 ;; Youdao Dictionary
 (use-package youdao-dictionary
   :commands youdao-dictionary-play-voice-of-current-word
-  :bind (("C-c y" . my-youdao-dictionary-search-at-point)
-         ("C-c d Y" . my-youdao-dictionary-search-at-point)
-         ("C-c d y" . youdao-dictionary-search)
-         :map youdao-dictionary-mode-map
-         ("h" . youdao-dictionary-hydra/body)
-         ("?" . youdao-dictionary-hydra/body))
+  :init
+  (map! :leader
+    (:prefix ("d" . "dictionaries")
+     "y" #'my-youdao-dictionary-search-at-point
+     "Y" #'youdao-dictionary-search
+     :map youdao-dictionary-mode-map
+     "h" #'youdao-dictionary-hydra/body
+     "?" #'youdao-dictionary-hydra/body))
   :init
   (setq url-automatic-caching t
         youdao-dictionary-use-chinese-word-segmentation t) ; 中文分词

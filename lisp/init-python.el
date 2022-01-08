@@ -118,9 +118,7 @@
            "s" #'python-pytest-function-dwim
            "S" #'python-pytest-function
            "r" #'python-pytest-repeat
-           "p" #'python-pytest-dispatch
-           )))
-  )
+           "p" #'python-pytest-dispatch))))
 
 (provide 'init-python)
 ;;; init-python.el ends here
