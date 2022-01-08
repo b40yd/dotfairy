@@ -49,10 +49,7 @@
                           ;; Format and organize imports
                           (unless (apply #'derived-mode-p dotfairy-lsp-format-on-save-ignore-modes)
                             (add-hook 'before-save-hook #'lsp-format-buffer t t)
-                            (add-hook 'before-save-hook #'lsp-organize-imports t t))
-		                  )
-                      )
-            )
+                            (add-hook 'before-save-hook #'lsp-organize-imports t t)))))
      :commands (lsp-enable-which-key-integration
                 lsp-format-buffer
                 lsp-organize-imports

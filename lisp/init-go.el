@@ -30,16 +30,13 @@
   :ensure t
   :functions go-update-tools
   :commands godoc-gogetdoc
-  :mode (("\\.go\\'" . go-mode))
   :hook ((before-save . gofmt-before-save)
          (go-mode . (lambda ()
                       (dotfairy-set-prettify '(("func()" . ?λ)
                                                ("func" . ?ƒ)
                                                ("map" . ?↦)
                                                ("string" . ?𝕊)
-                                               ("nil" . ?∅)))
-                      (add-hook 'before-save-hook #'lsp-format-buffer t t)
-                      (add-hook 'before-save-hook #'lsp-organize-imports t t))))
+                                               ("nil" . ?∅))))))
   :config
   ;; Env vars
   (with-eval-after-load 'exec-path-from-shell
@@ -86,6 +83,9 @@
   (use-package go-dlv)
   (use-package go-fill-struct)
   (use-package go-impl)
+  (use-package go-gen-test)
+  (use-package gotest)
+  (use-package go-expr-completion)
 
   ;; Install: See https://github.com/golangci/golangci-lint#install
   (use-package flycheck-golangci-lint
@@ -98,45 +98,39 @@
                                                           go-golint
                                                           go-vet
                                                           go-build
-                                                          go-test
-                                                          go-errcheck))
+                                                          go-test))
                        (flycheck-golangci-lint-setup))))
 
   (use-package go-tag
-    :init (setq go-tag-args (list "-transform" "camelcase")))
-  (use-package go-gen-test)
-  (use-package gotest)
-  (use-package go-expr-completion)
-  (map! :map go-mode-map
-        :localleader
-        "a" #'go-tag-add
-        "d" #'go-tag-remove
-        "p" #'godoc-at-point
-        (:prefix ("l" . "imports")
-         "a" #'go-import-add
-         "e" #'go-expr-completion
-         "f" #'go-fill-struct
-         "i" #'go-goto-imports      ; Go to imports
-         "r" #'go-remove-unused-imports)
-        (:prefix ("b" . "build")
-         :desc "go run ." "r" (cmd! (compile "go run ."))
-         :desc "go build" "b" (cmd! (compile "go build"))
-         :desc "go clean" "c" (cmd! (compile "go clean")))
-        (:prefix ("t" . "test")
-         "a" #'go-test-current-project
-         "c" #'go-test-current-coverage
-         "s" #'go-test-current-test
-         "t" #'go-test-current-file
-         "g" #'go-gen-test-dwim
-         "G" #'go-gen-test-all
-         "e" #'go-gen-test-exported
-         (:prefix ("b" . "bench")
-          "a" #'go-test-current-project-benchmarks
-          "s" #'go-test-current-benchmark
-          "t" #'go-test-current-file-benchmarks
-          )))
-  )
+    :init (setq go-tag-args (list "-transform" "camelcase"))))
 
+(map! :localleader
+      :map go-mode-map
+      :desc "add tag" "a" #'go-tag-add
+      :desc "remove tag" "d" #'go-tag-remove
+      :desc "doc at point" "p" #'godoc-at-point
+      (:prefix ("l" . "imports")
+       :desc "import add" "a" #'go-import-add
+       :desc "expr completion" "e" #'go-expr-completion
+       :desc "fill struct" "f" #'go-fill-struct
+       :desc "goto imports" "i" #'go-goto-imports      ; Go to imports
+       :desc "remove unused imports" "r" #'go-remove-unused-imports)
+      (:prefix ("b" . "build")
+       :desc "go run ." "r" (cmd! (compile "go run ."))
+       :desc "go build" "b" (cmd! (compile "go build"))
+       :desc "go clean" "c" (cmd! (compile "go clean")))
+      (:prefix ("t" . "test")
+       :desc "test current project" "a" #'go-test-current-project
+       :desc "test current coverage" "c" #'go-test-current-coverage
+       :desc "test current test" "s" #'go-test-current-test
+       :desc "test current file" "t" #'go-test-current-file
+       :desc "gen test dwim" "g" #'go-gen-test-dwim
+       :desc "gen test all" "G" #'go-gen-test-all
+       :desc "gen test exported" "e" #'go-gen-test-exported
+       (:prefix ("b" . "bench")
+        :desc "test current project benchmarks" "a" #'go-test-current-project-benchmarks
+        :desc "test current benchmark" "s" #'go-test-current-benchmark
+        :desc "test current file benchmarks" "t" #'go-test-current-file-benchmarks)))
 
 (provide 'init-go)
 ;;; init-go.el ends here

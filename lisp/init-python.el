@@ -87,9 +87,9 @@
   (use-package pyimport
     :defer t
     :init
-    (map! :after python
+    (map! :localleader
+          :after python
           :map python-mode-map
-          :localleader
           (:prefix ("i" . "imports")
            :desc "Insert missing imports" "i" #'pyimport-insert-missing
            :desc "Remove unused imports"  "r" #'pyimport-remove-unused
@@ -98,9 +98,9 @@
   (use-package py-isort
     :defer t
     :init
-    (map! :after python
+    (map! :localleader
+          :after python
           :map python-mode-map
-          :localleader
           (:prefix ("i" . "imports")
            :desc "Sort imports"      "s" #'py-isort-buffer
            :desc "Sort region"       "r" #'py-isort-region)))
@@ -109,8 +109,8 @@
     :custom
     (python-pytest-confirm t)
     :init
-    (map! :after python
-          :localleader
+    (map! :localleader
+          :after python
           :map python-mode-map
           (:prefix ("t" . "test")
            "f" #'python-pytest-file-dwim

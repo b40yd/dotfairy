@@ -83,7 +83,7 @@ If Non-nil, save and restore the frame's geometry."
   :group 'dotfairy
   :type 'symbol)
 
-(defcustom dotfairy-lsp-format-on-save-ignore-modes '(c-mode c++-mode python-mode go-mode)
+(defcustom dotfairy-lsp-format-on-save-ignore-modes '(c-mode c++-mode)
   "The modes that don't auto format and organize imports while saving the buffers.
 `prog-mode' means ignoring all derived modes."
   :group 'dotfairy

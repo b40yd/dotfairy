@@ -416,8 +416,8 @@ This is for use in `ivy-re-builders-alist'."
      "^.*\\([pP]assword\\|passphrase\\|Response\\|[vV]erification code\\).*:\0? *")
     )
 
-  (map! :after ivy
-        :localleader
+  (map! :localleader
+        :after ivy
         :map counsel-mode-map
         (:prefix ("i" . "ivy")
          "a" #'counsel-ag
