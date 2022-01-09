@@ -415,6 +415,7 @@ This is for use in `ivy-re-builders-alist'."
 
   (map! :leader
     (:prefix ("I" . "ivy")
+     :desc "ag" "a" #'counsel-ag
      :desc "apropos" "A" #'counsel-apropos
      :desc "bookmarked-directory" "B" #'counsel-bookmarked-directory
      (:prefix ("d" . "describe")
