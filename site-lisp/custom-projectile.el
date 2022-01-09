@@ -163,7 +163,7 @@ mask DIR)."
   (interactive "D")
   (let ((short-dir (abbreviate-file-name dir)))
     (unless (dotfairy-project-p dir)
-      (with-temp-file (dotfairy-path dir ".projectile")))
+      (with-temp-file (dotfairy-path dir ".project")))
     (let ((proj-dir (dotfairy-project-root dir)))
       (unless (file-equal-p proj-dir dir)
         (user-error "Can't add %S as a project, because %S is already a project"
@@ -171,7 +171,6 @@ mask DIR)."
       (message "%S was not a project; adding .project file to it"
                short-dir (abbreviate-file-name proj-dir))
       (projectile-add-known-project dir))))
-
 ;;
 ;;; Library
 ;;;###autoload

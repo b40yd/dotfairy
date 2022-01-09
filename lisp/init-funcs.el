@@ -305,6 +305,54 @@ or aliases."
   (declare (doc-string 1) (pure t) (side-effect-free t))
   `(lambda (&rest _) (interactive) ,@body))
 
+(defun dotfairy-rpartial (fn &rest args)
+  "Return a partial application of FUN to right-hand ARGS.
+ARGS is a list of the last N arguments to pass to FUN. The result is a new
+function which does the same as FUN, except that the last N arguments are fixed
+at the values with which this function was called."
+  (declare (side-effect-free t))
+  (lambda (&rest pre-args)
+    (apply fn (append pre-args args))))
+
+(defun dotfairy--resolve-path-forms (spec &optional directory)
+  "Converts a simple nested series of or/and forms into a series of
+`file-exists-p' checks.
+For example
+  (dotfairy--resolve-path-forms
+    '(or A (and B C))
+    \"~\")
+Returns (approximately):
+  '(let* ((_directory \"~\")
+          (A (expand-file-name A _directory))
+          (B (expand-file-name B _directory))
+          (C (expand-file-name C _directory)))
+     (or (and (file-exists-p A) A)
+         (and (if (file-exists-p B) B)
+              (if (file-exists-p C) C))))
+This is used by `file-exists-p!' and `project-file-exists-p!'."
+  (declare (pure t) (side-effect-free t))
+  (if (and (listp spec)
+           (memq (car spec) '(or and)))
+      (cons (car spec)
+            (mapcar (dotfairy-rpartial #'dotfairy--resolve-path-forms directory)
+                    (cdr spec)))
+    (let ((filevar (make-symbol "file")))
+      `(let ((,filevar ,spec))
+         (and (stringp ,filevar)
+              ,(if directory
+                   `(let ((default-directory ,directory))
+                      (file-exists-p ,filevar))
+                 `(file-exists-p ,filevar))
+              ,filevar)))))
+
+;;;###autoload
+(defmacro file-exists-p! (files &optional directory)
+  "Returns non-nil if the FILES in DIRECTORY all exist.
+DIRECTORY is a path; defaults to `default-directory'.
+Returns the last file found to meet the rules set by FILES, which can be a
+single file or nested compound statement of `and' and `or' statements."
+  `(let ((p ,(dotfairy--resolve-path-forms files directory)))
+     (and p (expand-file-name p ,directory))))
 
 (defun dotfairy-set-prettify (prettify-alist)
   "Set up symbol prettification."

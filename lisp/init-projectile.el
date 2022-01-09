@@ -24,6 +24,7 @@
 
 ;;; Code:
 (require 'init-const)
+(require 'init-funcs)
 
 
 (defvar projectile-project-root nil)
@@ -49,6 +50,47 @@
   (projectile-mode +1)
 
   :config
+  ;; Projectile runs four functions to determine the root (in this order):
+  ;;
+  ;; + `projectile-root-local' -> checks the `projectile-project-root' variable
+  ;;    for an explicit path.
+  ;; + `projectile-root-bottom-up' -> searches from / to your current directory
+  ;;   for the paths listed in `projectile-project-root-files-bottom-up'. This
+  ;;   includes .git and .project
+  ;; + `projectile-root-top-down' -> searches from the current directory down to
+  ;;   / the paths listed in `projectile-root-files', like package.json,
+  ;;   setup.py, or Cargo.toml
+  ;; + `projectile-root-top-down-recurring' -> searches from the current
+  ;;   directory down to / for a directory that has one of
+  ;;   `projectile-project-root-files-top-down-recurring' but doesn't have a
+  ;;   parent directory with the same file.
+  ;;
+  ;; In the interest of performance, we reduce the number of project root marker
+  ;; files/directories projectile searches for when resolving the project root.
+  (setq projectile-project-root-files-bottom-up
+        (append '(".projectile"  ; projectile's root marker
+                  ".project"     ; dotfairy project marker
+                  ".git")        ; Git VCS root dir
+                (when (executable-find "hg")
+                  '(".hg"))      ; Mercurial VCS root dir
+                (when (executable-find "bzr")
+                  '(".bzr")))    ; Bazaar VCS root dir
+        ;; This will be filled by other modules. We build this list manually so
+        ;; projectile doesn't perform so many file checks every time it resolves
+        ;; a project's root -- particularly when a file has no project.
+        projectile-project-root-files '()
+        projectile-project-root-files-top-down-recurring '("Makefile"))
+
+  (push (abbreviate-file-name dotfairy-local-dir) projectile-globally-ignored-directories)
+
+  ;; Override projectile's dirconfig file '.projectile' with dotfairy's project marker '.project'.
+  (defadvice! my--projectile-dirconfig-file-a ()
+    :override #'projectile-dirconfig-file
+    (cond
+     ;; Prefers '.projectile' to maintain compatibility with existing projects.
+     ((file-exists-p! (or ".projectile" ".project") (projectile-project-root)))
+     ((expand-file-name ".project" (projectile-project-root)))))
+
   ;; Use the faster searcher to handle project files: ripgrep `rg'.
   (when (and (not (executable-find "fd"))
              (executable-find "rg"))
