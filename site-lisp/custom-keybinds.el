@@ -87,7 +87,6 @@
       ;;; <leader> s --- search
   (:prefix-map ("s" . "search")
    :desc "Internet Search Engine"       "/" #'webjump
-   :desc "Search Buffer"                "b" #'+default/search-buffer
    :desc "Search All Opened buffer"     "B" #'swiper-all
    :desc "Search current directory"     "d" #'+default/search-cwd
    :desc "Search other directory"       "D" #'+default/search-other-cwd
