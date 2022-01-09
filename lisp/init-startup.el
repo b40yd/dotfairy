@@ -36,6 +36,7 @@
 
 ;; editor
 (require 'init-iedit)
+(require 'init-indent-yank)
 (require 'init-wordwrap)
 
 ;; Project
