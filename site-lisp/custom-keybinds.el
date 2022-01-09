@@ -55,22 +55,13 @@
    )
       ;;; <leader> c --- code
   (:prefix-map ("c" . "coding")
+   :desc "Compile or Recompile"                "c" #'+default/compile)
+  (:prefix-map ("e" . "editor")
    :desc "Hungry delete backward"              "b" #'hungry-delete-backward
-   :desc "Compile"                             "c" #'compile
-   :desc "Recompile"                           "C" #'recompile
+   :desc "Dired change to wdired-mode"         "e" #'wdired-change-to-wdired-mode
    :desc "Hungry delete forward"               "f" #'hungry-delete-forward
    :desc "Delete trailing whitespace"          "w" #'delete-trailing-whitespace
-   :desc "List errors"                         "x" #'flycheck-list-errors
-   :desc "LSP Code actions"                    "a" #'lsp-execute-code-action
-   :desc "LSP Organize imports"                "o" #'lsp-organize-imports
-   :desc "LSP Rename"                          "r" #'lsp-rename
-   :desc "LSP describe thing at point"         "." #'lsp-describe-thing-at-point
-   ;; :desc "LSP"                                   "l"   #'+default/lsp-command-map
-   :desc "Jump to symbol in current workspace" "j" #'lsp-ivy-workspace-symbol
-   :desc "Jump to symbol in any workspace"     "J" #'lsp-ivy-global-workspace-symbol
-   )
-  (:prefix-map ("e" . "editor")
-   :desc "Dired change to wdired-mode"         "e" #'wdired-change-to-wdired-mode)
+   :desc "List errors"                         "x" #'flycheck-list-errors)
       ;;; <leader> f --- file
   (:prefix-map ("f" . "file")
    :desc "Open project editorconfig"   "." #'editorconfig-find-current-editorconfig
@@ -162,10 +153,11 @@
    :desc "Add to workspace"                "a" #'lsp-workspace-folders-add
    :desc "Remove blacklist from workspace" "r" #'lsp-workspace-blacklist-remove
    :desc "Restart current workspace"       "R" #'lsp-workspace-restart
+   :desc "Find file in current project"    "f" #'+default/find-file-in-project
    :desc "Find file in other project"      "F" #'dotfairy/find-file-in-other-project
    :desc "Kill project buffers"            "k" #'dotfairy/kill-project-buffers
-   :desc "Browse in other project"         "o" #'dotfairy/browse-in-other-project
    :desc "Browse project"                  "p" #'+default/browse-project
+   :desc "Browse other project"            "P" #'dotfairy/browse-in-other-project
    :desc "Search project"                  "s" #'+default/search-project
    :desc "Search Other Project"            "S" #'+default/search-other-project
    :desc "List project todos"              "t" #'magit-todos-list

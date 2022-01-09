@@ -122,16 +122,19 @@
         (bongo-switch-buffers))
       (bind-key "b" #'bongo-add-dired-files dired-mode-map))))
 
+(use-package ag
+  :ensure t)
+
 ;; Fast search tool `ripgrep'
 (use-package rg
   :defines projectile-command-map
   :hook (after-init . rg-enable-default-bindings)
   :bind (:map rg-global-map
-              ("c" . rg-dwim-current-dir)
-              ("f" . rg-dwim-current-file)
-              ("m" . rg-menu)
-              :map rg-mode-map
-              ("m" . rg-menu))
+         ("c" . rg-dwim-current-dir)
+         ("f" . rg-dwim-current-file)
+         ("m" . rg-menu)
+         :map rg-mode-map
+         ("m" . rg-menu))
   :init (setq rg-group-result t
               rg-show-columns t)
   :config

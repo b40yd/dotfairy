@@ -42,65 +42,12 @@
         projectile-auto-discover nil
         projectile-enable-caching t
         projectile-globally-ignored-files '(".DS_Store" "TAGS")
-        projectile-globally-ignored-file-suffixes '(".elc" ".pyc" ".o")
+        projectile-globally-ignored-file-suffixes '(".elc" ".pyc" ".o" ".class")
         projectile-kill-buffers-filter 'kill-only-files
-        projectile-known-projects-file (concat dotfairy-cache-dir "projectile.projects")
-        projectile-ignored-projects '("~/" "/tmp"))
+        projectile-known-projects-file (concat dotfairy-cache-dir "projectile.projects"))
   (projectile-mode +1)
 
   :config
-  ;; Projectile runs four functions to determine the root (in this order):
-  ;;
-  ;; + `projectile-root-local' -> checks the `projectile-project-root' variable
-  ;;    for an explicit path.
-  ;; + `projectile-root-bottom-up' -> searches from / to your current directory
-  ;;   for the paths listed in `projectile-project-root-files-bottom-up'. This
-  ;;   includes .git and .project
-  ;; + `projectile-root-top-down' -> searches from the current directory down to
-  ;;   / the paths listed in `projectile-root-files', like package.json,
-  ;;   setup.py, or Cargo.toml
-  ;; + `projectile-root-top-down-recurring' -> searches from the current
-  ;;   directory down to / for a directory that has one of
-  ;;   `projectile-project-root-files-top-down-recurring' but doesn't have a
-  ;;   parent directory with the same file.
-  ;;
-  ;; In the interest of performance, we reduce the number of project root marker
-  ;; files/directories projectile searches for when resolving the project root.
-  (setq projectile-project-root-files-bottom-up
-        (append '(".projectile"  ; projectile's root marker
-                  ".project"     ; project marker
-                  ".git")        ; Git VCS root dir
-                (when (executable-find "hg")
-                  '(".hg"))      ; Mercurial VCS root dir
-                (when (executable-find "bzr")
-                  '(".bzr")))    ; Bazaar VCS root dir
-        ;; This will be filled by other modules. We build this list manually so
-        ;; projectile doesn't perform so many file checks every time it resolves
-        ;; a project's root -- particularly when a file has no project.
-        projectile-project-root-files '()
-        projectile-project-root-files-top-down-recurring '("Makefile"))
-
-  (push (abbreviate-file-name dotfairy-local-dir) projectile-globally-ignored-directories)
-
-  ;; Disable commands that won't work, as is, and that Dotfairy already provides a
-  ;; better alternative for.
-  (put 'projectile-ag 'disabled "Use +{ivy}/project-search instead")
-  (put 'projectile-ripgrep 'disabled "Use +{ivy}/project-search instead")
-  (put 'projectile-grep 'disabled "Use +{ivy}/project-search instead")
-
-  ;; It breaks projectile's project root resolution if HOME is a project (e.g.
-  ;; it's a git repo). In that case, we disable bottom-up root searching to
-  ;; prevent issues. This makes project resolution a little slower and less
-  ;; accurate in some cases.
-  (let ((default-directory "~"))
-    (when (cl-find-if #'projectile-file-exists-p
-                      projectile-project-root-files-bottom-up)
-      (setq projectile-project-root-files
-            (append projectile-project-root-files-bottom-up
-                    projectile-project-root-files)
-            projectile-project-root-files-bottom-up nil)))
-
-
   ;; Use the faster searcher to handle project files: ripgrep `rg'.
   (when (and (not (executable-find "fd"))
              (executable-find "rg"))
@@ -121,13 +68,7 @@
 
   ;; Support Perforce project
   (let ((val (or (getenv "P4CONFIG") ".p4config")))
-    (add-to-list 'projectile-project-root-files-bottom-up val))
-
-  (setq projectile-completion-system 'ivy)
-
-  (use-package ag
-    :ensure t)
-  )
+    (add-to-list 'projectile-project-root-files-bottom-up val)))
 
 
 (use-package treemacs

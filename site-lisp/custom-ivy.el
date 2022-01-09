@@ -226,8 +226,8 @@ If prefix ARG is set, prompt for a directory to search from."
               (read-directory-name "Search directory: ")
             default-directory)))
     (call-interactively
-     (cond ((featurep 'ivy)  #'+ivy/project-search-from-cwd)
-           (#'rgrep)))))
+     (if (featurep 'ivy)  #'+ivy/project-search-from-cwd
+       #'rgrep))))
 
 ;;;###autoload
 (defun +default/search-other-cwd ()
@@ -260,9 +260,9 @@ If prefix ARG is set, include ignored/hidden files."
                  (user-error "There are no known projects"))
              default-directory)))
     (call-interactively
-     (cond ((featurep 'ivy)  #'+ivy/project-search)
-
-           (#'projectile-ripgrep)))))
+     (if (featurep 'ivy)
+         #'+ivy/project-search
+       #'projectile-ripgrep))))
 
 ;;;###autoload
 (defun +default/search-other-project ()

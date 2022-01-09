@@ -403,15 +403,11 @@ This is for use in `ivy-re-builders-alist'."
     [remap locate]                   #'counsel-locate
     [remap org-goto]                 #'counsel-org-goto
     [remap org-set-tags-command]     #'counsel-org-tag
-    [remap projectile-compile-project] #'+ivy/project-compile
     [remap recentf-open-files]       #'counsel-recentf
     [remap set-variable]             #'counsel-set-variable
     [remap swiper]                   #'counsel-grep-or-swiper
     [remap unicode-chars-list-chars] #'counsel-unicode-char
-    [remap yank-pop]                 #'counsel-yank-pop
-    [remap switch-to-buffer]              #'+ivy/switch-buffer
-    [remap switch-to-buffer-other-window] #'+ivy/switch-buffer-other-window
-    [remap persp-switch-to-buffer]        #'+ivy/switch-workspace-buffer)
+    [remap yank-pop]                 #'counsel-yank-pop)
 
   (map! :leader
     (:prefix ("I" . "ivy")
