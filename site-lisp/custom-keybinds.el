@@ -39,59 +39,59 @@
    (:prefix ("c" . "Command log")
     :desc "Enable command log mode"    "e" #'command-log-mode
     :desc "Toggle command log buffer"  "g" #'clm/toggle-command-log-buffer)
-   :desc "Music Player"                        "b"   #'bongo
-   :desc "Reading"                             "r"   #'olivetti-mode
-   :desc "Quick Run"                           "R"   #'quickrun-hydra/body)
+   :desc "Music Player"                        "b" #'bongo
+   :desc "Reading"                             "r" #'olivetti-mode
+   :desc "Quick Run"                           "R" #'quickrun-hydra/body)
 
   (:prefix-map ("b" . "buffers")
-   :desc "Kill all buffers"                    "a"   #'dotfairy/kill-all-buffers
-   :desc "Kill this buffer in all windows"     "A"   #'dotfairy/kill-this-buffer-in-all-windows
-   :desc "Switch to buffer"                    "b"   #'switch-to-buffer
-   :desc "Kill buried buffers"                 "k"   #'kill-buffer
-   :desc "Kill buried buffers"                 "K"   #'dotfairy/kill-buried-buffers
-   :desc "Save and kill buffer"                "s"   #'dotfairy/save-and-kill-buffer
-   :desc "Kill other buffers"                  "o"   #'dotfairy/kill-other-buffers
-   :desc "kill matching buffers"               "m"   #'dotfairy/kill-matching-buffers
+   :desc "Kill all buffers"                    "a" #'dotfairy/kill-all-buffers
+   :desc "Kill this buffer in all windows"     "A" #'dotfairy/kill-this-buffer-in-all-windows
+   :desc "Switch to buffer"                    "b" #'switch-to-buffer
+   :desc "Kill buried buffers"                 "k" #'kill-buffer
+   :desc "Kill buried buffers"                 "K" #'dotfairy/kill-buried-buffers
+   :desc "Save and kill buffer"                "s" #'dotfairy/save-and-kill-buffer
+   :desc "Kill other buffers"                  "o" #'dotfairy/kill-other-buffers
+   :desc "kill matching buffers"               "m" #'dotfairy/kill-matching-buffers
    )
       ;;; <leader> c --- code
   (:prefix-map ("c" . "coding")
-   :desc "Hungry delete backward"              "b"   #'hungry-delete-backward
-   :desc "Compile"                             "c"   #'compile
-   :desc "Recompile"                           "C"   #'recompile
-   :desc "Hungry delete forward"               "f"   #'hungry-delete-forward
-   :desc "Delete trailing whitespace"          "w"   #'delete-trailing-whitespace
-   :desc "List errors"                         "x"   #'flycheck-list-errors
-   :desc "LSP Code actions"                    "a"   #'lsp-execute-code-action
-   :desc "LSP Organize imports"                "o"   #'lsp-organize-imports
-   :desc "LSP Rename"                          "r"   #'lsp-rename
-   :desc "LSP describe thing at point"         "."   #'lsp-describe-thing-at-point
+   :desc "Hungry delete backward"              "b" #'hungry-delete-backward
+   :desc "Compile"                             "c" #'compile
+   :desc "Recompile"                           "C" #'recompile
+   :desc "Hungry delete forward"               "f" #'hungry-delete-forward
+   :desc "Delete trailing whitespace"          "w" #'delete-trailing-whitespace
+   :desc "List errors"                         "x" #'flycheck-list-errors
+   :desc "LSP Code actions"                    "a" #'lsp-execute-code-action
+   :desc "LSP Organize imports"                "o" #'lsp-organize-imports
+   :desc "LSP Rename"                          "r" #'lsp-rename
+   :desc "LSP describe thing at point"         "." #'lsp-describe-thing-at-point
    ;; :desc "LSP"                                   "l"   #'+default/lsp-command-map
-   :desc "Jump to symbol in current workspace" "j"   #'lsp-ivy-workspace-symbol
-   :desc "Jump to symbol in any workspace"     "J"   #'lsp-ivy-global-workspace-symbol
+   :desc "Jump to symbol in current workspace" "j" #'lsp-ivy-workspace-symbol
+   :desc "Jump to symbol in any workspace"     "J" #'lsp-ivy-global-workspace-symbol
    )
   (:prefix-map ("e" . "editor")
-   :desc "Dired change to wdired-mode" "e"  #'wdired-change-to-wdired-mode)
+   :desc "Dired change to wdired-mode"         "e" #'wdired-change-to-wdired-mode)
       ;;; <leader> f --- file
   (:prefix-map ("f" . "file")
-   :desc "Open project editorconfig"   "."   #'editorconfig-find-current-editorconfig
-   :desc "Copy this file"              "c"   #'dotfairy/copy-this-file
-   :desc "Rename this file name"       "C"   #'dotfairy/copy-file-name
-   :desc "Find directory"              "d"   #'dired
-   :desc "Delete this file"            "D"   #'dotfairy/delete-this-file
-   :desc "Find file in emacs.d"        "e"   #'dotfairy/find-file-in-emacsd
-   :desc "Browse in emacs.d"           "E"   #'dotfairy/browse-in-emacsd
-   :desc "Find file"                   "f"   #'find-file
-   :desc "Find file from here"         "F"   #'+default/find-file-under-here
-   :desc "Locate file"                 "l"   #'locate
-   :desc "Reload init file"            "L"   #'dotfairy/reload-init-file
-   :desc "Rename/move this file"       "m"   #'dotfairy/move-this-file
-   :desc "Rename this buffer file"     "M"   #'dotfairy/rename-this-file
-   :desc "Recent files"                "r"   #'recentf-open-files
-   :desc "Recent project files"        "R"   #'projectile-recentf
-   :desc "Sudo this file"              "u"   #'dotfairy/sudo-this-file
-   :desc "Sudo find file"              "U"   #'dotfairy/sudo-find-file
-   :desc "Open init file"              "i"   #'dotfairy/open-init-file
-   :desc "Open custom file"            "I"   #'dotfairy/open-custom-file
+   :desc "Open project editorconfig"   "." #'editorconfig-find-current-editorconfig
+   :desc "Copy this file"              "c" #'dotfairy/copy-this-file
+   :desc "Rename this file name"       "C" #'dotfairy/copy-file-name
+   :desc "Find directory"              "d" #'dired
+   :desc "Delete this file"            "D" #'dotfairy/delete-this-file
+   :desc "Find file in emacs.d"        "e" #'dotfairy/find-file-in-emacsd
+   :desc "Browse in emacs.d"           "E" #'dotfairy/browse-in-emacsd
+   :desc "Find file"                   "f" #'find-file
+   :desc "Find file from here"         "F" #'+default/find-file-under-here
+   :desc "Locate file"                 "l" #'locate
+   :desc "Reload init file"            "L" #'dotfairy/reload-init-file
+   :desc "Rename/move this file"       "m" #'dotfairy/move-this-file
+   :desc "Rename this buffer file"     "M" #'dotfairy/rename-this-file
+   :desc "Recent files"                "r" #'recentf-open-files
+   :desc "Recent project files"        "R" #'projectile-recentf
+   :desc "Sudo this file"              "u" #'dotfairy/sudo-this-file
+   :desc "Sudo find file"              "U" #'dotfairy/sudo-find-file
+   :desc "Open init file"              "i" #'dotfairy/open-init-file
+   :desc "Open custom file"            "I" #'dotfairy/open-custom-file
    )
       ;;; <leader> s --- search
   (:prefix-map ("s" . "search")
@@ -101,17 +101,20 @@
    :desc "Search current directory"     "d" #'+default/search-cwd
    :desc "Search other directory"       "D" #'+default/search-other-cwd
    :desc "Counsel grep or swiper"       "g" #'counsel-grep-or-swiper
+   :desc "Counsel grep"                 "G" #'counsel-grep
    :desc "Jump to symbol"               "i" #'imenu
+   :desc "Counsel git grep"             "j" #'counsel-git-grep
    :desc "Jump to link"                 "L" #'ffap-menu
    :desc "Jump to bookmark"             "m" #'bookmark-jump
    :desc "Search project"               "p" #'+default/search-project
    :desc "Search other project"         "P" #'+default/search-other-project
+   :desc "Counsel rg search" "r" #'counsel-rg
    :desc "Search buffer"                "s" #'+default/search-buffer
    :desc "Search buffer for thing at point" "S" #'swiper-isearch-thing-at-point)
       ;;; <leader> i --- insert
   (:prefix-map ("i" . "insert")
-   :desc "Snippet"                       "s"   #'yas-insert-snippet
-   :desc "Unicode"                       "u"   #'unicode-property-table-internal)
+   :desc "Snippet"                       "s" #'yas-insert-snippet
+   :desc "Unicode"                       "u" #'unicode-property-table-internal)
       ;;; <leader> n --- notes
   (:prefix-map ("n" . "notes")
    :desc "Org agenda"                     "a" #'org-agenda

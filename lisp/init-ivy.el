@@ -415,38 +415,33 @@ This is for use in `ivy-re-builders-alist'."
 
   (map! :leader
     (:prefix ("I" . "ivy")
-     :desc "ag" "a" #'counsel-ag
-     :desc "apropos" "A" #'counsel-apropos
+     :desc "ag"                   "a" #'counsel-ag
+     :desc "apropos"              "A" #'counsel-apropos
      :desc "bookmarked-directory" "B" #'counsel-bookmarked-directory
      (:prefix ("d" . "describe")
-      :desc "describe function" "f" #'counsel-describe-function
-      :desc "describe variable" "v" #'counsel-describe-variable
-      :desc "describe symbol" "s" #'counsel-describe-symbol
-      :desc "info lookup symbol" "l"  #'counsel-info-lookup-symbol)
-     :desc "colors emacs" "e" #'counsel-colors-emacs
-     :desc "find library" "f" #'counsel-find-library
-     :desc "faces" "F" #'counsel-faces
-     :desc "git" "G" #'counsel-git
-     :desc "command history" "h" #'counsel-command-history
-     :desc "minibuffer history" "H" #'counsel-minibuffer-history
-     :desc "locate" "l" #'counsel-locate
-     :desc "load library" "L" #'counsel-load-library
-     :desc "mark ring" "m" #'counsel-mark-ring
-     :desc "outline" "o" #'counsel-outline
-     :desc "find file extern" "O" #'counsel-find-file-extern
-     :desc "pt" "p" #'counsel-pt
-     :desc "package" "P" #'counsel-package
-     :desc "list processes" "R" #'counsel-list-processes
-     :desc "load theme" "t" #'counsel-load-theme
-     :desc "unicode char" "u" #'counsel-unicode-char
-     :desc "colors web" "w" #'counsel-colors-web
-     :desc "set variable" "v" #'counsel-set-variable
-     :desc "fzf" "z" #'counsel-fzf)
-    (:prefix ("S" . "Search")
-     :desc "grep" "g" #'counsel-grep
-     :desc "git grep" "j" #'counsel-git-grep
-     :desc "rg" "r" #'counsel-rg
-     :desc "grep or swiper" "s" #'counsel-grep-or-swiper)))
+      :desc "describe function"   "f" #'counsel-describe-function
+      :desc "describe variable"   "v" #'counsel-describe-variable
+      :desc "describe symbol"     "s" #'counsel-describe-symbol
+      :desc "info lookup symbol"  "l" #'counsel-info-lookup-symbol)
+     :desc "colors emacs"         "e" #'counsel-colors-emacs
+     :desc "find library"         "f" #'counsel-find-library
+     :desc "faces"                "F" #'counsel-faces
+     :desc "git"                  "G" #'counsel-git
+     :desc "command history"      "h" #'counsel-command-history
+     :desc "minibuffer history"   "H" #'counsel-minibuffer-history
+     :desc "locate"               "l" #'counsel-locate
+     :desc "load library"         "L" #'counsel-load-library
+     :desc "mark ring"            "m" #'counsel-mark-ring
+     :desc "outline"              "o" #'counsel-outline
+     :desc "find file extern"     "O" #'counsel-find-file-extern
+     :desc "pt"                   "p" #'counsel-pt
+     :desc "package"              "P" #'counsel-package
+     :desc "list processes"       "R" #'counsel-list-processes
+     :desc "load theme"           "t" #'counsel-load-theme
+     :desc "unicode char"         "u" #'counsel-unicode-char
+     :desc "colors web"           "w" #'counsel-colors-web
+     :desc "set variable"         "v" #'counsel-set-variable
+     :desc "fzf"                  "z" #'counsel-fzf)))
 
 ;; Better experience with icons
 ;; Enable it before`ivy-rich-mode' for better performance

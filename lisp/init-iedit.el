@@ -203,12 +203,12 @@
          ("C->" . mc/mark-next-lines)
          ("C-<" . mc/mark-previous-lines)
          ("<double-mouse-1>" . mouse-set-point)
-         ("C-M-SPC" . set-rectangular-region-anchor)
+         ("M-SPC" . set-rectangular-region-anchor)
          ("C->" . mc/mark-next-like-this)
          ("C-<" . mc/mark-previous-like-this)
          ("C-c C->" . mc/mark-all-like-this)
-         :map mc/keymap
-         ("C-|" . mc/vertical-align-with-space))
+         ("M-|" . mc/vertical-align-with-space)
+         :map mc/keymap)
   :config
   (defun my-append-to-list (list-var elements)
     "Append ELEMENTS to the end of LIST-VAR.
@@ -224,6 +224,8 @@ The return value is the new value of LIST-VAR."
 
   (with-eval-after-load 'multiple-cursors-core
     (my-append-to-list 'mc--default-cmds-to-run-once '(swiper-mc
+                                                       counsel-M-x
+                                                       delete-horizontal-space
                                                        mouse-drag-region-rectangle
                                                        mc/vertical-align-with-space
                                                        multiple-cursors-hydra/body

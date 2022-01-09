@@ -106,30 +106,30 @@
 
   (map! :localleader
         :map go-mode-map
-        :desc "add tag" "a" #'go-tag-add
-        :desc "remove tag" "d" #'go-tag-remove
-        :desc "doc at point" "p" #'godoc-at-point
+        :desc "add tag"                           "a" #'go-tag-add
+        :desc "remove tag"                        "d" #'go-tag-remove
+        :desc "doc at point"                      "p" #'godoc-at-point
         (:prefix ("i" . "imports")
-         :desc "import add" "a" #'go-import-add
-         :desc "expr completion" "e" #'go-expr-completion
-         :desc "fill struct" "f" #'go-fill-struct
-         :desc "goto imports" "i" #'go-goto-imports      ; Go to imports
-         :desc "remove unused imports" "r" #'go-remove-unused-imports)
+         :desc "import add"                       "a" #'go-import-add
+         :desc "expr completion"                  "e" #'go-expr-completion
+         :desc "fill struct"                      "f" #'go-fill-struct
+         :desc "goto imports"                     "i" #'go-goto-imports      ; Go to imports
+         :desc "remove unused imports"            "r" #'go-remove-unused-imports)
         (:prefix ("b" . "build")
-         :desc "go run ." "r" (cmd! (compile "go run ."))
-         :desc "go build" "b" (cmd! (compile "go build"))
-         :desc "go clean" "c" (cmd! (compile "go clean")))
+         :desc "go run ."                         "r" (cmd! (compile "go run ."))
+         :desc "go build"                         "b" (cmd! (compile "go build"))
+         :desc "go clean"                         "c" (cmd! (compile "go clean")))
         (:prefix ("t" . "test")
-         :desc "test current project" "a" #'go-test-current-project
-         :desc "test current coverage" "c" #'go-test-current-coverage
-         :desc "test current test" "s" #'go-test-current-test
-         :desc "test current file" "t" #'go-test-current-file
-         :desc "gen test dwim" "g" #'go-gen-test-dwim
-         :desc "gen test all" "G" #'go-gen-test-all
-         :desc "gen test exported" "e" #'go-gen-test-exported
+         :desc "test current project"             "a" #'go-test-current-project
+         :desc "test current coverage"            "c" #'go-test-current-coverage
+         :desc "test current test"                "s" #'go-test-current-test
+         :desc "test current file"                "t" #'go-test-current-file
+         :desc "gen test dwim"                    "g" #'go-gen-test-dwim
+         :desc "gen test all"                     "G" #'go-gen-test-all
+         :desc "gen test exported"                "e" #'go-gen-test-exported
          (:prefix ("b" . "bench")
           :desc "test current project benchmarks" "a" #'go-test-current-project-benchmarks
-          :desc "test current benchmark" "s" #'go-test-current-benchmark
-          :desc "test current file benchmarks" "t" #'go-test-current-file-benchmarks))))
+          :desc "test current benchmark"          "s" #'go-test-current-benchmark
+          :desc "test current file benchmarks"    "t" #'go-test-current-file-benchmarks))))
 (provide 'init-go)
 ;;; init-go.el ends here
