@@ -170,10 +170,6 @@
    :desc "Kill Emacs (and daemon)"      "K" #'save-buffers-kill-emacs
    :desc "Quit Emacs"                   "q" #'kill-emacs
    :desc "Save and quit Emacs"          "Q" #'save-buffers-kill-terminal
-   :desc "Quick save current session"   "s" #'dotfairy/quicksave-session
-   :desc "Restore last session"         "l" #'dotfairy/quickload-session
-   :desc "Save session to file"         "S" #'dotfairy/save-session
-   :desc "Restore session from file"    "L" #'dotfairy/load-session
    :desc "Restart & restore Emacs"      "r" #'dotfairy/restart-and-restore
    :desc "Restart Emacs"                "R" #'dotfairy/restart)
 
