@@ -26,12 +26,14 @@
 (require 'init-const)
 (require 'init-custom)
 (require 'init-funcs)
+(require 'cl-lib)
 
 (defvar doom-leader-key "SPC"
   "The leader prefix key for users.")
 
 (defvar doom-leader-alt-key "M-SPC"
-  "An alternative leader prefix key, used for Insert and Emacs states, and for users.")
+  "An alternative leader prefix key,
+ used for Insert and Emacs states, and for users.")
 
 (defvar doom-localleader-key "SPC m"
   "The localleader prefix key, for major-mode specific commands.")
@@ -65,10 +67,11 @@
 
 (use-package general
   :init
-  (general-auto-unbind-keys)
   ;; Convenience aliases
   (defalias 'define-key! #'general-def)
-  (defalias 'undefine-key! #'general-unbind))
+  (defalias 'undefine-key! #'general-unbind)
+  :config
+  (add-hook 'after-init-hook #'general-auto-unbind-keys))
 
 (defun doom-unquote (exp)
   "Return EXP unquoted."
@@ -100,27 +103,6 @@ list is returned as-is."
                if (eq (car-safe hook) 'quote)
                collect (cadr hook)
                else collect (intern (format "%s-hook" (symbol-name hook)))))))
-
-(defun doom--setq-hook-fns (hooks rest &optional singles)
-  (unless (or singles (= 0 (% (length rest) 2)))
-    (signal 'wrong-number-of-arguments (list #'evenp (length rest))))
-  (cl-loop with vars = (let ((args rest)
-                             vars)
-                         (while args
-                           (push (if singles
-                                     (list (pop args))
-                                   (cons (pop args) (pop args)))
-                                 vars))
-                         (nreverse vars))
-           for hook in (doom--resolve-hook-forms hooks)
-           for mode = (string-remove-suffix "-hook" (symbol-name hook))
-           append
-           (cl-loop for (var . val) in vars
-                    collect
-                    (list var val hook
-                          (intern (format "doom--setq-%s-for-%s-h"
-                                          var mode))))))
-
 
 (defmacro add-hook! (hooks &rest rest)
   "A convenience macro for adding N functions to M hooks.
@@ -185,28 +167,6 @@ If N and M = 1, there's no benefit to using this macro over `remove-hook'.
 \(fn HOOKS [:append :local] FUNCTIONS)"
   (declare (indent defun) (debug t))
   `(add-hook! ,hooks :remove ,@rest))
-
-(defmacro setq-hook! (hooks &rest var-vals)
-  "Sets buffer-local variables on HOOKS.
-\(fn HOOKS &rest [SYM VAL]...)"
-  (declare (indent 1))
-  (macroexp-progn
-   (cl-loop for (var val hook fn) in (doom--setq-hook-fns hooks var-vals)
-            collect `(defun ,fn (&rest _)
-                       ,(format "%s = %s" var (pp-to-string val))
-                       (setq-local ,var ,val))
-            collect `(remove-hook ',hook #',fn) ; ensure set order
-            collect `(add-hook ',hook #',fn))))
-
-(defmacro unsetq-hook! (hooks &rest vars)
-  "Unbind setq hooks on HOOKS for VARS.
-\(fn HOOKS &rest [SYM VAL]...)"
-  (declare (indent 1))
-  (macroexp-progn
-   (cl-loop for (_var _val hook fn)
-            in (doom--setq-hook-fns hooks vars 'singles)
-            collect `(remove-hook ',hook #',fn))))
-
 
 ;;; Definers
 (defmacro defadvice! (symbol arglist &optional docstring &rest body)
@@ -291,6 +251,9 @@ This is a wrapper around `eval-after-load' that:
                (setq body `((after! ,next ,@body))))
              (car body))))))
 
+(defmacro prependq! (sym &rest lists)
+  "Prepend LISTS to SYM in place."
+  `(setq ,sym (append ,@lists ,sym)))
 
 ;; HACK `map!' uses this instead of `define-leader-key!' because it consumes
 ;; 20-30% more startup time, so we reimplement it ourselves.
@@ -323,10 +286,6 @@ This is a wrapper around `eval-after-load' that:
     (macroexp-progn
      (append (and wkforms `((after! which-key ,@(nreverse wkforms))))
              (nreverse forms)))))
-
-(defmacro prependq! (sym &rest lists)
-  "Prepend LISTS to SYM in place."
-  `(setq ,sym (append ,@lists ,sym)))
 
 (defmacro define-leader-key! (&rest args)
   "Define <leader> keys.
@@ -369,21 +328,19 @@ localleader prefix."
 ;; Bind `doom-leader-key' and `doom-leader-alt-key' as late as possible to give
 ;; the user a chance to modify them.
 (add-hook! 'after-init-hook
-           (defun doom-init-leader-keys-h ()
-             "Bind `doom-leader-key' and `doom-leader-alt-key'."
-             (let ((map general-override-mode-map))
-               (if (not (featurep 'evil))
-                   (progn
-                     (cond ((equal doom-leader-alt-key "C-c")
-                            (set-keymap-parent doom-leader-map mode-specific-map))
-                           ((equal doom-leader-alt-key "C-x")
-                            (set-keymap-parent doom-leader-map ctl-x-map)))
-                     (define-key map (kbd doom-leader-alt-key) 'doom/leader))
-                 (evil-define-key* '(normal visual motion) map (kbd doom-leader-key) 'doom/leader)
-                 (evil-define-key* '(emacs insert) map (kbd doom-leader-alt-key) 'doom/leader))
-               (general-override-mode +1))))
-
-
+  (defun doom-init-leader-keys-h ()
+    "Bind `doom-leader-key' and `doom-leader-alt-key'."
+    (let ((map general-override-mode-map))
+      (if (not (featurep 'evil))
+          (progn
+            (cond ((equal doom-leader-alt-key "C-c")
+                   (set-keymap-parent doom-leader-map mode-specific-map))
+                  ((equal doom-leader-alt-key "C-x")
+                   (set-keymap-parent doom-leader-map ctl-x-map)))
+            (define-key map (kbd doom-leader-alt-key) 'doom/leader))
+        (evil-define-key* '(normal visual motion) map (kbd doom-leader-key) 'doom/leader)
+        (evil-define-key* '(emacs insert) map (kbd doom-leader-alt-key) 'doom/leader))
+      (general-override-mode +1))))
 ;;
 ;;; Packages
 (use-package which-key

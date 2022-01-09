@@ -27,8 +27,8 @@
 
 ;; Base
 (require 'init-basic)
-(require 'init-hydra)
 (require 'init-keybinds)
+(require 'init-hydra)
 (require 'init-kill-ring)
 
 ;; UI
