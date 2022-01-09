@@ -169,7 +169,7 @@ See `dotfairy-real-buffer-p' for details on what that means."
 (defun dotfairy-buffers-in-mode (modes &optional buffer-list derived-p)
   "Return a list of buffers whose `major-mode' is `eq' to MODE(S).
 If DERIVED-P, test with `derived-mode-p', otherwise use `eq'."
-  (let ((modes (doom-enlist modes)))
+  (let ((modes (dotfairy-enlist modes)))
     (cl-remove-if-not (if derived-p
                           (lambda (buf)
                             (with-current-buffer buf

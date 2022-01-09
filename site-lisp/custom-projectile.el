@@ -36,7 +36,7 @@ Ignores `nil' elements in SEGMENTS."
       (setq segment (pop segments)
             dir (expand-file-name
                  (if (listp segment)
-                     (apply #'doom-path dir segment)
+                     (apply #'dotfairy-path dir segment)
                    segment)
                  dir)))
     dir))
