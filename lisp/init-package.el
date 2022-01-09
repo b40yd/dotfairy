@@ -133,5 +133,19 @@
         auto-package-update-hide-results t)
   (defalias 'upgrade-packages #'auto-package-update-now))
 
+;; Update
+(defun update-config ()
+  "Update Centaur Emacs configurations to the latest version."
+  (interactive)
+  (let ((temp-dir (expand-file-name user-emacs-directory)))
+    (if (file-exists-p temp-dir)
+        (progn
+          (message "Updating configurations...")
+          (cd temp-dir)
+          (shell-command "git pull")
+          (message "Updating configurations...done"))
+      (message "\"%s\" doesn't exist" temp-dir))))
+(defalias 'dotfairy-update-config #'update-config)
+
 (provide 'init-package)
 ;;; init-package.el ends here
