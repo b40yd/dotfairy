@@ -26,6 +26,7 @@
 
 ;; @see https://emacs-china.org/t/indent-yank/19524
 (require 'dash)
+(require 'init-funcs)
 
 (defun indent-yank-line-empty-p ()
   (save-excursion
@@ -72,5 +73,8 @@
 
 (define-minor-mode indent-yank-mode
   "Minor mode for yanking based on indentation at point.")
+
+(add-hook!  '(org-mode-hook python-mode-hook) 'indent-yank-mode)
+
 (provide 'init-indent-yank)
 ;;; init-indent-yank.el ends here

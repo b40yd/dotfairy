@@ -32,7 +32,6 @@
   :hook ((inferior-python-mode . (lambda ()
                                    (process-query-on-exit-flag
                                     (get-process "Python"))))
-         (python-mode . indent-yank-mode)
          (python-mode . (lambda ()
                           (dotfairy-set-prettify '(("**2" . ?²)
                                                    ("**3" . ?³)

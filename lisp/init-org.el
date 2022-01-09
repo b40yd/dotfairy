@@ -62,7 +62,6 @@
                                                       (">=" . "≥")
                                                       ("=>" . "⇨")))
                        (prettify-symbols-mode 1)))
-         (org-mode . indent-yank-mode)
          (org-indent-mode . (lambda()
                               (diminish 'org-indent-mode)
                               ;; WORKAROUND: Prevent text moving around while using brackets
