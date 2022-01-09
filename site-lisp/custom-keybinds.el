@@ -227,7 +227,7 @@
    :desc "Display workspaces"           "d" #'+workspace/display
    :desc "Frame fullscreen"             "f" #'toggle-frame-fullscreen
    :desc "Rename workspace"             "r" #'+workspace/rename
-   :desc "Create workspace"             "c" #'+workspace/new
+   :desc "Create workspace"             "c" #'+workspace/new-named
    :desc "Delete workspace"             "k" #'+workspace/delete
    :desc "Save workspace"               "S" #'+workspace/save
    :desc "Switch to other workspace"    "o" #'+workspace/other
@@ -249,6 +249,7 @@
    :desc "Load session"                 "l" #'dotfairy/load-session
    :desc "Load last autosaved session"  "L" #'dotfairy/quickload-session
    :desc "Management windows"           "m" #'ace-window-hydra/body
+   :desc "Close window or workspace"    "q" #'+workspace/close-window-or-workspace
    :desc "Undo window config"           "u" #'winner-undo
    :desc "Redo window config"           "U" #'winner-redo)
 
