@@ -41,6 +41,7 @@
         ;; when you need to (`projectile-discover-projects-in-search-path').
         projectile-auto-discover nil
         projectile-enable-caching t
+        projectile-project-search-path '("~/")
         projectile-globally-ignored-files '(".DS_Store" "TAGS")
         projectile-globally-ignored-file-suffixes '(".elc" ".pyc" ".o" ".class")
         projectile-kill-buffers-filter 'kill-only-files
