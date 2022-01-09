@@ -135,7 +135,7 @@
 
 ;; Update
 (defun update-config ()
-  "Update Centaur Emacs configurations to the latest version."
+  "Update Dotfairy Emacs configurations to the latest version."
   (interactive)
   (let ((temp-dir (expand-file-name user-emacs-directory)))
     (if (file-exists-p temp-dir)
