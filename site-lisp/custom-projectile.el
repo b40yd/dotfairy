@@ -249,9 +249,32 @@ If prefix ARG is non-nil, prompt for a known project to open in dired."
   "Browse files from the current project's root."
   (interactive) (dotfairy-project-browse (dotfairy-project-root)))
 
-(defun +default/find-file-in-project ()
-  "Browse files from the current project's root."
-  (interactive) (dotfairy-project-find-file (dotfairy-project-root)))
+;;;###autoload
+(defun +default/projectile-find-file ()
+  "A more sensible `counsel-projectile-find-file', which will revert to
+`counsel-find-file' if invoked from $HOME or /, `counsel-file-jump' if invoked
+from a non-project, `projectile-find-file' if in a big project (more than
+`ivy-sort-max-size' files), or `counsel-projectile-find-file' otherwise.
+The point of this is to avoid Emacs locking up indexing massive file trees."
+  (interactive)
+  ;; Spoof the command so that ivy/counsel will display the (well fleshed-out)
+  ;; actions list for `counsel-find-file' on C-o. The actions list for the other
+  ;; commands aren't as well configured or are empty.
+  (let ((this-command 'counsel-find-file))
+    (call-interactively
+     (cond ((or (file-equal-p default-directory "~")
+                (file-equal-p default-directory "/")
+                (when-let (proot (dotfairy-project-root))
+                  (file-equal-p proot "~")))
+            #'counsel-find-file)
+
+           ((dotfairy-project-p)
+            (let ((files (projectile-current-project-files)))
+              (if (<= (length files) ivy-sort-max-size)
+                  #'counsel-projectile-find-file
+                #'projectile-find-file)))
+
+           (#'counsel-file-jump)))))
 
 (defun +default/browse-notes ()
   "Browse files from `org-directory'."

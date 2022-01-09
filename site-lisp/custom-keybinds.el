@@ -152,7 +152,7 @@
    :desc "Add to workspace"                "a" #'lsp-workspace-folders-add
    :desc "Remove blacklist from workspace" "r" #'lsp-workspace-blacklist-remove
    :desc "Restart current workspace"       "R" #'lsp-workspace-restart
-   :desc "Find file in current project"    "f" #'+default/find-file-in-project
+   :desc "Find file in current project"    "f" #'+default/projectile-find-file
    :desc "Find file in other project"      "F" #'dotfairy/find-file-in-other-project
    :desc "Kill project buffers"            "k" #'dotfairy/kill-project-buffers
    :desc "Browse project"                  "p" #'+default/browse-project
