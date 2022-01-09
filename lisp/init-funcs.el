@@ -248,6 +248,21 @@ the same name, for use with `funcall' or `apply'. ARGLIST and BODY are as in
     (with-current-buffer buffer
       (funcall (default-value 'major-mode)))))
 
+;;;###autoload
+(defun dotfairy-path (&rest segments)
+  "Constructs a file path from SEGMENTS.
+Ignores `nil' elements in SEGMENTS."
+  (let ((segments (remq nil segments))
+        file-name-handler-alist
+        dir)
+    (while segments
+      (setq segment (pop segments)
+            dir (expand-file-name
+                 (if (listp segment)
+                     (apply #'dotfairy-path dir segment)
+                   segment)
+                 dir)))
+    dir))
 
 (defun dotfairy-region-active-p ()
   "Return non-nil if selection is active."

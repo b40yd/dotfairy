@@ -25,21 +25,7 @@
 ;;; Code:
 ;;
 ;;; Commands
-;;;###autoload
-(defun dotfairy-path (&rest segments)
-  "Constructs a file path from SEGMENTS.
-Ignores `nil' elements in SEGMENTS."
-  (let ((segments (remq nil segments))
-        file-name-handler-alist
-        dir)
-    (while segments
-      (setq segment (pop segments)
-            dir (expand-file-name
-                 (if (listp segment)
-                     (apply #'dotfairy-path dir segment)
-                   segment)
-                 dir)))
-    dir))
+(require 'init-funcs)
 
 (defun dotfairy--update-files (&rest files)
   "Ensure FILES are updated in `recentf', `magit' and `save-place'."
