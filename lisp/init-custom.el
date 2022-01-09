@@ -31,7 +31,7 @@
 (defcustom dotfairy-logo (expand-file-name
                           (if (display-graphic-p) "logo.png" "banner.txt")
                           user-emacs-directory)
-  "Set Centaur logo. nil means official logo."
+  "Set Dotfairy logo. nil means official logo."
   :group 'dotfairy
   :type 'string)
 

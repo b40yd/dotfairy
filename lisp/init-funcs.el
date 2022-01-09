@@ -354,6 +354,189 @@ single file or nested compound statement of `and' and `or' statements."
   `(let ((p ,(dotfairy--resolve-path-forms files directory)))
      (and p (expand-file-name p ,directory))))
 
+
+(defun dotfairy-unquote (exp)
+  "Return EXP unquoted."
+  (declare (pure t) (side-effect-free t))
+  (while (memq (car-safe exp) '(quote function))
+    (setq exp (cadr exp)))
+  exp)
+
+(defun dotfairy-enlist (exp)
+  "Return EXP wrapped in a list, or as-is if already a list."
+  (declare (pure t) (side-effect-free t))
+  (if (proper-list-p exp) exp (list exp)))
+
+(defun dotfairy-keyword-name (keyword)
+  "Returns the string name of KEYWORD (`keywordp') minus the leading colon."
+  (declare (pure t) (side-effect-free t))
+  (cl-check-type keyword keyword)
+  (substring (symbol-name keyword) 1))
+
+(defun dotfairy--resolve-hook-forms (hooks)
+  "Converts a list of modes into a list of hook symbols.
+If a mode is quoted, it is left as is. If the entire HOOKS list is quoted, the
+list is returned as-is."
+  (declare (pure t) (side-effect-free t))
+  (let ((hook-list (dotfairy-enlist (dotfairy-unquote hooks))))
+    (if (eq (car-safe hooks) 'quote)
+        hook-list
+      (cl-loop for hook in hook-list
+               if (eq (car-safe hook) 'quote)
+               collect (cadr hook)
+               else collect (intern (format "%s-hook" (symbol-name hook)))))))
+
+(defmacro add-hook! (hooks &rest rest)
+  "A convenience macro for adding N functions to M hooks.
+This macro accepts, in order:
+  1. The mode(s) or hook(s) to add to. This is either an unquoted mode, an
+     unquoted list of modes, a quoted hook variable or a quoted list of hook
+     variables.
+  2. Optional properties :local and/or :append, which will make the hook
+     buffer-local or append to the list of hooks (respectively),
+  3. The function(s) to be added: this can be one function, a quoted list
+     thereof, a list of `defun's, or body forms (implicitly wrapped in a
+     lambda).
+\(fn HOOKS [:append :local] FUNCTIONS)"
+  (declare (indent (lambda (indent-point state)
+                     (goto-char indent-point)
+                     (when (looking-at-p "\\s-*(")
+                       (lisp-indent-defform state indent-point))))
+           (debug t))
+  (let* ((hook-forms (dotfairy--resolve-hook-forms hooks))
+         (func-forms ())
+         (defn-forms ())
+         append-p
+         local-p
+         remove-p
+         forms)
+    (while (keywordp (car rest))
+      (pcase (pop rest)
+        (:append (setq append-p t))
+        (:local  (setq local-p t))
+        (:remove (setq remove-p t))))
+    (let ((first (car-safe (car rest))))
+      (cond ((null first)
+             (setq func-forms rest))
+
+            ((eq first 'defun)
+             (setq func-forms (mapcar #'cadr rest)
+                   defn-forms rest))
+
+            ((memq first '(quote function))
+             (setq func-forms
+                   (if (cdr rest)
+                       (mapcar #'dotfairy-unquote rest)
+                     (dotfairy-enlist (dotfairy-unquote (car rest))))))
+
+            ((setq func-forms (list `(lambda (&rest _) ,@rest)))))
+      (dolist (hook hook-forms)
+        (dolist (func func-forms)
+          (push (if remove-p
+                    `(remove-hook ',hook #',func ,local-p)
+                  `(add-hook ',hook #',func ,append-p ,local-p))
+                forms)))
+      (macroexp-progn
+       (append defn-forms
+               (if append-p
+                   (nreverse forms)
+                 forms))))))
+
+(defmacro remove-hook! (hooks &rest rest)
+  "A convenience macro for removing N functions from M hooks.
+Takes the same arguments as `add-hook!'.
+If N and M = 1, there's no benefit to using this macro over `remove-hook'.
+\(fn HOOKS [:append :local] FUNCTIONS)"
+  (declare (indent defun) (debug t))
+  `(add-hook! ,hooks :remove ,@rest))
+
+;;; Definers
+(defmacro defadvice! (symbol arglist &optional docstring &rest body)
+  "Define an advice called SYMBOL and add it to PLACES.
+ARGLIST is as in `defun'. WHERE is a keyword as passed to `advice-add', and
+PLACE is the function to which to add the advice, like in `advice-add'.
+DOCSTRING and BODY are as in `defun'.
+\(fn SYMBOL ARGLIST &optional DOCSTRING &rest [WHERE PLACES...] BODY\)"
+  (declare (doc-string 3) (indent defun))
+  (unless (stringp docstring)
+    (push docstring body)
+    (setq docstring nil))
+  (let (where-alist)
+    (while (keywordp (car body))
+      (push `(cons ,(pop body) (dotfairy-enlist ,(pop body)))
+            where-alist))
+    `(progn
+       (defun ,symbol ,arglist ,docstring ,@body)
+       (dolist (targets (list ,@(nreverse where-alist)))
+         (dolist (target (cdr targets))
+           (advice-add target (car targets) #',symbol))))))
+
+(defmacro undefadvice! (symbol _arglist &optional docstring &rest body)
+  "Undefine an advice called SYMBOL.
+This has the same signature as `defadvice!' an exists as an easy undefiner when
+testing advice (when combined with `rotate-text').
+\(fn SYMBOL ARGLIST &optional DOCSTRING &rest [WHERE PLACES...] BODY\)"
+  (declare (doc-string 3) (indent defun))
+  (let (where-alist)
+    (unless (stringp docstring)
+      (push docstring body))
+    (while (keywordp (car body))
+      (push `(cons ,(pop body) (dotfairy-enlist ,(pop body)))
+            where-alist))
+    `(dolist (targets (list ,@(nreverse where-alist)))
+       (dolist (target (cdr targets))
+         (advice-remove target #',symbol)))))
+
+(defvar dotfairy-disabled-packages ()
+  "A list of packages that should be ignored by `use-package!' and `after!'.")
+
+(defmacro after! (package &rest body)
+  "Evaluate BODY after PACKAGE have loaded.
+PACKAGE is a symbol or list of them. These are package names, not modes,
+functions or variables. It can be:
+- An unquoted package symbol (the name of a package)
+    (after! helm BODY...)
+- An unquoted list of package symbols (i.e. BODY is evaluated once both magit
+  and git-gutter have loaded)
+    (after! (magit git-gutter) BODY...)
+- An unquoted, nested list of compound package lists, using any combination of
+  :or/:any and :and/:all
+    (after! (:or package-a package-b ...)  BODY...)
+    (after! (:and package-a package-b ...) BODY...)
+    (after! (:and package-a (:or package-b package-c) ...) BODY...)
+  Without :or/:any/:and/:all, :and/:all are implied.
+This is a wrapper around `eval-after-load' that:
+1. Suppresses warnings for disabled packages at compile-time
+2. No-ops for package that are disabled by the user (via `package!')
+3. Supports compound package statements (see below)
+4. Prevents eager expansion pulling in autoloaded macros all at once"
+  (declare (indent defun) (debug t))
+  (if (symbolp package)
+      (unless (memq package (bound-and-true-p dotfairy-disabled-packages))
+        (list (if (or (not (bound-and-true-p byte-compile-current-file))
+                      (require package nil 'noerror))
+                  #'progn
+                #'with-no-warnings)
+              ;; We intentionally avoid `with-eval-after-load' to prevent eager
+              ;; macro expansion from pulling (or failing to pull) in autoloaded
+              ;; macros/packages.
+              `(eval-after-load ',package ',(macroexp-progn body))))
+    (let ((p (car package)))
+      (cond ((not (keywordp p))
+             `(after! (:and ,@package) ,@body))
+            ((memq p '(:or :any))
+             (macroexp-progn
+              (cl-loop for next in (cdr package)
+                       collect `(after! ,next ,@body))))
+            ((memq p '(:and :all))
+             (dolist (next (cdr package))
+               (setq body `((after! ,next ,@body))))
+             (car body))))))
+
+(defmacro prependq! (sym &rest lists)
+  "Prepend LISTS to SYM in place."
+  `(setq ,sym (append ,@lists ,sym)))
+
 (defun dotfairy-set-prettify (prettify-alist)
   "Set up symbol prettification."
   (let ((prettify-setup (lambda (alist)
