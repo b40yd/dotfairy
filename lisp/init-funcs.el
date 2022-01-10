@@ -29,6 +29,72 @@
 (require 'init-proxy)
 (require 'init-files)
 
+;;;###autoload
+(defmacro plist-put! (plist &rest rest)
+  "Set each PROP VALUE pair in REST to PLIST in-place."
+  `(cl-loop for (prop value)
+            on (list ,@rest) by #'cddr
+            do ,(if (symbolp plist)
+                    `(setq ,plist (plist-put ,plist prop value))
+                  `(plist-put ,plist prop value))))
+
+;;;###autoload
+(defmacro plist-delete! (plist prop)
+  "Delete PROP from PLIST in-place."
+  `(setq ,plist (dotfairy-plist-delete ,plist ,prop)))
+
+;;;###autoload
+(defun dotfairy-plist-get (plist prop &optional nil-value)
+  "Return PROP in PLIST, if it exists. Otherwise NIL-VALUE."
+  (if-let (val (plist-member plist prop))
+      (cadr val)
+    nil-value))
+
+;;;###autoload
+(defun dotfairy-plist-merge (from-plist to-plist)
+  "Non-destructively merge FROM-PLIST onto TO-PLIST"
+  (let ((plist (copy-sequence from-plist)))
+    (while plist
+      (plist-put! to-plist (pop plist) (pop plist)))
+    to-plist))
+
+;;;###autoload
+(defun dotfairy-plist-delete-nil (plist)
+  "Delete `nil' properties from a copy of PLIST."
+  (let (p)
+    (while plist
+      (if (car plist)
+          (plist-put! p (car plist) (nth 1 plist)))
+      (setq plist (cddr plist)))
+    p))
+
+;;;###autoload
+(defun dotfairy-plist-delete (plist &rest props)
+  "Delete PROPS from a copy of PLIST."
+  (let (p)
+    (while plist
+      (if (not (memq (car plist) props))
+          (plist-put! p (car plist) (nth 1 plist)))
+      (setq plist (cddr plist)))
+    p))
+
+;;;###autoload
+(defun dotfairy-plist-keys (plist)
+  "Return the keys in PLIST."
+  (let (keys)
+    (while plist
+      (push (car plist) keys)
+      (setq plist (cddr plist)))
+    keys))
+
+;;;###autoload
+(defun dotfairy-plist-values (plist)
+  "Return the values in PLIST."
+  (let (keys)
+    (while plist
+      (push (cadr plist) keys)
+      (setq plist (cddr plist)))
+    keys))
 (defun dotfairy--theme-name (theme)
   "Return internal THEME name."
   (or (alist-get theme dotfairy-theme-alist) theme 'doom-one))
@@ -548,6 +614,13 @@ This is a wrapper around `eval-after-load' that:
                (setq body `((after! ,next ,@body))))
              (car body))))))
 
+(defmacro pushnew! (place &rest values)
+  "Push VALUES sequentially into PLACE, if they aren't already present.
+This is a variadic `cl-pushnew'."
+  (let ((var (make-symbol "result")))
+    `(dolist (,var (list ,@values) (with-no-warnings ,place))
+       (cl-pushnew ,var ,place :test #'equal))))
+
 (defmacro prependq! (sym &rest lists)
   "Prepend LISTS to SYM in place."
   `(setq ,sym (append ,@lists ,sym)))
@@ -562,6 +635,227 @@ This is a wrapper around `eval-after-load' that:
     ;; When you get to the right edge, it goes back to how it normally prints
     (setq prettify-symbols-unprettify-at-point 'right-edge)
     (prettify-symbols-mode)))
+
+;;;###autoload
+(defun dotfairy-project-browse (dir)
+  "Traverse a file structure starting linearly from DIR."
+  (let ((default-directory (file-truename (expand-file-name dir))))
+    (call-interactively
+     (cond ((featurep 'ivy)
+            #'counsel-find-file)
+           (#'find-file)))))
+
+;;;###autoload
+(defvar dotfairy-real-buffer-functions
+  '(dotfairy-dired-buffer-p)
+  "A list of predicate functions run to determine if a buffer is real, unlike
+`dotfairy-unreal-buffer-functions'. They are passed one argument: the buffer to be
+tested.
+Should any of its function returns non-nil, the rest of the functions are
+ignored and the buffer is considered real.
+See `dotfairy-real-buffer-p' for more information.")
+
+;;;###autoload
+(defvar dotfairy-unreal-buffer-functions
+  '(minibufferp dotfairy-special-buffer-p dotfairy-non-file-visiting-buffer-p)
+  "A list of predicate functions run to determine if a buffer is *not* real,
+unlike `dotfairy-real-buffer-functions'. They are passed one argument: the buffer to
+be tested.
+Should any of these functions return non-nil, the rest of the functions are
+ignored and the buffer is considered unreal.
+See `dotfairy-real-buffer-p' for more information.")
+
+;;;###autoload
+(defvar-local dotfairy-real-buffer-p nil
+  "If non-nil, this buffer should be considered real no matter what. See
+`dotfairy-real-buffer-p' for more information.")
+
+;;;###autoload
+(defvar dotfairy-fallback-buffer-name "*scratch*"
+  "The name of the buffer to fall back to if no other buffers exist (will create
+it if it doesn't exist).")
+
+;;
+;;; Functions
+;;;###autoload
+(defun dotfairy-buffer-frame-predicate (buf)
+  "To be used as the default frame buffer-predicate parameter. Returns nil if
+BUF should be skipped over by functions like `next-buffer' and `other-buffer'."
+  (or (dotfairy-real-buffer-p buf)
+      (eq buf (dotfairy-fallback-buffer))))
+
+;;;###autoload
+(defun dotfairy-fallback-buffer ()
+  "Returns the fallback buffer, creating it if necessary. By default this is the
+scratch buffer. See `dotfairy-fallback-buffer-name' to change this."
+  (let (buffer-list-update-hook)
+    (get-buffer-create dotfairy-fallback-buffer-name)))
+
+;;;###autoload
+(defalias 'dotfairy-buffer-list #'buffer-list)
+
+;;;###autoload
+(defun dotfairy-dired-buffer-p (buf)
+  "Returns non-nil if BUF is a dired buffer."
+  (with-current-buffer buf (derived-mode-p 'dired-mode)))
+
+;;;###autoload
+(defun dotfairy-special-buffer-p (buf)
+  "Returns non-nil if BUF's name starts and ends with an *."
+  (equal (substring (buffer-name buf) 0 1) "*"))
+
+;;;###autoload
+(defun dotfairy-temp-buffer-p (buf)
+  "Returns non-nil if BUF is temporary."
+  (equal (substring (buffer-name buf) 0 1) " "))
+
+;;;###autoload
+(defun dotfairy-visible-buffer-p (buf)
+  "Return non-nil if BUF is visible."
+  (get-buffer-window buf))
+
+;;;###autoload
+(defun dotfairy-buried-buffer-p (buf)
+  "Return non-nil if BUF is not visible."
+  (not (dotfairy-visible-buffer-p buf)))
+
+;;;###autoload
+(defun dotfairy-non-file-visiting-buffer-p (buf)
+  "Returns non-nil if BUF does not have a value for `buffer-file-name'."
+  (not (buffer-file-name buf)))
+
+;;;###autoload
+(defun dotfairy-real-buffer-list (&optional buffer-list)
+  "Return a list of buffers that satify `dotfairy-real-buffer-p'."
+  (cl-remove-if-not #'dotfairy-real-buffer-p (or buffer-list (dotfairy-buffer-list))))
+
+;;;###autoload
+(defun dotfairy-real-buffer-p (buffer-or-name)
+  "Returns t if BUFFER-OR-NAME is a 'real' buffer.
+A real buffer is a useful buffer; a first class citizen in Dotfairy. Real ones
+should get special treatment, because we will be spending most of our time in
+them. Unreal ones should be low-profile and easy to cast aside, so we can focus
+on real ones.
+The exact criteria for a real buffer is:
+  1. A non-nil value for the buffer-local value of the `dotfairy-real-buffer-p'
+     variable OR
+  2. Any function in `dotfairy-real-buffer-functions' returns non-nil OR
+  3. None of the functions in `dotfairy-unreal-buffer-functions' must return
+     non-nil.
+If BUFFER-OR-NAME is omitted or nil, the current buffer is tested."
+  (or (bufferp buffer-or-name)
+      (stringp buffer-or-name)
+      (signal 'wrong-type-argument (list '(bufferp stringp) buffer-or-name)))
+  (when-let (buf (get-buffer buffer-or-name))
+    (when-let (basebuf (buffer-base-buffer buf))
+      (setq buf basebuf))
+    (and (buffer-live-p buf)
+         (not (dotfairy-temp-buffer-p buf))
+         (or (buffer-local-value 'dotfairy-real-buffer-p buf)
+             (run-hook-with-args-until-success 'dotfairy-real-buffer-functions buf)
+             (not (run-hook-with-args-until-success 'dotfairy-unreal-buffer-functions buf))))))
+
+;;;###autoload
+(defun dotfairy-unreal-buffer-p (buffer-or-name)
+  "Return t if BUFFER-OR-NAME is an 'unreal' buffer.
+See `dotfairy-real-buffer-p' for details on what that means."
+  (not (dotfairy-real-buffer-p buffer-or-name)))
+
+;;;###autoload
+(defun dotfairy-buffers-in-mode (modes &optional buffer-list derived-p)
+  "Return a list of buffers whose `major-mode' is `eq' to MODE(S).
+If DERIVED-P, test with `derived-mode-p', otherwise use `eq'."
+  (let ((modes (dotfairy-enlist modes)))
+    (cl-remove-if-not (if derived-p
+                          (lambda (buf)
+                            (with-current-buffer buf
+                              (apply #'derived-mode-p modes)))
+                        (lambda (buf)
+                          (memq (buffer-local-value 'major-mode buf) modes)))
+                      (or buffer-list (dotfairy-buffer-list)))))
+
+;;;###autoload
+(defun dotfairy-visible-windows (&optional window-list)
+  "Return a list of the visible, non-popup (dedicated) windows."
+  (cl-loop for window in (or window-list (window-list))
+           when (or (window-parameter window 'visible)
+                    (not (window-dedicated-p window)))
+           collect window))
+
+;;;###autoload
+(defun dotfairy-visible-buffers (&optional buffer-list)
+  "Return a list of visible buffers (i.e. not buried)."
+  (let ((buffers (delete-dups (mapcar #'window-buffer (window-list)))))
+    (if buffer-list
+        (cl-delete-if (lambda (b) (memq b buffer-list))
+                      buffers)
+      (delete-dups buffers))))
+
+;;;###autoload
+(defun dotfairy-buried-buffers (&optional buffer-list)
+  "Get a list of buffers that are buried."
+  (cl-remove-if #'get-buffer-window (or buffer-list (dotfairy-buffer-list))))
+
+;;;###autoload
+(defun dotfairy-matching-buffers (pattern &optional buffer-list)
+  "Get a list of all buffers that match the regex PATTERN."
+  (cl-loop for buf in (or buffer-list (dotfairy-buffer-list))
+           when (string-match-p pattern (buffer-name buf))
+           collect buf))
+
+;;;###autoload
+(defun dotfairy-set-buffer-real (buffer flag)
+  "Forcibly mark BUFFER as FLAG (non-nil = real).
+See `dotfairy-real-buffer-p' for an explanation for real buffers."
+  (with-current-buffer buffer
+    (setq dotfairy-real-buffer-p flag)))
+
+;;;###autoload
+(defun dotfairy-kill-buffer-and-windows (buffer)
+  "Kill the buffer and delete all the windows it's displayed in."
+  (dolist (window (get-buffer-window-list buffer))
+    (unless (one-window-p t)
+      (delete-window window)))
+  (kill-buffer buffer))
+
+;;;###autoload
+(defun dotfairy-fixup-windows (windows)
+  "Ensure that each of WINDOWS is showing a real buffer or the fallback buffer."
+  (dolist (window windows)
+    (with-selected-window window
+      (when (dotfairy-unreal-buffer-p (window-buffer))
+        (previous-buffer)
+        (when (dotfairy-unreal-buffer-p (window-buffer))
+          (switch-to-buffer (dotfairy-fallback-buffer)))))))
+
+;;;###autoload
+(defun dotfairy-kill-buffer-fixup-windows (buffer)
+  "Kill the BUFFER and ensure all the windows it was displayed in have switched
+to a real buffer or the fallback buffer."
+  (let ((windows (get-buffer-window-list buffer)))
+    (kill-buffer buffer)
+    (dotfairy-fixup-windows (cl-remove-if-not #'window-live-p windows))))
+
+;;;###autoload
+(defun dotfairy-kill-buffers-fixup-windows (buffers)
+  "Kill the BUFFERS and ensure all the windows they were displayed in have
+switched to a real buffer or the fallback buffer."
+  (let ((seen-windows (make-hash-table :test 'eq :size 8)))
+    (dolist (buffer buffers)
+      (let ((windows (get-buffer-window-list buffer)))
+        (kill-buffer buffer)
+        (dolist (window (cl-remove-if-not #'window-live-p windows))
+          (puthash window t seen-windows))))
+    (dotfairy-fixup-windows (hash-table-keys seen-windows))))
+
+;;;###autoload
+(defun dotfairy-kill-matching-buffers (pattern &optional buffer-list)
+  "Kill all buffers (in current workspace OR in BUFFER-LIST) that match the
+regex PATTERN. Returns the number of killed buffers."
+  (let ((buffers (dotfairy-matching-buffers pattern buffer-list)))
+    (dolist (buf buffers (length buffers))
+      (kill-buffer buf))))
+
 
 ;;;###autoload
 (defun dotfairy-call-process (command &rest args)

@@ -219,15 +219,6 @@ If DIR is not a project, it will be indexed (but not cached)."
            (call-interactively #'helm-find-files))
           ((call-interactively #'find-file)))))
 
-;;;###autoload
-(defun dotfairy-project-browse (dir)
-  "Traverse a file structure starting linearly from DIR."
-  (let ((default-directory (file-truename (expand-file-name dir))))
-    (call-interactively
-     (cond ((featurep 'ivy)
-            #'counsel-find-file)
-           (#'find-file)))))
-
 (defun +default/find-file-under-here ()
   "Perform a recursive file search from the current directory."
   (interactive)

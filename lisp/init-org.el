@@ -103,15 +103,331 @@
             (insert "#+HEADERS: :results output :exports both :shebang \"#!/usr/bin/env perl\"\n")
             (hot-expand "<s" "perl")) "Perl tangled")
      ("<" self-insert-command "ins"))))
-  :bind (("C-c n b" . org-switchb)
-         :map org-mode-map
-         ("<" . (lambda ()
+  :bind (("<" . (lambda ()
                   "Insert org template."
                   (interactive)
                   (if (or (region-active-p) (looking-back "^\s*" 1))
                       (org-hydra/body)
                     (self-insert-command 1)))))
   :config
+  (defun +org--relative-path (path root)
+    (if (and buffer-file-name (file-in-directory-p buffer-file-name root))
+        (file-relative-name path)
+      path))
+
+  (defun +org--read-link-path (key dir &optional fn)
+    (let ((file (funcall (or fn #'read-file-name) (format "%s: " (capitalize key)) dir)))
+      (format "%s:%s" key (file-relative-name file dir))))
+
+;;;###autoload
+  (defun +org-read-link-description-at-point (&optional default context)
+    "TODO"
+    (if (and (stringp default) (not (string-empty-p default)))
+        (string-trim default)
+      (if-let* ((context (or context (org-element-context)))
+                (context (org-element-lineage context '(link) t))
+                (beg (org-element-property :contents-begin context))
+                (end (org-element-property :contents-end context)))
+          (unless (= beg end)
+            (replace-regexp-in-string
+             "[ \n]+" " " (string-trim (buffer-substring-no-properties beg end)))))))
+
+;;;###autoload
+  (defun +org-define-basic-link (key dir-var &rest plist)
+    "Define a link with some basic completion & fontification.
+KEY is the name of the link type. DIR-VAR is the directory variable to resolve
+links relative to. PLIST is passed to `org-link-set-parameters' verbatim.
+Links defined with this will be rendered in the `error' face if the file doesn't
+exist, and `org-link' otherwise."
+    (declare (indent 2))
+    (let ((requires (plist-get plist :requires))
+          (dir-fn (if (functionp dir-var)
+                      dir-var
+                    (lambda () (symbol-value dir-var)))))
+      (apply #'org-link-set-parameters
+             key
+             :complete (lambda ()
+                         (if requires (mapc #'require (dotfairy-enlist requires)))
+                         (+org--relative-path (+org--read-link-path key (funcall dir-fn))
+                                              (funcall dir-fn)))
+             :follow   (lambda (link)
+                         (org-link-open-as-file (expand-file-name link (funcall dir-fn)) nil))
+             :face     (lambda (link)
+                         (let* ((path (expand-file-name link (funcall dir-fn)))
+                                (option-index (string-match-p "::\\(.*\\)\\'" path))
+                                (file-name (substring path 0 option-index)))
+                           (if (file-exists-p file-name)
+                               'org-link
+                             'error)))
+             (dotfairy-plist-delete plist :requires))))
+
+  (use-package org-attach
+    :ensure nil
+    :commands (org-attach-new
+               org-attach-open
+               org-attach-open-in-emacs
+               org-attach-reveal-in-emacs
+               org-attach-url
+               org-attach-set-directory
+               org-attach-sync))
+
+  ;; Centralized attachments directory by default
+  (setq-default org-attach-id-dir (expand-file-name ".attach/" org-directory))
+  (after! projectile
+    (add-to-list 'projectile-globally-ignored-directories org-attach-id-dir))
+
+  (use-package org-download
+    :commands (org-download-dnd
+               org-download-yank
+               org-download-screenshot
+               org-download-clipboard
+               org-download-dnd-base64)
+    :init
+    ;; HACK We add these manually so that org-download is truly lazy-loaded
+    (pushnew! dnd-protocol-alist
+              '("^\\(?:https?\\|ftp\\|file\\|nfs\\):" . org-download-dnd)
+              '("^data:" . org-download-dnd-base64))
+    (advice-add #'org-download-enable :override #'ignore)
+
+    (after! org
+      ;; A shorter link to attachments
+      (+org-define-basic-link "download" (lambda () (or org-download-image-dir org-attach-id-dir "."))
+        :image-data-fun #'+org-image-file-data-fn
+        :requires 'org-download))
+    :config
+    (unless org-download-image-dir
+      (setq org-download-image-dir org-attach-id-dir))
+    (setq org-download-method 'attach
+          org-download-timestamp "_%Y%m%d_%H%M%S"
+          org-download-screenshot-method
+          (cond (IS-MAC "screencapture -i %s")
+                (IS-LINUX
+                 (cond ((executable-find "maim")  "maim -s %s")
+                       ((executable-find "scrot") "scrot -s %s")
+                       ((executable-find "gnome-screenshot") "gnome-screenshot -a -f %s"))))
+
+          org-download-heading-lvl nil
+          org-download-link-format "[[download:%s]]\n"
+          org-download-annotate-function (lambda (_link) "")
+          org-download-link-format-function
+          (lambda (filename)
+            (if (eq org-download-method 'attach)
+                (format "[[attachment:%s]]\n"
+                        (org-link-escape
+                         (file-relative-name filename (org-attach-dir))))
+              ;; Handle non-image files a little differently. Images should be
+              ;; inserted as normal with previews. Other files, like pdfs or zips,
+              ;; should be linked to, with an icon indicating the type of file.
+              (format (concat (unless (image-type-from-file-name filename)
+                                (concat (+org-attach-icon-for filename)
+                                        " "))
+                              org-download-link-format)
+                      (org-link-escape
+                       (funcall org-download-abbreviate-filename-function filename)))))
+          org-download-abbreviate-filename-function
+          (lambda (path)
+            (if (file-in-directory-p path org-download-image-dir)
+                (file-relative-name path org-download-image-dir)
+              path)))
+
+    (defadvice! +org--dragndrop-then-display-inline-images-a (_link filename)
+      :after #'org-download-insert-link
+      (when (image-type-from-file-name filename)
+        (save-excursion
+          (org-display-inline-images
+           t t
+           (progn (org-back-to-heading t) (point))
+           (progn (org-end-of-subtree t t)
+                  (when (and (org-at-heading-p) (not (eobp))) (backward-char 1))
+                  (point)))))))
+
+  ;;;###autoload
+  (defun +org-attach-icon-for (path)
+    (char-to-string
+     (pcase (downcase (file-name-extension path))
+       ((or "jpg" "jpeg" "png" "gif") ?)
+       ("pdf" ?)
+       ((or "ppt" "pptx") ?)
+       ((or "xls" "xlsx") ?)
+       ((or "doc" "docx") ?)
+       ((or "ogg" "mp3" "wav" "aiff" "flac") ?)
+       ((or "mp4" "mov" "avi") ?)
+       ((or "zip" "gz" "tar" "7z" "rar") ?)
+       (_ ?))))
+
+;;;###autoload
+  (defun +org/open-gallery-from-attachments ()
+    "TODO"
+    (interactive)
+    (require 'org-attach)
+    (if-let (dir (org-attach-dir))
+        (pop-to-buffer
+         ;; Rather than opening dired *and* image-dired windows, suppress them
+         ;; both and open only the image-dired window.
+         (save-window-excursion
+           (image-dired dir)
+           (current-buffer)))
+      (user-error "No attachments for this node")))
+
+;;;###autoload
+  (defun +org/find-file-in-attachments ()
+    "Open a file from `org-attach-id-dir'."
+    (interactive)
+    (dotfairy-project-browse org-attach-id-dir))
+
+;;;###autoload
+  (defun +org/attach-file-and-insert-link (path)
+    "Downloads the file at PATH and insert an org link at point.
+PATH (a string) can be an url, a local file path, or a base64 encoded datauri."
+    (interactive "sUri/file: ")
+    (unless (eq major-mode 'org-mode)
+      (user-error "Not in an org buffer"))
+    (require 'org-download)
+    (condition-case-unless-debug e
+        (let ((raw-uri (url-unhex-string path)))
+          (cond ((string-match-p "^data:image/png;base64," path)
+                 (org-download-dnd-base64 path nil))
+                ((image-type-from-file-name raw-uri)
+                 (org-download-image raw-uri))
+                ((let ((new-path (expand-file-name (org-download--fullname raw-uri))))
+                   ;; Download the file
+                   (if (string-match-p (concat "^" (regexp-opt '("http" "https" "nfs" "ftp" "file")) ":/") path)
+                       (url-copy-file raw-uri new-path)
+                     (copy-file path new-path))
+                   ;; insert the link
+                   (org-download-insert-link raw-uri new-path)))))
+      (error
+       (user-error "Failed to attach file: %s" (error-message-string e)))))
+
+  ;;;###autoload
+  (defun +org/refile-to-current-file (arg &optional file)
+    "Refile current heading to elsewhere in the current buffer.
+If prefix ARG, copy instead of move."
+    (interactive "P")
+    (let ((org-refile-targets `((,file :maxlevel . 10)))
+          (org-refile-use-outline-path nil)
+          (org-refile-keep arg)
+          current-prefix-arg)
+      (call-interactively #'org-refile)))
+
+;;;###autoload
+  (defun +org/refile-to-file (arg file)
+    "Refile current heading to a particular org file.
+If prefix ARG, copy instead of move."
+    (interactive
+     (list current-prefix-arg
+           (read-file-name "Select file to refile to: "
+                           default-directory
+                           (buffer-file-name (buffer-base-buffer))
+                           t nil
+                           (lambda (f) (string-match-p "\\.org$" f)))))
+    (+org/refile-to-current-file arg file))
+
+;;;###autoload
+  (defun +org/refile-to-other-window (arg)
+    "Refile current heading to an org buffer visible in another window.
+If prefix ARG, copy instead of move."
+    (interactive "P")
+    (let ((org-refile-keep arg)
+          org-refile-targets
+          current-prefix-arg)
+      (dolist (win (delq (selected-window) (window-list)))
+        (with-selected-window win
+          (let ((file (buffer-file-name (buffer-base-buffer))))
+            (and (eq major-mode 'org-mode)
+                 file
+                 (cl-pushnew (cons file (cons :maxlevel 10))
+                             org-refile-targets)))))
+      (call-interactively #'org-refile)))
+
+;;;###autoload
+  (defun +org/refile-to-other-buffer (arg)
+    "Refile current heading to another, living org buffer.
+If prefix ARG, copy instead of move."
+    (interactive "P")
+    (let ((org-refile-keep arg)
+          org-refile-targets
+          current-prefix-arg)
+      (dolist (buf (delq (current-buffer) (dotfairy-buffers-in-mode 'org-mode)))
+        (when-let (file (buffer-file-name (buffer-base-buffer buf)))
+          (cl-pushnew (cons file (cons :maxlevel 10))
+                      org-refile-targets)))
+      (call-interactively #'org-refile)))
+
+;;;###autoload
+  (defun +org/refile-to-running-clock (arg)
+    "Refile current heading to the currently clocked in task.
+If prefix ARG, copy instead of move."
+    (interactive "P")
+    (unless (bound-and-true-p org-clock-current-task)
+      (user-error "No active clock to refile to"))
+    (let ((org-refile-keep arg))
+      (org-refile 2)))
+
+;;;###autoload
+  (defun +org/refile-to-last-location (arg)
+    "Refile current heading to the last node you refiled to.
+If prefix ARG, copy instead of move."
+    (interactive "P")
+    (or (assoc (plist-get org-bookmark-names-plist :last-refile)
+               bookmark-alist)
+        (user-error "No saved location to refile to"))
+    (let ((org-refile-keep arg)
+          (completing-read-function
+           (lambda (_p _coll _pred _rm _ii _h default &rest _)
+             default)))
+      (org-refile)))
+
+  (defvar org-after-refile-insert-hook)
+  ;; Inspired by org-teleport and alphapapa/alpha-org
+;;;###autoload
+  (defun +org/refile-to-visible ()
+    "Refile current heading as first child of visible heading selected with Avy."
+    (interactive)
+    (when-let (marker (+org-headline-avy))
+      (let* ((buffer (marker-buffer marker))
+             (filename
+              (buffer-file-name (or (buffer-base-buffer buffer)
+                                    buffer)))
+             (heading
+              (org-with-point-at marker
+                (org-get-heading 'no-tags 'no-todo)))
+             ;; Won't work with target buffers whose filename is nil
+             (rfloc (list heading filename nil marker))
+             (org-after-refile-insert-hook (cons #'org-reveal org-after-refile-insert-hook)))
+        (org-refile nil nil rfloc))))
+
+  ;;;###autoload
+  (defun +org/remove-link ()
+    "Unlink the text at point."
+    (interactive)
+    (unless (org-in-regexp org-link-bracket-re 1)
+      (user-error "No link at point"))
+    (save-excursion
+      (let ((label (if (match-end 2)
+                       (match-string-no-properties 2)
+                     (org-link-unescape (match-string-no-properties 1)))))
+        (delete-region (match-beginning 0) (match-end 0))
+        (insert label))))
+  ;;;###autoload
+  (defun +org-headline-avy ()
+    "TODO"
+    (require 'avy)
+    (save-excursion
+      (when-let* ((org-reverse-note-order t)
+                  (pos (avy-with avy-goto-line (avy-jump (rx bol (1+ "*") (1+ blank))))))
+        (when (integerp (car pos))
+          ;; If avy is aborted with "C-g", it returns `t', so we know it was NOT
+          ;; aborted when it returns an int. If it doesn't return an int, we
+          ;; return nil.
+          (copy-marker (car pos))))))
+
+  ;;;###autoload
+  (defun +org/goto-visible ()
+    "TODO"
+    (interactive)
+    (goto-char (+org-headline-avy)))
+
   ;; For hydra
   (defun hot-expand (str &optional mod)
     "Expand org template.
@@ -392,7 +708,199 @@ when exporting org-mode to '(html hugo md odt)."
                (concat "\\(" fix-regexp "\\) *\n *\\(" fix-regexp "\\)")
                "\\1\\2"
                contents)))
-        (list paragraph fixed-contents info)))))
+        (list paragraph fixed-contents info))))
+
+  (map! :localleader
+        :map org-mode-map
+        "#" #'org-update-statistics-cookies
+        "'" #'org-edit-special
+        "*" #'org-ctrl-c-star
+        "+" #'org-ctrl-c-minus
+        "," #'org-switchb
+        "." #'org-goto
+        (:when (featurep 'ivy)
+         "." #'counsel-org-goto
+         "/" #'counsel-org-goto-all)
+        (:when (featurep 'helm)
+         "." #'helm-org-in-buffer-headings
+         "/" #'helm-org-agenda-files-headings)
+        (:when (featurep 'vertico)
+         "." #'consult-org-heading
+         "/" #'consult-org-agenda)
+        "A" #'org-archive-subtree
+        "e" #'org-export-dispatch
+        "f" #'org-footnote-new
+        "h" #'org-toggle-heading
+        "i" #'org-toggle-item
+        "I" #'org-id-get-create
+        "n" #'org-store-link
+        "o" #'org-set-property
+        "q" #'org-set-tags-command
+        "t" #'org-todo
+        "T" #'org-todo-list
+        "x" #'org-toggle-checkbox
+        "b" #'org-switchb
+        "B" #'org-switch-to-buffer-other-window
+        "S" #'org-tree-slide-mode
+        "m" #'org-tags-view
+        "v" #'org-search-view
+        (:prefix ("a" . "attachments")
+         "a" #'org-attach
+         "d" #'org-attach-delete-one
+         "D" #'org-attach-delete-all
+         "f" #'+org/find-file-in-attachments
+         "l" #'+org/attach-file-and-insert-link
+         "n" #'org-attach-new
+         "o" #'org-attach-open
+         "O" #'org-attach-open-in-emacs
+         "r" #'org-attach-reveal
+         "R" #'org-attach-reveal-in-emacs
+         "u" #'org-attach-url
+         "s" #'org-attach-set-directory
+         "S" #'org-attach-sync
+         "c" #'org-download-screenshot
+         "p" #'org-download-clipboard
+         "P" #'org-download-yank)
+        (:prefix ("c" . "clock")
+         "c" #'org-clock-cancel
+         "d" #'org-clock-mark-default-task
+         "e" #'org-clock-modify-effort-estimate
+         "E" #'org-set-effort
+         "g" #'org-clock-goto
+         "G" (cmd! (org-clock-goto 'select))
+         "i" #'org-clock-in
+         "I" #'org-clock-in-last
+         "o" #'org-clock-out
+         "r" #'org-resolve-clocks
+         "R" #'org-clock-report
+         "t" #'org-evaluate-time-range
+         "=" #'org-clock-timestamps-up
+         "-" #'org-clock-timestamps-down)
+        (:prefix ("d" . "date/deadline")
+         "d" #'org-deadline
+         "s" #'org-schedule
+         "t" #'org-time-stamp
+         "T" #'org-time-stamp-inactive)
+        (:prefix ("g" . "goto")
+         "g" #'org-goto
+         (:when (featurep 'ivy)
+          "g" #'counsel-org-goto
+          "G" #'counsel-org-goto-all)
+         (:when (featurep 'helm)
+          "g" #'helm-org-in-buffer-headings
+          "G" #'helm-org-agenda-files-headings)
+         (:when (featurep 'vertico)
+          "g" #'consult-org-heading
+          "G" #'consult-org-agenda)
+         "c" #'org-clock-goto
+         "C" (cmd! (org-clock-goto 'select))
+         "i" #'org-id-goto
+         "r" #'org-refile-goto-last-stored
+         "v" #'+org/goto-visible
+         "x" #'org-capture-goto-last-stored)
+        (:prefix ("j" . "journal")
+         :desc "New Entry"           "j" #'org-journal-new-entry
+         :desc "New Scheduled Entry" "J" #'org-journal-new-scheduled-entry
+         :desc "Search Forever"      "s" #'org-journal-search-forever)
+
+        (:prefix ("l" . "links")
+         "c" #'org-cliplink
+         "d" #'+org/remove-link
+         "i" #'org-id-store-link
+         "l" #'org-insert-link
+         "L" #'org-insert-all-links
+         "s" #'org-store-link
+         "S" #'org-insert-last-stored-link
+         "t" #'org-toggle-link-display)
+        (:prefix ("P" . "publish")
+         "a" #'org-publish-all
+         "f" #'org-publish-current-file
+         "p" #'org-publish
+         "P" #'org-publish-current-project
+         "s" #'org-publish-sitemap)
+        (:prefix ("r" . "refile")
+         "." #'+org/refile-to-current-file
+         "c" #'+org/refile-to-running-clock
+         "l" #'+org/refile-to-last-location
+         "f" #'+org/refile-to-file
+         "o" #'+org/refile-to-other-window
+         "O" #'+org/refile-to-other-buffer
+         "v" #'+org/refile-to-visible
+         "r" #'org-refile) ; to all `org-refile-targets'
+        (:prefix ("R" . "roam")
+         :desc "Switch to buffer"              "b" #'org-roam-buffer-toggle
+         :desc "Org Roam Capture"              "c" #'org-roam-capture
+         :desc "Find Node"                     "f" #'org-roam-node-find
+         :desc "Show graph"                    "g" #'org-roam-graph
+         :desc "Insert"                        "i" #'org-roam-node-insert
+         :desc "Tag"                           "t" #'org-roam-tag-add
+         :desc "Un-tag"                        "T" #'org-roam-tag-remove
+         (:prefix ("d" . "by date")
+          :desc "Arbitrary date" "d" #'org-roam-dailies-find-date
+          :desc "Today"          "t" #'org-roam-dailies-find-today
+          :desc "Tomorrow"       "m" #'org-roam-dailies-find-tomorrow
+          :desc "Yesterday"      "y" #'org-roam-dailies-find-yesterday))
+        (:prefix ("s" . "tree/subtree")
+         "a" #'org-toggle-archive-tag
+         "b" #'org-tree-to-indirect-buffer
+         "d" #'org-cut-subtree
+         "h" #'org-promote-subtree
+         "j" #'org-move-subtree-down
+         "k" #'org-move-subtree-up
+         "l" #'org-demote-subtree
+         "n" #'org-narrow-to-subtree
+         "r" #'org-refile
+         "s" #'org-sparse-tree
+         "A" #'org-archive-subtree
+         "N" #'widen
+         "S" #'org-sort)
+        (:prefix ("p" . "priority")
+         "d" #'org-priority-down
+         "p" #'org-priority
+         "u" #'org-priority-up)
+        (:prefix ("t" . "tables")
+         "-" #'org-table-insert-hline
+         "a" #'org-table-align
+         "b" #'org-table-blank-field
+         "c" #'org-table-create-or-convert-from-region
+         "e" #'org-table-edit-field
+         "f" #'org-table-edit-formulas
+         "h" #'org-table-field-info
+         "s" #'org-table-sort-lines
+         "r" #'org-table-recalculate
+         "R" #'org-table-recalculate-buffer-tables
+         (:prefix ("d" . "delete")
+          "c" #'org-table-delete-column
+          "r" #'org-table-kill-row)
+         (:prefix ("i" . "insert")
+          "c" #'org-table-insert-column
+          "h" #'org-table-insert-hline
+          "r" #'org-table-insert-row
+          "H" #'org-table-hline-and-move)
+         (:prefix ("t" . "toggle")
+          "f" #'org-table-toggle-formula-debugger
+          "o" #'org-table-toggle-coordinate-overlays)))
+  (map! :after org-agenda
+        :map org-agenda-mode-map
+        :m "M-<return>" #'org-agenda-show-and-scroll-up
+        :localleader
+        (:prefix ("d" . "date/deadline")
+         "d" #'org-agenda-deadline
+         "s" #'org-agenda-schedule)
+        (:prefix ("c" . "clock")
+         "c" #'org-agenda-clock-cancel
+         "g" #'org-agenda-clock-goto
+         "i" #'org-agenda-clock-in
+         "o" #'org-agenda-clock-out
+         "r" #'org-agenda-clockreport-mode
+         "s" #'org-agenda-show-clocking-issues)
+        (:prefix ("p" . "priority")
+         "d" #'org-agenda-priority-down
+         "p" #'org-agenda-priority
+         "u" #'org-agenda-priority-up)
+        "q" #'org-agenda-set-tags
+        "r" #'org-agenda-refile
+        "t" #'org-agenda-todo))
 
 (provide 'init-org)
 ;;; init-org.el ends here

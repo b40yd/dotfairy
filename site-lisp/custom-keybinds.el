@@ -111,33 +111,8 @@
    :desc "Cancel current org-clock"       "C" #'org-clock-cancel
    :desc "Find file in notes"             "f" #'+default/find-in-notes
    :desc "Browse notes"                   "F" #'+default/browse-notes
-   :desc "Org store link"                 "l" #'org-store-link
-   :desc "Tags search"                    "m" #'org-tags-view
    :desc "Org capture"                    "n" #'org-capture
-   :desc "Goto capture"                   "N" #'org-capture-goto-target
-   :desc "Active org-clock"               "o" #'org-clock-goto
-   :desc "Todo list"                      "t" #'org-todo-list
-   :desc "View search"                    "v" #'org-search-view
-
-   (:prefix ("j" . "journal")
-    :desc "New Entry"           "j" #'org-journal-new-entry
-    :desc "New Scheduled Entry" "J" #'org-journal-new-scheduled-entry
-    :desc "Search Forever"      "s" #'org-journal-search-forever)
-
-   (:prefix ("r" . "roam")
-    :desc "Switch to buffer"              "b" #'org-roam-buffer-toggle
-    :desc "Org Roam Capture"              "c" #'org-roam-capture
-    :desc "Find Node"                     "f" #'org-roam-node-find
-    :desc "Show graph"                    "g" #'org-roam-graph
-    :desc "Insert"                        "i" #'org-roam-node-insert
-    :desc "Tag"                           "t" #'org-roam-tag-add
-    :desc "Un-tag"                        "T" #'org-roam-tag-remove
-    (:prefix ("d" . "by date")
-     :desc "Arbitrary date" "d" #'org-roam-dailies-find-date
-     :desc "Today"          "t" #'org-roam-dailies-find-today
-     :desc "Tomorrow"       "m" #'org-roam-dailies-find-tomorrow
-     :desc "Yesterday"      "y" #'org-roam-dailies-find-yesterday)))
-
+   :desc "Goto capture"                   "N" #'org-capture-goto-target)
       ;;; <leader> o --- open
   "o" nil ; we need to unbind it first as Org claims this prefix
   (:prefix-map ("o" . "open")
@@ -187,8 +162,6 @@
    :desc "Flymake"                      "f" #'flymake-mode
    :desc "Indent style"                 "I" #'dotfairy/toggle-indent-style
    :desc "Line numbers"                 "l" #'dotfairy/toggle-line-numbers
-   :desc "Org tree slide mode"          "p" #'org-tree-slide-mode
-   :desc "Org super agenda mode"        "s" #'org-super-agenda-mode
    :desc "Read-only mode"               "r" #'read-only-mode)
 
       ;;; <leader> v --- versioning
