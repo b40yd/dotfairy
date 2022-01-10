@@ -110,6 +110,8 @@
                       (org-hydra/body)
                     (self-insert-command 1)))))
   :config
+
+  (defvar org-attach-id-dir nil)
   (defun +org--relative-path (path root)
     (if (and buffer-file-name (file-in-directory-p buffer-file-name root))
         (file-relative-name path)
@@ -161,20 +163,28 @@ exist, and `org-link' otherwise."
                              'error)))
              (dotfairy-plist-delete plist :requires))))
 
-  (use-package org-attach
-    :ensure nil
-    :commands (org-attach-new
-               org-attach-open
-               org-attach-open-in-emacs
-               org-attach-reveal-in-emacs
-               org-attach-url
-               org-attach-set-directory
-               org-attach-sync))
+  (defun +org-init-attachments-h ()
+    "Sets up org's attachment system."
+    (setq org-attach-store-link-p t     ; store link after attaching files
+          org-attach-use-inheritance t) ; inherit properties from parent nodes
 
-  ;; Centralized attachments directory by default
-  (setq-default org-attach-id-dir (expand-file-name ".attach/" org-directory))
-  (after! projectile
-    (add-to-list 'projectile-globally-ignored-directories org-attach-id-dir))
+    ;; Autoload all these commands that org-attach doesn't autoload itself
+    (require 'org-attach)
+
+    (unless org-attach-id-dir
+      ;; Centralized attachments directory by default
+      (setq-default org-attach-id-dir (expand-file-name ".attach/" org-directory)))
+    (after! projectile
+      (add-to-list 'projectile-globally-ignored-directories org-attach-id-dir)))
+
+  (defun +org-inline-image-data-fn (_protocol link _description)
+    "Interpret LINK as base64-encoded image data."
+    (base64-decode-string link))
+  ;; Add inline image previews for attachment links
+  (org-link-set-parameters "attachment" :image-data-fun #'+org-inline-image-data-fn)
+
+  (add-hook! 'org-mode-hook
+             #'+org-init-attachments-h)
 
   (use-package org-download
     :commands (org-download-dnd
