@@ -110,7 +110,6 @@
                       (org-hydra/body)
                     (self-insert-command 1)))))
   :config
-
   (defvar org-attach-id-dir nil)
   (defun +org--relative-path (path root)
     (if (and buffer-file-name (file-in-directory-p buffer-file-name root))
@@ -720,6 +719,10 @@ when exporting org-mode to '(html hugo md odt)."
                contents)))
         (list paragraph fixed-contents info))))
 
+  (setq org-mode-map (make-sparse-keymap)
+        org-agenda-mode-map (make-sparse-keymap)
+        org-cdlatex-mode-map (make-sparse-keymap)
+        outline-mode-map (make-sparse-keymap))
   (map! :localleader :desc "org-mode"
         :map org-mode-map
         "#" #'org-update-statistics-cookies
@@ -738,6 +741,8 @@ when exporting org-mode to '(html hugo md odt)."
          "." #'consult-org-heading
          "/" #'consult-org-agenda)
         "A" #'org-archive-subtree
+        "b" #'org-switchb
+        "B" #'org-switch-to-buffer-other-window
         "e" #'org-export-dispatch
         "f" #'org-footnote-new
         "h" #'org-toggle-heading
@@ -749,11 +754,9 @@ when exporting org-mode to '(html hugo md odt)."
         "t" #'org-todo
         "T" #'org-todo-list
         "x" #'org-toggle-checkbox
-        "b" #'org-switchb
-        "B" #'org-switch-to-buffer-other-window
         "S" #'org-tree-slide-mode
         "m" #'org-tags-view
-        "v" #'org-search-view
+        "v" #'org-display-inline-images
         (:prefix ("a" . "attachments")
          "a" #'org-attach
          "d" #'org-attach-delete-one
