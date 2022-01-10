@@ -710,7 +710,7 @@ when exporting org-mode to '(html hugo md odt)."
                contents)))
         (list paragraph fixed-contents info))))
 
-  (map! :localleader
+  (map! :localleader :desc "org-mode"
         :map org-mode-map
         "#" #'org-update-statistics-cookies
         "'" #'org-edit-special

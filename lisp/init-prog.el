@@ -178,11 +178,13 @@
   :init
   (defvar devdocs-major-mode-docs-alist
     '((c-mode . ("C"))
+      (emacs-lisp-mode . ("Elisp"))
       (c++-mode . ("C++"))
       (python-mode . ("Python 3.9" "Python 3.8"))
       (ruby-mode . ("Ruby 3"))
       (go-mode . ("Go"))
       (rustic-mode . ("Rust"))
+      (java-mode . ("OpenJDK 17" "OpenJDK 11" "OpenJDK 8"))
       (css-mode . ("CSS"))
       (html-mode . ("HTML"))
       (js-mode . ("JavaScript" "JQuery"))
@@ -245,11 +247,6 @@ Install the doc if it's not installed."
 ;; align table
 (use-package valign
   :hook ((org-mode markdown-mode) . valign-mode))
-
-
-(use-package dash-at-point
-  :bind (("C-c ." . dash-at-point)
-         ("C-c ," . dash-at-point-with-docset)))
 
 ;; Batch Mode eXtras
 (use-package bmx-mode
