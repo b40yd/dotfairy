@@ -719,10 +719,8 @@ when exporting org-mode to '(html hugo md odt)."
                contents)))
         (list paragraph fixed-contents info))))
 
-  ;; clear default keybinds
-  (setq org-mode-map (make-sparse-keymap))
-  (map! :localleader :desc "org-mode"
-        :map org-mode-map
+  (map! :map org-mode-map
+        :localleader
         "#" #'org-update-statistics-cookies
         "'" #'org-edit-special
         "*" #'org-ctrl-c-star
@@ -738,9 +736,9 @@ when exporting org-mode to '(html hugo md odt)."
         (:when (featurep 'vertico)
          "." #'consult-org-heading
          "/" #'consult-org-agenda)
+        "@" #'org-mark-subtree
         "A" #'org-archive-subtree
         "b" #'org-switchb
-        "B" #'org-switch-to-buffer-other-window
         "e" #'org-export-dispatch
         "f" #'org-footnote-new
         "h" #'org-toggle-heading
@@ -810,10 +808,9 @@ when exporting org-mode to '(html hugo md odt)."
          "v" #'+org/goto-visible
          "x" #'org-capture-goto-last-stored)
         (:prefix ("j" . "journal")
-         :desc "New Entry"           "j" #'org-journal-new-entry
-         :desc "New Scheduled Entry" "J" #'org-journal-new-scheduled-entry
-         :desc "Search Forever"      "s" #'org-journal-search-forever)
-
+         "j" #'org-journal-new-entry
+         "J" #'org-journal-new-scheduled-entry
+         "s" #'org-journal-search-forever)
         (:prefix ("l" . "links")
          "c" #'org-cliplink
          "d" #'+org/remove-link
@@ -839,18 +836,18 @@ when exporting org-mode to '(html hugo md odt)."
          "v" #'+org/refile-to-visible
          "r" #'org-refile) ; to all `org-refile-targets'
         (:prefix ("R" . "roam")
-         :desc "Switch to buffer"              "b" #'org-roam-buffer-toggle
-         :desc "Org Roam Capture"              "c" #'org-roam-capture
-         :desc "Find Node"                     "f" #'org-roam-node-find
-         :desc "Show graph"                    "g" #'org-roam-graph
-         :desc "Insert"                        "i" #'org-roam-node-insert
-         :desc "Tag"                           "t" #'org-roam-tag-add
-         :desc "Un-tag"                        "T" #'org-roam-tag-remove
+         "b" #'org-roam-buffer-toggle
+         "c" #'org-roam-capture
+         "f" #'org-roam-node-find
+         "g" #'org-roam-graph
+         "i" #'org-roam-node-insert
+         "t" #'org-roam-tag-add
+         "T" #'org-roam-tag-remove
          (:prefix ("d" . "by date")
-          :desc "Arbitrary date" "d" #'org-roam-dailies-find-date
-          :desc "Today"          "t" #'org-roam-dailies-find-today
-          :desc "Tomorrow"       "m" #'org-roam-dailies-find-tomorrow
-          :desc "Yesterday"      "y" #'org-roam-dailies-find-yesterday))
+          "d" #'org-roam-dailies-find-date
+          "t" #'org-roam-dailies-find-today
+          "m" #'org-roam-dailies-find-tomorrow
+          "y" #'org-roam-dailies-find-yesterday))
         (:prefix ("s" . "tree/subtree")
          "a" #'org-toggle-archive-tag
          "b" #'org-tree-to-indirect-buffer
@@ -870,6 +867,8 @@ when exporting org-mode to '(html hugo md odt)."
          "p" #'org-priority
          "u" #'org-priority-up)
         (:prefix ("t" . "tables")
+         "=" #'org-table-eval-formula
+         "+" #'org-table-sum
          "-" #'org-table-insert-hline
          "a" #'org-table-align
          "b" #'org-table-blank-field
