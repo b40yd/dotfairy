@@ -719,10 +719,8 @@ when exporting org-mode to '(html hugo md odt)."
                contents)))
         (list paragraph fixed-contents info))))
 
-  (setq org-mode-map (make-sparse-keymap)
-        org-agenda-mode-map (make-sparse-keymap)
-        org-cdlatex-mode-map (make-sparse-keymap)
-        outline-mode-map (make-sparse-keymap))
+  ;; clear default keybinds
+  (setq org-mode-map (make-sparse-keymap))
   (map! :localleader :desc "org-mode"
         :map org-mode-map
         "#" #'org-update-statistics-cookies
