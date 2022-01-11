@@ -261,5 +261,26 @@ Install the doc if it's not installed."
   :hook ((after-init . global-tree-sitter-mode)
          (tree-sitter-after-on . tree-sitter-hl-mode)))
 
+;; Use quelpa install turbo-log
+(when (package-installed-p 'quelpa)
+  (quelpa
+   '(turbo-log
+     :fetcher git
+     :url "https://github.com/quelpa/quelpa-use-package.git"))
+
+  (setq turbo-log-msg-format-template "\"🚀: %s\"")
+  (setq turbo-log-allow-insert-without-tree-sitter-p t)
+  (defun turbo-log-keybind-h ()
+    (map! :localleader
+          :map (python-mode-map js-mode-map go-mode-map rust-mode-map java-mode-map typescript-mode-map)
+          (:prefix ("SPC" . "Print")
+           "l" #'turbo-log-print
+           "i" #'turbo-log-print-immediately
+           "h" #'turbo-log-comment-all-logs
+           "s" #'turbo-log-uncomment-all-logs
+           "[" #'turbo-log-paste-as-logger
+           "]" #'turbo-log-paste-as-logger-immediately
+           "d" #'turbo-log-delete-all-logs)))
+  (add-hook! 'after-init-hook 'turbo-log-keybind-h))
 (provide 'init-prog)
 ;;; init-prog.el ends here

@@ -99,6 +99,11 @@ If Non-nil, save and restore the frame's geometry."
   :group 'dotfairy
   :type 'boolean)
 
+(defcustom dotfairy-quelpa-upgrade nil
+  "Enable `quelpa-upgrade-p' or not. it will try upgrade packages."
+  :group 'dotfairy
+  :type 'boolean)
+
 ;; Emacs Lisp Package Archive (ELPA)
 ;; @see https://github.com/melpa/melpa and https://elpa.emacs-china.org/.
 (defcustom dotfairy-package-archives-alist
