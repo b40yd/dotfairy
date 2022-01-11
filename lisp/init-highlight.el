@@ -27,19 +27,17 @@
 ;; Colorize color names in buffers
 (use-package rainbow-mode
   :hook ((html-mode css-mode) . rainbow-mode)
-  :bind (("C-x c m" . rainbow-mode-hydra/body))
-  :pretty-hydra
-  ((:title (pretty-hydra-title "Colors Management" 'faicon "windows")
-           :foreign-keys warn :quit-key "q")
-   ("Actions"
-    (("w" kurecolor-decrease-brightness-by-step "kurecolor-decrease-brightness-by-step")
-     ("W" kurecolor-increase-brightness-by-step "kurecolor-increase-brightness-by-step")
-     ("d" kurecolor-decrease-saturation-by-step "kurecolor-decrease-saturation-by-step")
-     ("D" kurecolor-increase-saturation-by-step "kurecolor-increase-saturation-by-step")
-     ("e" kurecolor-decrease-hue-by-step "kurecolor-decrease-hue-by-step")
-     ("E" kurecolor-increase-hue-by-step "kurecolor-increase-hue-by-step"))))
   :config
   (use-package kurecolor))
+
+;; Color picker https://github.com/ncruces/zenity/releases
+;; Emacs not support xwidgets use zenity.
+(if (executable-find "zenity")
+    (use-package zenity-color-picker
+      :bind (("C-c C-p" . zenity-cp-color-at-point-dwim)))
+  (use-package webkit-color-picker
+    :ensure t
+    :bind (("C-c C-p" . webkit-color-picker-show))))
 
 ;; Highlight brackets according to their depth
 (use-package rainbow-delimiters
