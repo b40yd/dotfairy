@@ -263,10 +263,11 @@ Install the doc if it's not installed."
 
 ;; Use quelpa install turbo-log
 (when (package-installed-p 'quelpa)
-  (quelpa
-   '(turbo-log
-     :fetcher git
-     :url "https://github.com/quelpa/quelpa-use-package.git"))
+  (unless (package-installed-p 'turbo-log)
+    (quelpa
+     '(turbo-log
+       :fetcher git
+       :url "https://github.com/artawower/turbo-log.el")))
 
   (setq turbo-log-msg-format-template "\"🚀: %s\"")
   (setq turbo-log-allow-insert-without-tree-sitter-p t)
