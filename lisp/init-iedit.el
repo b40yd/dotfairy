@@ -227,7 +227,6 @@ The return value is the new value of LIST-VAR."
                                                        counsel-M-x
                                                        delete-horizontal-space
                                                        mouse-drag-region-rectangle
-                                                       mc/vertical-align-with-space
                                                        multiple-cursors-hydra/body
                                                        multiple-cursors-hydra/mc/mark-next-like-this
                                                        multiple-cursors-hydra/mc/mark-next-like-this-word
@@ -248,7 +247,10 @@ The return value is the new value of LIST-VAR."
                                                        multiple-cursors-hydra/mc/mark-all-words-like-this-in-defun
                                                        multiple-cursors-hydra/mc/mark-all-dwim
                                                        multiple-cursors-hydra/nil))
-    ;; (my-append-to-list 'mc--default-cmds-to-run-for-all '(mc/vertical-align-with-space))
+
+    (my-append-to-list 'mc--default-cmds-to-run-for-all '(mc/vertical-align-with-space
+                                                          mwim-beginning-of-code-or-line-or-comment
+                                                          mwim-end-of-code-or-line))
     (mc/save-lists))
   (with-eval-after-load 'hungry-delete
     (add-to-list 'mc--default-cmds-to-run-for-all 'hungry-delete-backward)
