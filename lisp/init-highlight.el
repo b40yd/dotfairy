@@ -27,8 +27,25 @@
 ;; Colorize color names in buffers
 (use-package rainbow-mode
   :hook ((html-mode css-mode) . rainbow-mode)
+  :bind (:map special-mode-map
+         ("w" . rainbow-mode))
   :config
-  (use-package kurecolor))
+  (with-no-warnings
+    ;; HACK: Use overlay instead of text properties to override `hl-line' faces.
+    ;; @see https://emacs.stackexchange.com/questions/36420
+    (defun my-rainbow-colorize-match (color &optional match)
+      (let* ((match (or match 0))
+             (ov (make-overlay (match-beginning match) (match-end match))))
+        (overlay-put ov 'ovrainbow t)
+        (overlay-put ov 'face `((:foreground ,(if (> 0.5 (rainbow-x-color-luminance color))
+                                                  "white" "black"))
+                                (:background ,color)))))
+    (advice-add #'rainbow-colorize-match :override #'my-rainbow-colorize-match)
+
+    (defun my-rainbow-clear-overlays ()
+      "Clear all rainbow overlays."
+      (remove-overlays (point-min) (point-max) 'ovrainbow t))
+    (advice-add #'rainbow-turn-off :after #'my-rainbow-clear-overlays)))
 
 ;; Color picker https://github.com/ncruces/zenity/releases
 ;; Emacs not support xwidgets use zenity.
@@ -48,7 +65,7 @@
   :init
   (beacon-mode 1)
   :config
-  (setq beacon-color "#666600"))
+  (setq beacon-color "#9b4086"))
 
 ;; Highlight TODO
 (use-package hl-todo
@@ -57,7 +74,15 @@
   (dolist (keyword '("BUG" "DEFECT" "ISSUE"))
     (cl-pushnew `(,keyword . ,(face-foreground 'error)) hl-todo-keyword-faces))
   (dolist (keyword '("WORKAROUND" "HACK" "TRICK"))
-    (cl-pushnew `(,keyword . ,(face-foreground 'warning)) hl-todo-keyword-faces)))
+    (cl-pushnew `(,keyword . ,(face-foreground 'warning)) hl-todo-keyword-faces))
+  (map! :localleader
+        :map hl-todo-mode-map
+        (:prefix ("SPC" . "Highlight")
+         "o" #'hl-todo-occur
+         "p" #'hl-todo-previous
+         "n" #'hl-todo-next
+         "o" #'hl-todo-occur
+         "i" #'hl-todo-insert)))
 
 ;; Highlight symbols
 (use-package symbol-overlay
