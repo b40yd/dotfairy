@@ -77,12 +77,11 @@
     (cl-pushnew `(,keyword . ,(face-foreground 'warning)) hl-todo-keyword-faces))
   (map! :localleader
         :map hl-todo-mode-map
-        (:prefix ("SPC" . "Highlight")
-         "o" #'hl-todo-occur
-         "p" #'hl-todo-previous
-         "n" #'hl-todo-next
-         "o" #'hl-todo-occur
-         "i" #'hl-todo-insert)))
+        "C-o" #'hl-todo-occur
+        "C-p" #'hl-todo-previous
+        "C-n" #'hl-todo-next
+        "C-o" #'hl-todo-occur
+        "C-i" #'hl-todo-insert))
 
 ;; Highlight symbols
 (use-package symbol-overlay
