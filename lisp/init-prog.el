@@ -199,6 +199,8 @@
                  (setq-local devdocs-current-docs (cdr e)))))
    devdocs-major-mode-docs-alist)
 
+  (setq devdocs-data-dir (expand-file-name "devdocs" dotfairy-local-dir))
+
   (defun devdocs-dwim()
     "Look up a DevDocs documentation entry.
 Install the doc if it's not installed."
