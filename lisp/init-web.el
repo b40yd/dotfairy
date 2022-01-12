@@ -137,10 +137,6 @@
 (use-package coffee-mode
   :config (setq coffee-tab-width 2))
 
-(use-package emmet-mode
-  :bind (("<tab>" . emmet-expand-yas))
-  :hook ((web-mode rjsx-mode) . emmet-mode))
-
 ;; Major mode for editing web templates
 (use-package web-mode
   :mode "\\.\\(phtml\\|php|[gj]sp\\|as[cp]x\\|erb\\|djhtml\\|html?\\|hbs\\|ejs\\|jade\\|swig\\|tm?pl\\|vue\\)$"
@@ -167,6 +163,13 @@
   :mode "\\jsx\\|.[mc]?js\\'"
   :interpreter "node"
   :hook (rjsx-mode . rainbow-delimiters-mode))
+
+(use-package emmet-mode
+  :hook ((web-mode rjsx-mode) . emmet-mode)
+  :config
+  (map! :leader
+        :map emmet-mode-map
+        "<tab>" #'emmet-expand-yas))
 
 (provide 'init-web)
 ;;; init-web.el ends here
