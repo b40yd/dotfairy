@@ -264,13 +264,13 @@ Install the doc if it's not installed."
 ;; Use quelpa install turbo-log
 (use-package turbo-log
   :ensure nil
-  :quelpa (turbo-log :fetcher github :repo "artawower/turbo-log.el")
+  :quelpa (turbo-log :fetcher github :repo "7ym0n/turbo-log")
   :config
-  (setq turbo-log-msg-format-template "\"🚀: %s\"")
-  (setq turbo-log-allow-insert-without-tree-sitter-p t)
+  (setq turbo-log-msg-format-template "\"🚀: %s\""
+        turbo-log-allow-insert-without-tree-sitter-p t)
   :hook (after-init . (lambda ()
                         (map! :localleader
-                              :map (python-mode-map js-mode-map go-mode-map rust-mode-map java-mode-map typescript-mode-map)
+                              :map (python-mode-map rjsx-mode-map js-mode-map go-mode-map rust-mode-map java-mode-map typescript-mode-map)
                               (:prefix ("SPC" . "Print")
                                "l" #'turbo-log-print
                                "i" #'turbo-log-print-immediately
