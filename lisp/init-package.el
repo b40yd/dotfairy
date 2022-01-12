@@ -105,6 +105,8 @@
 (use-package quelpa
   :init
   (setq quelpa-upgrade-p dotfairy-quelpa-upgrade
+        quelpa-update-melpa-p nil
+        quelpa-checkout-melpa-p nil
         quelpa-dir (expand-file-name "quelpa" dotfairy-local-dir)))
 
 (use-package quelpa-use-package)
