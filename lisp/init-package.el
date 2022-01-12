@@ -102,11 +102,14 @@
   (require 'use-package))
 
 ;; Use quelpa install packages
-(unless (package-installed-p 'quelpa)
-  (with-temp-buffer
-    (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
-    (eval-buffer)
-    (setq quelpa-upgrade-p dotfairy-quelpa-upgrade)))
+(use-package quelpa
+  :init
+  (setq quelpa-upgrade-p dotfairy-quelpa-upgrade
+        quelpa-dir (expand-file-name "quelpa" dotfairy-local-dir)))
+
+(use-package quelpa-use-package)
+(eval-when-compile
+  (require 'quelpa-use-package))
 
 ;; Required by `use-package'
 (use-package diminish)
@@ -138,7 +141,11 @@
   :init
   (setq auto-package-update-delete-old-versions t
         auto-package-update-hide-results t)
-  (defalias 'upgrade-packages #'auto-package-update-now))
+  (defun my-upgrade-packages (&optional async)
+    (interactive)
+    (auto-package-update-now async)
+    (quelpa-upgrade-all))
+  (defalias 'upgrade-packages #'my-upgrade-packages))
 
 ;; Update
 (defun update-config ()
