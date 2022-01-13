@@ -90,13 +90,6 @@
   :diminish
   :functions (turn-off-symbol-overlay turn-on-symbol-overlay)
   :custom-face (symbol-overlay-default-face ((t (:inherit (region bold)))))
-  :bind (("M-i" . symbol-overlay-put)
-         ("M-n" . symbol-overlay-jump-next)
-         ("M-p" . symbol-overlay-jump-prev)
-         ("M-N" . symbol-overlay-switch-forward)
-         ("M-P" . symbol-overlay-switch-backward)
-         ("M-C" . symbol-overlay-remove-all)
-         ([M-f3] . symbol-overlay-remove-all))
   :hook (((prog-mode yaml-mode) . symbol-overlay-mode)
          (iedit-mode . turn-off-symbol-overlay)
          (iedit-mode-end . turn-on-symbol-overlay))
@@ -112,6 +105,14 @@
             (:inherit (all-the-icons-green bold) :inverse-video t)
             (:inherit (all-the-icons-cyan bold) :inverse-video t))))
   :config
+  (map! :localleader
+    (:prefix ("ESC" . "Overlay")
+     "d" #'symbol-overlay-remove-all
+     "m" #'symbol-overlay-put
+     "n" #'symbol-overlay-jump-next
+     "N" #'symbol-overlay-switch-forward
+     "p" #'symbol-overlay-jump-prev
+     "P" #'symbol-overlay-switch-backward))
   ;; Disable symbol highlighting while selecting
   (defun turn-off-symbol-overlay (&rest _)
     "Turn off symbol highlighting."
