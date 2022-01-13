@@ -49,12 +49,14 @@
 
 ;; Color picker https://github.com/ncruces/zenity/releases
 ;; Emacs not support xwidgets use zenity.
-(if (executable-find "zenity")
-    (use-package zenity-color-picker
-      :bind (("C-c C-p" . zenity-cp-color-at-point-dwim)))
+
+(unless (featurep 'xwidget-internal)
   (use-package webkit-color-picker
     :ensure t
-    :bind (("C-c C-p" . webkit-color-picker-show))))
+    :bind (("C-c C-p" . webkit-color-picker-show)))
+  (if (executable-find "zenity")
+      (use-package zenity-color-picker
+        :bind (("C-c C-p" . zenity-cp-color-at-point-dwim)))))
 
 ;; Highlight brackets according to their depth
 (use-package rainbow-delimiters
