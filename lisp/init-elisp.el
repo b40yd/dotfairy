@@ -222,27 +222,29 @@ Lisp function does not specify a special indentation."
 (use-package macrostep
   :custom-face
   (macrostep-expansion-highlight-face ((t (:inherit tooltip :extend t))))
-  :bind (:map emacs-lisp-mode-map
-         ("C-c e" . macrostep-expand)
-         :map lisp-interaction-mode-map
-         ("C-c e" . macrostep-expand)))
+  :hook (after-init . (lambda ()
+                        (map! :localleader
+                              :map emacs-lisp-mode-map
+                              "e" #'macrostep-expand))))
 
 ;; A better *Help* buffer
 (use-package helpful
   :defines (counsel-describe-function-function
             counsel-describe-variable-function)
   :commands helpful--buffer
-  :bind (([remap describe-key] . helpful-key)
-         ([remap describe-symbol] . helpful-symbol)
-         ("C-c C-d" . helpful-at-point)
-         :map helpful-mode-map
-         ("r" . remove-hook-at-point))
-  :hook (helpful-mode . cursor-sensor-mode) ; for remove-advice button
+  :bind (([remap describe-function] . helpful-callable)
+         ([remap describe-command] . helpful-command)
+         ([remap describe-variable] . helpful-variable)
+         ([remap describe-key] . helpful-key)
+         ([remap describe-symbol] . helpful-symbol))
+  :hook ((helpful-mode . cursor-sensor-mode) ; for remove-advice button
+         (after-init . (lambda ()
+                         (map! :localleader
+                               :map emacs-lisp-mode-map
+                               "d" #'helpful-at-point
+                               :map helpful-mode-map
+                               "r" #'remove-hook-at-point))))
   :init
-  (with-eval-after-load 'counsel
-    (setq counsel-describe-function-function #'helpful-callable
-          counsel-describe-variable-function #'helpful-variable))
-
   (with-eval-after-load 'apropos
     ;; patch apropos buttons to call helpful instead of help
     (dolist (fun-bt '(apropos-function apropos-macro apropos-command))
@@ -255,6 +257,7 @@ Lisp function does not specify a special indentation."
        var-bt 'action
        (lambda (button)
          (helpful-variable (button-get button 'apropos-symbol))))))
+
   :config
   (with-no-warnings
     ;; Open the buffer in other window
