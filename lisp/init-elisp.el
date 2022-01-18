@@ -229,8 +229,6 @@ Lisp function does not specify a special indentation."
 
 ;; A better *Help* buffer
 (use-package helpful
-  :defines (counsel-describe-function-function
-            counsel-describe-variable-function)
   :commands helpful--buffer
   :bind (([remap describe-function] . helpful-callable)
          ([remap describe-command] . helpful-command)
@@ -245,18 +243,25 @@ Lisp function does not specify a special indentation."
                                :map helpful-mode-map
                                "r" #'remove-hook-at-point))))
   :init
-  (with-eval-after-load 'apropos
-    ;; patch apropos buttons to call helpful instead of help
-    (dolist (fun-bt '(apropos-function apropos-macro apropos-command))
-      (button-type-put
-       fun-bt 'action
-       (lambda (button)
-         (helpful-callable (button-get button 'apropos-symbol)))))
-    (dolist (var-bt '(apropos-variable apropos-user-option))
-      (button-type-put
-       var-bt 'action
-       (lambda (button)
-         (helpful-variable (button-get button 'apropos-symbol))))))
+  (with-no-warnings
+    (with-eval-after-load 'counsel
+      (setq counsel-describe-function-function #'helpful-callable
+            counsel-describe-variable-function #'helpful-variable
+            counsel-describe-symbol-function #'helpful-symbol
+            counsel-descbinds-function #'helpful-callable))
+
+    (with-eval-after-load 'apropos
+      ;; patch apropos buttons to call helpful instead of help
+      (dolist (fun-bt '(apropos-function apropos-macro apropos-command))
+        (button-type-put
+         fun-bt 'action
+         (lambda (button)
+           (helpful-callable (button-get button 'apropos-symbol)))))
+      (dolist (var-bt '(apropos-variable apropos-user-option))
+        (button-type-put
+         var-bt 'action
+         (lambda (button)
+           (helpful-variable (button-get button 'apropos-symbol)))))))
 
   :config
   (with-no-warnings
