@@ -28,9 +28,9 @@
   :ensure nil
   :defines flycheck-disabled-checkers
   :bind (:map emacs-lisp-mode-map
-         ("C-c C-x" . ielm)
-         ("C-c C-c" . eval-defun)
-         ("C-c C-b" . eval-buffer))
+              ("C-c C-x" . ielm)
+              ("C-c C-c" . eval-defun)
+              ("C-c C-b" . eval-buffer))
   :hook (emacs-lisp-mode . (lambda ()
                              "Disable the checkdoc checker."
                              (setq-local flycheck-disabled-checkers
@@ -41,8 +41,7 @@
 
   ;; Syntax highlighting of known Elisp symbols
   (use-package highlight-defined
-    :hook (emacs-lisp-mode . highlight-defined-mode)
-    :init (setq highlight-defined-face-use-itself t))
+    :hook (emacs-lisp-mode . highlight-defined-mode))
 
   (with-no-warnings
     ;; Align indent keywords

@@ -390,7 +390,6 @@ This is for use in `ivy-re-builders-alist'."
     [remap bookmark-jump]            #'counsel-bookmark
     [remap compile]                  #'+ivy/compile
     [remap describe-bindings]        #'counsel-descbinds
-    [remap describe-face]            #'counsel-faces
     [remap describe-function]        #'counsel-describe-function
     [remap describe-variable]        #'counsel-describe-variable
     [remap describe-symbol]          #'counsel-describe-symbol
