@@ -37,12 +37,14 @@ Dotfairy is simple configure emacs.d, It's work on GNU/Linux, MacOS and Windows 
 Please read [blog](https://scanbuf.net/post/manual/how-do-myself-custom-editor/).
 
 ## Install
+Now, You can download [denv](https://github.com/7ym0n/denv) scripts. use it install environment.
 
 ```shell
 mv ~/.emacs.d{,.backup} && git clone https://github.com/7ym0n/dotfairy.git ~/.emacs.d
 
 # install base tools and program develop environment.
-cd ~/.emacs.d && bash install.sh
+git clone https://github.com/7ym0n/denv
+cd denv && bash denv --install --sudo
 ```
 
 ## Manual
