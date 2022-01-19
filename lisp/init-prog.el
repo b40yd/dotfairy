@@ -270,14 +270,10 @@ Install the doc if it's not installed."
   :config
   (setq turbo-log-msg-format-template "\"🚀: %s\""
         turbo-log-allow-insert-without-tree-sitter-p t)
-  (let ((config '((:loggers ("console.log(%s)" "console.debug(%s)" "console.warn(%s)")
-                   :jump-list ((class_declaration (method_definition "constructor")))
-                   :msg-format-template "\"Default: %s\""
-                   :identifier-node-types (identifier member_expression)
-                   :post-insert-hook (prettier-prettify)))))
-    (dolist (mode '(typescript-mode js-mode web-mode rjsx-mode))
-      (setcdr (assq mode turbo-log-loggers)
-              config)))
+  (turbo-log-configure
+   :modes (typescript-mode js2-mode web-mode rjsx-mode)
+   :strategy merge
+   :msg-format-template "\"Default: %s\"")
   :hook (after-init . (lambda ()
                         (map! :localleader
                               :map (python-mode-map rjsx-mode-map js-mode-map go-mode-map rust-mode-map java-mode-map typescript-mode-map)
