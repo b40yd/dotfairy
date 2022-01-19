@@ -167,6 +167,10 @@
       window-divider-default-right-width 1)
 (add-hook 'window-setup-hook #'window-divider-mode)
 
+;; Don't use GTK+ tooltip
+(when (boundp 'x-gtk-use-system-tooltips)
+  (setq x-gtk-use-system-tooltips nil))
+
 ;; Settings for highlight parentheses
 (use-package highlight-parentheses
   :hook (prog-mode . highlight-parentheses-mode))
@@ -212,14 +216,30 @@
          ("C--" . default-text-scale-decrease)
          ("C-0" . default-text-scale-reset)))
 
+;; Use fixed pitch where it's sensible
+(use-package mixed-pitch
+  :diminish)
+
+;; Good pixel line scrolling
+(if (boundp 'pixel-scroll-precision-mode)
+    (pixel-scroll-precision-mode t)
+  (when (and (>= emacs-major-version 27) (not (eq system-type 'darwin)))
+    (use-package good-scroll
+      :diminish
+      :hook (after-init . good-scroll-mode)
+      :bind (([remap next] . good-scroll-up-full-screen)
+             ([remap prior] . good-scroll-down-full-screen)))))
+
+;; Smooth scrolling over images
+(when (>= emacs-major-version 26)
+  (use-package iscroll
+    :diminish
+    :hook (image-mode . iscroll-mode)))
+
 ;; Display ugly ^L page breaks as tidy horizontal lines
 (use-package page-break-lines
   :diminish
   :hook (after-init . global-page-break-lines-mode))
-
-;; Use fixed pitch where it's sensible
-(use-package mixed-pitch
-  :diminish)
 
 (use-package whitespace :defer t
   :config
