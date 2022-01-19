@@ -154,21 +154,6 @@
   :bind (("M-+" . er/expand-region)
          ("M--" . er/contract-region)))
 
-(use-package selected
-  :bind (:map selected-keymap
-         ("@" . copy-region-as-kill)
-         ("=" . er/expand-region)
-         ("-" . er/contract-region)
-         ("`'" . downcase-region)
-         ("~" . upcase-region)
-         ("|" . kill-region)
-         ("?" . count-words-region)
-         ("!" . apply-macro-to-region-lines)
-         ("/" . indent-region)
-         (";" . comment-or-uncomment-region))
-  :init
-  (selected-global-mode))
-
 ;; Multiple cursors
 (use-package multiple-cursors
   :pretty-hydra

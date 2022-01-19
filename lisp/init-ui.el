@@ -173,18 +173,6 @@
 (use-package highlight-parentheses
   :hook (prog-mode . highlight-parentheses-mode))
 
-;; (use-package centaur-tabs
-;;   :demand
-;;   :config
-;;   (setq centaur-tabs-set-bar 'over
-;;         centaur-tabs-set-icons t
-;;         centaur-tabs-gray-out-icons 'buffer
-;;         centaur-tabs-height 24
-;;         centaur-tabs-set-modified-marker t
-;;         centaur-tabs-modified-marker "•")
-;;   (centaur-tabs-headline-match)
-;;   (centaur-tabs-mode t))
-
 (when dotfairy-dashboard
   (use-package dashboard
     :ensure t
@@ -243,8 +231,7 @@
   :config
   (setq whitespace-line-column nil)  ;When nil, set the value to `fill-column'
   (setq whitespace-style
-        '(face
-          trailing                    ;White space at end of lines
+        '(trailing                    ;White space at end of lines
           tabs                        ;tab-mark ;`tab-mark' shows tabs as '»'
           spaces space-mark           ;`space-mark' shows spaces as '.'
           space-before-tab space-after-tab ;Mix of tabs and spaces
@@ -252,8 +239,8 @@
           lines-tail ;highlight only characters beyond `whitespace-line-column'
           ;; newline newline-mark
           ;; empty ;blank lines at BOB or EOB
-          indentation)) ;highlight spaces/tabs at BOL depending on `indent-tabs-mode'
-  )
+          ;; highlight spaces/tabs at BOL depending on `indent-tabs-mode'
+          indentation)))
 
 (use-package posframe
   :hook (after-load-theme . posframe-delete-all)
