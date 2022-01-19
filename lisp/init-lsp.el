@@ -394,7 +394,9 @@
 
    ;; Java
    (use-package lsp-java
-     :hook (java-mode . (lambda () (require 'lsp-java))))))
+     :hook (java-mode . (lambda () (require 'lsp-java)))
+     :config
+     (setq lsp-java-workspace-dir (expand-file-name (concat dotfairy-local-dir "workspace/"))))))
 
 (when (memq dotfairy-lsp '(lsp-mode eglot))
   ;; Enable LSP in org babel
