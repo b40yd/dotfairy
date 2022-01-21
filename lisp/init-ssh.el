@@ -30,7 +30,7 @@
 (use-package ssh-manager
   :ensure nil
   :quelpa (ssh-manager :fetcher github :repo "7ym0n/dotfairy-ssh-manager")
-  :config
+  :init
   (setq ssh-manager-sshpass-path (expand-file-name (concat dotfairy-local-dir "sshpass"))))
 
 (provide 'init-ssh)
