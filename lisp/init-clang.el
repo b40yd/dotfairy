@@ -33,12 +33,21 @@
   (with-eval-after-load 'projectile
     (setq projectile-project-root-files-top-down-recurring
           (append '("compile_commands.json" ".ccls")
-                  projectile-project-root-files-top-down-recurring))))
+                  projectile-project-root-files-top-down-recurring)))
+  (with-no-warnings
+    ;; FIXME: fail to call ccls.xref
+    ;; @see https://github.com/emacs-lsp/emacs-ccls/issues/109
+    (cl-defmethod my-lsp-execute-command
+      ((_server (eql ccls)) (command (eql ccls.xref)) arguments)
+      (when-let ((xrefs (lsp--locations-to-xref-items
+                         (lsp--send-execute-command (symbol-name command) arguments))))
+        (xref--show-xrefs xrefs nil)))
+    (advice-add #'lsp-execute-command :override #'my-lsp-execute-command)))
 
 (use-package cc-mode
   :ensure t
   :bind (:map c-mode-base-map
-              ("C-c C-c" . compile))
+         ("C-c C-c" . compile))
   :hook (c-mode-common . (lambda () (c-set-style "stroustrup")))
   :init (setq-default c-basic-offset 4)
   :config
