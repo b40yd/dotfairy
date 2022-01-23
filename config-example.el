@@ -79,21 +79,6 @@
   (when (display-graphic-p)
     (dotfairy-set-fonts)))
 
-;;setting ssh sessions
-;; (setq ssh-manager-sessions '((:session-name "demo"
-;;                               :kind "proxy"
-;;                               :proxy-host "localhost"
-;;                               :proxy-port "22"
-;;                               :proxy-user "root"
-;;                               :proxy-password ""
-;;                               :remote-host "127.0.0.1"
-;;                               :remote-port "22"
-;;                               :remote-user "root"
-;;                               :remote-password ""
-;;                               :totp-kind "FreeOTP" ; default '(FreeOTP custom)
-;;                               :totp-key ""
-;;                               :totp-message "verification code:")))
-
 ;; default workspace
 (setq default-directory "~/")
 ;; .authinfo
