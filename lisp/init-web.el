@@ -40,9 +40,6 @@
 (unless (fboundp 'less-css-mode)
   (use-package less-css-mode))
 
-;; JSON mode
-(use-package json-mode)
-
 ;; JavaScript
 (use-package js2-mode
   :defines flycheck-javascript-eslint-executable
