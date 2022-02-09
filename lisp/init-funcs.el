@@ -867,5 +867,13 @@ code of the process and OUTPUT is its stdout output."
               -1)
           (string-trim (buffer-string)))))
 
+(defun childframe-workable-p ()
+  "Test whether childframe is workable."
+  (and (>= emacs-major-version 26)
+       (eq dotfairy-completion-style 'childframe)
+       (not (or noninteractive
+                emacs-basic-display
+                (not (display-graphic-p))))))
+
 (provide 'init-funcs)
 ;;; init-funcs.el ends here

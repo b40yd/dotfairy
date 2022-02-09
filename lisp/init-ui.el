@@ -242,25 +242,27 @@
           ;; highlight spaces/tabs at BOL depending on `indent-tabs-mode'
           indentation)))
 
-(use-package posframe
-  :hook (after-load-theme . posframe-delete-all)
-  :init
-  (with-eval-after-load 'persp-mode
-    (add-hook 'persp-load-buffer-functions
-              (lambda (&rest _)
-                (posframe-delete-all))))
-  :config
-  (with-no-warnings
-    (defun my-posframe--prettify-frame (&rest _)
-      (set-face-background 'fringe nil posframe--frame))
-    (advice-add #'posframe--create-posframe :after #'my-posframe--prettify-frame)
+;; Child frame
+(when (childframe-workable-p)
+  (use-package posframe
+    :hook (after-load-theme . posframe-delete-all)
+    :init
+    (with-eval-after-load 'persp-mode
+      (add-hook 'persp-load-buffer-functions
+                (lambda (&rest _)
+                  (posframe-delete-all))))
+    :config
+    (with-no-warnings
+      (defun my-posframe--prettify-frame (&rest _)
+        (set-face-background 'fringe nil posframe--frame))
+      (advice-add #'posframe--create-posframe :after #'my-posframe--prettify-frame)
 
-    (defun posframe-poshandler-frame-center-near-bottom (info)
-      (cons (/ (- (plist-get info :parent-frame-width)
-                  (plist-get info :posframe-width))
-               2)
-            (/ (plist-get info :parent-frame-height)
-               2)))))
+      (defun posframe-poshandler-frame-center-near-bottom (info)
+        (cons (/ (- (plist-get info :parent-frame-width)
+                    (plist-get info :posframe-width))
+                 2)
+              (/ (plist-get info :parent-frame-height)
+                 2))))))
 
 ;; When `dotfairy-prettify-symbols-alist' is `nil' use font supported ligatures
 (use-package composite

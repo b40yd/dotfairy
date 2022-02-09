@@ -156,6 +156,12 @@ If Non-nil, save and restore the frame's geometry."
   :group 'dotfairy
   :type 'boolean)
 
+(defcustom dotfairy-completion-style 'childframe
+  "Completion display style."
+  :group 'dotfairy
+  :type '(choice (const :tag "Minibuffer" minibuffer)
+                 (const :tag "Child Frame" childframe)))
+
 (defcustom dotfairy-lsp 'lsp-mode
   "Set language server.
 `lsp-mode': See https://github.com/emacs-lsp/lsp-mode.
