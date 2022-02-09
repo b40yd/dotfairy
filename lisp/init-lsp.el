@@ -167,20 +167,21 @@
         ("M-b" backward-word nil)
         ("M-f" forward-word nil)
         ("c" lsp-ui-sideline-apply-code-actions "apply code actions"))))
-     :bind (
-            ;; ("C-c u" . lsp-ui-imenu)
+     :bind (("C-c u" . lsp-ui-imenu)
             :map lsp-ui-mode-map
             ("C-<f6>" . lsp-ui-hydra/body)
-            ("M-RET" . lsp-ui-sideline-apply-code-actions))
+            ("M-RET" . lsp-ui-sideline-apply-code-actions)
+            ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
+            ([remap xref-find-references] . lsp-ui-peek-find-references))
      :hook (lsp-mode . lsp-ui-mode)
      :init (setq lsp-ui-sideline-ignore-duplicate t
                  lsp-ui-sideline-show-diagnostics nil
-                 lsp-ui-doc-border (face-foreground 'font-lock-comment-face)
+                 lsp-ui-doc-delay 0.1
+                 lsp-ui-doc-border (face-foreground 'font-lock-comment-face nil t)
                  lsp-ui-imenu-colors `(,(face-foreground 'font-lock-keyword-face)
-                                       ;; ,(face-foreground 'font-lock-string-face)
+                                       ,(face-foreground 'font-lock-string-face)
                                        ,(face-foreground 'font-lock-constant-face)
-                                       ,(face-foreground 'font-lock-variable-name-face))
-                 ))
+                                       ,(face-foreground 'font-lock-variable-name-face))))
 
    ;; Ivy integration
    (use-package lsp-ivy
