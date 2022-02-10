@@ -106,5 +106,35 @@
   (add-hook 'c-mode-hook (lambda() (add-hook 'before-save-hook 'clang-format-buffer)))
   (add-hook 'c++-mode-hook (lambda() (add-hook 'before-save-hook 'clang-format-buffer))))
 
+(defvar dotfairy-preprocessor-regexp "^\\s-*#[a-zA-Z0-9_]"
+  "The regexp used by `dotfairy/next-preproc-directive' and
+`dotfairy/previous-preproc-directive' on ]# and [#, to jump between preprocessor
+directives. By default, this only recognizes C directives.")
+
+;;;###autoload
+(defun dotfairy/next-preproc-directive (count)
+  "Jump to the COUNT-th preprocessor directive after point.
+By default, this only recognizes C preproc directives. To change this see
+`dotfairy-preprocessor-regexp'."
+  (interactive "p")
+  ;; TODO More generalized search, to support directives in other languages?
+  (if (re-search-forward dotfairy-preprocessor-regexp nil t count)
+      (goto-char (match-beginning 0))
+    (user-error "No preprocessor directives %s point"
+                (if (> count 0) "after" "before"))))
+
+;;;###autoload
+(defun dotfairy/previous-preproc-directive (count)
+  "Jump to the COUNT-th preprocessor directive before point.
+See `dotfairy/next-preproc-directive' for details."
+  (interactive "p")
+  (dotfairy/next-preproc-directive (- count)))
+
+(map! :localleader
+      :map (c-mode-map c++-mode-map)
+      (:prefix ("#" . "Jump preprocessor directives")
+       :desc "previous preprocessor directive" "]" #'dotfairy/next-preproc-directive
+       :desc "previous preprocessor directive" "[" #'dotfairy/previous-preproc-directive))
+
 (provide 'init-clang)
 ;;; init-clang.el ends here
