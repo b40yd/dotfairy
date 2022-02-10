@@ -133,7 +133,7 @@ See `dotfairy/next-preproc-directive' for details."
 (map! :localleader
       :map (c-mode-map c++-mode-map)
       (:prefix ("#" . "Jump preprocessor directives")
-       :desc "previous preprocessor directive" "]" #'dotfairy/next-preproc-directive
+       :desc "next preprocessor directive" "]" #'dotfairy/next-preproc-directive
        :desc "previous preprocessor directive" "[" #'dotfairy/previous-preproc-directive))
 
 (provide 'init-clang)
