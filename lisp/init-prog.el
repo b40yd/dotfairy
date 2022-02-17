@@ -221,11 +221,6 @@ Install the doc if it's not installed."
     ;; Lookup the symbol at point
     (devdocs-lookup nil (thing-at-point 'symbol t))))
 
-;; pip3 install sqlparse
-(use-package sqlformat
-  :commands (sqlformat sqlformat-buffer sqlformat-region)
-  :hook (sql-mode . sqlformat-on-save-mode))
-
 ;; Cross-referencing commands
 (use-package xref
   :ensure nil

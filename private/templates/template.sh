@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/bin/bash
 #
 # Copyright (C) `(format-time-string "%Y")`, `user-full-name`
 #
