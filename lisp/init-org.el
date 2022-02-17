@@ -677,6 +677,11 @@ prepended to the element after the #+HEADER: tag."
       (when (featurep 'xwidget-internal)
         (setq org-roam-ui-browser-function #'xwidget-webkit-browse-url))))
 
+  ;; Auto-toggle Org LaTeX fragments
+  (use-package org-fragtog
+    :diminish
+    :hook (org-mode . org-fragtog-mode))
+
   ;; Preview
   (use-package org-preview-html
     :diminish)

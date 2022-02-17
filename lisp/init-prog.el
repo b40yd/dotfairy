@@ -257,11 +257,12 @@ Install the doc if it's not installed."
   :hook (after-init . bmx-mode-setup-defaults))
 
 ;; Tree-sitter
-(use-package tree-sitter
-  :ensure tree-sitter-langs
-  :diminish
-  :hook ((after-init . global-tree-sitter-mode)
-         (tree-sitter-after-on . tree-sitter-hl-mode)))
+(when (functionp 'module-load)
+  (use-package tree-sitter
+    :ensure tree-sitter-langs
+    :diminish
+    :hook ((after-init . global-tree-sitter-mode)
+           (tree-sitter-after-on . tree-sitter-hl-mode))))
 
 ;; Use quelpa install turbo-log
 (use-package turbo-log
