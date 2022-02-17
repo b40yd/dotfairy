@@ -30,7 +30,9 @@
   :commands (sqlformat sqlformat-buffer sqlformat-region)
   :hook (sql-mode . sqlformat-on-save-mode))
 
-(use-package ejc-sql :commands ejc-sql-mode ejc-connect)
+(use-package ejc-sql
+  :commands ejc-sql-mode ejc-connect
+  :hook (sql-mode . ejc-sql-mode))
 
 (provide 'init-sql)
 ;;; init-sql.el ends here
