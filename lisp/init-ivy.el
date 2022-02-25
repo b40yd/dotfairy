@@ -206,14 +206,6 @@
             (my-ivy-switch-to-counsel-rg)
           (my-ivy-switch-to-swiper-isearch))))
 
-    (with-eval-after-load 'rg
-      (defun my-swiper-toggle-rg-dwim ()
-        "Toggle `rg-dwim' with the current input."
-        (interactive)
-        (ivy-quit-and-run
-          (rg-dwim default-directory)))
-      )
-
     (defun my-swiper-toggle-swiper-isearch ()
       "Toggle `swiper' and `swiper-isearch' with the current input."
       (interactive)
@@ -227,21 +219,6 @@
       (interactive)
       (ivy-quit-and-run
         (counsel-fzf (or ivy-text "") default-directory)))
-
-    (defun my-swiper-toggle-rg-dwim ()
-      "Toggle `rg-dwim' with the current input."
-      (interactive)
-      (ivy-quit-and-run (my-ivy-switch-to-rg-dwim)))
-
-
-    (defun my-swiper-toggle-swiper-isearch ()
-      "Toggle `swiper' and `swiper-isearch' with the current input."
-      (interactive)
-      (ivy-quit-and-run
-        (if (eq (ivy-state-caller ivy-last) 'swiper-isearch)
-            (my-ivy-switch-to-swiper)
-          (my-ivy-switch-to-swiper-isearch))))
-
 
     ;; More actions
     (ivy-add-actions
@@ -263,7 +240,6 @@
      '(("g" my-ivy-switch-to-counsel-git-grep "git grep")
        ("r" my-ivy-switch-to-counsel-rg "rg")
        ("d" my-ivy-switch-to-rg-dwim "rg dwim")
-       ("s" my-swiper-toggle-swiper-isearch "swiper isearch")
        ("S" my-ivy-switch-to-swiper "swiper")))
 
     (ivy-add-actions
