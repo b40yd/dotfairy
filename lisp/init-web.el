@@ -164,8 +164,9 @@
 (use-package emmet-mode
   :hook ((web-mode rjsx-mode) . emmet-mode)
   :config
+  ;; (define-key emmet-mode-keymap (kbd "<tab>") 'emmet-expand-yas)
   (map! :leader
-        :map emmet-mode-map
+        :map emmet-mode-keymap
         "<tab>" #'emmet-expand-yas))
 
 (provide 'init-web)
