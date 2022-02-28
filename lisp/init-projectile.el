@@ -166,7 +166,7 @@
            . treemacs-magit--schedule-update))
   (use-package treemacs-persp
     :after persp-mode
-    :demand t
+    :demand
     :functions treemacs-set-scope-type
     :config (treemacs-set-scope-type 'Perspectives)))
 
