@@ -470,6 +470,8 @@ prepended to the element after the #+HEADER: tag."
         org-enable-hugo-support t
         org-src-fontify-natively t
         org-src-tab-acts-natively t
+        org-confirm-babel-evaluate nil
+        org-babel-python-command "python3"
         org-duration-format '((special . h:mm))
         org-directory dotfairy-org-dir ;; needs to be defined for `org-default-notes-file'
         org-default-notes-file (expand-file-name "notes.org" org-directory)
@@ -532,8 +534,7 @@ prepended to the element after the #+HEADER: tag."
           org-superstar-item-bullet-alist
           '((?* . ?🞿)
             (?+ . ?⮚)
-            (?- . ?•)
-            )
+            (?- . ?•))
           ;; Enable custom bullets for TODO items
           org-superstar-special-todo-items t
           org-superstar-todo-bullet-alist
@@ -597,12 +598,6 @@ prepended to the element after the #+HEADER: tag."
                                :tag "Book"
                                :order 30)))))))))
     (setq org-agenda-breadcrumbs-separator " ❯ "))
-
-  ;; Babel
-  (setq org-confirm-babel-evaluate nil
-        org-src-fontify-natively t
-        org-src-tab-acts-natively t
-        org-babel-python-command "python3")
 
   (defvar load-language-list '((emacs-lisp . t)
                                (perl . t)
