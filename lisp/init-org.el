@@ -102,13 +102,13 @@
             (insert "#+HEADERS: :results output :exports both :shebang \"#!/usr/bin/env perl\"\n")
             (hot-expand "<s" "perl")) "Perl tangled")
      ("<" self-insert-command "ins"))))
-  :hook (org-mode . (lambda ()
-                      (bind-key "<" (lambda ()
-                                      "Insert org template."
-                                      (interactive)
-                                      (if (or (region-active-p) (looking-back "^\s*" 1))
-                                          (org-hydra/body)
-                                        (self-insert-command 1))))))
+  :bind (:map org-mode-map
+         ("<" . (lambda ()
+                  "Insert org template."
+                  (interactive)
+                  (if (or (region-active-p) (looking-back "^\s*" 1))
+                      (org-hydra/body)
+                    (self-insert-command 1)))))
   :config
   (defvar org-attach-id-dir nil)
   (defun +org--relative-path (path root)
@@ -484,6 +484,7 @@ prepended to the element after the #+HEADER: tag."
         org-pretty-entities t
         org-odd-levels-only t
         org-list-allow-alphabetical t
+        org-latex-pdf-process '("xelatex -interaction nonstopmode %f" "xelatex -interaction nonstopmode %f")
         org-capture-templates
         `(("b" "book" entry (file ,(concat org-directory "/book.org"))
            "*  %^{Title} %?\n%U\n%a\n")
