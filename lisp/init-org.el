@@ -28,7 +28,6 @@
 (require 'init-funcs)
 
 (use-package org
-  :init (setq org-startup-indented t)
   :hook (((org-babel-after-execute org-mode) . org-redisplay-inline-images) ; display image
          (org-mode . (lambda ()
                        "Beautify org symbols."
@@ -459,15 +458,7 @@ prepended to the element after the #+HEADER: tag."
       (when mod (insert mod) (forward-line))
       (when text (insert text))))
 
-  (with-eval-after-load 'ox
-    (require 'ox-hugo))
   (setq org-startup-indented t
-        org-journal-file-format "%Y-%m-%d"
-        org-journal-date-prefix "#+TITLE: "
-        org-journal-date-format "%A, %B %d %Y"
-        org-journal-time-prefix "* "
-        org-journal-time-format "%Y-%m-%D"
-        org-enable-hugo-support t
         org-src-fontify-natively t
         org-src-tab-acts-natively t
         org-confirm-babel-evaluate nil
@@ -478,7 +469,6 @@ prepended to the element after the #+HEADER: tag."
         org-agenda-files `(,dotfairy-org-dir)
         org-enforce-todo-checkbox-dependencies t
         org-enforce-todo-dependencies t
-        org-hide-leading-stars t
         org-log-done 'time
         org-log-reschedule 'note
         org-log-redeadline 'note
@@ -510,6 +500,7 @@ prepended to the element after the #+HEADER: tag."
         ;; up to 5 levels deep
         org-refile-targets '((org-agenda-files :maxlevel . 5)
                              (nil :maxlevel . 5)))
+
 
   (use-package org-fancy-priorities
     :diminish
@@ -699,11 +690,20 @@ prepended to the element after the #+HEADER: tag."
     (setq org-journal-prefix-key "C-c j")
     :config
     (setq org-journal-dir (concat dotfairy-local-dir "journal/")
-          org-journal-date-format "%A, %d %B %Y"))
+          org-journal-date-format "%A, %d %B %Y"
+          org-journal-file-format "%Y-%m-%d"
+          org-journal-date-prefix "#+TITLE: "
+          org-journal-time-prefix "* "
+          org-journal-time-format "%Y-%m-%D"))
 
   (use-package ox-hugo
     :ensure t            ;Auto-install the package from Melpa (optional)
-    :after ox)
+    :after ox
+    :init
+    (with-eval-after-load 'ox
+      (require 'ox-hugo))
+    :config
+    (setq org-enable-hugo-support t))
 
   (defadvice! +chinese--org-html-paragraph-a (args)
     "Join consecutive Chinese lines into a single long line without unwanted space
