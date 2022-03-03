@@ -196,6 +196,7 @@
   (:prefix-map ("w" . "workspaces/windows")
    :desc "Display workspaces"           "d" #'+workspace/display
    :desc "Frame fullscreen"             "f" #'toggle-frame-fullscreen
+   :desc "Frame maximized"              "F" #'toggle-frame-maximized
    :desc "Rename workspace"             "r" #'+workspace/rename
    :desc "Create workspace"             "c" #'+workspace/new-named
    :desc "Delete workspace"             "k" #'+workspace/delete
