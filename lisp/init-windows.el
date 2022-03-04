@@ -25,6 +25,90 @@
 ;;; Code:
 (require 'init-const)
 
+;; Frame
+(defvar dotfairy/frame--geometry nil)
+(defun dotfairy/frame--save-geometry ()
+  "Save current frame's geometry."
+  (setq-local dotfairy/frame--geometry
+              `((left . ,(frame-parameter nil 'left))
+                (top . ,(frame-parameter nil 'top))
+                (width . ,(frame-parameter nil 'width))
+                (height . ,(frame-parameter nil 'height))
+                (fullscreen . ,(frame-parameter nil 'fullscreen)))))
+
+(defun dotfairy/frame--fullscreen-p ()
+  "Returns Non-nil if the frame is fullscreen."
+  (memq (frame-parameter nil 'fullscreen) '(fullscreen fullboth)))
+
+(defun dotfairy/frame-maximize ()
+  "Maximize the frame."
+  (interactive)
+  (dotfairy/frame--save-geometry)
+  (unless (eq (frame-parameter nil 'fullscreen) 'maximized)
+    (set-frame-parameter nil 'fullscreen 'maximized)))
+
+(defun dotfairy/frame-restore ()
+  "Restore the frame's size and position."
+  (interactive)
+  (modify-frame-parameters nil dotfairy/frame--geometry))
+
+(defun dotfairy/frame-left-half ()
+  "Put the frame to the left-half."
+  (interactive)
+  (unless (dotfairy/frame--fullscreen-p)
+    (dotfairy/frame--save-geometry)
+    (let* ((attr (frame-monitor-workarea))
+           (width (- (/ (nth 2 attr) 2) 20))
+           (height (- (nth 3 attr) 30))
+           (left (nth 0 attr))
+           (top (nth 1 attr)))
+      (set-frame-parameter nil 'fullscreen nil)
+      (set-frame-position nil left top)
+      (set-frame-size nil width height t))))
+
+(defun dotfairy/frame-right-half ()
+  "Put the frame to the right-half."
+  (interactive)
+  (unless (dotfairy/frame--fullscreen-p)
+    (dotfairy/frame--save-geometry)
+    (let* ((attr (frame-monitor-workarea))
+           (width (- (/ (nth 2 attr) 2) 20))
+           (height (- (nth 3 attr) 30))
+           (left (+ (nth 0 attr) width 20))
+           (top (nth 1 attr)))
+      (set-frame-parameter nil 'fullscreen nil)
+      (set-frame-position nil left top)
+      (set-frame-size nil width height t))))
+
+(defun dotfairy/frame-top-half ()
+  "Put the frame to the top-half."
+  (interactive)
+  (unless (dotfairy/frame--fullscreen-p)
+    (dotfairy/frame--save-geometry)
+    (let* ((attr (frame-monitor-workarea))
+           (width (- (nth 2 attr) 20))
+           (height (- (/ (nth 3 attr) 2) 30))
+           (left (nth 0 attr))
+           (top (nth 1 attr)))
+      (set-frame-parameter nil 'fullscreen nil)
+      (set-frame-position nil left top)
+      (set-frame-size nil width height t))))
+
+(defun dotfairy/frame-bottom-half ()
+  "Put the frame to the bottom-half."
+  (interactive)
+  (unless (dotfairy/frame--fullscreen-p)
+    (dotfairy/frame--save-geometry)
+    (let* ((attr (frame-monitor-workarea))
+           (width (- (nth 2 attr) 20))
+           (height (- (/ (nth 3 attr) 2) 30))
+           (left (nth 0 attr))
+           (top (+ (nth 1 attr) height 30)))
+      (set-frame-parameter nil 'fullscreen nil)
+      (set-frame-position nil left top)
+      (set-frame-size nil width height t))))
+
+
 ;; Directional window-selection routines
 (use-package windmove
   :ensure nil

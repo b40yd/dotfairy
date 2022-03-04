@@ -49,6 +49,7 @@
    :desc "Switch to buffer"                    "b" #'switch-to-buffer
    :desc "Kill buried buffers"                 "k" #'kill-buffer
    :desc "Kill buried buffers"                 "K" #'dotfairy/kill-buried-buffers
+   :desc "New buffer"                          "n" #'+default/new-buffer
    :desc "Save and kill buffer"                "s" #'dotfairy/save-and-kill-buffer
    :desc "Kill other buffers"                  "o" #'dotfairy/kill-other-buffers
    :desc "kill matching buffers"               "m" #'dotfairy/kill-matching-buffers
@@ -82,8 +83,8 @@
    :desc "Sudo this file"              "u" #'dotfairy/sudo-this-file
    :desc "Sudo find file"              "U" #'dotfairy/sudo-find-file
    :desc "Open init file"              "i" #'dotfairy/open-init-file
-   :desc "Open custom file"            "I" #'dotfairy/open-custom-file
-   )
+   :desc "Open custom file"            "I" #'dotfairy/open-custom-file)
+
       ;;; <leader> s --- search
   (:prefix-map ("s" . "search")
    :desc "Internet Search Engine"       "/" #'webjump
@@ -195,9 +196,15 @@
       ;;; <leader> w --- workspaces/windows
   (:prefix-map ("w" . "workspaces/windows")
    :desc "Display workspaces"           "d" #'+workspace/display
-   :desc "Frame fullscreen"             "f" #'toggle-frame-fullscreen
-   :desc "Frame maximized"              "F" #'toggle-frame-maximized
+   (:prefix-map ("f" . "frame")
+    :desc "Frame maximized"              "f" #'dotfairy/frame-maximize
+    :desc "Frame bottom half"            "j" #'dotfairy/frame-bottom-half
+    :desc "Frame top half"               "k" #'dotfairy/frame-top-half
+    :desc "Frame left half"              "h" #'dotfairy/frame-left-half
+    :desc "Frame right half"             "l" #'dotfairy/frame-right-half)
+   :desc "Frame fullscreen"             "F" #'toggle-frame-fullscreen
    :desc "Rename workspace"             "r" #'+workspace/rename
+   :desc "Frame restore"                "R" #'dotfairy/frame-restore
    :desc "Create workspace"             "c" #'+workspace/new-named
    :desc "Delete workspace"             "k" #'+workspace/delete
    :desc "Save workspace"               "S" #'+workspace/save
