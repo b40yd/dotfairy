@@ -71,7 +71,17 @@
 
 ;; Highlight TODO
 (use-package hl-todo
+  :custom-face
+  (hl-todo ((t
+             (:inherit variable-pitch
+              :box (:line-width -1)
+              :height 0.9
+              :width condensed
+              :weight semibold
+              :underline nil :inverse-video t))))
   :hook (after-init . global-hl-todo-mode)
+  :init (setq hl-todo-require-punctuation t
+              hl-todo-highlight-punctuation ":")
   :config
   (dolist (keyword '("BUG" "DEFECT" "ISSUE"))
     (cl-pushnew `(,keyword . ,(face-foreground 'error)) hl-todo-keyword-faces))

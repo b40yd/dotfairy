@@ -112,27 +112,26 @@ kill all magit buffers for this repo."
                     ("State" 6 t nil state nil)
                     ("Updated" 10 t nill updated nil)))
       :config
-      (setq forge-database-file (concat dotfairy-etc-dir "forge/forge-database.sqlite")))))
+      (setq forge-database-file (concat dotfairy-etc-dir "forge/forge-database.sqlite"))))
 
-(use-package magit-todos
-  :after magit
-  :init
-  (setq magit-todos-nice (if (executable-find "nice") t nil))
-  (let ((inhibit-message t))
-    (magit-todos-mode 1))
-  :config
-  (setq magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?"))
+  (use-package magit-todos
+    :bind ("C-c C-t" . ivy-magit-todos)
+    :init
+    (setq magit-todos-nice (if (executable-find "nice") t nil))
+    (let ((inhibit-message t))
+      (magit-todos-mode 1))
+    :config
+    (setq magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?"))
 
+  (use-package magit-gitflow
+    :hook (magit-mode . turn-on-magit-gitflow)
+    :config
+    (define-key magit-mode-map "@" 'magit-gitflow-popup)
+    (transient-replace-suffix 'magit-dispatch 'magit-worktree
+      '("@" "Gitflow" magit-gitflow-popup))
 
-(use-package magit-gitflow
-  :hook (magit-mode . turn-on-magit-gitflow)
-  :config
-  (define-key magit-mode-map "@" 'magit-gitflow-popup)
-  (transient-replace-suffix 'magit-dispatch 'magit-worktree
-    '("@" "Gitflow" magit-gitflow-popup))
-
-  (transient-append-suffix 'magit-dispatch '(0 -1 -1)
-    '("*" "Worktree" magit-worktree)))
+    (transient-append-suffix 'magit-dispatch '(0 -1 -1)
+      '("%" "Worktree" magit-worktree))))
 
 ;; Walk through git revisions of a file
 (use-package git-timemachine
