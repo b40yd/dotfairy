@@ -79,8 +79,7 @@
 (use-package doom-themes
   :custom-face
   (doom-modeline-buffer-file ((t (:inherit (mode-line bold)))))
-  :custom
-  (doom-themes-treemacs-theme "doom-colors")
+  :custom (doom-themes-treemacs-theme "doom-colors")
   :init (dotfairy-load-theme dotfairy-theme t)
   :config
   ;; Enable flashing mode-line on errors
