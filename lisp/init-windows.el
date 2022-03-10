@@ -34,7 +34,7 @@
                 (top . ,(frame-parameter nil 'top))
                 (width . ,(frame-parameter nil 'width))
                 (height . ,(frame-parameter nil 'height))
-                (fullscreen . ,(frame-parameter nil 'fullscreen)))))
+                (fullscreen))))
 
 (defun dotfairy/frame--fullscreen-p ()
   "Returns Non-nil if the frame is fullscreen."
