@@ -198,12 +198,12 @@
    :desc "Display workspaces"           "d" #'+workspace/display
    (:prefix-map ("f" . "frame")
     :desc "Frame maximized"              "f" #'dotfairy/frame-maximize
+    :desc "Frame fullscreen"             "F" #'toggle-frame-fullscreen
     :desc "Frame restore"                "r" #'dotfairy/frame-restore
     :desc "Frame bottom half"            "j" #'dotfairy/frame-bottom-half
     :desc "Frame top half"               "k" #'dotfairy/frame-top-half
     :desc "Frame left half"              "h" #'dotfairy/frame-left-half
     :desc "Frame right half"             "l" #'dotfairy/frame-right-half)
-   :desc "Frame fullscreen"             "F" #'toggle-frame-fullscreen
    :desc "Rename workspace"             "r" #'+workspace/rename
    :desc "Create workspace"             "c" #'+workspace/new-named
    :desc "Delete workspace"             "k" #'+workspace/delete
