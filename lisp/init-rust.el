@@ -1,4 +1,5 @@
 ;;; Code:
+(require 'init-funcs)
 
 ;; Rust
 (use-package rustic
@@ -11,8 +12,7 @@
 
   :hook ((rustic-mode . (lambda ()
                           (dotfairy-set-prettify '(("fn" . ?ƒ)
-                                                   ("string" . ?𝕊)))
-                          )))
+                                                   ("string" . ?𝕊))))))
   :config
   (setq rust-indent-method-chain t)
 
