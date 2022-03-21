@@ -12,7 +12,10 @@
 
   :hook ((rustic-mode . (lambda ()
                           (dotfairy-set-prettify '(("fn" . ?ƒ)
-                                                   ("string" . ?𝕊))))))
+                                                   ("None" . ?∅)
+                                                   (".." . ?‥)
+                                                   ("..." . ?…)
+                                                   ("::" . ?∷))))))
   :config
   (setq rust-indent-method-chain t)
 
@@ -24,6 +27,7 @@
          '((company-capf company-files :with company-yasnippet)
            (company-dabbrev-code company-dabbrev))))
   (add-hook 'rustic-mode-hook #'my-rustic-mode-hook))
+
 (use-package rust-playground)
 
 (provide 'init-rust)

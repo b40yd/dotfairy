@@ -174,7 +174,7 @@
 
 (use-package devdocs
   :bind (:map prog-mode-map
-         ("M-<f1>" . devdocs-dwim))
+         ("C-c <f1>" . devdocs-dwim))
   :init
   (defvar devdocs-major-mode-docs-alist
     '((c-mode . ("C"))
