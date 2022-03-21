@@ -174,12 +174,11 @@ nil means disabled."
                  (const :tag "Disable" nil)))
 
 (defcustom dotfairy-prettify-symbols-alist
-  '(
-    ("<-" . ?←)
+  '(("<-" . ?←)
     ("->" . ?→)
     ("->>" . ?↠)
     ("=>" . ?⇒)
-    ("/=" . ?≠)
+    ("/=" . ?≄)
     ("!=" . ?≠)
     ("==" . ?≡)
     ("<=" . ?≤)
@@ -190,6 +189,8 @@ nil means disabled."
     (">=>" . ?↣)
     ("&&" . ?∧)
     ("||" . ?∨)
+    (">>" . ?≫)
+    ("<<" . ?≪)
     ("return" . ?⟼)
     ("defun" . ?ƒ)
     ("define" . ?ƒ)

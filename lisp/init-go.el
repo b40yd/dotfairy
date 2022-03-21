@@ -35,6 +35,7 @@
                       (dotfairy-set-prettify '(("func()" . ?λ)
                                                ("func" . ?ƒ)
                                                ("map" . ?↦)
+                                               (":=" . ?≔)
                                                ("string" . ?𝕊)
                                                ("nil" . ?∅)))
                       (add-hook 'before-save-hook #'lsp-format-buffer t t)
