@@ -120,8 +120,7 @@
                       display-time-24hr-format t
                       display-time-day-and-date t)
   ;; Display time
-  (display-time-mode 1)
-  )
+  (display-time-mode 1))
 
 ;; need install all-the-icons fonts
 ;; web site https://github.com/domtronn/all-the-icons.el
@@ -206,7 +205,7 @@
   :diminish)
 
 ;; Good pixel line scrolling
-(if (boundp 'pixel-scroll-precision-mode)
+(if (fboundp 'pixel-scroll-precision-mode)
     (pixel-scroll-precision-mode t)
   (when (and (>= emacs-major-version 27) (not (eq system-type 'darwin)))
     (use-package good-scroll
