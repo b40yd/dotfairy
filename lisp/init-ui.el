@@ -66,10 +66,6 @@
   (push '(tool-bar-lines . 0)   default-frame-alist)
   (push '(vertical-scroll-bars) default-frame-alist))
 
-;; Make certain buffers grossly incandescent
-(use-package solaire-mode
-  :hook (after-load-theme . solaire-global-mode))
-
 ;; Settings for UI theme
 ;; theme:
 ;;     doom-monokai-classic
@@ -80,14 +76,22 @@
   :custom-face
   (doom-modeline-buffer-file ((t (:inherit (mode-line bold)))))
   :custom (doom-themes-treemacs-theme "doom-colors")
-  :init (dotfairy-load-theme dotfairy-theme t)
+  :init
+  ;; Global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  (dotfairy-load-theme dotfairy-theme t)
   :config
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
+  ;; Enable custom neotree theme (all-the-icons must be installed!)
+  (doom-themes-neotree-config)
   ;; Enable customized theme
   ;; FIXME https://github.com/emacs-lsp/lsp-treemacs/issues/89
   (with-eval-after-load 'lsp-treemacs
-    (doom-themes-treemacs-config)))
+    (doom-themes-treemacs-config))
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config))
 
 
 ;; Mode-line
@@ -103,6 +107,7 @@
   ;; Prevent flash of unstyled modeline at startup
   (unless after-init-time
     (setq-default mode-line-format nil)))
+
 
 (use-package minions
   :hook (doom-modeline-mode . minions-mode))
