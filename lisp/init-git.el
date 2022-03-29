@@ -106,6 +106,7 @@ kill all magit buffers for this repo."
   (when (executable-find "cc")
     (use-package forge
       :demand
+      :defines forge-topic-list-columns
       :init (setq forge-topic-list-columns
                   '(("#" 5 t (:right-align t) number nil)
                     ("Title" 60 t nil title  nil)
@@ -116,6 +117,7 @@ kill all magit buffers for this repo."
 
   (use-package magit-todos
     :bind ("C-c C-t" . ivy-magit-todos)
+    :defines magit-todos-nice
     :init
     (setq magit-todos-nice (if (executable-find "nice") t nil))
     (let ((inhibit-message t))
