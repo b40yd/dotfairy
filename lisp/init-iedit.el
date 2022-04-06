@@ -86,8 +86,13 @@
          ("<C-return>" . rect-hydra/body)
          :map prog-mode-map
          ("<C-return>" . rect-hydra/body))
-  :init (with-eval-after-load 'org
-          (bind-key "<C-M-return>" #'rect-hydra/body org-mode-map))
+  :init
+  (with-eval-after-load 'org
+    (bind-key "<C-M-return>" #'rect-hydra/body org-mode-map))
+  (with-eval-after-load 'wgrep
+    (bind-key "<C-return>" #'rect-hydra/body wgrep-mode-map))
+  (with-eval-after-load 'wdired
+    (bind-key "<C-return>" #'rect-hydra/body wdired-mode-map))
   :pretty-hydra
   ((:title (pretty-hydra-title "Rectangle" 'material "border_all" :height 1.1 :v-adjust -0.225)
     :color amaranth :body-pre (rectangle-mark-mode) :post (deactivate-mark) :quit-key ("q" "C-g"))
