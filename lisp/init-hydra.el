@@ -2,9 +2,17 @@
 ;;;
 ;;; (c) 7ym0n, https://gitlab.com/7ym0n/dotfairy
 ;;;
+(use-package hydra
+  :hook (emacs-lisp-mode . hydra-add-imenu))
 
 (use-package pretty-hydra
   :bind (("C-c c v" . toggles-hydra/body))
+  :hook (emacs-lisp-mode . (lambda ()
+                             (add-to-list
+                              'imenu-generic-expression
+                              '("Hydras"
+                                "^.*(\\(pretty-hydra-define\\) \\([a-zA-Z-]+\\)"
+                                2))))
   :init
   (with-no-warnings
     (cl-defun pretty-hydra-title (title &optional icon-type icon-name
@@ -24,7 +32,7 @@
 
     ;; Global toggles
     (pretty-hydra-define toggles-hydra (:title (pretty-hydra-title "Toggles" 'faicon "toggle-on")
-                                               :color amaranth :quit-key "q")
+                                        :color amaranth :quit-key "q")
       ("Basic"
        (("n" (if (fboundp 'display-line-numbers-mode)
                  (display-line-numbers-mode (if display-line-numbers-mode -1 1))

@@ -322,11 +322,7 @@ This is for use in `ivy-re-builders-alist'."
             (counsel-unicode-char . ivy-prescient-non-fuzzy)
             (t . ivy-prescient-re-builder))
           ivy-prescient-sort-commands
-          '(:not swiper swiper-isearch ivy-switch-buffer
-            lsp-ivy-workspace-symbol ivy-resume ivy--restore-session
-            counsel-grep counsel-git-grep counsel-rg counsel-ag
-            counsel-ack counsel-fzf counsel-pt counsel-imenu
-            counsel-yank-pop counsel-recentf counsel-buffer-or-recentf))
+          '(counsel-M-x execute-extended-command execute-extended-command-for-buffer))
 
     (ivy-prescient-mode 1)
     (setf (alist-get 'counsel-rg ivy-re-builders-alist) #'ivy--regex-plus))
