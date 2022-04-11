@@ -108,12 +108,15 @@
 
 ;; Misc
 (set-default 'cursor-type 'bar)
-(fset 'yes-or-no-p 'y-or-n-p)
-(setq-default word-wrap t)
-(setq-default truncate-lines t)
-(setq-default fill-column 120)
-(setq-default tab-width 4)
-(setq-default indent-tabs-mode nil)
+;; Misc
+(if (boundp 'use-short-answers)
+    (setq use-short-answers t)
+  (fset 'yes-or-no-p 'y-or-n-p))
+(setq-default word-wrap t
+              truncate-lines t
+              fill-column 120
+              tab-width 4
+              indent-tabs-mode nil)
 
 (setq visible-bell t
       inhibit-compacting-font-caches t  ; Don’t compact font caches during GC.
