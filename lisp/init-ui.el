@@ -108,6 +108,15 @@
   (unless after-init-time
     (setq-default mode-line-format nil)))
 
+(use-package hide-mode-line
+  :hook (((completion-list-mode
+           completion-in-region-mode
+           eshell-mode
+           shell-mode
+           term-mode
+           vterm-mode
+           pdf-annot-list-mode
+           flycheck-error-list-mode) . hide-mode-line-mode)))
 
 (use-package minions
   :hook (doom-modeline-mode . minions-mode))
@@ -264,7 +273,8 @@
         (cons (/ (- (plist-get info :parent-frame-width)
                     (plist-get info :posframe-width))
                  2)
-              (/ (plist-get info :parent-frame-height)
+              (/ (+ (plist-get info :parent-frame-height)
+                    (* 2 (plist-get info :font-height)))
                  2))))))
 
 ;; When `dotfairy-prettify-symbols-alist' is `nil' use font supported ligatures
