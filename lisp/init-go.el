@@ -44,9 +44,8 @@
   ;; Env vars
   (with-eval-after-load 'exec-path-from-shell
     (exec-path-from-shell-copy-envs '("GOPATH" "GO111MODULE" "GOPROXY"))
-    (if (executable-find "go")
-        (exec-path-from-shell-setenv "PATH" (format "%s/bin" (cdr (dotfairy-call-process "go" "env" "GOPATH"))))
-      (user-error "Unable to find `go' in `exec-path'!"))
+    (if (not (executable-find "go"))
+        (exec-path-from-shell-setenv "PATH" (format "%s/bin" (cdr (dotfairy-call-process "go" "env" "GOPATH")))))
     (exec-path-from-shell-initialize))
 
   ;; Install or update tools

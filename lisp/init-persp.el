@@ -31,8 +31,7 @@
   :diminish
   :defines (recentf-exclude ivy-ignore-buffers)
   :commands (get-current-persp persp-contain-buffer-p)
-  :hook ((after-init . persp-mode)
-         (persp-mode . persp-load-frame))
+  :hook ((after-init . persp-mode))
   :init (setq persp-keymap-prefix (kbd "C-x p")
               persp-nil-name "default"
               persp-nil-hidden t
@@ -45,21 +44,8 @@
   :config
   (setq persp-save-dir (concat dotfairy-etc-dir "workspaces/"))
   ;; Save and load frame parameters (size & position)
-  (defvar persp-frame-file (expand-file-name "persp-frame" persp-save-dir)
+  (defvar persp-frame-file (expand-file-name "persp-auto-save" persp-save-dir)
     "File of saving frame parameters.")
-
-  (defun persp-load-frame ()
-    "Load frame with the previous frame's geometry."
-    (interactive)
-    (when (and (display-graphic-p) dotfairy-restore-frame-geometry persp-mode)
-      (when (file-readable-p persp-frame-file)
-        (load persp-frame-file)
-
-        ;; Handle multiple monitors gracefully
-        (when (>= (frame-parameter nil 'left) (display-pixel-width))
-          (set-frame-parameter nil 'left 0))
-        (when (>= (frame-parameter nil 'top) (display-pixel-height))
-          (set-frame-parameter nil 'top 0)))))
 
   (with-no-warnings
     ;; Don't save if the state is not loaded
@@ -105,12 +91,11 @@
   ;; Ivy Integraticon
   (with-eval-after-load 'ivy
     (add-to-list 'ivy-ignore-buffers
-                 #'(lambda (b)
-                     (when persp-mode
-                       (let ((persp (get-current-persp)))
-                         (if persp
-                             (not (persp-contain-buffer-p b persp))
-                           nil))))))
+                 (lambda (b)
+                   (when persp-mode
+                     (if-let ((persp (get-current-persp)))
+                         (not (persp-contain-buffer-p b persp))
+                       nil)))))
 
   ;; Eshell integration
   (persp-def-buffer-save/load
