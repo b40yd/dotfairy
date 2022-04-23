@@ -73,8 +73,9 @@
   ;; Shows icons
   (use-package all-the-icons-dired
     :diminish
-    :if (icons-displayable-p)
-    :hook (dired-mode . all-the-icons-dired-mode)
+    :hook (dired-mode . (lambda ()
+                          (when (icons-displayable-p)
+                            (all-the-icons-dired-mode))))
     :config
     (with-no-warnings
       (defun my-all-the-icons-dired--refresh ()
@@ -106,7 +107,7 @@
   (use-package dired-aux :ensure nil)
   (use-package dired-x
     :ensure nil
-    :demand
+    :demand t
     :config
     (let ((cmd (cond (IS-MAC "open")
                      (IS-LINUX "xdg-open")

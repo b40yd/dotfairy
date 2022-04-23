@@ -225,10 +225,10 @@ Install the doc if it's not installed."
 (use-package xref
   :ensure nil
   :init
-  (when (and (boundp 'xref-search-program) (executable-find "rg"))
-    (setq xref-search-program 'ripgrep))
-
   (with-no-warnings
+    (when (executable-find "rg")
+      (setq xref-search-program 'ripgrep))
+
     (if (>= emacs-major-version 28)
         (setq xref-show-xrefs-function #'xref-show-definitions-completing-read
               xref-show-definitions-function #'xref-show-definitions-completing-read)

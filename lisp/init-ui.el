@@ -153,7 +153,7 @@
       :hook (prog-mode . display-line-numbers-mode)
       :init (setq display-line-numbers-width-start t))
   (use-package linum-off
-    :demand
+    :demand t
     :defines linum-format
     :hook (after-init . global-linum-mode)
     :init (setq linum-format "%4d ")

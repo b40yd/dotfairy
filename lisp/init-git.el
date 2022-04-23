@@ -105,7 +105,7 @@ kill all magit buffers for this repo."
   ;; echo "machine gitlab.com/api/v4 login $YOU_AUTH_NAME^forge password $YOU_AUTH_TOKEN" ~/.authinfo
   (when (executable-find "cc")
     (use-package forge
-      :demand
+      :demand t
       :defines forge-topic-list-columns
       :init (setq forge-topic-list-columns
                   '(("#" 5 t (:right-align t) number nil)
