@@ -194,8 +194,7 @@
 (when (>= emacs-major-version 27)
   (use-package so-long
     :ensure nil
-    :hook (after-init . global-so-long-mode)
-    :config (setq so-long-threshold 400)))
+    :hook (after-init . global-so-long-mode)))
 
 ;; File and buffer
 (defun dotfairy/revert-this-buffer ()
