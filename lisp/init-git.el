@@ -297,6 +297,27 @@ kill all magit buffers for this repo."
   :bind (:map vc-prefix-map
          ("." . browse-at-remote)))
 
+;; Display transient in child frame
+(when (childframe-workable-p)
+  (use-package transient-posframe
+    :diminish
+    :custom-face
+    (transient-posframe ((t (:inherit tooltip))))
+    (transient-posframe-border ((t (:inherit posframe-border))))
+    :hook (after-init . transient-posframe-mode)
+    :init
+    (setq transient-posframe-border-width 3
+          transient-posframe-min-height nil
+          transient-posframe-min-width 80
+          transient-posframe-poshandler 'posframe-poshandler-frame-center
+          transient-posframe-parameters '((left-fringe . 8)
+                                          (right-fringe . 8)))
+    :config
+    (with-no-warnings
+      (defun my-transient-posframe--hide ()
+        "Hide transient posframe."
+        (posframe-hide transient--buffer-name))
+      (advice-add #'transient-posframe--delete :override #'my-transient-posframe--hide))))
 
 ;; Git related modes
 (use-package git-modes)

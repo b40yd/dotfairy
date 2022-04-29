@@ -28,6 +28,7 @@
 (setq dotfairy-mail-address "user@email.com")   ; Email address
 ;; (setq dotfairy-proxy "127.0.0.1:1080")          ; Network proxy
 (setq dotfairy-quelpa-upgrade nil) ; Enable `quelpa-upgrade-p' t or nil
+;; (setq dotfairy-completion-style nil) ; Completion display style default `childframe'.
 ;; (setq dotfairy-server nil)                      ; Enable `server-mode' or not: t or nil
 (setq dotfairy-package-archives 'netease)   ; Package repo: melpa, emacs-china, netease, ustc, tencent or tuna
 ;; Color theme:

@@ -875,5 +875,24 @@ code of the process and OUTPUT is its stdout output."
                 emacs-basic-display
                 (not (display-graphic-p))))))
 
+;; Browse URL
+(defun dotfairy-webkit-browse-url (url &optional pop-buffer new-session)
+  "Browse url with webkit and switch or pop to the buffer.
+POP-BUFFER specifies whether to pop to the buffer.
+NEW-SESSION specifies whether to create a new xwidget-webkit session."
+  (interactive (progn
+                 (require 'browse-url)
+                 (browse-url-interactive-arg "xwidget-webkit URL: ")))
+  (when (and (featurep 'xwidget-internal)
+             (fboundp 'xwidget-buffer)
+             (fboundp 'xwidget-webkit-current-session))
+    (xwidget-webkit-browse-url url new-session)
+    (let ((buf (xwidget-buffer (xwidget-webkit-current-session))))
+      (when (buffer-live-p buf)
+        (and (eq buf (current-buffer)) (quit-window))
+        (if pop-buffer
+            (pop-to-buffer buf)
+          (switch-to-buffer buf))))))
+
 (provide 'init-funcs)
 ;;; init-funcs.el ends here

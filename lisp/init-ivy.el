@@ -330,8 +330,54 @@ This is for use in `ivy-re-builders-alist'."
 
   ;; Additional key bindings for Ivy
   (use-package ivy-hydra
-    :commands ivy-hydra-read-action
-    :init (setq ivy-read-action-function #'ivy-hydra-read-action))
+    :init
+    (setq ivy-read-action-function 'ivy-hydra-read-action)
+
+    (when (childframe-workable-p)
+      (setq hydra-hint-display-type 'posframe)
+
+      (with-no-warnings
+        (defun my-hydra-posframe-prettify-string (fn str)
+          (funcall fn (concat (propertize "\n" 'face '(:height 0.3))
+                              str
+                              (propertize "\n\n" 'face '(:height 0.3)))))
+        (advice-add #'hydra-posframe-show :around #'my-hydra-posframe-prettify-string)
+
+        (defun ivy-hydra-poshandler-frame-center-below (info)
+          (let (ivy-posframe-visible-p
+                (pos (posframe-poshandler-frame-center-near-bottom info)))
+            (catch 'break
+              (dolist (frame (visible-frame-list))
+                (when (string= (car (frame-parameter frame 'posframe-buffer))
+                               ivy-posframe-buffer)
+                  (setq ivy-posframe-visible-p t)
+                  (throw 'break t))))
+            (cons
+             (car pos)
+             (- (cdr pos)
+                (if ivy-posframe-visible-p
+                    (- (plist-get info :posframe-height)
+                       (plist-get hydra-posframe-show-params :internal-border-width))
+                  0)))))
+
+        (defun my-ivy-posframe-read-action-by-key (actions)
+          "Ivy-posframe's `ivy-read-action-by-key'. Use `ivy-hydra-read-action' instead."
+          (ivy-hydra-read-action actions))
+        (advice-add #'ivy-posframe-read-action-by-key
+                    :override #'my-ivy-posframe-read-action-by-key)
+
+        (defun hydra-set-posframe-show-params ()
+          "Set hydra-posframe style."
+          (setq hydra-posframe-show-params
+                `(:left-fringe 10
+                  :right-fringe 10
+                  :internal-border-width 3
+                  :internal-border-color ,(face-background 'posframe-border nil t)
+                  :background-color ,(face-background 'tooltip nil t)
+                  :lines-truncate t
+                  :poshandler ivy-hydra-poshandler-frame-center-below)))
+        (hydra-set-posframe-show-params)
+        (add-hook 'after-load-theme-hook #'hydra-set-posframe-show-params t))))
 
   ;; Ivy integration for Projectile
   (use-package counsel-projectile
@@ -440,6 +486,60 @@ This is for use in `ivy-re-builders-alist'."
   :init
   ;; For better performance
   (setq ivy-rich-parse-remote-buffer nil))
+
+;; Display completion in child frame
+(when (childframe-workable-p)
+  (use-package ivy-posframe
+    :custom-face
+    (ivy-posframe ((t (:inherit tooltip))))
+    (ivy-posframe-border ((t (:inherit posframe-border))))
+    :hook (ivy-mode . ivy-posframe-mode)
+    :init
+    (setq ivy-height 15
+          ivy-posframe-border-width 3
+          ivy-posframe-parameters '((left-fringe . 8)
+                                    (right-fringe . 8)))
+    :config
+    (with-no-warnings
+      ;; HACK: hide minibuffer with same colors
+      (defun my-ivy-posframe--minibuffer-setup (fn &rest args)
+        "Advice function of FN, `ivy--minibuffer-setup' with ARGS."
+        (if (not (display-graphic-p))
+            (apply fn args)
+          (let ((ivy-fixed-height-minibuffer nil))
+            (apply fn args))
+          (when (and ivy-posframe-hide-minibuffer
+                     (posframe-workable-p)
+                     (string-match-p "^ivy-posframe" (symbol-name ivy--display-function)))
+            (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
+              (overlay-put ov 'window (selected-window))
+              (overlay-put ov 'ivy-posframe t)
+              (overlay-put ov 'face
+                           (let* ((face (if (facep 'solaire-default-face)
+                                            'solaire-default-face
+                                          'default))
+                                  (bg-color (face-background face nil t)))
+                             `(:background ,bg-color :foreground ,bg-color
+                               :box nil :underline nil
+                               :overline nil :strike-through nil)))
+              (setq-local cursor-type nil)))))
+      (advice-add #'ivy-posframe--minibuffer-setup :override #'my-ivy-posframe--minibuffer-setup)
+
+      ;; Prettify the buffer
+      (defun my-ivy-posframe--prettify-buffer (&rest _)
+        "Add top and bottom margin to the prompt."
+        (with-current-buffer ivy-posframe-buffer
+          (goto-char (point-min))
+          (insert (propertize "\n" 'face '(:height 0.3)))
+          (goto-char (point-max))
+          (insert (propertize "\n" 'face '(:height 0.3)))))
+      (advice-add #'ivy-posframe--display :after #'my-ivy-posframe--prettify-buffer)
+
+      ;; Adjust the postion
+      (defun ivy-posframe-display-at-frame-center-near-bottom (str)
+        (ivy-posframe--display str #'posframe-poshandler-frame-center-near-bottom))
+      (setf (alist-get t ivy-posframe-display-functions-alist)
+            #'ivy-posframe-display-at-frame-center-near-bottom))))
 
 (provide 'init-ivy)
 ;;; init-ivy.el ends here
