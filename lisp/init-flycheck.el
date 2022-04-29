@@ -23,6 +23,7 @@
 ;;
 
 ;;; Code:
+(require 'init-funcs)
 
 (use-package flycheck
   :diminish

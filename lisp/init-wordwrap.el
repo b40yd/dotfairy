@@ -25,6 +25,9 @@
 ;;; Code:
 (require 'cl-lib)
 (require 'dash)
+(require 'init-const)
+(require 'init-custom)
+(require 'init-funcs)
 
 (use-package adaptive-wrap
   :commands global-word-wrap-mode

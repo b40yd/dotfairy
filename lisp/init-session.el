@@ -23,6 +23,9 @@
 ;;
 
 ;;; Code:
+(require 'init-const)
+(require 'init-custom)
+(require 'init-funcs)
 
 (defvar desktop-base-file-name)
 (defvar desktop-dirname)

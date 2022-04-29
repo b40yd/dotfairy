@@ -83,11 +83,12 @@
     (cl-pushnew `(,keyword . ,(face-foreground 'warning)) hl-todo-keyword-faces))
   (map! :localleader
         :map hl-todo-mode-map
-        "C-o" #'hl-todo-occur
-        "C-p" #'hl-todo-previous
-        "C-n" #'hl-todo-next
-        "C-o" #'hl-todo-occur
-        "C-i" #'hl-todo-insert))
+        (:prefix ("t" . "TODO")
+         "C-o" #'hl-todo-occur
+         "C-p" #'hl-todo-previous
+         "C-n" #'hl-todo-next
+         "C-o" #'hl-todo-occur
+         "C-i" #'hl-todo-insert)))
 
 ;; Highlight symbols
 (use-package symbol-overlay
@@ -110,7 +111,7 @@
             (:inherit (all-the-icons-cyan bold) :inverse-video t))))
   :config
   (map! :localleader
-    (:prefix ("ESC" . "Overlay")
+    (:prefix ("s" . "Overlay")
      "d" #'symbol-overlay-remove-all
      "m" #'symbol-overlay-put
      "n" #'symbol-overlay-jump-next

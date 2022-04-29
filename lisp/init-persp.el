@@ -47,6 +47,34 @@
   (defvar persp-frame-file (expand-file-name "persp-auto-save" persp-save-dir)
     "File of saving frame parameters.")
 
+  (defun persp-load-frame ()
+    "Load frame with the previous frame's geometry."
+    (interactive)
+    (when (and (display-graphic-p) dotfairy-restore-frame-geometry persp-mode)
+      (condition-case error
+          (progn
+            (toggle-frame-fullscreen)
+            (load persp-frame-file)
+
+            ;; NOTE: Only usable in `emacs-startup-hook' while not `window-setup-hook'.
+            (add-hook 'emacs-startup-hook
+                      (lambda ()
+                        "Adjust initial frame position."
+                        ;; Handle multiple monitors gracefully
+                        (if (or (>= (eval (frame-parameter nil 'top)) (display-pixel-height))
+                                (>= (eval (frame-parameter nil 'left)) (display-pixel-width)))
+                            (progn
+                              (set-frame-parameter nil 'top 0)
+                              (set-frame-parameter nil 'left 0))
+                          (progn
+                            (set-frame-parameter nil 'top (cdr (assq 'top initial-frame-alist)))
+                            (set-frame-parameter nil 'left (cdr (assq 'left initial-frame-alist)))))
+
+                        (set-frame-parameter nil 'width (cdr (assq 'width initial-frame-alist)))
+                        (set-frame-parameter nil 'height (cdr (assq 'height initial-frame-alist))))))
+        (error
+         (warn "persp frame: %s" (error-message-string error))))))
+
   (with-no-warnings
     ;; Don't save if the state is not loaded
     (defvar persp-state-loaded nil
