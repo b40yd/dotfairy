@@ -93,13 +93,12 @@
    :desc "Search other directory"       "D" #'+default/search-other-cwd
    :desc "Counsel grep or swiper"       "g" #'counsel-grep-or-swiper
    :desc "Counsel grep"                 "G" #'counsel-grep
-   :desc "Jump to symbol"               "i" #'imenu
    :desc "Counsel git grep"             "j" #'counsel-git-grep
-   :desc "Jump to link"                 "L" #'ffap-menu
    :desc "Jump to bookmark"             "m" #'bookmark-jump
    :desc "Search project"               "p" #'+default/search-project
    :desc "Search other project"         "P" #'+default/search-other-project
-   :desc "Counsel rg search" "r" #'counsel-rg
+   :desc "Counsel rg search"            "r" #'counsel-rg
+   :desc "rg menu"                      "R" #'rg-menu
    :desc "Search buffer"                "s" #'+default/search-buffer
    :desc "Search buffer for thing at point" "S" #'swiper-isearch-thing-at-point)
       ;;; <leader> i --- insert

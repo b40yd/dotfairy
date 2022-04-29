@@ -52,12 +52,9 @@
 ;; https://github.com/syohex/emacs-quickrun
 (use-package quickrun
   :config
-  ;; hydra for quickrun
-  ;; :bind (("C-c r" . quickrun-hydra/body))
-
   :pretty-hydra
   ((:title (pretty-hydra-title "QuickRun" 'faicon "linux")
-           :color amaranth :quit-key "q")
+    :color amaranth :quit-key "q")
    ("CMD"
     (("u" quickrun)
      ("r" quickrun-region)
