@@ -157,6 +157,8 @@
   (setq proced-auto-update-flag t
         proced-auto-update-interval 3))
 
+(use-package swift-mode) ;; swift language
+
 ;; Misc
 (use-package copyit)                    ; copy path, url, etc.
 (use-package diffview)                  ; side-by-side diff view
