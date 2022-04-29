@@ -72,13 +72,7 @@
 ;; Highlight TODO
 (use-package hl-todo
   :custom-face
-  (hl-todo ((t
-             (:inherit variable-pitch
-              :box (:line-width -1)
-              :height 0.85
-              :width condensed
-              :weight semibold
-              :underline nil :inverse-video t))))
+  (hl-todo ((t (:inherit default :height 0.9 :width condensed :weight bold :underline nil :inverse-video t))))
   :hook (after-init . global-hl-todo-mode)
   :init (setq hl-todo-require-punctuation t
               hl-todo-highlight-punctuation ":")

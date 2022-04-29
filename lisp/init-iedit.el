@@ -390,40 +390,88 @@ The return value is the new value of LIST-VAR."
   :diminish
   :hook (after-init . editorconfig-mode))
 
-;; Hideshow
-(use-package hideshow
-  :diminish hs-minor-mode
-  :bind (:map hs-minor-mode-map
-         ("C-c ~" . hs-toggle-hiding)))
-
 ;; Flexible text folding
-(use-package origami
+(use-package hideshow
+  :ensure nil
+  :diminish hs-minor-mode
   :pretty-hydra
-  ((:title (pretty-hydra-title "Origami" 'octicon "fold" :height 1.1 :v-adjust -0.05)
+  ((:title (pretty-hydra-title "HideShow" 'octicon "fold" :height 1.1 :v-adjust -0.05)
     :color amaranth :quit-key "q")
-   ("Node"
-    ((":" origami-recursively-toggle-node "toggle recursively")
-     ("a" origami-toggle-all-nodes "toggle all")
-     ("t" origami-toggle-node "toggle current")
-     ("o" origami-open-node "open current")
-     ("c" origami-close-node "close current")
-     ("s" origami-show-only-node "only show current"))
-    "Actions"
-    (("u" origami-undo "undo")
-     ("d" origami-redo "redo")
-     ("r" origami-reset "reset")
-     ("n" origami-next-fold "next fold")
-     ("p" origami-previous-fold "previous fold"))))
-  :bind (:map origami-mode-map
-         ("C-c `" . origami-hydra/body))
-  :hook (prog-mode . origami-mode)
-  :init (setq origami-show-fold-header t)
-  :config (face-spec-reset-face 'origami-fold-header-face)
-  ;; lsp-origami provides support for origami.el using language server protocol’s
-  ;; textDocument/foldingRange functionality.
-  ;; https://github.com/emacs-lsp/lsp-origami/
-  (use-package lsp-origami
-    :hook ((lsp-after-open . lsp-origami-try-enable))))
+   ("Fold"
+    (("t" hs-toggle-all "toggle all")
+     ("a" hs-show-all "show all")
+     ("i" hs-hide-all "hide all")
+     ("g" hs-toggle-hiding "toggle hiding")
+     ("c" hs-cycle "cycle block")
+     ("s" hs-show-block "show block")
+     ("h" hs-hide-block "hide block")
+     ("l" hs-hide-level "hide level"))
+    "Move"
+    (("C-a" mwim-beginning-of-code-or-line "⭰")
+     ("C-e" mwim-end-of-code-or-line "⭲")
+     ("C-b" backward-char "←")
+     ("C-n" next-line "↓")
+     ("C-p" previous-line "↑")
+     ("C-f" forward-char "→")
+     ("C-v" pager-page-down "↘")
+     ("M-v" pager-page-up "↖"))
+    ""
+    (("M-<" beginning-of-buffer "⭶")
+     ("M->" end-of-buffer "⭸"))))
+  :bind (:map hs-minor-mode-map
+         ("C-~" . hideshow-hydra/body))
+  :hook (prog-mode . hs-minor-mode)
+  :config
+  ;; More functions
+  ;; @see https://karthinks.com/software/simple-folding-with-hideshow/
+  (defun hs-cycle (&optional level)
+    (interactive "p")
+    (let (message-log-max
+          (inhibit-message t))
+      (if (= level 1)
+          (pcase last-command
+            ('hs-cycle
+             (hs-hide-level 1)
+             (setq this-command 'hs-cycle-children))
+            ('hs-cycle-children
+             (save-excursion (hs-show-block))
+             (setq this-command 'hs-cycle-subtree))
+            ('hs-cycle-subtree
+             (hs-hide-block))
+            (_
+             (if (not (hs-already-hidden-p))
+                 (hs-hide-block)
+               (hs-hide-level 1)
+               (setq this-command 'hs-cycle-children))))
+        (hs-hide-level level)
+        (setq this-command 'hs-hide-level))))
+
+  (defun hs-toggle-all ()
+    "Toggle hide/show all."
+    (interactive)
+    (pcase last-command
+      ('hs-toggle-all
+       (save-excursion (hs-show-all))
+       (setq this-command 'hs-global-show))
+      (_ (hs-hide-all))))
+
+  ;; Display line counts
+  (defun hs-display-code-line-counts (ov)
+    "Display line counts when hiding codes."
+    (when (eq 'code (overlay-get ov 'hs))
+      (overlay-put ov 'display
+                   (concat
+                    " "
+                    (propertize
+                     (if (char-displayable-p ?⏷) "⏷" "...")
+                     'face 'shadow)
+                    (propertize
+                     (format " (%d lines)"
+                             (count-lines (overlay-start ov)
+                                          (overlay-end ov)))
+                     'face '(:inherit shadow :height 0.8))
+                    " "))))
+  (setq hs-set-up-overlay #'hs-display-code-line-counts))
 
 (provide 'init-iedit)
 ;;; init-iedit.el ends here

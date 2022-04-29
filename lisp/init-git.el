@@ -107,6 +107,8 @@ kill all magit buffers for this repo."
     (use-package forge
       :demand t
       :defines forge-topic-list-columns
+      :custom-face
+      (forge-topic-label ((t (:inherit variable-pitch :height 0.9 :width condensed :weight regular :underline nil))))
       :init (setq forge-topic-list-columns
                   '(("#" 5 t (:right-align t) number nil)
                     ("Title" 60 t nil title  nil)
@@ -230,7 +232,7 @@ kill all magit buffers for this repo."
                                 :max-width (round (* (frame-width) 0.62))
                                 :max-height (round (* (frame-height) 0.62))
                                 :internal-border-width 1
-                                :internal-border-color (face-foreground 'font-lock-comment-face nil t)
+                                :internal-border-color (face-background 'posframe-border nil t)
                                 :background-color (face-background 'tooltip nil t))
                  (unwind-protect
                      (push (read-event) unread-command-events)

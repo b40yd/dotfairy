@@ -31,7 +31,6 @@
   :ensure nil
   :quelpa (ssh-manager :fetcher github :repo "7ym0n/dotfairy-ssh-manager")
   :init
-  (ssh-manager-sources)
   (setq ssh-manager-sshpass-path (expand-file-name "sshpass" dotfairy-local-dir)
         ssh-manager-sshpass-bin (concat ssh-manager-sshpass-path "/bin/sshpass")))
 
