@@ -43,7 +43,6 @@
 ;;   (doom-tomorrow-night   . doom-tomorrow-night))
 (setq dotfairy-theme 'default)
 ;; (setq dotfairy-dashboard nil)                   ; Use dashboard at startup or not: t or nil
-;; (setq dotfairy-restore-frame-geometry nil)      ; Restore the frame's geometry at startup: t or nil
 (setq dotfairy-lsp-format-on-save-ignore-modes '(c-mode c++-mode python-mode go-mode)) ; Ignore format on save for some languages
 ;; (setq dotfairy-company-prescient nil) ; Enable `company-prescient' or not. it's on Windows 10 very slow.
 ;; confirm exit emacs

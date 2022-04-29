@@ -40,6 +40,7 @@
            (eq window-system 'ns))
   (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
   (add-to-list 'default-frame-alist '(ns-appearance . dark))
+  (add-hook 'window-setup-hook #'toggle-frame-fullscreen)
   (add-hook 'after-load-theme-hook
             (lambda ()
               (let ((bg (frame-parameter nil 'background-mode)))
@@ -62,9 +63,9 @@
 ;; so these are just clutter (the scrollbar also impacts performance). Whats
 ;; more, the menu bar exposes functionality that Doom doesn't endorse.
 (unless (>= emacs-major-version 27)
-  (push '(menu-bar-lines . 0)   default-frame-alist)
-  (push '(tool-bar-lines . 0)   default-frame-alist)
-  (push '(vertical-scroll-bars) default-frame-alist))
+  (add-to-list 'default-frame-alist '(menu-bar-lines . 0))
+  (add-to-list 'default-frame-alist '(tool-bar-lines . 0) )
+  (add-to-list 'default-frame-alist '(vertical-scroll-bars)))
 
 ;; Settings for UI theme
 ;; theme:
