@@ -177,7 +177,7 @@
      :init (setq lsp-ui-sideline-ignore-duplicate t
                  lsp-ui-sideline-show-diagnostics nil
                  lsp-ui-doc-delay 0.1
-                 lsp-ui-doc-border (face-foreground 'font-lock-comment-face nil t)
+                 lsp-ui-doc-border (face-background 'posframe-border nil t)
                  lsp-ui-imenu-colors `(,(face-foreground 'font-lock-keyword-face)
                                        ,(face-foreground 'font-lock-string-face)
                                        ,(face-foreground 'font-lock-constant-face)
@@ -241,8 +241,8 @@
      ;; Reset `lsp-ui-doc-background' after loading theme
      (add-hook 'after-load-theme-hook
                (lambda ()
-                 (setq lsp-ui-doc-border (face-foreground 'font-lock-comment-face nil t))
-                 (set-face-background 'lsp-ui-doc-background (face-background 'tooltip nil t)))))
+                 (setq lsp-ui-doc-border (face-background 'posframe-border nil t)))
+               t))
 
    ;; Ivy integration
    (use-package lsp-ivy
@@ -448,6 +448,9 @@
                             (add-hook 'after-save-hook #'lsp-pyright-format-buffer t t)))
      :init (when (executable-find "python3")
              (setq lsp-pyright-python-executable-cmd "python3")))
+
+   ;; Swift
+   (use-package lsp-sourcekit)
 
    ;; Java
    (use-package lsp-java
