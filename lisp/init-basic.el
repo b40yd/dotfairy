@@ -24,6 +24,7 @@
 ;;; Code:
 (require 'init-const)
 (require 'init-custom)
+(require 'init-funcs)
 
 ;; Personal information
 (setq user-full-name dotfairy-full-name
@@ -105,7 +106,6 @@
       scroll-conservatively 100000
       auto-window-vscroll nil
       scroll-preserve-screen-position t)
-
 ;; Misc
 (set-default 'cursor-type 'bar)
 ;; Misc
