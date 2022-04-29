@@ -24,6 +24,7 @@
 (require 'init-const)
 (require 'init-custom)
 (require 'init-funcs)
+(require 'init-keybinds)
 
 ;;; Code:
 (use-package css-mode
@@ -163,8 +164,9 @@
 
 (use-package emmet-mode
   :hook ((web-mode rjsx-mode) . emmet-mode)
-  :config
-  ;; (define-key emmet-mode-keymap (kbd "<tab>") 'emmet-expand-yas)
+  :config)
+
+(after! emmet-mode
   (map! :leader
         :map emmet-mode-keymap
         "<tab>" #'emmet-expand-yas))

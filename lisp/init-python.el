@@ -25,6 +25,7 @@
 (require 'init-const)
 (require 'init-custom)
 (require 'init-funcs)
+(require 'init-keybinds)
 
 ;;; Code:
 (use-package python
@@ -85,40 +86,33 @@
     (exec-path-from-shell-copy-env "PYTHONPATH"))
 
   (use-package pyimport
-    :defer t
-    :init
-    (map! :localleader
-          :after python
-          :map python-mode-map
-          (:prefix ("i" . "imports")
-           :desc "Insert missing imports" "i" #'pyimport-insert-missing
-           :desc "Remove unused imports"  "r" #'pyimport-remove-unused
-           :desc "Optimize imports"       "o" #'+python/optimize-imports)))
+    :defer t)
 
   (use-package py-isort
-    :defer t
-    :init
-    (map! :localleader
-          :after python
-          :map python-mode-map
-          (:prefix ("i" . "imports")
-           :desc "Sort imports"      "s" #'py-isort-buffer
-           :desc "Sort region"       "r" #'py-isort-region)))
+    :defer t)
 
   (use-package python-pytest
     :custom
-    (python-pytest-confirm t)
-    :init
-    (map! :localleader
-          :after python
-          :map python-mode-map
-          (:prefix ("t" . "test")
-           "f" #'python-pytest-file-dwim
-           "F" #'python-pytest-file
-           "s" #'python-pytest-function-dwim
-           "S" #'python-pytest-function
-           "r" #'python-pytest-repeat
-           "p" #'python-pytest-dispatch))))
+    (python-pytest-confirm t)))
+
+(after! python-mode
+  (map! :localleader
+        :after python
+        :map python-mode-map
+        (:prefix ("i" . "imports")
+         :desc "Insert missing imports" "i" #'pyimport-insert-missing
+         :desc "Remove unused imports"  "r" #'pyimport-remove-unused
+         :desc "Optimize imports"       "o" #'+python/optimize-imports)
+        (:prefix ("i" . "imports")
+         :desc "Sort imports"      "s" #'py-isort-buffer
+         :desc "Sort region"       "r" #'py-isort-region)
+        (:prefix ("t" . "test")
+         "f" #'python-pytest-file-dwim
+         "F" #'python-pytest-file
+         "s" #'python-pytest-function-dwim
+         "S" #'python-pytest-function
+         "r" #'python-pytest-repeat
+         "p" #'python-pytest-dispatch)))
 
 (provide 'init-python)
 ;;; init-python.el ends here

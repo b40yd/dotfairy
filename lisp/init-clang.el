@@ -23,6 +23,10 @@
 ;;
 
 ;;; Code:
+(require 'init-const)
+(require 'init-custom)
+(require 'init-funcs)
+(require 'init-keybinds)
 
 ;; C/C++ Mode
 ;; C/C++/Objective-C support

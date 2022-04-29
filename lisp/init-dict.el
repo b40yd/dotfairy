@@ -23,6 +23,8 @@
 ;;
 
 ;;; Code:
+(require 'init-keybinds)
+
 ;; A multi dictionaries interface
 (use-package fanyi
   :init

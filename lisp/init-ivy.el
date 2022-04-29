@@ -24,6 +24,7 @@
 
 ;;; Code:
 (require 'init-funcs)
+(require 'init-keybinds)
 
 (use-package counsel
   :diminish ivy-mode counsel-mode

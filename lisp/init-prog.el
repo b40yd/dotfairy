@@ -21,9 +21,11 @@
 ;;; Commentary:
 
 ;;
+
+;;; Code:
 (require 'init-custom)
 (require 'init-const)
-;;; Code:
+(require 'init-keybinds)
 
 ;; Prettify Symbols
 ;; e.g. display “lambda” as “λ”

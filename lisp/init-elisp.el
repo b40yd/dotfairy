@@ -23,14 +23,19 @@
 ;;
 
 ;;; Code:
+(require 'init-const)
+(require 'init-custom)
+(require 'init-funcs)
+(require 'init-keybinds)
+
 ;; Emacs lisp mode
 (use-package elisp-mode
   :ensure nil
   :defines flycheck-disabled-checkers
   :bind (:map emacs-lisp-mode-map
-              ("C-c C-x" . ielm)
-              ("C-c C-c" . eval-defun)
-              ("C-c C-b" . eval-buffer))
+         ("C-c C-x" . ielm)
+         ("C-c C-c" . eval-defun)
+         ("C-c C-b" . eval-buffer))
   :hook (emacs-lisp-mode . (lambda ()
                              "Disable the checkdoc checker."
                              (setq-local flycheck-disabled-checkers
