@@ -158,7 +158,9 @@
 
 ;;;###autoload
 (defun dotfairy/restart-and-restore (&optional debug)
-  "TODO"
+  "Restart Emacs (and the daemon, if active).
+If DEBUG (the prefix arg) is given, start the new instance with the --debug
+switch."
   (interactive "P")
   (dotfairy/quicksave-session)
   (save-some-buffers nil t)
@@ -169,7 +171,6 @@
              (when (boundp 'chemacs-current-emacs-profile)
                (list "--with-profile" chemacs-current-emacs-profile))
              (list "--restore")))))
-
 
 (defun dotfairy/restore-previous-session ()
   "Restore the previous session."
