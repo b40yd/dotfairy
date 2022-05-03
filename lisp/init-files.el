@@ -117,5 +117,14 @@
   (interactive)
   (find-file user-init-file))
 
+;;;###autoload
+(defun dotfairy/remove-recent-file (file)
+  "Remove FILE from your recently-opened-files list."
+  (interactive
+   (list (completing-read "Remove recent file: " recentf-list
+                          nil t)))
+  (setq recentf-list (delete file recentf-list))
+  (recentf-save-list)
+  (message "Removed %S from `recentf-list'" (abbreviate-file-name file)))
 (provide 'init-files)
 ;;; init-files.el ends here
