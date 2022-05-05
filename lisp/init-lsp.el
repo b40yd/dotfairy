@@ -39,7 +39,7 @@
                lsp-rust-server)
 
      :hook ((prog-mode . (lambda ()
-                           (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode 'makefile-mode 'makefile-gmake-mode 'snippet-mode 'web-mode 'less-css-mode)
+                           (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode 'makefile-mode)
                              (lsp-deferred))))
             (markdown-mode . lsp-deferred)
             (lsp-mode . (lambda ()
@@ -175,14 +175,16 @@
             ([remap xref-find-references] . lsp-ui-peek-find-references))
      :hook (lsp-mode . lsp-ui-mode)
      :init
-     (setq lsp-ui-sideline-ignore-duplicate t
-           lsp-ui-sideline-show-diagnostics nil
+     (setq lsp-ui-sideline-show-diagnostics nil
+           lsp-ui-sideline-ignore-duplicate t
            lsp-ui-doc-delay 0.1
-           lsp-ui-doc-border (face-foreground 'font-lock-comment-face nil t)
            lsp-ui-imenu-colors `(,(face-foreground 'font-lock-keyword-face)
                                  ,(face-foreground 'font-lock-string-face)
                                  ,(face-foreground 'font-lock-constant-face)
                                  ,(face-foreground 'font-lock-variable-name-face)))
+     (if (facep 'posframe-border)
+         (setq lsp-ui-doc-border (face-background 'posframe-border nil t))
+       (setq lsp-ui-doc-border (face-foreground 'font-lock-comment-face nil t)))
      :config
      (with-no-warnings
        ;; Display peek in child frame if possible
@@ -237,15 +239,7 @@
                  ;; :align-to is added here too
                  (propertize " " 'display '(space :height (1)))
                  (and (not (equal after ?\n)) (propertize " \n" 'face '(:height 0.5)))))))))
-       (advice-add #'lsp-ui-doc--handle-hr-lines :override #'my-lsp-ui-doc--handle-hr-lines))
-
-     ;; Reset `lsp-ui-doc-background' after loading theme
-     (add-hook 'after-load-theme-hook
-               (lambda ()
-                 (if (childframe-workable-p)
-                     (setq lsp-ui-doc-border (face-background 'posframe-border nil t))
-                   (setq lsp-ui-doc-border (face-foreground 'font-lock-comment-face nil t))))
-               t))
+       (advice-add #'lsp-ui-doc--handle-hr-lines :override #'my-lsp-ui-doc--handle-hr-lines)))
 
    ;; Ivy integration
    (use-package lsp-ivy

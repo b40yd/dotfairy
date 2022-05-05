@@ -38,9 +38,7 @@
                                                ("map" . ?↦)
                                                (":=" . ?≔)
                                                ("string" . ?𝕊)
-                                               ("nil" . ?∅)))
-                      (add-hook 'before-save-hook #'lsp-format-buffer t t)
-                      (add-hook 'before-save-hook #'lsp-organize-imports t t))))
+                                               ("nil" . ?∅))))))
   :config
   ;; Env vars
   (with-eval-after-load 'exec-path-from-shell
