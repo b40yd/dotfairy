@@ -102,12 +102,6 @@
         counsel-grep-or-swiper counsel-grep-or-swiper-backward
         counsel-grep counsel-ack counsel-ag counsel-rg counsel-pt))
 
-    (defvar my-ivy-fly-back-commands
-      '(self-insert-command
-        ivy-forward-char ivy-delete-char delete-forward-char kill-word kill-sexp
-        end-of-line mwim-end-of-line mwim-end-of-code-or-line mwim-end-of-line-or-code
-        yank ivy-yank-word ivy-yank-char ivy-yank-symbol counsel-yank-pop))
-
     (defvar-local my-ivy-fly--travel nil)
     (defun my-ivy-fly-back-to-present ()
       (cond ((and (memq last-command my-ivy-fly-commands)
@@ -116,7 +110,10 @@
              (setq unread-command-events
                    (append unread-command-events
                            (listify-key-sequence (kbd "M-p")))))
-            ((or (memq this-command my-ivy-fly-back-commands)
+            ((or (memq this-command '(self-insert-command
+                                      ivy-forward-char ivy-delete-char delete-forward-char kill-word kill-sexp
+                                      end-of-line mwim-end-of-line mwim-end-of-code-or-line mwim-end-of-line-or-code
+                                      yank ivy-yank-word ivy-yank-char ivy-yank-symbol counsel-yank-pop))
                  (equal (this-command-keys-vector) (kbd "M-n")))
              (unless my-ivy-fly--travel
                (delete-region (point) (point-max))
@@ -130,7 +127,8 @@
                  (when (memq this-command '(ivy-delete-char
                                             delete-forward-char
                                             kill-word kill-sexp))
-                   (beginning-of-line)))))))
+                   (beginning-of-line)))
+               (setq my-ivy-fly--travel t)))))
 
     (defun my-ivy-fly-time-travel ()
       (when (memq this-command my-ivy-fly-commands)
