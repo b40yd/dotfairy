@@ -98,7 +98,7 @@
      ("g" (hot-expand "<s" "go :imports '\(\"fmt\"\)") "golang"))
     "Misc"
     (("u" (hot-expand "<s" "plantuml :file CHANGE.png") "plantuml")
-     ("Y" (hot-expand "<s" "ipython :session :exports both :results raw drawer\n$0") "ipython")
+     ("Y" (hot-expand "<s" "ipython :session :exports both :results raw drawer") "ipython")
      ("P" (progn
             (insert "#+HEADERS: :results output :exports both :shebang \"#!/usr/bin/env perl\"\n")
             (hot-expand "<s" "perl")) "Perl tangled")
@@ -620,6 +620,9 @@ prepended to the element after the #+HEADER: tag."
 
   (use-package ob-http
     :init (cl-pushnew '(http . t) load-language-list))
+
+  (use-package ob-ipython
+    :init (cl-pushnew '(ipython . t) load-language-list))
 
   ;; Use mermadi-cli: npm install -g @mermaid-js/mermaid-cli
   (use-package ob-mermaid
