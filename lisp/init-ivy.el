@@ -480,7 +480,6 @@ This is for use in `ivy-re-builders-alist'."
     [remap locate]                   #'counsel-locate
     [remap org-goto]                 #'counsel-org-goto
     [remap org-set-tags-command]     #'counsel-org-tag
-    [remap recentf-open-files]       #'counsel-recentf
     [remap set-variable]             #'counsel-set-variable
     [remap swiper]                   #'counsel-grep-or-swiper
     [remap unicode-chars-list-chars] #'counsel-unicode-char
