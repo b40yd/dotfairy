@@ -314,6 +314,7 @@
           dashboard-center-content t
           dashboard-set-file-icons t
           dashboard-set-footer t
+          dashboard-set-navigator t
           dashboard-footer-icon (cond ((icons-displayable-p)
                                        (all-the-icons-faicon "heart"
                                                              :height 1.1
@@ -321,6 +322,11 @@
                                                              :face 'error))
                                       ((char-displayable-p ?🧡) "🧡 ")
                                       (t (propertize ">" 'face 'dashboard-footer)))
+          dashboard-heading-icons '((recents   . "history")
+                                    (bookmarks . "bookmark")
+                                    (agenda    . "calendar")
+                                    (projects  . "briefcase")
+                                    (registers . "database"))
           dashboard-items '((recents . 5)
                             (projects . 5)))))
 

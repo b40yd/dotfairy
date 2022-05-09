@@ -33,6 +33,10 @@
                             (eglot-ensure))))))
 
   ('lsp-mode
+   ;; @see https://emacs-lsp.github.io/lsp-mode/page/performance
+   (setq read-process-output-max (* 1024 1024)) ;; 1MB
+   (setenv "LSP_USE_PLISTS" "true")
+
    (use-package lsp-mode
      :ensure t
      :defines (lsp-clients-python-library-directories
@@ -61,8 +65,6 @@
             ([remap xref-find-references] . lsp-find-references))
 
      :init
-     ;; @see https://emacs-lsp.github.io/lsp-mode/page/performance
-     (setq read-process-output-max (* 1024 1024)) ;; 1MB
      (setq lsp-keymap-prefix "C-c l"
            lsp-keep-workspace-alive nil
            lsp-signature-auto-activate nil
@@ -71,7 +73,7 @@
            lsp-modeline-workspace-status-enable nil
            lsp-eldoc-enable-hover nil
            lsp-signature-render-documentation nil
-
+           lsp-headerline-breadcrumb-enable nil
            lsp-clients-python-library-directories '("/usr/local/" "/usr/")
 
            lsp-enable-file-watchers nil
