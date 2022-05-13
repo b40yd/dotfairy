@@ -31,6 +31,9 @@
 (use-package company
   :defines (company-dabbrev-ignore-case company-dabbrev-downcase)
   :hook (after-init . global-company-mode)
+  :custom-face
+  (company-tooltip-annotation ((t (:inherit completions-annotations :foreground nil))))
+  (company-box-selection ((t (:inherit company-tooltip :weight semibold :extend t))))
   :bind (("C-M-i" . company-complete)
          :map company-mode-map
          ("<backtab>" . company-yasnippet)
@@ -213,7 +216,9 @@
               (company-box--maybe-move-number (or company-box--last-start 1))))
           (advice-add #'company-box--display :override #'my-company-box--display)
 
-          (setq company-box-doc-frame-parameters '((internal-border-width . 1)
+          (setq company-box-doc-frame-parameters '((vertical-scroll-bars . nil)
+                                                   (horizontal-scroll-bars . nil)
+                                                   (internal-border-width . 1)
                                                    (left-fringe . 8)
                                                    (right-fringe . 8)))
 
