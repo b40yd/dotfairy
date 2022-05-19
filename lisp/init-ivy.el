@@ -100,7 +100,7 @@
         swiper-isearch swiper-isearch-backward
         lsp-ivy-workspace-symbol lsp-ivy-global-workspace-symbol
         counsel-grep-or-swiper counsel-grep-or-swiper-backward
-        counsel-grep counsel-ack counsel-ag counsel-rg counsel-pt))
+        counsel-grep counsel-ack counsel-ag counsel-pt))
 
     (defvar-local my-ivy-fly--travel nil)
     (defun my-ivy-fly-back-to-present ()

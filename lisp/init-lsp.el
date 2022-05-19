@@ -105,7 +105,23 @@
          (and (eq major-mode 'sh-mode)
               (memq sh-shell '(sh bash zsh))))
        (advice-add #'lsp-bash-check-sh-shell :override #'my-lsp-bash-check-sh-shell)
-       )
+       ;; Only display icons in GUI
+       (defun my-lsp-icons-get-symbol-kind (fn &rest args)
+         (and (icons-displayable-p) (apply fn args)))
+       (advice-add #'lsp-icons-get-by-symbol-kind :around #'my-lsp-icons-get-symbol-kind)
+
+       (defun my-lsp-icons-get-by-file-ext (fn &rest args)
+         (and (icons-displayable-p) (apply fn args)))
+       (advice-add #'lsp-icons-get-by-file-ext :around #'my-lsp-icons-get-by-file-ext)
+
+       (defun my-lsp-icons-all-the-icons-material-icon (icon-name face fallback &optional feature)
+         (if (and (icons-displayable-p)
+                  (lsp-icons--enabled-for-feature feature))
+             (all-the-icons-material icon-name
+                                     :face face)
+           (propertize fallback 'face face)))
+       (advice-add #'lsp-icons-all-the-icons-material-icon
+                   :override #'my-lsp-icons-all-the-icons-material-icon))
 
      (defun lsp-update-server ()
        "Update LSP server."
