@@ -23,52 +23,20 @@
 ;;
 
 ;;; Code:
+(setq kill-ring-max 200)
+
+;; Save clipboard contents into kill-ring before replace them
+(setq save-interprogram-paste-before-kill t)
+
 ;; Kill & Mark things easily
-(use-package easy-kill-extras
+(use-package easy-kill
   :bind (([remap kill-ring-save] . easy-kill)
-         ([remap mark-sexp] . easy-mark-sexp)
-         ([remap mark-word] . easy-mark-word)
+         ([remap mark-sexp] . easy-mark)))
 
-         ;; Integrate `zap-to-char'
-         ([remap zap-to-char] . easy-mark-to-char)
-         ([remap zap-up-to-char] . easy-mark-up-to-char)
-
-         ;; Integrate `expand-region'
-         :map easy-kill-base-map
-         ("o" . easy-kill-er-expand)
-         ("i" . easy-kill-er-unexpand))
-  :init (setq kill-ring-max 200
-              save-interprogram-paste-before-kill t ; Save clipboard contents before replacement
-              easy-kill-alist '(
-                                (?b buffer-file-name)
-                                (?d defun          "\n\n")
-                                (?D defun-name     " ")
-                                (?e line           "\n")
-                                (?l list           "\n")
-                                (?s sexp           "\n")
-                                (?w word           " ")
-
-                                (?\' squoted-string "")
-                                (?\" dquoted-string "")
-                                (?\` bquoted-string "")
-                                (?q  quoted-string "")
-                                (?Q  quoted-string-universal "")
-                                (?\) parentheses-pair-content "\n")
-                                (?\( parentheses-pair "\n")
-                                (?\] brackets-pair-content "\n")
-                                (?\[ brackets-pair "\n")
-                                (?}  curlies-pair-content "\n")
-                                (?{  curlies-pair "\n")
-
-                                (?^ backward-line-edge "")
-                                (?$ forward-line-edge "")
-                                (?h buffer "")
-                                (?< buffer-before-point "")
-                                (?> buffer-after-point "")
-                                (?f string-to-char-forward "")
-                                (?F string-up-to-char-forward "")
-                                (?t string-to-char-backward "")
-                                (?T string-up-to-char-backward ""))))
+;; Interactively insert and edit items from kill-ring
+(use-package browse-kill-ring
+  :bind ("C-c k" . browse-kill-ring)
+  :hook (after-init . browse-kill-ring-default-keybindings))
 
 (provide 'init-kill-ring)
 ;;; init-kill-ring.el ends here
