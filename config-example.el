@@ -30,7 +30,7 @@
 (setq dotfairy-quelpa-upgrade nil) ; Enable `quelpa-upgrade-p' t or nil
 ;; (setq dotfairy-completion-style 'childframe) ; Completion display style default `childframe', or set `minibuffer'.
 ;; (setq dotfairy-server nil)                      ; Enable `server-mode' or not: t or nil
-(setq dotfairy-package-archives 'netease)   ; Package repo: melpa, emacs-china, netease, ustc, tencent or tuna
+(setq dotfairy-package-archives 'netease)   ; Package repo: melpa, emacs-china, netease, ustc or tuna
 ;; Color theme:
 ;; dotfairy-theme-list
 ;; '((default . doom-one)

@@ -115,9 +115,6 @@ If Non-nil, use dashboard, otherwise will restore previous session."
       ,(cons 'ustc
              `(,(cons "gnu"   (concat proto "://mirrors.ustc.edu.cn/elpa/gnu/"))
                ,(cons "melpa" (concat proto "://mirrors.ustc.edu.cn/elpa/melpa/"))))
-      ,(cons 'tencent
-             `(,(cons "gnu"   (concat proto "://mirrors.cloud.tencent.com/elpa/gnu/"))
-               ,(cons "melpa" (concat proto "://mirrors.cloud.tencent.com/elpa/melpa/"))))
       ,(cons 'tuna
              `(,(cons "gnu"   (concat proto "://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/"))
                ,(cons "melpa" (concat proto "://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/"))))))

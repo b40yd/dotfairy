@@ -280,7 +280,7 @@
          (push 'lsp-treemacs-java-deps-mode aw-ignored-buffers)))
 
      (with-no-warnings
-       (when (require 'all-the-icons nil t)
+       (when (icons-displayable-p)
          (treemacs-create-theme "dotfairy-colors"
            :extends "doom-colors"
            :config
