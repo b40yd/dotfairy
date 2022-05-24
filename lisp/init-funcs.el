@@ -186,7 +186,7 @@ in some cases."
 (defun icons-displayable-p ()
   "Return non-nil if `all-the-icons' is displayable."
   (and display-icon
-       (display-graphic-p)
+       (or (display-graphic-p) (daemonp))
        (featurep 'all-the-icons)))
 
 (defun make-custom-directory()
@@ -928,11 +928,11 @@ code of the process and OUTPUT is its stdout output."
 
 (defun childframe-workable-p ()
   "Test whether childframe is workable."
-  (and (>= emacs-major-version 26)
-       (eq dotfairy-completion-style 'childframe)
-       (not (or noninteractive
-                emacs-basic-display
-                (not (display-graphic-p))))))
+  (and (eq dotfairy-completion-style 'childframe)
+       (or (not (or noninteractive
+                    emacs-basic-display
+                    (not (display-graphic-p))))
+           (daemonp))))
 
 ;; Browse URL
 (defun dotfairy-webkit-browse-url (url &optional pop-buffer new-session)

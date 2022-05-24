@@ -39,24 +39,23 @@
 (require 'init-indent-yank)
 (require 'init-wordwrap)
 
+;; Complete
+(require 'init-ivy)
+(require 'init-company)
+(require 'init-yasnippet)
+(require 'init-autoinsert)
+
 ;; Project
 (require 'init-projectile)
 (require 'init-ibuffer)
 (require 'init-windows)
 (require 'init-persp)
-(require 'init-calendar)
 
 ;;checking
 (require 'init-flycheck)
 
-;; Complete
-(require 'init-company)
-(require 'init-ivy)
-(require 'init-autoinsert)
-(require 'init-tags)
-(require 'init-lsp)
-
 ;; Tools
+(require 'init-lsp)
 (require 'init-git)
 (require 'init-eshell)
 (require 'init-dired)
@@ -66,8 +65,10 @@
 (require 'init-ssh)
 (require 'init-dict)
 (require 'init-pass)
+(require 'init-calendar)
 
 ;; Language
+(require 'init-tags)
 (require 'init-elisp)
 (require 'init-clang)
 (require 'init-go)
