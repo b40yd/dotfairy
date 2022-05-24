@@ -48,36 +48,38 @@
 ;; (setq dotfairy-company-prescient nil) ; Enable `company-prescient' or not. it's on Windows 10 very slow.
 ;; confirm exit emacs
 (setq confirm-kill-emacs 'y-or-n-p)
+(setq ssh-manager-sessions '()) ;Add SSH connect sessions
 
 ;; Fonts
-(defun dotfairy-set-fonts ()
-  ;; Set default font
-  (cl-loop for font in '("Source Code Pro" "SF Mono" "Hack" "Fira Code"
-                         "Menlo" "Monaco" "DejaVu Sans Mono" "Consolas")
-           when (font-installed-p font)
-           return (set-face-attribute 'default nil
-                                      :font font
-                                      :height (cond (IS-MAC 180)
-                                                    (IS-WINDOWS 110)
-                                                    (t 130))))
-
-  ;; Specify font for all unicode characters
-  (cl-loop for font in '("PowerlineSymbols" "Apple Color Emoji" "Segoe UI Symbol" "Symbola" "Symbol")
-           when (font-installed-p font)
-           return(set-fontset-font t 'unicode font nil 'prepend))
-
-  ;; Specify font for Chinese characters
-  (cl-loop for font in '("WenQuanYi Zen Hei Mono" "WenQuanYi Micro Hei" "Microsoft Yahei")
-           when (font-installed-p font)
-           return (set-fontset-font t '(#x4e00 . #x9fff) font)))
-
-(if (daemonp)
-    (add-hook 'after-make-frame-functions
-              (lambda (frame)
-                (select-frame frame)
-                (dotfairy-set-fonts)))
+(defun dotfairy-setup-fonts ()
+  "Setup fonts."
   (when (display-graphic-p)
-    (dotfairy-set-fonts)))
+    ;; Set default font
+    (cl-loop for font in '("SF Mono" "Hack" "Source Code Pro" "Fira Code"
+                           "Menlo" "Monaco" "DejaVu Sans Mono" "Consolas")
+             when (font-installed-p font)
+             return (set-face-attribute 'default nil
+                                        :font font
+                                        :height (cond (IS-MAC 180)
+                                                      (IS-WINDOWS 110)
+                                                      (t 130))))
+
+    ;; Specify font for all unicode characters
+    (cl-loop for font in '("PowerlineSymbols" "Apple Color Emoji" "Segoe UI Symbol" "Symbola" "Symbol")
+             when (font-installed-p font)
+             return (set-fontset-font t 'unicode font nil 'prepend))
+
+    ;; Emoji
+    ;; (cl-loop for font in '("Noto Color Emoji" "Apple Color Emoji")
+    ;;          when (font-installed-p font)
+    ;;          return (set-fontset-font t 'emoji `(,font . "iso10646-1") nil 'prepend))
+
+    ;; Specify font for Chinese characters
+    (cl-loop for font in '("WenQuanYi Zen Hei Mono" "WenQuanYi Micro Hei" "Microsoft Yahei")
+             when (font-installed-p font)
+             return (set-fontset-font t '(#x4e00 . #x9fff) font))))
+(dotfairy-setup-fonts)
+(add-hook 'server-after-make-frame-hook #'dotfairy-setup-fonts)
 
 ;; default workspace
 (setq default-directory "~/")
