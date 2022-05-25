@@ -365,7 +365,7 @@ The return value is the new value of LIST-VAR."
 (use-package dumb-jump
   :pretty-hydra
   ((:title (pretty-hydra-title "Dump Jump" 'faicon "anchor")
-           :color blue :quit-key "q")
+    :color blue :quit-key "q")
    ("Jump"
     (("j" dumb-jump-go "Go")
      ("o" dumb-jump-go-other-window "Go other window")
@@ -384,7 +384,10 @@ The return value is the new value of LIST-VAR."
   :init
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
   (setq dumb-jump-prefer-searcher 'rg
-        dumb-jump-selector 'ivy))
+        dumb-jump-selector
+        (cond ((featurep 'ivy)  'ivy)
+              ((featurep 'helm) 'helm)
+              ('popup))))
 
 (use-package editorconfig
   :diminish

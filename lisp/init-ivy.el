@@ -444,7 +444,40 @@ This is for use in `ivy-re-builders-alist'."
   ;; Ivy integration for Projectile
   (use-package counsel-projectile
     :hook (counsel-mode . counsel-projectile-mode)
-    :init (setq counsel-projectile-grep-initial-input '(ivy-thing-at-point))
+    :init
+    (defun +ivy/projectile-find-file ()
+      "A more sensible `counsel-projectile-find-file', which will revert to
+`counsel-find-file' if invoked from $HOME or /, `counsel-file-jump' if invoked
+from a non-project, `projectile-find-file' if in a big project (more than
+`ivy-sort-max-size' files), or `counsel-projectile-find-file' otherwise.
+The point of this is to avoid Emacs locking up indexing massive file trees."
+      (interactive)
+      ;; Spoof the command so that ivy/counsel will display the (well fleshed-out)
+      ;; actions list for `counsel-find-file' on C-o. The actions list for the other
+      ;; commands aren't as well configured or are empty.
+      (let ((this-command 'counsel-find-file))
+        (call-interactively
+         (cond ((or (file-equal-p default-directory "~")
+                    (file-equal-p default-directory "/")
+                    (when-let (proot (dotfairy-project-root))
+                      (file-equal-p proot "~")))
+                #'counsel-find-file)
+
+               ((dotfairy-project-p)
+                (let ((files (projectile-current-project-files)))
+                  (if (<= (length files) ivy-sort-max-size)
+                      #'counsel-projectile-find-file
+                    #'projectile-find-file)))
+
+               (#'counsel-file-jump)))))
+    (define-key!
+      [remap projectile-find-file]        #'+ivy/projectile-find-file
+      [remap projectile-find-dir]         #'counsel-projectile-find-dir
+      [remap projectile-switch-to-buffer] #'counsel-projectile-switch-to-buffer
+      [remap projectile-grep]             #'counsel-projectile-grep
+      [remap projectile-ag]               #'counsel-projectile-ag
+      [remap projectile-switch-project]   #'counsel-projectile-switch-project)
+    (setq counsel-projectile-grep-initial-input '(ivy-thing-at-point))
     :config
     ;; no highlighting visited files; slows down the filtering
     (ivy-set-display-transformer #'counsel-projectile-find-file nil)

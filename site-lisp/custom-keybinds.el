@@ -127,7 +127,7 @@
    :desc "Add directory to project"        "a" #'dotfairy/add-directory-as-project
    :desc "Remove blacklist from workspace" "r" #'lsp-workspace-blacklist-remove
    :desc "Restart current workspace"       "R" #'lsp-workspace-restart
-   :desc "Find file in current project"    "f" #'+default/projectile-find-file
+   :desc "Find file in current project"    "f" #'projectile-find-file
    :desc "Find file in other project"      "F" #'dotfairy/find-file-in-other-project
    :desc "Add to workspace"                "i" #'lsp-workspace-folders-add
    :desc "Kill project buffers"            "k" #'dotfairy/kill-project-buffers
