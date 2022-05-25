@@ -211,9 +211,9 @@
       "Toggle `counsel-rg' and `swiper'/`swiper-isearch' with the current input."
       (interactive)
       (ivy-quit-and-run
-        (if (memq (ivy-state-caller ivy-last) '(swiper swiper-isearch))
-            (my-ivy-switch-to-counsel-rg)
-          (my-ivy-switch-to-swiper-isearch))))
+       (if (memq (ivy-state-caller ivy-last) '(swiper swiper-isearch))
+           (my-ivy-switch-to-counsel-rg)
+         (my-ivy-switch-to-swiper-isearch))))
     (bind-key "<C-return>" #'my-swiper-toggle-counsel-rg swiper-map)
     (bind-key "<C-return>" #'my-swiper-toggle-counsel-rg counsel-ag-map)
 
@@ -222,7 +222,7 @@
         "Toggle `rg-dwim' with the current input."
         (interactive)
         (ivy-quit-and-run
-          (rg-dwim default-directory)))
+         (rg-dwim default-directory)))
       (bind-key "<M-return>" #'my-swiper-toggle-rg-dwim swiper-map)
       (bind-key "<M-return>" #'my-swiper-toggle-rg-dwim counsel-ag-map))
 
@@ -230,16 +230,16 @@
       "Toggle `swiper' and `swiper-isearch' with the current input."
       (interactive)
       (ivy-quit-and-run
-        (if (eq (ivy-state-caller ivy-last) 'swiper-isearch)
-            (swiper ivy-text)
-          (swiper-isearch ivy-text))))
+       (if (eq (ivy-state-caller ivy-last) 'swiper-isearch)
+           (swiper ivy-text)
+         (swiper-isearch ivy-text))))
     (bind-key "<s-return>" #'my-swiper-toggle-swiper-isearch swiper-map)
 
     (defun my-counsel-find-file-toggle-fzf ()
       "Toggle `counsel-fzf' with the current `counsel-find-file' input."
       (interactive)
       (ivy-quit-and-run
-        (counsel-fzf (or ivy-text "") default-directory)))
+       (counsel-fzf (or ivy-text "") default-directory)))
     (bind-key "<C-return>" #'my-counsel-find-file-toggle-fzf counsel-find-file-map)
 
     (defun my-counsel-toggle ()
@@ -353,7 +353,11 @@
   (use-package ivy-prescient
     :commands ivy-prescient-re-builder
     :custom-face
-    (ivy-minibuffer-match-face-1 ((t (:inherit font-lock-doc-face :foreground nil))))
+    (ivy-current-match ((t (:inherit hl-line :distant-foreground nil :background nil))))
+    (ivy-minibuffer-match-face-1 ((t (:distant-foreground nil :background nil))))
+    (ivy-minibuffer-match-face-2 ((t (:distant-foreground nil :background nil))))
+    (ivy-minibuffer-match-face-3 ((t (:distant-foreground nil :background nil))))
+    (ivy-minibuffer-match-face-4 ((t (:distant-foreground nil :background nil))))
     :config
     ;; NOTE prescient config duplicated with `company'
     (setq prescient-save-file (concat dotfairy-cache-dir "prescient-save.el"))
