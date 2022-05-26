@@ -187,7 +187,8 @@ in some cases."
   "Return non-nil if `all-the-icons' is displayable."
   (and display-icon
        (or (display-graphic-p) (daemonp))
-       (featurep 'all-the-icons)))
+       (or (featurep 'all-the-icons)
+           (require 'all-the-icons nil t))))
 
 (defun make-custom-directory()
   "Create custom directory."
