@@ -613,33 +613,55 @@ If prefix ARG is set, prompt for a directory to search from."
 ;;;###autoload
 (defun +default/search-buffer ()
   "Conduct a text search on the current buffer.
-If a selection is active, pre-fill the prompt with it."
+If a selection is active and multi-line, perform a search restricted to that
+region.
+If a selection is active and not multi-line, use the selection as the initial
+input and search the whole buffer for it."
   (interactive)
-  (call-interactively
-   (if (region-active-p)
-       #'swiper-isearch-thing-at-point
-     #'swiper-isearch)))
+  (let (start end multiline-p)
+    (save-restriction
+      (when (region-active-p)
+        (setq start (region-beginning)
+              end   (region-end)
+              multiline-p (/= (line-number-at-pos start)
+                              (line-number-at-pos end)))
+        (deactivate-mark)
+        (when multiline-p
+          (narrow-to-region start end)))
+      (cond ((bound-and-true-p ivy-mode)
+             (call-interactively
+              (if (and start end (not multiline-p))
+                  #'swiper-isearch-thing-at-point
+                #'swiper-isearch)))
+            ((bound-and-true-p vertico-mode)
+             (if (and start end (not multiline-p))
+                 (consult-line
+                  (replace-regexp-in-string
+                   " " "\\\\ "
+                   (rxt-quote-pcre
+                    (buffer-substring-no-properties start end))))
+               (call-interactively #'consult-line)))))))
 
 ;;;###autoload
 (defun +default/search-project (&optional arg)
-"Conduct a text search in the current project root.
+  "Conduct a text search in the current project root.
 If prefix ARG is set, include ignored/hidden files."
-(interactive "P")
-(let* ((projectile-project-root nil)
-       (disabled-command-function nil)
-       (current-prefix-arg (unless (eq arg 'other) arg))
-       (default-directory
-         (if (eq arg 'other)
-             (if-let (projects (projectile-relevant-known-projects))
-                 (completing-read "Search project: " projects nil t)
-               (user-error "There are no known projects"))
-           default-directory)))
-  (call-interactively
-   (cond ((bound-and-true-p ivy-mode)
-          #'+ivy/project-search)
-         ((bound-and-true-p vertico-mode)
-          #'+vertico/project-search)
-         (#'projectile-ripgrep)))))
+  (interactive "P")
+  (let* ((projectile-project-root nil)
+         (disabled-command-function nil)
+         (current-prefix-arg (unless (eq arg 'other) arg))
+         (default-directory
+           (if (eq arg 'other)
+               (if-let (projects (projectile-relevant-known-projects))
+                   (completing-read "Search project: " projects nil t)
+                 (user-error "There are no known projects"))
+             default-directory)))
+    (call-interactively
+     (cond ((bound-and-true-p ivy-mode)
+            #'+ivy/project-search)
+           ((bound-and-true-p vertico-mode)
+            #'+vertico/project-search)
+           (#'projectile-ripgrep)))))
 
 ;;;###autoload
 (defun +default/search-other-project ()
