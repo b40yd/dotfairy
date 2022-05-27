@@ -29,6 +29,10 @@
 (defvar projectile-project-root nil)
 (defvar projectile-enable-caching)
 (defvar projectile-require-project-root)
+(defvar dotfairy-projectile-fd-binary
+  (cl-find-if #'executable-find (list "fdfind" "fd"))
+  "The filename of the `fd' executable. On some distros it's 'fdfind' (ubuntu,
+debian, and derivatives). On most it's 'fd'.")
 
 (use-package projectile
   :hook (after-init . projectile-mode)

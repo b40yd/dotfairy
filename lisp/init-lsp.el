@@ -576,8 +576,7 @@
     :custom-face
     (company-tooltip-annotation ((t (:inherit completions-annotations :foreground nil))))
     (company-box-selection ((t (:inherit company-tooltip :weight semibold :extend t))))
-    :bind (("M-/" . company-complete)
-           ("C-M-i" . company-complete)
+    :bind (("C-M-i" . company-complete)
            :map company-mode-map
            ("<backtab>" . company-yasnippet)
            :map company-active-map

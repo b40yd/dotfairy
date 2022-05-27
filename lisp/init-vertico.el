@@ -1,4 +1,4 @@
-;;; init-vertico.el ---                                   -*- lexical-binding: t; -*-
+;;; init-vertico.el --                                 -*- lexical-binding: t; -*-
 
 ;; Copyright © 2022, 7ym0n, all rights reserved.
 
@@ -36,19 +36,19 @@ overrides `completion-styles' during company completion sessions.")
 (defvar +vertico-consult-fd-args nil
   "Shell command and arguments the vertico module uses for fd.")
 
-(defvar dotfairy-projectile-fd-binary
-  (cl-find-if #'executable-find (list "fdfind" "fd"))
-  "The filename of the `fd' executable. On some distros it's 'fdfind' (ubuntu,
-debian, and derivatives). On most it's 'fd'.")
-;;;###autoload
-(defvar embark-quit-after-action)
-
-;;
-;;; Packages
-
 (use-package vertico
   :hook (after-init . vertico-mode)
+  :commands (+vertico/embark-preview)
+  :bind (("s-SPC" . #'+vertico/embark-preview))
   :config
+  (defun +vertico/embark-preview ()
+    "Previews candidate in vertico buffer, unless it's a consult command"
+    (interactive)
+    (unless (bound-and-true-p consult--preview-function)
+      (save-selected-window
+        (let ((embark-quit-after-action nil))
+          (embark-dwim)))))
+
   (setq vertico-resize nil
         vertico-count 17
         vertico-cycle t
@@ -62,8 +62,13 @@ debian, and derivatives). On most it's 'fd'.")
   ;; cleans ~/foo/bar/// to /, and ~/foo/bar/~/ to ~/.
   (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy)
   (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
-  (map! :map vertico-map "DEL" #'vertico-directory-delete-char))
-
+  (map! :map vertico-map "DEl" #'vertico-directory-delete-char)
+  ;; These commands are problematic and automatically show the *Completions* buffer
+  (advice-add #'tmm-add-prompt :after #'minibuffer-hide-completions)
+  (defadvice! +vertico--suppress-completion-help-a (fn &rest args)
+    :around #'ffap-menu-ask
+    (letf! ((#'minibuffer-completion-help #'ignore))
+      (apply fn args))))
 
 (use-package orderless
   :config
@@ -79,7 +84,7 @@ orderless."
     (cond
      ;; Ensure $ works with Consult commands, which add disambiguation suffixes
      ((string-suffix-p "$" pattern)
-      `(orderless-regexp . ,(concat (substring pattern 0 -1) "[\x100000-\x10FFFD]*$")))
+      `(orderless-regexp . ,(concat (substring pattern 0 -1) "[\x200000-\x300000]*$")))
      ;; Ignore single !
      ((string= "!" pattern) `(orderless-literal . ""))
      ;; Without literal
@@ -96,17 +101,27 @@ orderless."
      ;; Flex matching
      ((string-prefix-p "~" pattern) `(orderless-flex . ,(substring pattern 1)))
      ((string-suffix-p "~" pattern) `(orderless-flex . ,(substring pattern 0 -1)))))
+
+
+  (defun +vertico-basic-remote-try-completion (string table pred point)
+    (and (vertico--remote-p string)
+         (completion-basic-try-completion string table pred point)))
+
+
+
+  (defun +vertico-basic-remote-all-completions (string table pred point)
+    (and (vertico--remote-p string)
+         (completion-basic-all-completions string table pred point)))
   (add-to-list
    'completion-styles-alist
-   '(+vertico-basic-remote
-     +vertico-basic-remote-try-completion
+   '(+vertico-basic-remote-try-completion
      +vertico-basic-remote-all-completions
      "Use basic completion on remote files only"))
-  (setq completion-styles '(orderless)
+  (setq completion-styles '(orderless basic)
         completion-category-defaults nil
         ;; note that despite override in the name orderless can still be used in
         ;; find-file etc.
-        completion-category-overrides '((file (styles +vertico-basic-remote orderless partial-completion)))
+        completion-category-overrides '((file (styles orderless partial-completion)))
         orderless-style-dispatchers '(+vertico-orderless-dispatch)
         orderless-component-separator "[ &]")
   ;; ...otherwise find-file gets different highlighting than other commands
@@ -114,8 +129,149 @@ orderless."
 
 (use-package consult
   :defer t
+  :commands (+vertico/jump-list +vertico/switch-workspace-buffer +vertico/embark-open-in-new-workspace)
   :bind (("C-s" . consult-line))
   :init
+  (if IS-WINDOWS
+      (progn
+        (add-to-list 'process-coding-system-alist '("es" gbk . gbk))
+        (add-to-list 'process-coding-system-alist '("explorer" gbk . gbk))
+        (setq consult-locate-args (encode-coding-string "es.exe -i -p -r" 'gbk))))
+
+
+  (defun +vertico/jump-list (jump)
+    "Go to an entry in evil's (or better-jumper's) jumplist."
+    (interactive
+     (let (buffers)
+       (require 'consult)
+       (unwind-protect
+           (list
+            (consult--read
+             ;; REVIEW Refactor me
+             (nreverse
+              (delete-dups
+               (delq
+                nil (mapcar
+                     (lambda (mark)
+                       (when mark
+                         (cl-destructuring-bind (path pt _id) mark
+                           (let* ((visiting (find-buffer-visiting path))
+                                  (buf (or visiting (find-file-noselect path t)))
+                                  (dir default-directory))
+                             (unless visiting
+                               (push buf buffers))
+                             (with-current-buffer buf
+                               (goto-char pt)
+                               (font-lock-fontify-region
+                                (line-beginning-position) (line-end-position))
+                               (format "%s:%d: %s"
+                                       (car (cl-sort (list (abbreviate-file-name (buffer-file-name buf))
+                                                           (file-relative-name (buffer-file-name buf) dir))
+                                                     #'< :key #'length))
+                                       (line-number-at-pos)
+                                       (string-trim-right (or (thing-at-point 'line) ""))))))))
+                     (cddr (better-jumper-jump-list-struct-ring
+                            (better-jumper-get-jumps (better-jumper--get-current-context))))))))
+             :prompt "jumplist: "
+             :sort nil
+             :require-match t
+             :category 'jump-list))
+         (mapc #'kill-buffer buffers))))
+    (if (not (string-match "^\\([^:]+\\):\\([0-9]+\\): " jump))
+        (user-error "No match")
+      (let ((file (match-string-no-properties 1 jump))
+            (line (match-string-no-properties 2 jump)))
+        (find-file file)
+        (goto-char (point-min))
+        (forward-line (string-to-number line)))))
+  (defun +vertico--workspace-buffer-state ()
+    (let ((preview
+           ;; Only preview in current window and other window.
+           ;; Preview in frames and tabs is not possible since these don't get cleaned up.
+           (if (memq consult--buffer-display
+                     '(switch-to-buffer switch-to-buffer-other-window))
+               (let ((orig-buf (current-buffer))
+                     other-win
+                     cleanup-buffers)
+                 (lambda (action cand)
+                   (when (eq action 'preview)
+                     (when (and (eq consult--buffer-display #'switch-to-buffer-other-window)
+                                (not other-win))
+                       (switch-to-buffer-other-window orig-buf)
+                       (setq other-win (selected-window)))
+                     (let ((win (or other-win (selected-window))))
+                       (when (window-live-p win)
+                         (with-selected-window win
+                           (cond
+                            ((and cand (get-buffer cand))
+                             (unless (+workspace-contains-buffer-p cand)
+                               (cl-pushnew cand cleanup-buffers))
+                             (switch-to-buffer cand 'norecord))
+                            ((buffer-live-p orig-buf)
+                             (switch-to-buffer orig-buf 'norecord)
+                             (mapc #'persp-remove-buffer cleanup-buffers)))))))))
+             #'ignore)))
+      (lambda (action cand)
+        (funcall preview action cand))))
+
+  (defun +vertico--workspace-generate-sources ()
+    "Generate list of consult buffer sources for all workspaces"
+    (let* ((active-workspace (+workspace-current-name))
+           (workspaces (+workspace-list-names))
+           (key-range (append (cl-loop for i from ?1 to ?9 collect i)
+                              (cl-loop for i from ?a to ?z collect i)
+                              (cl-loop for i from ?A to ?Z collect i)))
+           (last-i (length workspaces))
+           (i 0))
+      (mapcar (lambda (name)
+                (cl-incf i)
+                `(:name     ,name
+                  :hidden   ,(not (string= active-workspace name))
+                  :narrow   ,(nth (1- i) key-range)
+                  :category buffer
+                  :state    +vertico--workspace-buffer-state
+                  :items    ,(lambda ()
+                               (consult--buffer-query
+                                :sort 'visibility
+                                :as #'buffer-name
+                                :predicate
+                                (lambda (buf)
+                                  (when-let (workspace (+workspace-get name t))
+                                    (+workspace-contains-buffer-p buf workspace)))))))
+              (+workspace-list-names))))
+
+  (autoload 'consult--multi "consult")
+
+
+  (defun +vertico/switch-workspace-buffer (&optional force-same-workspace)
+    "Switch to another buffer in the same workspace.
+Type the workspace's number (starting from 1) followed by a space to display its
+buffer list. Selecting a buffer in another workspace will switch to that
+workspace instead. If FORCE-SAME-WORKSPACE (the prefix arg) is non-nil, that
+buffer will be opened in the current workspace instead."
+    (interactive "P")
+    (when-let (buffer (consult--multi (+vertico--workspace-generate-sources)
+                                      :require-match
+                                      (confirm-nonexistent-file-or-buffer)
+                                      :prompt (format "Switch to buffer (%s): "
+                                                      (+workspace-current-name))
+                                      :history 'consult--buffer-history
+                                      :sort nil))
+      (let ((origin-workspace (plist-get (cdr buffer) :name)))
+        ;; Switch to the workspace the buffer belongs to, maybe
+        (if (or (equal origin-workspace (+workspace-current-name))
+                force-same-workspace)
+            (funcall consult--buffer-display (car buffer))
+          (+workspace-switch origin-workspace)
+          (message "Switched to %S workspace" origin-workspace)
+          (if-let (window (get-buffer-window (car buffer)))
+              (select-window window)
+            (funcall consult--buffer-display (car buffer)))))))
+  (defun +vertico/embark-open-in-new-workspace (x)
+    "Open X (a file) in a new workspace."
+    (interactive)
+    (+workspace/new)
+    (find-file x))
   (define-key!
     [remap apropos]                       #'consult-apropos
     [remap bookmark-jump]                 #'consult-bookmark
@@ -133,7 +289,6 @@ orderless."
     [remap switch-to-buffer-other-frame]  #'consult-buffer-other-frame
     [remap yank-pop]                      #'consult-yank-pop
     [remap persp-switch-to-buffer]        #'+vertico/switch-workspace-buffer)
-  (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
   (advice-add #'multi-occur :override #'consult-multi-occur)
   :config
   (defadvice! +vertico--consult-recent-file-a (&rest _args)
@@ -147,9 +302,7 @@ orderless."
         consult-async-min-input 2
         consult-async-refresh-delay  0.15
         consult-async-input-throttle 0.2
-        consult-async-input-debounce 0.1
-        xref-show-xrefs-function       #'consult-xref
-        xref-show-definitions-function #'consult-xref)
+        consult-async-input-debounce 0.1)
   (unless +vertico-consult-fd-args
     (setq +vertico-consult-fd-args
           (if dotfairy-projectile-fd-binary
@@ -166,78 +319,80 @@ orderless."
    +default/search-cwd +default/search-other-cwd
    +default/search-notes-for-symbol-at-point
    consult--source-recent-file consult--source-project-recent-file consult--source-bookmark
-   :preview-key (kbd "C-x SPC"))
+   :preview-key (kbd "C-SPC"))
   (consult-customize
    consult-theme
-   :preview-key (list (kbd "C-x SPC") :debounce 0.5 'any))
-  (after! org
+   :preview-key (list (kbd "C-SPC") :debounce 0.5 'any))
+  (when (featurep 'org)
     (defvar +vertico--consult-org-source
-      `(:name     "Org"
-        :narrow   ?o
-        :hidden t
-        :category buffer
-        :state    ,#'consult--buffer-state
-        :items    ,(lambda () (mapcar #'buffer-name (org-buffer-list)))))
-    (add-to-list 'consult-buffer-sources '+vertico--consult-org-source 'append))
-  (map! :map consult-crm-map
-        :desc "Select candidate" [tab] #'+vertico/crm-select
-        :desc "Select candidate and keep input" [backtab] #'+vertico/crm-select-keep-input
-        :desc "Enter candidates" "RET" #'+vertico/crm-exit))
-
+      (list :name     "Org Buffer"
+            :category 'buffer
+            :narrow   ?o
+            :hidden   t
+            :face     'consult-buffer
+            :history  'buffer-name-history
+            :state    #'consult--buffer-state
+            :new
+            (lambda (name)
+              (with-current-buffer (get-buffer-create name)
+                (insert "#+title: " name "\n\n")
+                (org-mode)
+                (consult--buffer-action (current-buffer))))
+            :items
+            (lambda ()
+              (mapcar #'buffer-name
+                      (if (featurep 'org)
+                          (org-buffer-list)
+                        (seq-filter
+                         (lambda (x)
+                           (eq (buffer-local-value 'major-mode x) 'org-mode))
+                         (buffer-list)))))))
+    (add-to-list 'consult-buffer-sources '+vertico--consult-org-source 'append)))
 
 (use-package consult-dir
   :bind (([remap list-directory] . consult-dir)
          :map vertico-map
-         ("C-x C-d" . consult-dir)
-         ("C-x C-j" . consult-dir-jump-file)))
-
+         ("s-d" . consult-dir)))
 
 (use-package consult-flycheck
-  :when (featurep 'syntax)
   :after (consult flycheck))
 
 
 (use-package embark
   :defer t
+  :commands (+vertico/embark-export-write)
+  :bind (("C-c ;" . embark-act)
+         :map minibuffer-local-map
+         ("C-c ;" . embark-act)
+         ("C-c C-l" . embark-export)
+         ("C-c C-e" . +vertico/embark-export-write))
   :init
-  (setq which-key-use-C-h-commands nil
-        prefix-help-command #'embark-prefix-help-command)
-
-  (map! [remap describe-bindings] #'embark-bindings
-        "C-c ;"               #'embark-act  ; to be moved to :config default if accepted
-        (:map minibuffer-local-map
-         "C-;"               #'embark-act
-         "C-c C-;"           #'embark-export
-         "C-c C-l"           #'embark-collect
-         :desc "Export to writable buffer" "C-c C-e" #'+vertico/embark-export-write)
-        (:localleader
-         :desc "Actions" "a" #'embark-act)) ; to be moved to :config default if accepted
   :config
-
-  (defadvice! +vertico--embark-which-key-prompt-a (fn &rest args)
-    "Hide the which-key indicator immediately when using the completing-read prompter."
-    :around #'embark-completing-read-prompter
-    (which-key--hide-popup-ignore-command)
-    (let ((embark-indicators
-           (remq #'embark-which-key-indicator embark-indicators)))
-      (apply fn args)))
-  (cl-nsubstitute #'+vertico-embark-which-key-indicator #'embark-mixed-indicator embark-indicators)
-  ;; add the package! target finder before the file target finder,
-  ;; so we don't get a false positive match.
-  (let ((pos (or (cl-position
-                  'embark-target-file-at-point
-                  embark-target-finders)
-                 (length embark-target-finders))))
-    (cl-callf2
-        cons
-        '+vertico-embark-target-package-fn
-        (nthcdr pos embark-target-finders)))
-
+  (defun +vertico/embark-export-write ()
+    "Export the current vertico results to a writable buffer if possible.
+Supports exporting consult-grep to wgrep, file to wdeired, and consult-location to occur-edit"
+    (interactive)
+    (require 'embark)
+    (require 'wgrep)
+    (let* ((edit-command
+            (pcase-let ((`(,type . ,candidates)
+                         (run-hook-with-args-until-success 'embark-candidate-collectors)))
+              (pcase type
+                ('consult-grep #'wgrep-change-to-wgrep-mode)
+                ('file #'wdired-change-to-wdired-mode)
+                ('consult-location #'occur-edit-mode)
+                (x (user-error "embark category %S doesn't support writable export" x)))))
+           (embark-after-export-hook `(,@embark-after-export-hook ,edit-command)))
+      (embark-export)))
+  (defun +vertico/embark-magit-status (file)
+    "Run `magit-status` on repo containing the embark target."
+    (interactive "GFile: ")
+    (magit-status (locate-dominating-file file ".git")))
   (map! (:map embark-file-map
          :desc "Open target with sudo"        "s"   #'dotfairy/sudo-find-file
-         (:when (featurep 'magit-mode)
+         :desc "Open in new workspace"       "TAB" #'+vertico/embark-open-in-new-workspace
+         (:when (featurep 'magit)
           :desc "Open magit-status of target" "g"   #'+vertico/embark-magit-status))))
-
 
 (use-package marginalia
   :hook (after-init . marginalia-mode)
@@ -257,115 +412,15 @@ orderless."
             '(projectile-switch-to-buffer . buffer)
             '(projectile-switch-project . project-file)))
 
-
 (use-package embark-consult
+  :ensure t
   :after (embark consult)
+  :demand
   :config
   (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode))
 
-(use-package vertico-posframe
-  :when (featurep 'childframe)
-  :hook (vertico-mode . vertico-posframe-mode)
-  :config
-  (add-hook 'after-load-theme #'posframe-delete-all))
 
-(defun +vertico--workspace-buffer-state ()
-  (let ((preview
-         ;; Only preview in current window and other window.
-         ;; Preview in frames and tabs is not possible since these don't get cleaned up.
-         (if (memq consult--buffer-display
-                   '(switch-to-buffer switch-to-buffer-other-window))
-             (let ((orig-buf (current-buffer))
-                   other-win
-                   cleanup-buffers)
-               (lambda (action cand)
-                 (when (eq action 'preview)
-                   (when (and (eq consult--buffer-display #'switch-to-buffer-other-window)
-                              (not other-win))
-                     (switch-to-buffer-other-window orig-buf)
-                     (setq other-win (selected-window)))
-                   (let ((win (or other-win (selected-window))))
-                     (when (window-live-p win)
-                       (with-selected-window win
-                         (cond
-                          ((and cand (get-buffer cand))
-                           (unless (+workspace-contains-buffer-p cand)
-                             (cl-pushnew cand cleanup-buffers))
-                           (switch-to-buffer cand 'norecord))
-                          ((buffer-live-p orig-buf)
-                           (switch-to-buffer orig-buf 'norecord)
-                           (mapc #'persp-remove-buffer cleanup-buffers)))))))))
-           #'ignore)))
-    (lambda (action cand)
-      (funcall preview action cand))))
 
-(defun +vertico--workspace-generate-sources ()
-  "Generate list of consult buffer sources for all workspaces"
-  (let* ((active-workspace (+workspace-current-name))
-         (workspaces (+workspace-list-names))
-         (key-range (append (cl-loop for i from ?1 to ?9 collect i)
-                            (cl-loop for i from ?a to ?z collect i)
-                            (cl-loop for i from ?A to ?Z collect i)))
-         (last-i (length workspaces))
-         (i 0))
-    (mapcar (lambda (name)
-              (cl-incf i)
-              `(:name     ,name
-                :hidden   ,(not (string= active-workspace name))
-                :narrow   ,(nth (1- i) key-range)
-                :category buffer
-                :state    +vertico--workspace-buffer-state
-                :items    ,(lambda ()
-                             (consult--buffer-query
-                              :sort 'visibility
-                              :as #'buffer-name
-                              :predicate
-                              (lambda (buf)
-                                (when-let (workspace (+workspace-get name t))
-                                  (+workspace-contains-buffer-p buf workspace)))))))
-            (+workspace-list-names))))
-
-(autoload 'consult--multi "consult")
-;;;###autoload
-(defun +vertico/switch-workspace-buffer (&optional force-same-workspace)
-  "Switch to another buffer in the same workspace.
-Type the workspace's number (starting from 1) followed by a space to display its
-buffer list. Selecting a buffer in another workspace will switch to that
-workspace instead. If FORCE-SAME-WORKSPACE (the prefix arg) is non-nil, that
-buffer will be opened in the current workspace instead."
-  (interactive "P")
-  (when-let (buffer (consult--multi (+vertico--workspace-generate-sources)
-                                    :require-match
-                                    (confirm-nonexistent-file-or-buffer)
-                                    :prompt (format "Switch to buffer (%s): "
-                                                    (+workspace-current-name))
-                                    :history 'consult--buffer-history
-                                    :sort nil))
-    (let ((origin-workspace (plist-get (cdr buffer) :name)))
-      ;; Switch to the workspace the buffer belongs to, maybe
-      (if (or (equal origin-workspace (+workspace-current-name))
-              force-same-workspace)
-          (funcall consult--buffer-display (car buffer))
-        (+workspace-switch origin-workspace)
-        (message "Switched to %S workspace" origin-workspace)
-        (if-let (window (get-buffer-window (car buffer)))
-            (select-window window)
-          (funcall consult--buffer-display (car buffer)))))))
-
-;;;###autoload
-(defun +vertico/embark-open-in-new-workspace (x)
-  "Open X (a file) in a new workspace."
-  (interactive)
-  (+workspace/new)
-  (find-file x))
-
-;;;###autoload
-(defun +vertico/embark-magit-status (file)
-  "Run `magit-status` on repo containing the embark target."
-  (interactive "GFile: ")
-  (magit-status (locate-dominating-file file ".git")))
-
-;;;###autoload
 (cl-defun +vertico-file-search (&key query in all-files (recursive t) prompt args)
   "Conduct a file search using ripgrep.
 :query STRING
@@ -416,7 +471,6 @@ buffer will be opened in the current workspace instead."
                    consult-async-split-style 'perlalt))))))
     (consult--grep prompt #'consult--ripgrep-builder directory query)))
 
-;;;###autoload
 (defun +vertico/project-search (&optional arg initial-query directory)
   "Peforms a live project search from the project root using ripgrep.
 If ARG (universal argument), include all files, even hidden or compressed ones,
@@ -424,215 +478,16 @@ in the search."
   (interactive "P")
   (+vertico-file-search :query initial-query :in directory :all-files arg))
 
-;;;###autoload
 (defun +vertico/project-search-from-cwd (&optional arg initial-query)
   "Performs a live project search from the current directory.
 If ARG (universal argument), include all files, even hidden or compressed ones."
   (interactive "P")
   (+vertico/project-search arg initial-query default-directory))
 
-;;;###autoload
+
+
 (defun +vertico/search-symbol-at-point ()
   (interactive)
   (consult-line (thing-at-point 'symbol)))
-
-;;;###autoload
-(defun +vertico-embark-target-package-fn ()
-  "Targets Dotfairy's package! statements and returns the package name"
-  (when (or (derived-mode-p 'emacs-lisp-mode) (derived-mode-p 'org-mode))
-    (save-excursion
-      (when (and (search-backward "(" nil t)
-                 (looking-at "(\\s-*package!\\s-*\\(\\(\\sw\\|\\s_\\)+\\)\\s-*"))
-        (let ((pkg (match-string 1)))
-          (set-text-properties 0 (length pkg) nil pkg)
-          `(package . ,pkg))))))
-
-;;;###autoload
-(defun +vertico/embark-export-write ()
-  "Export the current vertico results to a writable buffer if possible.
-Supports exporting consult-grep to wgrep, file to wdeired, and consult-location to occur-edit"
-  (interactive)
-  (require 'embark)
-  (require 'wgrep)
-  (let* ((edit-command
-          (pcase-let ((`(,type . ,candidates)
-                       (run-hook-with-args-until-success 'embark-candidate-collectors)))
-            (pcase type
-              ('consult-grep #'wgrep-change-to-wgrep-mode)
-              ('file #'wdired-change-to-wdired-mode)
-              ('consult-location #'occur-edit-mode)
-              (x (user-error "embark category %S doesn't support writable export" x)))))
-         (embark-after-export-hook `(,@embark-after-export-hook ,edit-command)))
-    (embark-export)))
-
-;;;###autoload
-(defun +vertico/embark-preview ()
-  "Previews candidate in vertico buffer, unless it's a consult command"
-  (interactive)
-  (unless (bound-and-true-p consult--preview-function)
-    (save-selected-window
-      (let ((embark-quit-after-action nil))
-        (embark-dwim)))))
-
-(defvar +vertico/find-file-in--history nil)
-;;;###autoload
-(defun +vertico/find-file-in (&optional dir initial)
-  "Jump to file under DIR (recursive).
-If INITIAL is non-nil, use as initial input."
-  (interactive)
-  (require 'consult)
-  (let* ((default-directory (or dir default-directory))
-         (prompt-dir (consult--directory-prompt "Find" default-directory))
-         (cmd (split-string-and-unquote +vertico-consult-fd-args " ")))
-    (find-file
-     (consult--read
-      (split-string (cdr (apply #'dotfairy-call-process cmd)) "\n" t)
-      :prompt default-directory
-      :sort nil
-      :initial (if initial (shell-quote-argument initial))
-      :add-history (thing-at-point 'filename)
-      :category 'file
-      :history '(:input +vertico/find-file-in--history)))))
-
-;;;###autoload
-(defun +vertico/jump-list (jump)
-  "Go to an entry in evil's (or better-jumper's) jumplist."
-  (interactive
-   (let (buffers)
-     (require 'consult)
-     (unwind-protect
-         (list
-          (consult--read
-           ;; REVIEW Refactor me
-           (nreverse
-            (delete-dups
-             (delq
-              nil (mapcar
-                   (lambda (mark)
-                     (when mark
-                       (cl-destructuring-bind (path pt _id) mark
-                         (let* ((visiting (find-buffer-visiting path))
-                                (buf (or visiting (find-file-noselect path t)))
-                                (dir default-directory))
-                           (unless visiting
-                             (push buf buffers))
-                           (with-current-buffer buf
-                             (goto-char pt)
-                             (font-lock-fontify-region
-                              (line-beginning-position) (line-end-position))
-                             (format "%s:%d: %s"
-                                     (car (cl-sort (list (abbreviate-file-name (buffer-file-name buf))
-                                                         (file-relative-name (buffer-file-name buf) dir))
-                                                   #'< :key #'length))
-                                     (line-number-at-pos)
-                                     (string-trim-right (or (thing-at-point 'line) ""))))))))
-                   (cddr (better-jumper-jump-list-struct-ring
-                          (better-jumper-get-jumps (better-jumper--get-current-context))))))))
-           :prompt "jumplist: "
-           :sort nil
-           :require-match t
-           :category 'jump-list))
-       (mapc #'kill-buffer buffers))))
-  (if (not (string-match "^\\([^:]+\\):\\([0-9]+\\): " jump))
-      (user-error "No match")
-    (let ((file (match-string-no-properties 1 jump))
-          (line (match-string-no-properties 2 jump)))
-      (find-file file)
-      (goto-char (point-min))
-      (forward-line (string-to-number line)))))
-
-;;;###autoload
-(defun +vertico-embark-which-key-indicator ()
-  "An embark indicator that displays keymaps using which-key.
-The which-key help message will show the type and value of the
-current target followed by an ellipsis if there are further
-targets."
-  (lambda (&optional keymap targets prefix)
-    (if (null keymap)
-        (which-key--hide-popup-ignore-command)
-      (which-key--show-keymap
-       (if (eq (plist-get (car targets) :type) 'embark-become)
-           "Become"
-         (format "Act on %s '%s'%s"
-                 (plist-get (car targets) :type)
-                 (embark--truncate-target (plist-get (car targets) :target))
-                 (if (cdr targets) "…" "")))
-       (if prefix
-           (pcase (lookup-key keymap prefix 'accept-default)
-             ((and (pred keymapp) km) km)
-             (_ (key-binding prefix 'accept-default)))
-         keymap)
-       nil nil t (lambda (binding)
-                   (not (string-suffix-p "-argument" (cdr binding))))))))
-
-;;;###autoload
-(defun +vertico/crm-select ()
-  "Toggle selection of current candidate in `consult-completing-read-multiple'.
-If the candidate has been selected, move the index up by one, to allow for quick
-selection of multiple subsequent candidates."
-  (interactive)
-  (let* ((selected-p (get-text-property 0 'consult--crm-selected (vertico--candidate)))
-         (goto-idx (+ vertico--index (if selected-p 0 1))))
-    (run-at-time 0 nil (cmd! (vertico--goto goto-idx) (vertico--exhibit))))
-  (vertico-exit))
-
-;;;###autoload
-(defun +vertico/crm-select-keep-input ()
-  "Like `+vertico/crm-select', but keeps the current minibuffer input."
-  (interactive)
-  (let* ((input (substring-no-properties (car vertico--input)))
-         (selected-p (get-text-property 0 'consult--crm-selected (vertico--candidate)))
-         (goto-idx (+ vertico--index (if selected-p 0 1))))
-    (run-at-time 0 nil (cmd! (insert input) (vertico--exhibit) (vertico--goto goto-idx) (vertico--exhibit))))
-  (vertico-exit))
-
-;;;###autoload
-(defun +vertico/crm-exit ()
-  "Exit `consult-completing-read-multiple' session in a dwim way.
-If there are no selected candidates, select the current candidate and exit.
-If there are selected candidates, disregard the current candidate and exit."
-  (interactive)
-  (if (consult--crm-selected)
-      (progn
-        (when (minibuffer-contents)
-          (delete-minibuffer-contents)
-          (vertico--exhibit))
-        (vertico--goto -1)
-        (vertico-exit))
-    (run-at-time 0 nil #'vertico-exit)
-    (vertico-exit)))
-
-;;;###autoload
-(defun +vertico--consult--fd-builder (input)
-  (pcase-let* ((cmd (split-string-and-unquote +vertico-consult-fd-args))
-               (`(,arg . ,opts) (consult--command-split input))
-               (`(,re . ,hl) (funcall consult--regexp-compiler
-                                      arg 'extended)))
-    (when re
-      (list :command (append cmd
-                             (list (consult--join-regexps re 'extended))
-                             opts)
-            :highlight hl))))
-
-(autoload #'consult--directory-prompt "consult")
-;;;###autoload
-(defun +vertico/consult-fd (&optional dir initial)
-  (interactive "P")
-  (if dotfairy-projectile-fd-binary
-      (let* ((prompt-dir (consult--directory-prompt "Fd" dir))
-             (default-directory (cdr prompt-dir)))
-        (find-file (consult--find (car prompt-dir) #'+vertico--consult--fd-builder initial)))
-    (consult-find dir initial)))
-
-;;;###autoload
-(defun +vertico-basic-remote-try-completion (string table pred point)
-  (and (vertico--remote-p string)
-       (completion-basic-try-completion string table pred point)))
-
-;;;###autoload
-(defun +vertico-basic-remote-all-completions (string table pred point)
-  (and (vertico--remote-p string)
-       (completion-basic-all-completions string table pred point)))
-
 (provide 'init-vertico)
 ;;; init-vertico.el ends here
