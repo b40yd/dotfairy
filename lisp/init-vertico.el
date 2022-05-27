@@ -204,14 +204,13 @@ orderless."
         prefix-help-command #'embark-prefix-help-command)
 
   (map! [remap describe-bindings] #'embark-bindings
-        :localleader
-        ";"               #'embark-act  ; to be moved to :config default if accepted
+        "C-c ;"               #'embark-act  ; to be moved to :config default if accepted
         (:map minibuffer-local-map
-         ";"               #'embark-act
-         "C-;"           #'embark-export
-         "C-l"           #'embark-collect
+         "C-;"               #'embark-act
+         "C-c C-;"           #'embark-export
+         "C-c C-l"           #'embark-collect
          :desc "Export to writable buffer" "C-c C-e" #'+vertico/embark-export-write)
-        (:leader
+        (:localleader
          :desc "Actions" "a" #'embark-act)) ; to be moved to :config default if accepted
   :config
 

@@ -275,8 +275,7 @@ The return value is the new value of LIST-VAR."
 
 (use-package wgrep
   :init
-  (setq wgrep-auto-save-buffer t
-        wgrep-change-readonly-file t))
+  (setq wgrep-auto-save-buffer t))
 
 ;; Minor mode to aggressively keep your code always indented
 (use-package aggressive-indent
