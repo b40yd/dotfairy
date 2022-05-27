@@ -23,6 +23,8 @@
 ;;
 
 ;;; Code:
+(require 'init-const)
+(require 'init-custom)
 
 (setq dotfairy-full-name "user name")           ; User full name
 (setq dotfairy-mail-address "user@email.com")   ; Email address
@@ -43,6 +45,8 @@
 ;;   (doom-tomorrow-day    . doom-tomorrow-day)
 ;;   (doom-tomorrow-night   . doom-tomorrow-night))
 (setq dotfairy-theme 'default)
+(setq dotfairy-complete 'vertico)
+(setq dotfairy-lsp 'lsp-bridge)
 ;; (setq dotfairy-dashboard nil)                   ; Use dashboard at startup or not: t or nil
 (setq dotfairy-lsp-format-on-save-ignore-modes '(c-mode c++-mode python-mode go-mode)) ; Ignore format on save for some languages
 ;; (setq dotfairy-company-prescient nil) ; Enable `company-prescient' or not. it's on Windows 10 very slow.

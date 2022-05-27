@@ -235,6 +235,7 @@ Install the doc if it's not installed."
               xref-show-definitions-function #'xref-show-definitions-completing-read)
       ;; Select from xref candidates with Ivy
       (use-package ivy-xref
+        :when (featurep 'ivy)
         :after ivy
         :init
         (when (>= emacs-major-version 27)

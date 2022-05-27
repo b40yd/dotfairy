@@ -118,7 +118,6 @@ kill all magit buffers for this repo."
       (setq forge-database-file (concat dotfairy-etc-dir "forge/forge-database.sqlite"))))
 
   (use-package magit-todos
-    :bind ("C-c C-t" . ivy-magit-todos)
     :defines magit-todos-nice
     :init
     (setq magit-todos-nice (if (executable-find "nice") t nil))

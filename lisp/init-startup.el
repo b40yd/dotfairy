@@ -38,18 +38,22 @@
 (require 'init-iedit)
 (require 'init-indent-yank)
 (require 'init-wordwrap)
-
-;; Complete
-(require 'init-ivy)
-(require 'init-company)
-(require 'init-yasnippet)
-(require 'init-autoinsert)
+(require 'init-markdown)
 
 ;; Project
 (require 'init-projectile)
+(require 'init-persp)
 (require 'init-ibuffer)
 (require 'init-windows)
-(require 'init-persp)
+
+;; Complete
+(require 'init-yasnippet)
+(pcase dotfairy-complete
+  ('ivy
+   (require 'init-ivy))
+  ('vertico
+   (require 'init-vertico)))
+(require 'init-autoinsert)
 
 ;;checking
 (require 'init-flycheck)
@@ -75,7 +79,6 @@
 (require 'init-rust)
 (require 'init-python)
 (require 'init-web)
-(require 'init-markdown)
 (require 'init-json)
 (require 'init-org)
 (require 'init-yaml)

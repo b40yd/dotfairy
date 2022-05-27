@@ -25,13 +25,108 @@
 ;;; Code:
 (require 'init-const)
 (require 'init-custom)
+
 (pcase dotfairy-lsp
   ('eglot
    (use-package eglot
      :hook (prog-mode . (lambda ()
                           (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode 'makefile-mode)
                             (eglot-ensure))))))
+  ('lsp-bridge
+   (use-package corfu
+     :hook (after-init . corfu-mode)
+     :config
+     (setq corfu-history-mode t)
+     (use-package cape)
+     (use-package lsp-bridge
+       :ensure nil
+       :quelpa (lsp-bridge :fetcher github :repo "manateelazycat/lsp-bridge")
+       :bind (("M-." . lsp-bridge-jump)
+              ("M-," . lsp-bridge-jump-back))
+       :init
+       (require 'lsp-bridge)
+       (require 'lsp-bridge-jdtls)
+       (require 'corfu)
+       (require 'corfu-info)
+       (require 'corfu-history)
+       (require 'lsp-bridge-icon)        ;; show icons for completion items, optional
+       (require 'lsp-bridge-orderless)   ;; make lsp-bridge support fuzzy match, optional
+       :hook (after-init . lsp-bridge-mode)
+       :config
+       (setq lsp-bridge-enable-log nil)
+       (defcustom lsp-bridge-completion-stop-commands '(corfu-complete corfu-insert undo-tree-undo undo-tree-redo)
+         "If last command is match this option, stop popup completion ui."
+         :type 'cons
+         :group 'lsp-bridge)
 
+       (defcustom lsp-bridge-hide-completion-characters '(":" ";" "(" ")" "[" "]" "{" "}" "," "\"" " " "\ ")
+         "If char before match this option, stop popup completion ui."
+         :type 'cons
+         :group 'lsp-bridge)
+
+       ;; 默认用这三个补全后端
+       (add-to-list 'completion-at-point-functions #'cape-symbol)
+       (add-to-list 'completion-at-point-functions #'cape-file)
+       (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+       (dolist (hook (list
+                      'emacs-lisp-mode-hook
+                      ))
+         (add-hook hook (lambda ()
+                          (setq-local corfu-auto t) ; Elisp文件自动弹出补全
+                          )))
+       (map! :leader
+             :map lsp-bridge-mode-map
+             (:prefix ("l" . "lsp")
+              :desc "Show document" "p" #'lsp-bridge-lookup-documentation))
+
+       ;; 通过Cape融合不同的补全后端，比如lsp-bridge、 tabnine、 file、 dabbrev.
+       (defun lsp-bridge-mix-multi-backends ()
+         (setq-local completion-category-defaults nil)
+         (setq-local completion-at-point-functions
+                     (list
+                      (cape-capf-buster
+                       (cape-super-capf
+                        #'lsp-bridge-capf
+                        ;; #'tabnine-completion-at-point
+
+                        ;; #'cape-file
+                        ;; #'cape-dabbrev
+                        )
+                       'equal))))
+
+
+       (dolist (hook lsp-bridge-default-mode-hooks)
+         (add-hook hook (lambda ()
+                          (lsp-bridge-mode 1)             ; 开启lsp-bridge
+                          (lsp-bridge-mix-multi-backends) ; 通过Cape融合多个补全后端
+                          )))
+
+       ;; 融合 `lsp-bridge' `find-function' 以及 `dumb-jump' 的智能跳转
+       (defun lsp-bridge-jump ()
+         (interactive)
+         (cond
+          ((eq major-mode 'emacs-lisp-mode)
+           (let ((symb (function-called-at-point)))
+             (when symb
+               (find-function symb))))
+          (lsp-bridge-mode
+           (lsp-bridge-find-def))
+          (t
+           (require 'dumb-jump)
+           (dumb-jump-go))))
+
+       (defun lsp-bridge-jump-back ()
+         (interactive)
+         (cond
+          (lsp-bridge-mode
+           (lsp-bridge-return-from-def))
+          (t
+           (require 'dumb-jump)
+           (dumb-jump-back))))
+
+       ;; For Xref support
+       (add-hook 'lsp-bridge-mode-hook (lambda ()
+                                         (add-hook 'xref-backend-functions #'lsp-bridge-xref-backend nil t))))))
   ('lsp-mode
    ;; @see https://emacs-lsp.github.io/lsp-mode/page/performance
    (setq read-process-output-max (* 1024 1024)) ;; 1MB
@@ -474,6 +569,345 @@
      (setq lsp-java-workspace-dir (expand-file-name (concat dotfairy-local-dir "workspace/"))))))
 
 (when (memq dotfairy-lsp '(lsp-mode eglot))
+  ;; Settings for company
+  (use-package company
+    :diminish
+    :defines (company-dabbrev-ignore-case company-dabbrev-downcase)
+    :custom-face
+    (company-tooltip-annotation ((t (:inherit completions-annotations :foreground nil))))
+    (company-box-selection ((t (:inherit company-tooltip :weight semibold :extend t))))
+    :bind (("M-/" . company-complete)
+           ("C-M-i" . company-complete)
+           :map company-mode-map
+           ("<backtab>" . company-yasnippet)
+           :map company-active-map
+           ("C-p" . company-select-previous)
+           ("C-n" . company-select-next)
+           ("<tab>" . company-complete-common-or-cycle)
+           ("<backtab>" . my-company-yasnippet)
+           :map company-search-map
+           ("C-p" . company-select-previous)
+           ("C-n" . company-select-next))
+    :hook (after-init . global-company-mode)
+    :init
+    (setq company-tooltip-align-annotations t
+          company-tooltip-limit 12
+          company-idle-delay 0
+          company-echo-delay (if (display-graphic-p) nil 0)
+          company-minimum-prefix-length 1
+          company-icon-margin 3
+          company-require-match nil
+          company-dabbrev-ignore-case nil
+          company-dabbrev-downcase nil
+          company-global-modes '(not erc-mode message-mode help-mode
+                                     gud-mode eshell-mode shell-mode)
+          company-backends '((company-capf :with company-yasnippet)
+                             (company-dabbrev-code company-keywords company-files)
+                             company-dabbrev))
+    :config
+    (with-no-warnings
+      ;; Company anywhere
+      ;; @see https://github.com/zk-phi/company-anywhere
+      (defun company-anywhere-after-finish (completion)
+        (when (and (stringp completion)
+                   (looking-at "\\(?:\\sw\\|\\s_\\)+")
+                   (save-match-data
+                     (string-match (regexp-quote (match-string 0)) completion)))
+          (delete-region (match-beginning 0) (match-end 0))))
+      (add-hook 'company-after-completion-hook 'company-anywhere-after-finish)
+
+      (defun company-anywhere-grab-word (_)
+        (buffer-substring (point) (save-excursion (skip-syntax-backward "w") (point))))
+      (advice-add 'company-grab-word :around 'company-anywhere-grab-word)
+
+      (defun company-anywhere-grab-symbol (_)
+        (buffer-substring (point) (save-excursion (skip-syntax-backward "w_") (point))))
+      (advice-add 'company-grab-symbol :around 'company-anywhere-grab-symbol)
+
+      (defun company-anywhere-dabbrev-prefix (_)
+        (company-grab-line (format "\\(?:^\\| \\)[^ ]*?\\(\\(?:%s\\)*\\)" company-dabbrev-char-regexp) 1))
+      (advice-add 'company-dabbrev--prefix :around 'company-anywhere-dabbrev-prefix)
+
+      (defun company-anywhere-capf (fn command &rest args)
+        (if (eq command 'prefix)
+            (let ((res (company--capf-data)))
+              (when res
+                (let ((length (plist-get (nthcdr 4 res) :company-prefix-length))
+                      (prefix (buffer-substring-no-properties (nth 1 res) (point))))
+                  (cond
+                   (length (cons prefix length))
+                   (t prefix)))))
+          (apply fn command args)))
+      (advice-add 'company-capf :around 'company-anywhere-capf)
+
+      (defun company-anywhere-preview-show-at-point (pos completion)
+        (when (and (save-excursion
+                     (goto-char pos)
+                     (looking-at "\\(?:\\sw\\|\\s_\\)+"))
+                   (save-match-data
+                     (string-match (regexp-quote (match-string 0)) completion)))
+          (move-overlay company-preview-overlay (overlay-start company-preview-overlay) (match-end 0))
+          (let ((after-string (overlay-get company-preview-overlay 'after-string)))
+            (when after-string
+              (overlay-put company-preview-overlay 'display after-string)
+              (overlay-put company-preview-overlay 'after-string nil)))))
+      (advice-add 'company-preview-show-at-point :after 'company-anywhere-preview-show-at-point)
+
+      ;; `yasnippet' integration
+      (with-eval-after-load 'yasnippet
+        (defun my-company-yasnippet ()
+          "Hide the current completeions and show snippets."
+          (interactive)
+          (company-cancel)
+          (call-interactively 'company-yasnippet))
+
+        (defun company-backend-with-yas (backend)
+          "Add `yasnippet' to company backend."
+          (if (and (listp backend) (member 'company-yasnippet backend))
+              backend
+            (append (if (consp backend) backend (list backend))
+                    '(:with company-yasnippet))))
+
+        (defun my-company-enbale-yas (&rest _)
+          "Enable `yasnippet' in `company'."
+          (setq company-backends (mapcar #'company-backend-with-yas company-backends)))
+
+        (defun my-lsp-fix-company-capf ()
+          "Remove redundant `comapny-capf'."
+          (setq company-backends
+                (remove 'company-backends (remq 'company-capf company-backends))))
+        (advice-add #'lsp-completion--enable :after #'my-lsp-fix-company-capf)
+
+        (defun my-company-yasnippet-disable-inline (fn cmd &optional arg &rest _ignore)
+          "Enable yasnippet but disable it inline."
+          (if (eq cmd  'prefix)
+              (when-let ((prefix (funcall fn 'prefix)))
+                (unless (memq (char-before (- (point) (length prefix)))
+                              '(?. ?< ?> ?\( ?\) ?\[ ?{ ?} ?\" ?' ?`))
+                  prefix))
+            (progn
+              (when (and (bound-and-true-p lsp-mode)
+                         arg (not (get-text-property 0 'yas-annotation-patch arg)))
+                (let* ((name (get-text-property 0 'yas-annotation arg))
+                       (snip (format "%s (Snippet)" name))
+                       (len (length arg)))
+                  (put-text-property 0 len 'yas-annotation snip arg)
+                  (put-text-property 0 len 'yas-annotation-patch t arg)))
+              (funcall fn cmd arg))))
+        (advice-add #'company-yasnippet :around #'my-company-yasnippet-disable-inline)))
+
+    ;; Better sorting and filtering
+    (use-package prescient
+      :commands prescient-persist-mode
+      :init (prescient-persist-mode 1))
+
+    (use-package company-prescient
+      :init (company-prescient-mode 1))
+
+    ;; Icons and quickhelp
+    (use-package company-box
+      :diminish
+      :defines company-box-icons-all-the-icons
+      :hook (company-mode . company-box-mode)
+      :init (setq company-box-enable-icon t
+                  company-box-backends-colors nil
+                  company-box-doc-delay 0.1
+                  company-box-scrollbar 'right)
+      :config
+      (with-no-warnings
+        ;; Prettify icons
+        (defun my-company-box-icons--elisp (candidate)
+          (when (or (derived-mode-p 'emacs-lisp-mode) (derived-mode-p 'lisp-mode))
+            (let ((sym (intern candidate)))
+              (cond ((fboundp sym) 'Function)
+                    ((featurep sym) 'Module)
+                    ((facep sym) 'Color)
+                    ((boundp sym) 'Variable)
+                    ((symbolp sym) 'Text)
+                    (t . nil)))))
+        (advice-add #'company-box-icons--elisp :override #'my-company-box-icons--elisp)
+
+        ;; Display borders and optimize performance
+        (defun my-company-box--display (string on-update)
+          "Display the completions."
+          (company-box--render-buffer string on-update)
+
+          (let ((frame (company-box--get-frame))
+                (border-color (face-foreground 'font-lock-comment-face nil t)))
+            (unless frame
+              (setq frame (company-box--make-frame))
+              (company-box--set-frame frame))
+            (company-box--compute-frame-position frame)
+            (company-box--move-selection t)
+            (company-box--update-frame-position frame)
+            (unless (frame-visible-p frame)
+              (make-frame-visible frame))
+            (company-box--update-scrollbar frame t)
+            (set-face-background 'internal-border border-color frame)
+            (when (facep 'child-frame-border)
+              (set-face-background 'child-frame-border border-color frame)))
+          (with-current-buffer (company-box--get-buffer)
+            (company-box--maybe-move-number (or company-box--last-start 1))))
+        (advice-add #'company-box--display :override #'my-company-box--display)
+
+        (setq company-box-doc-frame-parameters '((vertical-scroll-bars . nil)
+                                                 (horizontal-scroll-bars . nil)
+                                                 (internal-border-width . 1)
+                                                 (left-fringe . 8)
+                                                 (right-fringe . 8)))
+
+        (defun my-company-box-doc--make-buffer (object)
+          (let* ((buffer-list-update-hook nil)
+                 (inhibit-modification-hooks t)
+                 (string (cond ((stringp object) object)
+                               ((bufferp object) (with-current-buffer object (buffer-string))))))
+            (when (and string (> (length (string-trim string)) 0))
+              (with-current-buffer (company-box--get-buffer "doc")
+                (erase-buffer)
+                (insert (propertize "\n" 'face '(:height 0.5)))
+                (insert string)
+                (insert (propertize "\n\n" 'face '(:height 0.5)))
+
+                ;; Handle hr lines of markdown
+                ;; @see `lsp-ui-doc--handle-hr-lines'
+                (let (bolp next before after)
+                  (goto-char 1)
+                  (while (setq next (next-single-property-change (or next 1) 'markdown-hr))
+                    (when (get-text-property next 'markdown-hr)
+                      (goto-char next)
+                      (setq bolp (bolp)
+                            before (char-before))
+                      (delete-region (point) (save-excursion (forward-visible-line 1) (point)))
+                      (setq after (char-after (1+ (point))))
+                      (insert
+                       (concat
+                        (and bolp (not (equal before ?\n)) (propertize "\n" 'face '(:height 0.5)))
+                        (propertize "\n" 'face '(:height 0.5))
+                        (propertize " "
+                                    'display '(space :height (1))
+                                    'company-box-doc--replace-hr t
+                                    'face `(:background ,(face-foreground 'font-lock-comment-face)))
+                        (propertize " " 'display '(space :height (1)))
+                        (and (not (equal after ?\n)) (propertize " \n" 'face '(:height 0.5))))))))
+
+                (setq mode-line-format nil
+                      display-line-numbers nil
+                      header-line-format nil
+                      show-trailing-whitespace nil
+                      cursor-in-non-selected-windows nil)
+                (current-buffer)))))
+        (advice-add #'company-box-doc--make-buffer :override #'my-company-box-doc--make-buffer)
+
+        ;; Display the border and fix the markdown header properties
+        (defun my-company-box-doc--show (selection frame)
+          (cl-letf (((symbol-function 'completing-read) #'company-box-completing-read)
+                    (window-configuration-change-hook nil)
+                    (inhibit-redisplay t)
+                    (display-buffer-alist nil)
+                    (buffer-list-update-hook nil))
+            (-when-let* ((valid-state (and (eq (selected-frame) frame)
+                                           company-box--bottom
+                                           company-selection
+                                           (company-box--get-frame)
+                                           (frame-visible-p (company-box--get-frame))))
+                         (candidate (nth selection company-candidates))
+                         (doc (or (company-call-backend 'quickhelp-string candidate)
+                                  (company-box-doc--fetch-doc-buffer candidate)))
+                         (doc (company-box-doc--make-buffer doc)))
+              (let ((frame (frame-local-getq company-box-doc-frame))
+                    (border-color (face-foreground 'font-lock-comment-face nil t)))
+                (unless (frame-live-p frame)
+                  (setq frame (company-box-doc--make-frame doc))
+                  (frame-local-setq company-box-doc-frame frame))
+                (set-face-background 'internal-border border-color frame)
+                (when (facep 'child-frame-border)
+                  (set-face-background 'child-frame-border border-color frame))
+                (company-box-doc--set-frame-position frame)
+
+                ;; Fix hr props. @see `lsp-ui-doc--fix-hr-props'
+                (with-current-buffer (company-box--get-buffer "doc")
+                  (let (next)
+                    (while (setq next (next-single-property-change (or next 1) 'company-box-doc--replace-hr))
+                      (when (get-text-property next 'company-box-doc--replace-hr)
+                        (put-text-property next (1+ next) 'display
+                                           '(space :align-to (- right-fringe 1) :height (1)))
+                        (put-text-property (1+ next) (+ next 2) 'display
+                                           '(space :align-to right-fringe :height (1)))))))
+
+                (unless (frame-visible-p frame)
+                  (make-frame-visible frame))))))
+        (advice-add #'company-box-doc--show :override #'my-company-box-doc--show)
+
+        (defun my-company-box-doc--set-frame-position (frame)
+          (-let* ((frame-resize-pixelwise t)
+                  (box-frame (company-box--get-frame))
+                  (box-position (frame-position box-frame))
+                  (box-width (frame-pixel-width box-frame))
+                  (box-height (frame-pixel-height box-frame))
+                  (box-border-width (frame-border-width box-frame))
+
+                  (window (frame-root-window frame))
+                  ((text-width . text-height) (window-text-pixel-size window nil nil
+                                                                      (/ (frame-pixel-width) 2)
+                                                                      (/ (frame-pixel-height) 2)))
+                  (border-width (or (alist-get 'internal-border-width company-box-doc-frame-parameters) 0))
+
+                  (x (- (+ (car box-position) box-width) border-width))
+                  (space-right (- (frame-pixel-width) x))
+                  (space-left (car box-position))
+                  (fringe-left (or (alist-get 'left-fringe company-box-doc-frame-parameters) 0))
+                  (fringe-right (or (alist-get 'right-fringe company-box-doc-frame-parameters) 0))
+                  (width (+ text-width border-width fringe-left fringe-right))
+                  (x (if (> width space-right)
+                         (if (> space-left width)
+                             (- space-left width)
+                           space-left)
+                       x))
+                  (y (cdr box-position))
+                  (bottom (+ company-box--bottom (frame-border-width)))
+                  (height (+ text-height (* 2 border-width)))
+                  (y (cond ((= x space-left)
+                            (if (> (+ y box-height height) bottom)
+                                (+ (- y height) border-width)
+                              (- (+ y box-height) border-width)))
+                           ((> (+ y height) bottom)
+                            (- (+ y box-height) height))
+                           (t y))))
+            (set-frame-position frame (max x 0) (max y 0))
+            (set-frame-size frame text-width text-height t)))
+        (advice-add #'company-box-doc--set-frame-position :override #'my-company-box-doc--set-frame-position)
+
+        (when (icons-displayable-p)
+          (setq company-box-icons-all-the-icons
+                `((Unknown . ,(all-the-icons-material "find_in_page" :height 1.0 :v-adjust -0.2))
+                  (Text . ,(all-the-icons-faicon "text-width" :height 1.0 :v-adjust -0.02))
+                  (Method . ,(all-the-icons-faicon "cube" :height 1.0 :v-adjust -0.02 :face 'all-the-icons-purple))
+                  (Function . ,(all-the-icons-faicon "cube" :height 1.0 :v-adjust -0.02 :face 'all-the-icons-purple))
+                  (Constructor . ,(all-the-icons-faicon "cube" :height 1.0 :v-adjust -0.02 :face 'all-the-icons-purple))
+                  (Field . ,(all-the-icons-octicon "tag" :height 1.1 :v-adjust 0 :face 'all-the-icons-lblue))
+                  (Variable . ,(all-the-icons-octicon "tag" :height 1.1 :v-adjust 0 :face 'all-the-icons-lblue))
+                  (Class . ,(all-the-icons-material "settings_input_component" :height 1.0 :v-adjust -0.2 :face 'all-the-icons-orange))
+                  (Interface . ,(all-the-icons-material "share" :height 1.0 :v-adjust -0.2 :face 'all-the-icons-lblue))
+                  (Module . ,(all-the-icons-material "view_module" :height 1.0 :v-adjust -0.2 :face 'all-the-icons-lblue))
+                  (Property . ,(all-the-icons-faicon "wrench" :height 1.0 :v-adjust -0.02))
+                  (Unit . ,(all-the-icons-material "settings_system_daydream" :height 1.0 :v-adjust -0.2))
+                  (Value . ,(all-the-icons-material "format_align_right" :height 1.0 :v-adjust -0.2 :face 'all-the-icons-lblue))
+                  (Enum . ,(all-the-icons-material "storage" :height 1.0 :v-adjust -0.2 :face 'all-the-icons-orange))
+                  (Keyword . ,(all-the-icons-material "filter_center_focus" :height 1.0 :v-adjust -0.2))
+                  (Snippet . ,(all-the-icons-material "format_align_center" :height 1.0 :v-adjust -0.2))
+                  (Color . ,(all-the-icons-material "palette" :height 1.0 :v-adjust -0.2))
+                  (File . ,(all-the-icons-faicon "file-o" :height 1.0 :v-adjust -0.02))
+                  (Reference . ,(all-the-icons-material "collections_bookmark" :height 1.0 :v-adjust -0.2))
+                  (Folder . ,(all-the-icons-faicon "folder-open" :height 1.0 :v-adjust -0.02))
+                  (EnumMember . ,(all-the-icons-material "format_align_right" :height 1.0 :v-adjust -0.2))
+                  (Constant . ,(all-the-icons-faicon "square-o" :height 1.0 :v-adjust -0.1))
+                  (Struct . ,(all-the-icons-material "settings_input_component" :height 1.0 :v-adjust -0.2 :face 'all-the-icons-orange))
+                  (Event . ,(all-the-icons-octicon "zap" :height 1.0 :v-adjust 0 :face 'all-the-icons-orange))
+                  (Operator . ,(all-the-icons-material "control_point" :height 1.0 :v-adjust -0.2))
+                  (TypeParameter . ,(all-the-icons-faicon "arrows" :height 1.0 :v-adjust -0.02))
+                  (Template . ,(all-the-icons-material "format_align_left" :height 1.0 :v-adjust -0.2)))
+                company-box-icons-alist 'company-box-icons-all-the-icons)))))
+
   ;; Enable LSP in org babel
   ;; https://github.com/emacs-lsp/lsp-mode/issues/377
   (cl-defmacro lsp-org-babel-enable (lang)

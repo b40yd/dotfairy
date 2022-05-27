@@ -93,37 +93,6 @@
          "C-o" #'hl-todo-occur
          "C-i" #'hl-todo-insert)))
 
-;; Highlight symbols
-(use-package symbol-overlay
-  :diminish
-  :functions (turn-off-symbol-overlay turn-on-symbol-overlay)
-  :custom-face (symbol-overlay-default-face ((t (:inherit (region bold)))))
-  :hook (((prog-mode yaml-mode) . symbol-overlay-mode)
-         (iedit-mode . turn-off-symbol-overlay)
-         (iedit-mode-end . turn-on-symbol-overlay))
-  :init (setq symbol-overlay-idle-time 0.1)
-  :config
-  (map! :localleader
-    (:prefix ("s" . "Overlay")
-     "d" #'symbol-overlay-remove-all
-     "m" #'symbol-overlay-put
-     "n" #'symbol-overlay-jump-next
-     "N" #'symbol-overlay-switch-forward
-     "p" #'symbol-overlay-jump-prev
-     "P" #'symbol-overlay-switch-backward))
-  ;; Disable symbol highlighting while selecting
-  (defun turn-off-symbol-overlay (&rest _)
-    "Turn off symbol highlighting."
-    (interactive)
-    (symbol-overlay-mode -1))
-  (advice-add #'set-mark :after #'turn-off-symbol-overlay)
-
-  (defun turn-on-symbol-overlay (&rest _)
-    "Turn on symbol highlighting."
-    (interactive)
-    (when (derived-mode-p 'prog-mode 'yaml-mode)
-      (symbol-overlay-mode 1)))
-  (advice-add #'deactivate-mark :after #'turn-on-symbol-overlay))
 
 ;; Highlight some operations
 (use-package volatile-highlights
@@ -166,20 +135,21 @@
 
     ;; Don't display indentations in `swiper'
     ;; https://github.com/DarthFennec/highlight-indent-guides/issues/40
-    (with-eval-after-load 'ivy
-      (defun my-ivy-cleanup-indentation (str)
-        "Clean up indentation highlighting in ivy minibuffer."
-        (let ((pos 0)
-              (next 0)
-              (limit (length str))
-              (prop 'highlight-indent-guides-prop))
-          (while (and pos next)
-            (setq next (text-property-not-all pos limit prop nil str))
-            (when next
-              (setq pos (text-property-any next limit prop nil str))
-              (ignore-errors
-                (remove-text-properties next pos '(display nil face nil) str))))))
-      (advice-add #'ivy-cleanup-string :after #'my-ivy-cleanup-indentation))))
+    (when (bound-and-true-p ivy-mode)
+      (with-eval-after-load 'ivy
+        (defun my-ivy-cleanup-indentation (str)
+          "Clean up indentation highlighting in ivy minibuffer."
+          (let ((pos 0)
+                (next 0)
+                (limit (length str))
+                (prop 'highlight-indent-guides-prop))
+            (while (and pos next)
+              (setq next (text-property-not-all pos limit prop nil str))
+              (when next
+                (setq pos (text-property-any next limit prop nil str))
+                (ignore-errors
+                  (remove-text-properties next pos '(display nil face nil) str))))))
+        (advice-add #'ivy-cleanup-string :after #'my-ivy-cleanup-indentation)))))
 
 ;; Highlight the current line
 (use-package hl-line

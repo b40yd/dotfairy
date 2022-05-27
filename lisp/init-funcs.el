@@ -701,7 +701,7 @@ This is a variadic `cl-pushnew'."
   "Traverse a file structure starting linearly from DIR."
   (let ((default-directory (file-truename (expand-file-name dir))))
     (call-interactively
-     (cond ((featurep 'ivy)
+     (cond ((bound-and-true-p ivy-mode)
             #'counsel-find-file)
            (#'find-file)))))
 

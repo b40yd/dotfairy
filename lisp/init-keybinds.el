@@ -27,18 +27,17 @@
 (require 'init-custom)
 (require 'init-funcs)
 (require 'cl-lib)
-
-(defvar dotfairy-leader-key "SPC"
+(defvar dotfairy-leader-key "C-c"
   "The leader prefix key for users.")
 
-(defvar dotfairy-leader-alt-key "M-SPC"
+(defvar dotfairy-leader-alt-key "C-c SPC"
   "An alternative leader prefix key,
  used for Insert and Emacs states, and for users.")
 
-(defvar dotfairy-localleader-key "SPC m"
+(defvar dotfairy-localleader-key "C-c SPC"
   "The localleader prefix key, for major-mode specific commands.")
 
-(defvar dotfairy-localleader-alt-key "M-SPC m"
+(defvar dotfairy-localleader-alt-key "C-c SPC"
   "The localleader prefix key, for major-mode specific commands.")
 
 (defvar dotfairy-leader-map (make-sparse-keymap)

@@ -161,6 +161,17 @@ nil means disabled."
   :group 'dotfairy
   :type '(choice (const :tag "LSP Mode" lsp-mode)
                  (const :tag "Eglot" eglot)
+                 (const :tag "Lsp-Bridge" lsp-bridge)
+                 (const :tag "Disable" nil)))
+
+(defcustom dotfairy-complete 'ivy
+  "Set complete.
+`ivy': See https://github.com/abo-abo/swiper.
+`vertico': See https://github.com/minad/vertico.
+nil means disabled."
+  :group 'dotfairy
+  :type '(choice (const :tag "ivy" ivy)
+                 (const :tag "vertico" vertico)
                  (const :tag "Disable" nil)))
 
 (defcustom dotfairy-prettify-symbols-alist

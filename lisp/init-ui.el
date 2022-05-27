@@ -227,9 +227,9 @@
      ("z n" (counsel-read-setq-expression 'doom-modeline-gnus-timer) "set gnus interval")))))
 
 (use-package hide-mode-line
-  :hook (((completion-list-mode
-           completion-in-region-mode
-           eshell-mode
+  :hook (((eshell-mode
+           ;; completion-list-mode
+           ;; completion-in-region-mode
            shell-mode
            term-mode
            vterm-mode

@@ -385,8 +385,7 @@ The return value is the new value of LIST-VAR."
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
   (setq dumb-jump-prefer-searcher 'rg
         dumb-jump-selector
-        (cond ((featurep 'ivy)  'ivy)
-              ((featurep 'helm) 'helm)
+        (cond ((bound-and-true-p ivy-mode)  'ivy)
               ('popup))))
 
 (use-package editorconfig

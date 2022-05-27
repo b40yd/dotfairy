@@ -68,9 +68,6 @@
 
 ;; Load the heart of dotfairy
 (require 'init-startup)
-(require 'custom-buffer)
-(require 'custom-projectile)
-(require 'custom-ivy)
-(require 'custom-workspace)
+
 (require 'custom-keybinds)
 ;;; init.el ends here
