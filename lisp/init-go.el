@@ -52,9 +52,8 @@
                       "golang.org/x/tools/cmd/goimports"
                       "github.com/go-delve/delve/cmd/dlv"
                       "github.com/josharian/impl"
-                      "github.com/cweill/gotests/..."
+                      "github.com/cweill/gotests/gotests"
                       "github.com/fatih/gomodifytags"
-                      "github.com/davidrjenni/reftools/cmd/fillstruct"
                       "github.com/110y/go-expr-completion"
                       "github.com/golangci/golangci-lint/cmd/golangci-lint")
     "All necessary go tools.")
@@ -82,7 +81,6 @@
 
   ;; Misc
   (use-package go-dlv)
-  (use-package go-fill-struct)
   (use-package go-impl)
   (use-package go-gen-test)
   (use-package gotest)
