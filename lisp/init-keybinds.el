@@ -30,7 +30,7 @@
 (defvar dotfairy-leader-key "C-c"
   "The leader prefix key for users.")
 
-(defvar dotfairy-leader-alt-key "C-c SPC"
+(defvar dotfairy-leader-alt-key "C-c M-c"
   "An alternative leader prefix key,
  used for Insert and Emacs states, and for users.")
 

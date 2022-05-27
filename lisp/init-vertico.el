@@ -114,6 +114,7 @@ orderless."
 
 (use-package consult
   :defer t
+  :bind (("C-s" . consult-line))
   :init
   (define-key!
     [remap apropos]                       #'consult-apropos
