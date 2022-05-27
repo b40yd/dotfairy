@@ -58,6 +58,210 @@
      "p" #'symbol-overlay-jump-prev
      "P" #'symbol-overlay-switch-backward)))
 
+(use-package ivy
+  :commands (+ivy/woccur)
+  :bind
+  ((:map ivy-minibuffer-map
+    ("C-w" . ivy-yank-word)
+    ("C-c C-e" . +ivy/woccur)))
+  :config
+  (defvar +ivy-buffer-preview nil
+    "If non-nil, preview buffers while switching, à la `counsel-switch-buffer'.
+When nil, don't preview anything.
+When non-nil, preview non-virtual buffers.
+When 'everything, also preview virtual buffers")
+
+  (defvar +ivy-edit-functions nil
+    "A plist mapping ivy/counsel commands to commands that generate an editable
+results buffer.")
+
+  (defun +ivy/woccur ()
+    "Invoke a wgrep buffer on the current ivy results, if supported."
+    (interactive)
+    (unless (window-minibuffer-p)
+      (user-error "No completion session is active"))
+    (require 'wgrep)
+    (let ((caller (ivy-state-caller ivy-last)))
+      (if-let (occur-fn (plist-get +ivy-edit-functions caller))
+          (ivy-exit-with-action
+           (lambda (_) (funcall occur-fn)))
+        (if-let (occur-fn (plist-get ivy--occurs-list caller))
+            (let ((buffer (generate-new-buffer
+                           (format "*ivy-occur%s \"%s\"*"
+                                   (if caller (concat " " (prin1-to-string caller)) "")
+                                   ivy-text))))
+              (with-current-buffer buffer
+                (let ((inhibit-read-only t))
+                  (erase-buffer)
+                  (funcall occur-fn))
+                (if (ivy-state-text ivy-last)
+                    (setf (ivy-state-text ivy-last) ivy-text))
+                (setq ivy-occur-last ivy-last)
+                (setq-local ivy--directory ivy--directory))
+              (ivy-exit-with-action
+               `(lambda (_)
+                  (pop-to-buffer ,buffer)
+                  (ivy-wgrep-change-to-wgrep-mode))))
+          (user-error "%S doesn't support wgrep" caller)))))
+
+
+;;;###autoload
+  (defun +ivy/compile ()
+    "Execute a compile command from the current buffer's directory."
+    (interactive)
+    (counsel-compile default-directory))
+
+;;;###autoload
+  (defun +ivy/project-compile ()
+    "Execute a compile command from the current project's root."
+    (interactive)
+    (counsel-compile (projectile-project-root)))
+
+  ;;
+  ;; Library
+
+  (defun +ivy--switch-buffer-preview ()
+    (let (ivy-use-virtual-buffers ivy--virtual-buffers)
+      (counsel--switch-buffer-update-fn)))
+
+  (defalias '+ivy--switch-buffer-preview-all #'counsel--switch-buffer-update-fn)
+  (defalias '+ivy--switch-buffer-unwind      #'counsel--switch-buffer-unwind)
+
+  (defun +ivy--is-workspace-buffer-p (buffer)
+    (let ((buffer (car buffer)))
+      (when (stringp buffer)
+        (setq buffer (get-buffer buffer)))
+      (+workspace-contains-buffer-p buffer)))
+
+;;;###autoload
+  (defalias #'+workspace-contains-buffer-p #'persp-contain-buffer-p
+    "Return non-nil if BUFFER is in WORKSPACE (defaults to current workspace).")
+
+  (defun +ivy--is-workspace-other-buffer-p (buffer)
+    (let ((buffer (car buffer)))
+      (when (stringp buffer)
+        (setq buffer (get-buffer buffer)))
+      (and (not (eq buffer (current-buffer)))
+           (+workspace-contains-buffer-p buffer))))
+
+
+  (defun +ivy--switch-buffer (workspace other)
+    (let ((current (not other))
+          prompt action filter update unwind)
+      (cond ((and workspace current)
+             (setq prompt "Switch to workspace buffer: "
+                   action #'ivy--switch-buffer-action
+                   filter #'+ivy--is-workspace-other-buffer-p))
+            (workspace
+             (setq prompt "Switch to workspace buffer in other window: "
+                   action #'ivy--switch-buffer-other-window-action
+                   filter #'+ivy--is-workspace-buffer-p))
+            (current
+             (setq prompt "Switch to buffer: "
+                   action #'ivy--switch-buffer-action))
+            ((setq prompt "Switch to buffer in other window: "
+                   action #'ivy--switch-buffer-other-window-action)))
+      (when +ivy-buffer-preview
+        (cond ((not (and ivy-use-virtual-buffers
+                         (eq +ivy-buffer-preview 'everything)))
+               (setq update #'+ivy--switch-buffer-preview
+                     unwind #'+ivy--switch-buffer-unwind))
+              ((setq update #'+ivy--switch-buffer-preview-all
+                     unwind #'+ivy--switch-buffer-unwind))))
+      (ivy-read prompt 'internal-complete-buffer
+                :action action
+                :predicate filter
+                :update-fn update
+                :unwind unwind
+                :preselect (buffer-name (other-buffer (current-buffer)))
+                :matcher #'ivy--switch-buffer-matcher
+                :keymap ivy-switch-buffer-map
+                ;; NOTE A clever disguise, needed for virtual buffers.
+                :caller #'ivy-switch-buffer)))
+
+;;;###autoload
+  (defun +ivy/switch-workspace-buffer (&optional arg)
+    "Switch to another buffer within the current workspace.
+If ARG (universal argument), open selection in other-window."
+    (interactive "P")
+    (+ivy--switch-buffer t arg))
+
+;;;###autoload
+  (defun +ivy/switch-workspace-buffer-other-window ()
+    "Switch another window to a buffer within the current workspace."
+    (interactive)
+    (+ivy--switch-buffer t t))
+
+;;;###autoload
+  (defun +ivy/switch-buffer ()
+    "Switch to another buffer."
+    (interactive)
+    (+ivy--switch-buffer nil nil))
+
+;;;###autoload
+  (defun +ivy/switch-buffer-other-window ()
+    "Switch to another buffer in another window."
+    (interactive)
+    (+ivy--switch-buffer nil t))
+
+;;;###autoload
+  (cl-defun +ivy-file-search (&key query in all-files (recursive t) prompt args)
+    "Conduct a file search using ripgrep.
+:query STRING
+  Determines the initial input to search for.
+:in PATH
+  Sets what directory to base the search out of. Defaults to the current
+  project's root.
+:recursive BOOL
+  Whether or not to search files recursively from the base directory."
+    (declare (indent defun))
+    (unless (executable-find "rg")
+      (user-error "Couldn't find ripgrep in your PATH"))
+    (require 'counsel)
+    (let* ((this-command 'counsel-rg)
+           (project-root (or (dotfairy-project-root) default-directory))
+           (directory (or in project-root))
+           (args (concat (if all-files " -uu")
+                         (unless recursive " --maxdepth 1")
+                         " --hidden -g!.git "
+                         (mapconcat #'shell-quote-argument args " "))))
+      (setq deactivate-mark t)
+      (counsel-rg
+       (or query
+           (when (my-region-active-p)
+             (replace-regexp-in-string
+              "[! |]" (lambda (substr)
+                        (cond ((string= substr " ")
+                               "  ")
+                              ((string= substr "|")
+                               "\\\\\\\\|")
+                              ((concat "\\\\" substr))))
+              (rxt-quote-pcre (my-thing-at-point-or-region)))))
+       directory args
+       (or prompt
+           (format "Search project [%s]: "
+                   (cond ((equal directory default-directory)
+                          "./")
+                         ((equal directory project-root)
+                          (projectile-project-name))
+                         ((file-relative-name directory project-root)))
+                   (string-trim args))))))
+
+;;;###autoload
+  (defun +ivy/project-search (&optional arg initial-query directory)
+    "Performs a live project search from the project root using ripgrep.
+If ARG (universal argument), include all files, even hidden or compressed ones,
+in the search."
+    (interactive "P")
+    (+ivy-file-search :query initial-query :in directory :all-files arg))
+
+;;;###autoload
+  (defun +ivy/project-search-from-cwd (&optional arg initial-query)
+    "Performs a project search recursively from the current directory.
+If ARG (universal argument), include all files, even hidden or compressed ones."
+    (interactive "P")
+    (+ivy/project-search arg initial-query default-directory)))
+
 (use-package counsel
   :diminish ivy-mode counsel-mode
   :custom-face
@@ -69,9 +273,6 @@
   :bind
   (("C-s"   . swiper-isearch)
    ("C-r"   . swiper-isearch-backward)
-   :map ivy-minibuffer-map
-   ("C-w" . ivy-yank-word)
-
    :map counsel-find-file-map
    ("C-h" . counsel-up-directory)
 
@@ -88,7 +289,6 @@
         ivy-use-selectable-prompt t
         ivy-use-virtual-buffers t    ; Enable bookmarks and recentf
         ivy-height 12
-        swiper-action-recenter t
         ivy-fixed-height-minibuffer t
         ivy-count-format "(%d/%d) "
         ivy-ignore-buffers '("\\` " "\\`\\*tramp/" "\\`\\*xref" "\\`\\*helpful "
@@ -249,9 +449,9 @@
       "Toggle `counsel-rg' and `swiper'/`swiper-isearch' with the current input."
       (interactive)
       (ivy-quit-and-run
-       (if (memq (ivy-state-caller ivy-last) '(swiper swiper-isearch))
-           (my-ivy-switch-to-counsel-rg)
-         (my-ivy-switch-to-swiper-isearch))))
+        (if (memq (ivy-state-caller ivy-last) '(swiper swiper-isearch))
+            (my-ivy-switch-to-counsel-rg)
+          (my-ivy-switch-to-swiper-isearch))))
     (bind-key "<C-return>" #'my-swiper-toggle-counsel-rg swiper-map)
     (bind-key "<C-return>" #'my-swiper-toggle-counsel-rg counsel-ag-map)
 
@@ -260,7 +460,7 @@
         "Toggle `rg-dwim' with the current input."
         (interactive)
         (ivy-quit-and-run
-         (rg-dwim default-directory)))
+          (rg-dwim default-directory)))
       (bind-key "<M-return>" #'my-swiper-toggle-rg-dwim swiper-map)
       (bind-key "<M-return>" #'my-swiper-toggle-rg-dwim counsel-ag-map))
 
@@ -268,16 +468,16 @@
       "Toggle `swiper' and `swiper-isearch' with the current input."
       (interactive)
       (ivy-quit-and-run
-       (if (eq (ivy-state-caller ivy-last) 'swiper-isearch)
-           (swiper ivy-text)
-         (swiper-isearch ivy-text))))
+        (if (eq (ivy-state-caller ivy-last) 'swiper-isearch)
+            (swiper ivy-text)
+          (swiper-isearch ivy-text))))
     (bind-key "<s-return>" #'my-swiper-toggle-swiper-isearch swiper-map)
 
     (defun my-counsel-find-file-toggle-fzf ()
       "Toggle `counsel-fzf' with the current `counsel-find-file' input."
       (interactive)
       (ivy-quit-and-run
-       (counsel-fzf (or ivy-text "") default-directory)))
+        (counsel-fzf (or ivy-text "") default-directory)))
     (bind-key "<C-return>" #'my-counsel-find-file-toggle-fzf counsel-find-file-map)
 
     (defun my-counsel-toggle ()
@@ -628,207 +828,9 @@ The point of this is to avoid Emacs locking up indexing massive file trees."
       (setf (alist-get t ivy-posframe-display-functions-alist)
             #'ivy-posframe-display-at-frame-center-near-bottom))))
 
-;; Custom
 
-;;;###autoload
-(defun +ivy/compile ()
-  "Execute a compile command from the current buffer's directory."
-  (interactive)
-  (counsel-compile default-directory))
-
-;;;###autoload
-(defun +ivy/project-compile ()
-  "Execute a compile command from the current project's root."
-  (interactive)
-  (counsel-compile (projectile-project-root)))
-
-;;
-;; Library
-
-(defun +ivy--switch-buffer-preview ()
-  (let (ivy-use-virtual-buffers ivy--virtual-buffers)
-    (counsel--switch-buffer-update-fn)))
-
-(defalias '+ivy--switch-buffer-preview-all #'counsel--switch-buffer-update-fn)
-(defalias '+ivy--switch-buffer-unwind      #'counsel--switch-buffer-unwind)
-
-(defvar +ivy-buffer-preview nil
-  "If non-nil, preview buffers while switching, à la `counsel-switch-buffer'.
-When nil, don't preview anything.
-When non-nil, preview non-virtual buffers.
-When 'everything, also preview virtual buffers")
-
-(defvar +ivy-buffer-unreal-face 'font-lock-comment-face
-  "The face for unreal buffers in `ivy-switch-to-buffer'.")
-
-(defvar +ivy-edit-functions nil
-  "A plist mapping ivy/counsel commands to commands that generate an editable
-results buffer.")
-
-;;;###autoload
-(defun +ivy/woccur ()
-  "Invoke a wgrep buffer on the current ivy results, if supported."
-  (interactive)
-  (unless (window-minibuffer-p)
-    (user-error "No completion session is active"))
-  (require 'wgrep)
-  (let ((caller (ivy-state-caller ivy-last)))
-    (if-let (occur-fn (plist-get +ivy-edit-functions caller))
-        (ivy-exit-with-action
-         (lambda (_) (funcall occur-fn)))
-      (if-let (occur-fn (plist-get ivy--occurs-list caller))
-          (let ((buffer (generate-new-buffer
-                         (format "*ivy-occur%s \"%s\"*"
-                                 (if caller (concat " " (prin1-to-string caller)) "")
-                                 ivy-text))))
-            (with-current-buffer buffer
-              (let ((inhibit-read-only t))
-                (erase-buffer)
-                (funcall occur-fn))
-              (setf (ivy-state-text ivy-last) ivy-text)
-              (setq ivy-occur-last ivy-last)
-              (setq-local ivy--directory ivy--directory))
-            (ivy-exit-with-action
-             `(lambda (_)
-                (pop-to-buffer ,buffer)
-                (ivy-wgrep-change-to-wgrep-mode))))
-        (user-error "%S doesn't support wgrep" caller)))))
-
-
-(defun +ivy--is-workspace-buffer-p (buffer)
-  (let ((buffer (car buffer)))
-    (when (stringp buffer)
-      (setq buffer (get-buffer buffer)))
-    (+workspace-contains-buffer-p buffer)))
-
-;;;###autoload
-(defalias #'+workspace-contains-buffer-p #'persp-contain-buffer-p
-  "Return non-nil if BUFFER is in WORKSPACE (defaults to current workspace).")
-
-(defun +ivy--is-workspace-other-buffer-p (buffer)
-  (let ((buffer (car buffer)))
-    (when (stringp buffer)
-      (setq buffer (get-buffer buffer)))
-    (and (not (eq buffer (current-buffer)))
-         (+workspace-contains-buffer-p buffer))))
-
-
-(defun +ivy--switch-buffer (workspace other)
-  (let ((current (not other))
-        prompt action filter update unwind)
-    (cond ((and workspace current)
-           (setq prompt "Switch to workspace buffer: "
-                 action #'ivy--switch-buffer-action
-                 filter #'+ivy--is-workspace-other-buffer-p))
-          (workspace
-           (setq prompt "Switch to workspace buffer in other window: "
-                 action #'ivy--switch-buffer-other-window-action
-                 filter #'+ivy--is-workspace-buffer-p))
-          (current
-           (setq prompt "Switch to buffer: "
-                 action #'ivy--switch-buffer-action))
-          ((setq prompt "Switch to buffer in other window: "
-                 action #'ivy--switch-buffer-other-window-action)))
-    (when +ivy-buffer-preview
-      (cond ((not (and ivy-use-virtual-buffers
-                       (eq +ivy-buffer-preview 'everything)))
-             (setq update #'+ivy--switch-buffer-preview
-                   unwind #'+ivy--switch-buffer-unwind))
-            ((setq update #'+ivy--switch-buffer-preview-all
-                   unwind #'+ivy--switch-buffer-unwind))))
-    (ivy-read prompt 'internal-complete-buffer
-              :action action
-              :predicate filter
-              :update-fn update
-              :unwind unwind
-              :preselect (buffer-name (other-buffer (current-buffer)))
-              :matcher #'ivy--switch-buffer-matcher
-              :keymap ivy-switch-buffer-map
-              ;; NOTE A clever disguise, needed for virtual buffers.
-              :caller #'ivy-switch-buffer)))
-
-;;;###autoload
-(defun +ivy/switch-workspace-buffer (&optional arg)
-  "Switch to another buffer within the current workspace.
-If ARG (universal argument), open selection in other-window."
-  (interactive "P")
-  (+ivy--switch-buffer t arg))
-
-;;;###autoload
-(defun +ivy/switch-workspace-buffer-other-window ()
-  "Switch another window to a buffer within the current workspace."
-  (interactive)
-  (+ivy--switch-buffer t t))
-
-;;;###autoload
-(defun +ivy/switch-buffer ()
-  "Switch to another buffer."
-  (interactive)
-  (+ivy--switch-buffer nil nil))
-
-;;;###autoload
-(defun +ivy/switch-buffer-other-window ()
-  "Switch to another buffer in another window."
-  (interactive)
-  (+ivy--switch-buffer nil t))
-
-;;;###autoload
-(cl-defun +ivy-file-search (&key query in all-files (recursive t) prompt args)
-  "Conduct a file search using ripgrep.
-:query STRING
-  Determines the initial input to search for.
-:in PATH
-  Sets what directory to base the search out of. Defaults to the current
-  project's root.
-:recursive BOOL
-  Whether or not to search files recursively from the base directory."
-  (declare (indent defun))
-  (unless (executable-find "rg")
-    (user-error "Couldn't find ripgrep in your PATH"))
-  (require 'counsel)
-  (let* ((this-command 'counsel-rg)
-         (project-root (or (dotfairy-project-root) default-directory))
-         (directory (or in project-root))
-         (args (concat (if all-files " -uu")
-                       (unless recursive " --maxdepth 1")
-                       " --hidden -g!.git "
-                       (mapconcat #'shell-quote-argument args " "))))
-    (setq deactivate-mark t)
-    (counsel-rg
-     (or query
-         (when (my-region-active-p)
-           (replace-regexp-in-string
-            "[! |]" (lambda (substr)
-                      (cond ((string= substr " ")
-                             "  ")
-                            ((string= substr "|")
-                             "\\\\\\\\|")
-                            ((concat "\\\\" substr))))
-            (rxt-quote-pcre (my-thing-at-point-or-region)))))
-     directory args
-     (or prompt
-         (format "Search project [%s]: "
-                 (cond ((equal directory default-directory)
-                        "./")
-                       ((equal directory project-root)
-                        (projectile-project-name))
-                       ((file-relative-name directory project-root)))
-                 (string-trim args))))))
-
-;;;###autoload
-(defun +ivy/project-search (&optional arg initial-query directory)
-  "Performs a live project search from the project root using ripgrep.
-If ARG (universal argument), include all files, even hidden or compressed ones,
-in the search."
-  (interactive "P")
-  (+ivy-file-search :query initial-query :in directory :all-files arg))
-
-;;;###autoload
-(defun +ivy/project-search-from-cwd (&optional arg initial-query)
-  "Performs a project search recursively from the current directory.
-If ARG (universal argument), include all files, even hidden or compressed ones."
-  (interactive "P")
-  (+ivy/project-search arg initial-query default-directory))
+;;;###package swiper
+(setq swiper-action-recenter t)
 
 (provide 'init-ivy)
 ;;; init-ivy.el ends here
