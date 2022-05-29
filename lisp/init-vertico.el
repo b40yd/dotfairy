@@ -27,14 +27,6 @@
 (require 'init-funcs)
 (require 'init-keybinds)
 
-(defvar +vertico-company-completion-styles '(basic partial-completion orderless)
-  "Completion styles for company to use.
-The completion/vertico module uses the orderless completion style by default,
-but this returns too broad a candidate set for company completion. This variable
-overrides `completion-styles' during company completion sessions.")
-
-(defvar +vertico-consult-fd-args nil
-  "Shell command and arguments the vertico module uses for fd.")
 
 (use-package vertico
   :hook (after-init . vertico-mode)
@@ -71,7 +63,15 @@ overrides `completion-styles' during company completion sessions.")
       (apply fn args))))
 
 (use-package orderless
+  :ensure t
   :config
+  (require 'orderless nil t)
+  (defvar +vertico-company-completion-styles '(basic partial-completion orderless)
+    "Completion styles for company to use.
+The completion/vertico module uses the orderless completion style by default,
+but this returns too broad a candidate set for company completion. This variable
+overrides `completion-styles' during company completion sessions.")
+
   (defadvice! +vertico--company-capf--candidates-a (fn &rest args)
     "Highlight company matches correctly, and try default completion styles before
 orderless."
@@ -134,7 +134,6 @@ orderless."
         (add-to-list 'process-coding-system-alist '("es" gbk . gbk))
         (add-to-list 'process-coding-system-alist '("explorer" gbk . gbk))
         (setq consult-locate-args (encode-coding-string "es.exe -i -p -r" 'gbk))))
-
 
   (defun +vertico/jump-list (jump)
     "Go to an entry in evil's (or better-jumper's) jumplist."
@@ -288,6 +287,9 @@ buffer will be opened in the current workspace instead."
     [remap persp-switch-to-buffer]        #'+vertico/switch-workspace-buffer)
   (advice-add #'multi-occur :override #'consult-multi-occur)
   :config
+  (defvar +vertico-consult-fd-args nil
+    "Shell command and arguments the vertico module uses for fd.")
+
   (defadvice! +vertico--consult-recent-file-a (&rest _args)
     "`consult-recent-file' needs to have `recentf-mode' on to work correctly"
     :before #'consult-recent-file
