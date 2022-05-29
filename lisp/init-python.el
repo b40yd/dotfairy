@@ -93,9 +93,8 @@
 
   (use-package python-pytest
     :custom
-    (python-pytest-confirm t)))
+    (python-pytest-confirm t))
 
-(after! python-mode
   (map! :localleader
         :after python
         :map python-mode-map
