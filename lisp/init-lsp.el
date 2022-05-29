@@ -59,7 +59,7 @@
          :type 'cons
          :group 'lsp-bridge)
 
-       (defcustom lsp-bridge-hide-completion-characters '(":" ";" "(" ")" "[" "]" "{" "}" "," "\"" " " "\ ")
+       (defcustom lsp-bridge-hide-completion-characters '(":" ";" "(" ")" "[" "]" "{" "}" "," "\"")
          "If char before match this option, stop popup completion ui."
          :type 'cons
          :group 'lsp-bridge)

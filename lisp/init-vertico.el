@@ -102,12 +102,9 @@ orderless."
      ((string-prefix-p "~" pattern) `(orderless-flex . ,(substring pattern 1)))
      ((string-suffix-p "~" pattern) `(orderless-flex . ,(substring pattern 0 -1)))))
 
-
   (defun +vertico-basic-remote-try-completion (string table pred point)
     (and (vertico--remote-p string)
          (completion-basic-try-completion string table pred point)))
-
-
 
   (defun +vertico-basic-remote-all-completions (string table pred point)
     (and (vertico--remote-p string)
