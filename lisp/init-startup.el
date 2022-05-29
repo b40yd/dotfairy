@@ -86,9 +86,6 @@
 (require 'init-sql)
 (require 'init-prog)
 
-;; Debugger
-(require 'init-debugger)
-
 ;; Highlight
 (require 'init-highlight)
 
