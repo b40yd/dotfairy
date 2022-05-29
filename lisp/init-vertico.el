@@ -65,7 +65,6 @@
 (use-package orderless
   :ensure t
   :config
-  (require 'orderless nil t)
   (defvar +vertico-company-completion-styles '(basic partial-completion orderless)
     "Completion styles for company to use.
 The completion/vertico module uses the orderless completion style by default,
@@ -129,6 +128,7 @@ orderless."
   :commands (+vertico/jump-list +vertico/switch-workspace-buffer +vertico/embark-open-in-new-workspace)
   :bind (("C-s" . consult-line))
   :init
+  (require 'orderless nil t)
   (if IS-WINDOWS
       (progn
         (add-to-list 'process-coding-system-alist '("es" gbk . gbk))
