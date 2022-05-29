@@ -361,13 +361,63 @@ buffer will be opened in the current workspace instead."
 (use-package embark
   :defer t
   :commands (+vertico/embark-export-write)
-  :bind (("C-c ;" . embark-act)
+  :bind (([remap describe-bindings] . embark-bindings)
+         ("C-c ;" . embark-act)
          :map minibuffer-local-map
          ("C-c ;" . embark-act)
          ("C-c C-l" . embark-export)
          ("C-c C-e" . +vertico/embark-export-write))
   :init
   :config
+  (defadvice! +vertico--embark-which-key-prompt-a (fn &rest args)
+    "Hide the which-key indicator immediately when using the completing-read prompter."
+    :around #'embark-completing-read-prompter
+    (which-key--hide-popup-ignore-command)
+    (let ((embark-indicators
+           (remq #'embark-which-key-indicator embark-indicators)))
+      (apply fn args)))
+  (defun +vertico-embark-target-package-fn ()
+    "Targets Doom's package! statements and returns the package name"
+    (when (or (derived-mode-p 'emacs-lisp-mode) (derived-mode-p 'org-mode))
+      (save-excursion
+        (when (and (search-backward "(" nil t)
+                   (looking-at "(\\s-*package!\\s-*\\(\\(\\sw\\|\\s_\\)+\\)\\s-*"))
+          (let ((pkg (match-string 1)))
+            (set-text-properties 0 (length pkg) nil pkg)
+            `(package . ,pkg))))))
+  (defun +vertico-embark-which-key-indicator ()
+    "An embark indicator that displays keymaps using which-key.
+The which-key help message will show the type and value of the
+current target followed by an ellipsis if there are further
+targets."
+    (lambda (&optional keymap targets prefix)
+      (if (null keymap)
+          (which-key--hide-popup-ignore-command)
+        (which-key--show-keymap
+         (if (eq (plist-get (car targets) :type) 'embark-become)
+             "Become"
+           (format "Act on %s '%s'%s"
+                   (plist-get (car targets) :type)
+                   (embark--truncate-target (plist-get (car targets) :target))
+                   (if (cdr targets) "…" "")))
+         (if prefix
+             (pcase (lookup-key keymap prefix 'accept-default)
+               ((and (pred keymapp) km) km)
+               (_ (key-binding prefix 'accept-default)))
+           keymap)
+         nil nil t (lambda (binding)
+                     (not (string-suffix-p "-argument" (cdr binding))))))))
+  (cl-nsubstitute #'+vertico-embark-which-key-indicator #'embark-mixed-indicator embark-indicators)
+  ;; add the package! target finder before the file target finder,
+  ;; so we don't get a false positive match.
+  (let ((pos (or (cl-position
+                  'embark-target-file-at-point
+                  embark-target-finders)
+                 (length embark-target-finders))))
+    (cl-callf2
+        cons
+        '+vertico-embark-target-package-fn
+        (nthcdr pos embark-target-finders)))
   (defun +vertico/embark-export-write ()
     "Export the current vertico results to a writable buffer if possible.
 Supports exporting consult-grep to wgrep, file to wdeired, and consult-location to occur-edit"

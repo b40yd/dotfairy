@@ -123,10 +123,7 @@
           (t
            (require 'dumb-jump)
            (dumb-jump-back))))
-
-       ;; For Xref support
-       (add-hook 'lsp-bridge-mode-hook (lambda ()
-                                         (add-hook 'xref-backend-functions #'lsp-bridge-xref-backend nil t))))))
+       )))
   ('lsp-mode
    ;; @see https://emacs-lsp.github.io/lsp-mode/page/performance
    (setq read-process-output-max (* 1024 1024)) ;; 1MB
