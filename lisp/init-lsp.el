@@ -39,6 +39,7 @@
      :config
      (setq corfu-history-mode t)
      (use-package cape)
+     (use-package corfu-doc)
      (use-package lsp-bridge
        :ensure nil
        :quelpa (lsp-bridge :fetcher github :repo "manateelazycat/lsp-bridge")
@@ -52,7 +53,7 @@
        (require 'corfu-history)
        (require 'lsp-bridge-icon)        ;; show icons for completion items, optional
        (require 'lsp-bridge-orderless)   ;; make lsp-bridge support fuzzy match, optional
-       :hook (after-init . lsp-bridge-mode)
+       :hook (after-init . global-lsp-bridge-mode)
        :config
        (setq lsp-bridge-enable-log nil)
        (defcustom lsp-bridge-completion-stop-commands '(corfu-complete corfu-insert undo-tree-undo undo-tree-redo)
@@ -69,17 +70,16 @@
        (add-to-list 'completion-at-point-functions #'cape-symbol)
        (add-to-list 'completion-at-point-functions #'cape-file)
        (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-       (dolist (hook (list
-                      'emacs-lisp-mode-hook
-                      ))
+
+       (dolist (hook (list 'emacs-lisp-mode-hook))
          (add-hook hook (lambda ()
                           (setq-local corfu-auto t) ; Elisp文件自动弹出补全
                           )))
        (map! :leader
              :map lsp-bridge-mode-map
              (:prefix ("l" . "lsp")
-              :desc "Show document" "p" #'lsp-bridge-lookup-documentation))
-
+              :desc "Show document" "p" #'lsp-bridge-lookup-documentation
+              :desc "Show signature help" "d" #'lsp-bridge-show-signature-help-in-minibuffer))
        ;; 通过Cape融合不同的补全后端，比如lsp-bridge、 tabnine、 file、 dabbrev.
        (defun lsp-bridge-mix-multi-backends ()
          (setq-local completion-category-defaults nil)
@@ -94,8 +94,6 @@
                         ;; #'cape-dabbrev
                         )
                        'equal))))
-
-
        (dolist (hook lsp-bridge-default-mode-hooks)
          (add-hook hook (lambda ()
                           (lsp-bridge-mode 1)             ; 开启lsp-bridge
@@ -115,7 +113,6 @@
           (t
            (require 'dumb-jump)
            (dumb-jump-go))))
-
        (defun lsp-bridge-jump-back ()
          (interactive)
          (cond
@@ -129,7 +126,6 @@
    ;; @see https://emacs-lsp.github.io/lsp-mode/page/performance
    (setq read-process-output-max (* 1024 1024)) ;; 1MB
    (setenv "LSP_USE_PLISTS" "true")
-
    (use-package lsp-mode
      :ensure t
      :defines (lsp-clients-python-library-directories
@@ -364,7 +360,6 @@
       (use-package consult-lsp
         :init
         (map! :map lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols))))
-
    (use-package lsp-treemacs
      :after lsp-mode
      :bind (:map lsp-mode-map
@@ -377,7 +372,6 @@
        (when (boundp 'aw-ignored-buffers)
          (push 'lsp-treemacs-symbols-mode aw-ignored-buffers)
          (push 'lsp-treemacs-java-deps-mode aw-ignored-buffers)))
-
      (with-no-warnings
        (when (icons-displayable-p)
          (treemacs-create-theme "dotfairy-colors"
@@ -548,7 +542,6 @@
               :extensions (java-project))))
 
          (setq lsp-treemacs-theme "dotfairy-colors"))))
-
    ;; Python: pyright
    (use-package lsp-pyright
      :preface
