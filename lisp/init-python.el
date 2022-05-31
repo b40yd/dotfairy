@@ -95,6 +95,12 @@
     :custom
     (python-pytest-confirm t))
 
+  (defun +python/optimize-imports ()
+    "organize imports"
+    (interactive)
+    (pyimport-remove-unused)
+    (py-isort-buffer))
+
   (map! :localleader
         :after python
         :map python-mode-map
