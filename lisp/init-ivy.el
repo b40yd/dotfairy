@@ -295,6 +295,16 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
                              "\\`\\*.+-posframe-buffer\\*" "\\` ?\\*company-.+\\*")
         ivy-on-del-error-function #'ignore
         ivy-initial-inputs-alist nil)
+  ;; Use orderless regex strategy
+  (setq ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
+
+  ;; Set minibuffer height for different commands
+  (setq ivy-height-alist '((counsel-evil-registers . 5)
+                           (counsel-yank-pop . 8)
+                           (counsel-git-log . 4)
+                           (swiper . 15)
+                           (counsel-projectile-ag . 15)
+                           (counsel-projectile-rg . 15)))
 
   ;; Better performance on Windows
   (when IS-WINDOWS
@@ -449,9 +459,9 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
       "Toggle `counsel-rg' and `swiper'/`swiper-isearch' with the current input."
       (interactive)
       (ivy-quit-and-run
-        (if (memq (ivy-state-caller ivy-last) '(swiper swiper-isearch))
-            (my-ivy-switch-to-counsel-rg)
-          (my-ivy-switch-to-swiper-isearch))))
+       (if (memq (ivy-state-caller ivy-last) '(swiper swiper-isearch))
+           (my-ivy-switch-to-counsel-rg)
+         (my-ivy-switch-to-swiper-isearch))))
     (bind-key "<C-return>" #'my-swiper-toggle-counsel-rg swiper-map)
     (bind-key "<C-return>" #'my-swiper-toggle-counsel-rg counsel-ag-map)
 
@@ -460,7 +470,7 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
         "Toggle `rg-dwim' with the current input."
         (interactive)
         (ivy-quit-and-run
-          (rg-dwim default-directory)))
+         (rg-dwim default-directory)))
       (bind-key "<M-return>" #'my-swiper-toggle-rg-dwim swiper-map)
       (bind-key "<M-return>" #'my-swiper-toggle-rg-dwim counsel-ag-map))
 
@@ -468,16 +478,16 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
       "Toggle `swiper' and `swiper-isearch' with the current input."
       (interactive)
       (ivy-quit-and-run
-        (if (eq (ivy-state-caller ivy-last) 'swiper-isearch)
-            (swiper ivy-text)
-          (swiper-isearch ivy-text))))
+       (if (eq (ivy-state-caller ivy-last) 'swiper-isearch)
+           (swiper ivy-text)
+         (swiper-isearch ivy-text))))
     (bind-key "<s-return>" #'my-swiper-toggle-swiper-isearch swiper-map)
 
     (defun my-counsel-find-file-toggle-fzf ()
       "Toggle `counsel-fzf' with the current `counsel-find-file' input."
       (interactive)
       (ivy-quit-and-run
-        (counsel-fzf (or ivy-text "") default-directory)))
+       (counsel-fzf (or ivy-text "") default-directory)))
     (bind-key "<C-return>" #'my-counsel-find-file-toggle-fzf counsel-find-file-map)
 
     (defun my-counsel-toggle ()
@@ -744,6 +754,46 @@ The point of this is to avoid Emacs locking up indexing massive file trees."
      :desc "colors web"           "w" #'counsel-colors-web
      :desc "set variable"         "v" #'counsel-set-variable
      :desc "fzf"                  "z" #'counsel-fzf)))
+
+;; Support pinyin in Ivy
+;; Input prefix ':' to match pinyin
+;; Refer to  https://github.com/abo-abo/swiper/issues/919 and
+;; https://github.com/pengpengxp/swiper/wiki/ivy-support-chinese-pinyin
+(use-package pinyinlib
+  :commands pinyinlib-build-regexp-string
+  :init
+  (with-no-warnings
+    (defun my-pinyinlib-build-regexp-string (str)
+      "Build a pinyin regexp sequence from STR."
+      (cond ((equal str ".*") ".*")
+            (t (pinyinlib-build-regexp-string str t))))
+
+    (defun my-pinyin-regexp-helper (str)
+      "Construct pinyin regexp for STR."
+      (cond ((equal str " ") ".*")
+            ((equal str "") nil)
+            (t str)))
+
+    (defun pinyin-to-utf8 (str)
+      "Convert STR to UTF-8."
+      (cond ((equal 0 (length str)) nil)
+            ((equal (substring str 0 1) "!")
+             (mapconcat
+              #'my-pinyinlib-build-regexp-string
+              (remove nil (mapcar
+                           #'my-pinyin-regexp-helper
+                           (split-string
+                            (replace-regexp-in-string "!" "" str )
+                            "")))
+              ""))
+            (t nil)))
+
+    (defun my-ivy--regex-pinyin (fn str)
+      "The regex builder advice to support pinyin."
+      (or (pinyin-to-utf8 str)
+          (funcall fn str)))
+    (advice-add #'ivy--regex-plus :around #'my-ivy--regex-pinyin)
+    (advice-add #'ivy--regex-ignore-order :around #'my-ivy--regex-pinyin)))
 
 (use-package ivy-dired-history
   :demand t
