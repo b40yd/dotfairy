@@ -756,7 +756,7 @@ The point of this is to avoid Emacs locking up indexing massive file trees."
      :desc "fzf"                  "z" #'counsel-fzf)))
 
 ;; Support pinyin in Ivy
-;; Input prefix ':' to match pinyin
+;; Input prefix '!' to match pinyin
 ;; Refer to  https://github.com/abo-abo/swiper/issues/919 and
 ;; https://github.com/pengpengxp/swiper/wiki/ivy-support-chinese-pinyin
 (use-package pinyinlib
