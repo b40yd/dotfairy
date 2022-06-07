@@ -6,7 +6,7 @@
   (add-to-list 'projectile-project-root-files "Cargo.toml"))
 
 (use-package rust-mode
-  :hook ((after-init . rust-mode)))
+  :mode ("\\.rs$" . rust-mode))
 ;; Rust
 (when (memq dotfairy-lsp '(lsp-mode eglot))
   (use-package rustic
