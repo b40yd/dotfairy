@@ -228,15 +228,16 @@ If ARG (universal argument), open selection in other-window."
       (setq deactivate-mark t)
       (counsel-rg
        (or query
-           (when (my-region-active-p)
-             (replace-regexp-in-string
-              "[! |]" (lambda (substr)
-                        (cond ((string= substr " ")
-                               "  ")
-                              ((string= substr "|")
-                               "\\\\\\\\|")
-                              ((concat "\\\\" substr))))
-              (rxt-quote-pcre (my-thing-at-point-or-region)))))
+           (if (dotfairy-region-active-p)
+               (replace-regexp-in-string
+                "[! |]" (lambda (substr)
+                          (cond ((string= substr " ")
+                                 "  ")
+                                ((string= substr "|")
+                                 "\\\\\\\\|")
+                                ((concat "\\\\" substr))))
+                (rxt-quote-pcre (dotfairy-thing-at-point-or-region)))
+             (ivy-thing-at-point)))
        directory args
        (or prompt
            (format "Search project [%s]: "
@@ -459,9 +460,9 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
       "Toggle `counsel-rg' and `swiper'/`swiper-isearch' with the current input."
       (interactive)
       (ivy-quit-and-run
-       (if (memq (ivy-state-caller ivy-last) '(swiper swiper-isearch))
-           (my-ivy-switch-to-counsel-rg)
-         (my-ivy-switch-to-swiper-isearch))))
+        (if (memq (ivy-state-caller ivy-last) '(swiper swiper-isearch))
+            (my-ivy-switch-to-counsel-rg)
+          (my-ivy-switch-to-swiper-isearch))))
     (bind-key "<C-return>" #'my-swiper-toggle-counsel-rg swiper-map)
     (bind-key "<C-return>" #'my-swiper-toggle-counsel-rg counsel-ag-map)
 
@@ -470,7 +471,7 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
         "Toggle `rg-dwim' with the current input."
         (interactive)
         (ivy-quit-and-run
-         (rg-dwim default-directory)))
+          (rg-dwim default-directory)))
       (bind-key "<M-return>" #'my-swiper-toggle-rg-dwim swiper-map)
       (bind-key "<M-return>" #'my-swiper-toggle-rg-dwim counsel-ag-map))
 
@@ -478,16 +479,16 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
       "Toggle `swiper' and `swiper-isearch' with the current input."
       (interactive)
       (ivy-quit-and-run
-       (if (eq (ivy-state-caller ivy-last) 'swiper-isearch)
-           (swiper ivy-text)
-         (swiper-isearch ivy-text))))
+        (if (eq (ivy-state-caller ivy-last) 'swiper-isearch)
+            (swiper ivy-text)
+          (swiper-isearch ivy-text))))
     (bind-key "<s-return>" #'my-swiper-toggle-swiper-isearch swiper-map)
 
     (defun my-counsel-find-file-toggle-fzf ()
       "Toggle `counsel-fzf' with the current `counsel-find-file' input."
       (interactive)
       (ivy-quit-and-run
-       (counsel-fzf (or ivy-text "") default-directory)))
+        (counsel-fzf (or ivy-text "") default-directory)))
     (bind-key "<C-return>" #'my-counsel-find-file-toggle-fzf counsel-find-file-map)
 
     (defun my-counsel-toggle ()

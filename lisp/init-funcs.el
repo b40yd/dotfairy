@@ -30,65 +30,6 @@
 (require 'init-files)
 
 ;;;###autoload
-(defun my-region-active-p ()
-  "Return non-nil if selection is active.
-Detects evil visual mode as well."
-  (declare (side-effect-free t))
-  (or (use-region-p)
-      (and (bound-and-true-p evil-local-mode)
-           (evil-visual-state-p))))
-
-;;;###autoload
-(defun my-region-beginning ()
-  "Return beginning position of selection.
-Uses `evil-visual-beginning' if available."
-  (declare (side-effect-free t))
-  (or (and (bound-and-true-p evil-local-mode)
-           (markerp evil-visual-beginning)
-           (marker-position evil-visual-beginning))
-      (region-beginning)))
-
-;;;###autoload
-(defun my-region-end ()
-  "Return end position of selection.
-Uses `evil-visual-end' if available."
-  (declare (side-effect-free t))
-  (if (bound-and-true-p evil-local-mode)
-      evil-visual-end
-    (region-end)))
-
-;;;###autoload
-(defun my-thing-at-point-or-region (&optional thing prompt)
-  "Grab the current selection, THING at point, or xref identifier at point.
-Returns THING if it is a string. Otherwise, if nothing is found at point and
-PROMPT is non-nil, prompt for a string (if PROMPT is a string it'll be used as
-the prompting string). Returns nil if all else fails.
-NOTE: Don't use THING for grabbing symbol-at-point. The xref fallback is smarter
-in some cases."
-  (declare (side-effect-free t))
-  (cond ((stringp thing)
-         thing)
-        ((my-region-active-p)
-         (buffer-substring-no-properties
-          (my-region-beginning)
-          (my-region-end)))
-        (thing
-         (thing-at-point thing t))
-        ((require 'xref nil t)
-         ;; Eglot, nox (a fork of eglot), and elpy implementations for
-         ;; `xref-backend-identifier-at-point' betray the documented purpose of
-         ;; the interface. Eglot/nox return a hardcoded string and elpy prepends
-         ;; the line number to the symbol.
-         (if (memq (xref-find-backend) '(eglot elpy nox))
-             (thing-at-point 'symbol t)
-           ;; A little smarter than using `symbol-at-point', though in most
-           ;; cases, xref ends up using `symbol-at-point' anyway.
-           (xref-backend-identifier-at-point (xref-find-backend))))
-        (prompt
-         (read-string (if (stringp prompt) prompt "")))))
-
-
-;;;###autoload
 (defmacro plist-put! (plist &rest rest)
   "Set each PROP VALUE pair in REST to PLIST in-place."
   `(cl-loop for (prop value)
