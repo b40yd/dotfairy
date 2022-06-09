@@ -30,9 +30,10 @@
 (pcase dotfairy-lsp
   ('eglot
    (use-package eglot
-     :hook (prog-mode . (lambda ()
-                          (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode 'makefile-mode)
-                            (eglot-ensure))))))
+     :hook ((prog-mode . (lambda ()
+                           (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode 'makefile-mode)
+                             (eglot-ensure))))
+            ((markdown-mode yaml-mode) . eglot-ensure))))
   ('lsp-bridge
    (use-package lsp-bridge
      :ensure nil
@@ -86,7 +87,7 @@
      :hook ((prog-mode . (lambda ()
                            (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode 'makefile-mode)
                              (lsp-deferred))))
-            (markdown-mode . lsp-deferred)
+            ((markdown-mode yaml-mode) . lsp-deferred)
             (lsp-mode . (lambda ()
                           ;; Integrate `which-key'
                           (lsp-enable-which-key-integration)

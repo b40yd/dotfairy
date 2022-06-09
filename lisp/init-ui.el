@@ -100,6 +100,7 @@
   :hook (after-init . doom-modeline-mode)
   :init
   (setq doom-modeline-icon display-icon
+        doom-modeline-height 1
         doom-modeline-buffer-encoding t
         doom-modeline-unicode-fallback t
         doom-modeline-minor-modes t)
