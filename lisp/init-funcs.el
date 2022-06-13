@@ -188,25 +188,16 @@ Save to `custom-file' if NO-SAVE is nil."
 Not displaying the chart if NO-CHART is non-nil.
 Return the fastest package archive."
   (interactive)
-
-  (let* ((urls (mapcar
-                (lambda (url)
-                  (concat url "archive-contents"))
-                (mapcar #'cdr
-                        (mapcar #'cadr
-                                (mapcar #'cdr
-                                        dotfairy-package-archives-alist)))))
-         (durations (mapcar
-                     (lambda (url)
-                       (let ((start (current-time)))
+  (let* ((durations (mapcar
+                     (lambda (pair)
+                       (let ((url (concat (cdr (nth 2 (cdr pair)))
+                                          "archive-contents"))
+                             (start (current-time)))
                          (message "Fetching %s..." url)
-                         (cond ((executable-find "curl")
-                                (call-process "curl" nil nil nil "--max-time" "10" url))
-                               ((executable-find "wget")
-                                (call-process "wget" nil nil nil "--timeout=10" url))
-                               (t (user-error "curl or wget is not found")))
+                         (ignore-errors
+                           (url-copy-file url null-device t))
                          (float-time (time-subtract (current-time) start))))
-                     urls))
+                     dotfairy-package-archives-alist))
          (fastest (car (nth (cl-position (apply #'min durations) durations)
                             dotfairy-package-archives-alist))))
 
@@ -217,11 +208,10 @@ Return the fastest package archive."
       (chart-bar-quickie
        'horizontal
        "Speed test for the ELPA mirrors"
-       (mapcar (lambda (url) (url-host (url-generic-parse-url url))) urls) "ELPA"
+       (mapcar (lambda (p) (symbol-name (car p))) dotfairy-package-archives-alist)
+       "ELPA"
        (mapcar (lambda (d) (* 1e3 d)) durations) "ms"))
 
-    (message "%s" urls)
-    (message "%s" durations)
     (message "%s is the fastest package archive" fastest)
 
     ;; Return the fastest
@@ -352,12 +342,10 @@ Ignores `nil' elements in SEGMENTS."
 
 ;;;###autoload
 (defun dotfairy-thing-at-point-or-region (&optional thing prompt)
-  "Grab the current selection, THING at point, or xref identifier at point.
-Returns THING if it is a string. Otherwise, if nothing is found at point and
-PROMPT is non-nil, prompt for a string (if PROMPT is a string it'll be used as
-the prompting string). Returns nil if all else fails.
-NOTE: Don't use THING for grabbing symbol-at-point. The xref fallback is smarter
-in some cases."
+  "Grab the current selection, THING at point, Returns THING if it is a string.
+Otherwise, if nothing is found at point and PROMPT is non-nil, prompt for a
+string (if PROMPT is a string it'll be used as the prompting string). Returns
+nil if all else fails. NOTE: Don't use THING for grabbing symbol-at-point. "
   (declare (side-effect-free t))
   (cond ((stringp thing)
          thing)
@@ -365,20 +353,17 @@ in some cases."
          (buffer-substring-no-properties
           (dotfairy-region-beginning)
           (dotfairy-region-end)))
-        (thing
-         (thing-at-point thing t))
-        ((require 'xref nil t)
-         ;; Eglot, nox (a fork of eglot), and elpy implementations for
-         ;; `xref-backend-identifier-at-point' betray the documented purpose of
-         ;; the interface. Eglot/nox return a hardcoded string and elpy prepends
-         ;; the line number to the symbol.
-         (if (memq (xref-find-backend) '(eglot elpy nox))
-             (thing-at-point 'symbol t)
-           ;; A little smarter than using `symbol-at-point', though in most
-           ;; cases, xref ends up using `symbol-at-point' anyway.
-           (xref-backend-identifier-at-point (xref-find-backend))))
+        ((let ((s (thing-at-point 'symbol)))
+           (and (stringp s)
+                (if (string-match "\\`[`']?\\(.*?\\)'?\\'" s)
+                    (match-string 1 s)
+                  s))))
+        ((looking-at "(+\\(\\(?:\\sw\\|\\s_\\)+\\)\\_>")
+         (match-string-no-properties 1))
         (prompt
-         (read-string (if (stringp prompt) prompt "")))))
+         (read-string (if (stringp prompt) prompt "")))
+        (t
+         "")))
 
 (defmacro cmd! (&rest body)
   "Returns (lambda () (interactive) ,@body)

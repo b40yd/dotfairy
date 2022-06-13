@@ -27,6 +27,17 @@
 (require 'init-custom)
 (require 'init-funcs)
 
+;; Optimization
+(setq-default cursor-in-non-selected-windows nil)
+(setq idle-update-delay 1.0
+      highlight-nonselected-windows nil
+      fast-but-imprecise-scrolling t
+      redisplay-skip-fontification-on-input t)
+
+;; Inhibit resizing frame
+(setq frame-inhibit-implied-resize t
+      frame-resize-pixelwise t)
+
 ;; Don't use GTK+ tooltip
 (when (boundp 'x-gtk-use-system-tooltips)
   (setq x-gtk-use-system-tooltips nil))
@@ -47,25 +58,16 @@
                 (set-frame-parameter nil 'ns-appearance bg)
                 (setcdr (assq 'ns-appearance default-frame-alist) bg)))))
 
-;; Optimization
-(setq-default cursor-in-non-selected-windows nil)
-(setq idle-update-delay 1.0
-      highlight-nonselected-windows nil
-      fast-but-imprecise-scrolling t
-      redisplay-skip-fontification-on-input t)
-
-;; Inhibit resizing frame
-(setq frame-inhibit-implied-resize t
-      frame-resize-pixelwise t)
-
 ;; Menu/Tool/Scroll bars
 ;; Disable tool, menu, and scrollbars. Doom is designed to be keyboard-centric,
 ;; so these are just clutter (the scrollbar also impacts performance). Whats
 ;; more, the menu bar exposes functionality that Doom doesn't endorse.
 (unless (>= emacs-major-version 27)
-  (add-to-list 'default-frame-alist '(menu-bar-lines . 0))
-  (add-to-list 'default-frame-alist '(tool-bar-lines . 0) )
-  (add-to-list 'default-frame-alist '(vertical-scroll-bars)))
+  (push '(menu-bar-lines . 0) default-frame-alist)
+  (push '(tool-bar-lines . 0) default-frame-alist)
+  (push '(vertical-scroll-bars) default-frame-alist)
+  (when (featurep 'ns)
+    (push '(ns-transparent-titlebar . t) default-frame-alist)))
 
 ;; Settings for UI theme
 ;; theme:
@@ -299,6 +301,12 @@
     :ensure t
     :init
     (dashboard-setup-startup-hook)
+    :hook (dashboard-mode . (lambda ()
+                              ;; No title
+                              (setq-local frame-title-format nil)
+                              ;; Enable `page-break-lines-mode'
+                              (when (fboundp 'page-break-lines-mode)
+                                (page-break-lines-mode 1))))
     :config
     (setq dashboard-startup-banner (or dotfairy-logo 'official)
           dashboard-set-heading-icons t
