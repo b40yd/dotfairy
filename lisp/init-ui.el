@@ -260,6 +260,7 @@
 ;; need install all-the-icons fonts
 ;; web site https://github.com/domtronn/all-the-icons.el
 (use-package all-the-icons
+  :custom (all-the-icons-scale-factor 1.1)
   :commands (all-the-icons-octicon
              all-the-icons-faicon
              all-the-icons-fileicon

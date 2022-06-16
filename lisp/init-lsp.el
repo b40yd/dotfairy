@@ -705,7 +705,7 @@
                  (inhibit-modification-hooks t)
                  (string (cond ((stringp object) object)
                                ((bufferp object) (with-current-buffer object (buffer-string))))))
-            (when (and string (> (length (string-trim string)) 0))
+            (when (and string (length> (string-trim string) 0))
               (with-current-buffer (company-box--get-buffer "doc")
                 (erase-buffer)
                 (insert (propertize "\n" 'face '(:height 0.5)))
@@ -856,7 +856,7 @@
   ;; https://github.com/emacs-lsp/lsp-mode/issues/377
   (cl-defmacro lsp-org-babel-enable (lang)
     "Support LANG in org source code block."
-    (cl-check-type lang stringp)
+    (cl-check-type lang string)
     (let* ((edit-pre (intern (format "org-babel-edit-prep:%s" lang)))
            (intern-pre (intern (format "lsp--%s" (symbol-name edit-pre)))))
       `(progn

@@ -101,7 +101,7 @@ If Non-nil, use dashboard, otherwise will restore previous session."
 ;; @see https://github.com/melpa/melpa and https://elpa.emacs-china.org/.
 (defcustom dotfairy-package-archives-alist
   '((melpa    . (("gnu"    . "http://elpa.gnu.org/packages/")
-                 ("nongnu" . "http://elpa.nongnu.org/packages/")
+                 ("nongnu" . "http://elpa.nongnu.org/nongnu/")
                  ("melpa"  . "http://melpa.org/packages/")))
     (emacs-cn . (("gnu"    . "http://elpa.emacs-china.org/gnu/")
                  ("nongnu" . "http://elpa.emacs-china.org/nongnu/")
