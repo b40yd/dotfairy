@@ -64,7 +64,7 @@
                            "Monaco" "DejaVu Sans Mono" "Consolas")
              when (font-installed-p font)
              return (set-face-attribute 'default nil
-                                        :font font
+                                        :family font
                                         :height (cond (IS-MAC 180)
                                                       (IS-WINDOWS 110)
                                                       (t 130))))
@@ -75,9 +75,11 @@
              return (set-fontset-font t 'unicode font nil 'prepend))
 
     ;; Emoji
-    ;; (cl-loop for font in '("Noto Color Emoji" "Apple Color Emoji")
-    ;;          when (font-installed-p font)
-    ;;          return (set-fontset-font t 'emoji `(,font . "iso10646-1") nil 'prepend))
+    (cl-loop for font in '("Noto Color Emoji" "Apple Color Emoji")
+             when (font-installed-p font)
+             return (if (>= emacs-major-version 28)
+                        (set-fontset-font t 'emoji (font-spec :family font) nil 'prepend)
+                      (set-fontset-font t 'symbol (font-spec :family font) nil 'prepend)))
 
     ;; Specify font for Chinese characters
     (cl-loop for font in '("WenQuanYi Zen Hei Mono" "WenQuanYi Micro Hei" "Microsoft Yahei")

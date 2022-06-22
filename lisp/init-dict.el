@@ -33,7 +33,10 @@
       (:prefix ("d" . "dictionaries")
        "f" #'fanyi-dwim
        "d" #'fanyi-dwim2
-       "h" #'fanyi-from-history)))
+       "h" #'fanyi-from-history))
+    :custom (fanyi-providers '(fanyi-haici-provider
+                               fanyi-longman-provider
+                               fanyi-youdao-thesaurus-provider)))
   (use-package go-translate
     :init
     (map! :leader

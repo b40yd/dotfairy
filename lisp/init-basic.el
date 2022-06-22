@@ -211,7 +211,7 @@
               (lambda ()
                 (setq tabulated-list-format
                       (vconcat `(("" 0)
-                                 ("" ,(if (icon-displayable-p) 2 0)))
+                                 ("" ,(if (icons-displayable-p) 2 0)))
                                tabulated-list-format))))
 
     (defun my-list-processes--prettify ()
