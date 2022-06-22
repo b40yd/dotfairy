@@ -599,7 +599,7 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
     :init
     (setq ivy-read-action-function 'ivy-hydra-read-action)
 
-    (when (childframe-workable-p)
+    (when (childframe-completion-workable-p)
       (setq hydra-hint-display-type 'posframe)
 
       (with-no-warnings
@@ -826,7 +826,7 @@ The point of this is to avoid Emacs locking up indexing massive file trees."
   (setq ivy-rich-parse-remote-buffer nil))
 
 ;; Display completion in child frame
-(when (childframe-workable-p)
+(when (childframe-completion-workable-p)
   (use-package ivy-posframe
     :custom-face
     (ivy-posframe ((t (:inherit tooltip))))

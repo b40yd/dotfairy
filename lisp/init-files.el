@@ -29,13 +29,14 @@
 (defun dotfairy/copy-file-name ()
   "Copy the current buffer file name to the clipboard."
   (interactive)
-  (if-let ((filename (if (equal major-mode 'dired-mode)
-                         default-directory
-                       (buffer-file-name))))
-      (progn
-        (kill-new filename)
-        (message "Copied '%s'" filename))
-    (message "WARNING: Current buffer is not attached to a file!")))
+  (let ((filename (if (equal major-mode 'dired-mode)
+                      default-directory
+                    (buffer-file-name))))
+    (if filename
+        (progn
+          (kill-new filename)
+          (message "Copied '%s'" filename))
+      (warn "Current buffer is not attached to a file!"))))
 
 (defun dotfairy/rename-this-file (new-name)
   "Renames both current buffer and file it's visiting to NEW-NAME."

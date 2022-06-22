@@ -178,7 +178,7 @@ localleader prefix."
   (which-key-add-key-based-replacements dotfairy-leader-key "<leader>")
   (which-key-add-key-based-replacements dotfairy-localleader-key "<localleader>")
 
-  (when (childframe-workable-p)
+  (when (childframe-completion-workable-p)
     (use-package which-key-posframe
       :diminish
       :functions posframe-poshandler-frame-center-near-bottom

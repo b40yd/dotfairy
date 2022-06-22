@@ -26,13 +26,20 @@
 (require 'init-keybinds)
 
 ;; A multi dictionaries interface
-(use-package fanyi
-  :init
-  (map! :leader
-    (:prefix ("d" . "dictionaries")
-     "f" #'fanyi-dwim
-     "d" #'fanyi-dwim2
-     "h" #'fanyi-from-history)))
+(when (>= emacs-major-version 27)
+  (use-package fanyi
+    :init
+    (map! :leader
+      (:prefix ("d" . "dictionaries")
+       "f" #'fanyi-dwim
+       "d" #'fanyi-dwim2
+       "h" #'fanyi-from-history)))
+  (use-package go-translate
+    :init
+    (map! :leader
+      (:prefix ("d" . "dictionaries")
+       "g" #'gts-do-translate))
+    (setq gts-translate-list '(("en" "zh") ("zh" "en")))))
 
 ;; Youdao Dictionary
 (use-package youdao-dictionary
@@ -41,7 +48,7 @@
   (map! :leader
     (:prefix ("d" . "dictionaries")
      "y" #'my-youdao-dictionary-search-at-point
-     "Y" #'youdao-dictionary-search
+     "Y" #'youdao-dictionary-search-async
      :map youdao-dictionary-mode-map
      "h" #'my-youdao-dictionary-help
      "?" #'my-youdao-dictionary-help))
@@ -50,10 +57,12 @@
         youdao-dictionary-use-chinese-word-segmentation t) ; 中文分词
 
   (defun my-youdao-dictionary-search-at-point ()
-    "Search word at point and display result with `posframe', `pos-tip', or buffer."
+    "Search word at point and display result with `posframe', `pos-tip' or buffer."
     (interactive)
+    ;; Load explicitly since it's not loaded automatically in 29
+    (require 'youdao-dictionary)
     (if (display-graphic-p)
-        (if (posframe-workable-p)
+        (if (and (fboundp 'posframe-workable-p) (posframe-workable-p))
             (youdao-dictionary-search-at-point-posframe)
           (youdao-dictionary-search-at-point-tooltip))
       (youdao-dictionary-search-at-point)))
@@ -96,7 +105,7 @@
                              :max-width (/ (frame-width) 2)
                              :max-height (/ (frame-height) 2)
                              :background-color (face-background 'tooltip nil t)
-                             :internal-border-color (face-foreground 'font-lock-comment-face nil t)
+                             :internal-border-color (face-foreground 'posframe-border nil t)
                              :internal-border-width 1)
               (unwind-protect
                   (push (read-event) unread-command-events)

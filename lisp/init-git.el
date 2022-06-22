@@ -25,6 +25,7 @@
 ;;; Code:
 (require 'init-const)
 (require 'init-custom)
+(require 'init-funcs)
 
 (use-package magit
   :ensure t
@@ -297,7 +298,7 @@ kill all magit buffers for this repo."
          ("." . browse-at-remote)))
 
 ;; Display transient in child frame
-(when (childframe-workable-p)
+(when (childframe-completion-workable-p)
   (use-package transient-posframe
     :diminish
     :custom-face

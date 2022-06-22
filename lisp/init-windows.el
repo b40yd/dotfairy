@@ -239,6 +239,8 @@
             "\\*Backtrace\\*"
             "\\*Calendar\\*"
             "\\*Finder\\*"
+            "\\*Kill Ring\\*"
+            "\\*Go-Translate\\*"
 
             bookmark-bmenu-mode
             comint-mode
