@@ -139,6 +139,11 @@
           exec-path-from-shell-arguments '("-l"))
     (exec-path-from-shell-initialize)))
 
+;; Only list the commands of the current modes
+(when (boundp 'read-extended-command-predicate)
+  (setq read-extended-command-predicate
+        #'command-completion-default-include-p))
+
 ;; Start server
 (use-package server
   :ensure nil
@@ -210,8 +215,7 @@
     (add-hook 'process-menu-mode-hook
               (lambda ()
                 (setq tabulated-list-format
-                      (vconcat `(("" 0)
-                                 ("" ,(if (icons-displayable-p) 2 0)))
+                      (vconcat `(("" ,(if (icon-displayable-p) 2 0)))
                                tabulated-list-format))))
 
     (defun my-list-processes--prettify ()
@@ -221,10 +225,12 @@
         (dolist (p (process-list))
           (when-let* ((val (cadr (assoc p entries)))
                       (icon (if (icons-displayable-p)
-                                (all-the-icons-octicon "zap"
-                                                       :height 0.8 :v-adjust -0.05
-                                                       :face 'all-the-icons-lblue)
-                              "x"))
+                                (concat
+                                 " "
+                                 (all-the-icons-faicon "bolt"
+                                                       :height 1.0 :v-adjust -0.05
+                                                       :face 'all-the-icons-lblue))
+                              " x"))
                       (name (aref val 0))
                       (pid (aref val 1))
                       (status (aref val 2))
@@ -238,8 +244,8 @@
                       (thread (list (aref val 5) 'face 'font-lock-doc-face))
                       (cmd (list (aref val (if (>= emacs-major-version 27) 6 5)) 'face 'completions-annotations)))
             (push (list p (if (>= emacs-major-version 27)
-                              (vector " " icon name pid status buf-label tty thread cmd)
-                            (vector " " icon name pid status buf-label tty cmd)))
+                              (vector icon name pid status buf-label tty thread cmd)
+                            (vector icon name pid status buf-label tty cmd)))
 		          tabulated-list-entries)))))
     (advice-add #'list-processes--refresh :after #'my-list-processes--prettify)))
 

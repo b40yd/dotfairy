@@ -35,8 +35,7 @@
        "d" #'fanyi-dwim2
        "h" #'fanyi-from-history))
     :custom (fanyi-providers '(fanyi-haici-provider
-                               fanyi-longman-provider
-                               fanyi-youdao-thesaurus-provider)))
+                               fanyi-longman-provider)))
   (use-package go-translate
     :init
     (map! :leader
@@ -58,17 +57,6 @@
   :init
   (setq url-automatic-caching t
         youdao-dictionary-use-chinese-word-segmentation t) ; 中文分词
-
-  (defun my-youdao-dictionary-search-at-point ()
-    "Search word at point and display result with `posframe', `pos-tip' or buffer."
-    (interactive)
-    ;; Load explicitly since it's not loaded automatically in 29
-    (require 'youdao-dictionary)
-    (if (display-graphic-p)
-        (if (and (fboundp 'posframe-workable-p) (posframe-workable-p))
-            (youdao-dictionary-search-at-point-posframe)
-          (youdao-dictionary-search-at-point-tooltip))
-      (youdao-dictionary-search-at-point)))
   :config
   (with-no-warnings
     (with-eval-after-load 'hydra
@@ -84,6 +72,13 @@
         (interactive)
         (let ((hydra-hint-display-type 'message))
           (youdao-dictionary-hydra/body))))
+
+    (defun my-youdao-dictionary-search-at-point ()
+      "Search word at point and display result with `posframe', `pos-tip' or buffer."
+      (interactive)
+      (if (posframe-workable-p)
+          (youdao-dictionary-search-at-point-posframe)
+        (youdao-dictionary-search-at-point)))
 
     (defun my-youdao-dictionary--posframe-tip (string)
       "Show STRING using posframe-show."
