@@ -215,7 +215,7 @@
     (add-hook 'process-menu-mode-hook
               (lambda ()
                 (setq tabulated-list-format
-                      (vconcat `(("" ,(if (icon-displayable-p) 2 0)))
+                      (vconcat `(("" ,(if (icons-displayable-p) 2 0)))
                                tabulated-list-format))))
 
     (defun my-list-processes--prettify ()
