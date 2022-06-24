@@ -46,7 +46,7 @@
   (flycheck-redefine-standard-error-levels "⏴" 'flycheck-fringe-bitmap-arrow)
 
   ;; Display Flycheck errors
-  (if (childframe-workable-p)
+  (if (childframe-completion-workable-p)
       (use-package flycheck-posframe
         :custom-face
         (flycheck-posframe-face ((t (:foreground ,(face-foreground 'success)))))

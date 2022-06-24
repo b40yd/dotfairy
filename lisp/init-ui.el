@@ -379,7 +379,7 @@
           indentation)))
 
 ;; Child frame
-(when (childframe-workable-p)
+(when (childframe-completion-workable-p)
   (use-package posframe
     :hook ((after-load-theme . posframe-delete-all)
            ((after-load-theme server-after-make-frame) . my-set-posframe-faces))

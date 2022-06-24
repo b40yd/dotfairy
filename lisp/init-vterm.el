@@ -148,7 +148,7 @@
   (defun shell-pop-posframe-toggle ()
     "Toggle shell in child frame."
     (interactive)
-    (unless (childframe-workable-p)
+    (unless (childframe-completion-workable-p)
       (user-error "Child frame is not supported!"))
 
     (let* ((buffer (shell-pop--shell))
@@ -192,7 +192,7 @@
             (goto-char (point-max))
             (when (fboundp 'vterm-reset-cursor-point)
               (vterm-reset-cursor-point)))))))
-  (if (childframe-workable-p)
+  (if (childframe-completion-workable-p)
       (bind-key "C-`" #'shell-pop-posframe-toggle)
     (bind-key "C-`" #'shell-pop-toggle)))
 

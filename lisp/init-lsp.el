@@ -251,7 +251,7 @@
        ;; @see https://github.com/emacs-lsp/lsp-ui/issues/441
        (defvar lsp-ui-peek--buffer nil)
        (defun lsp-ui-peek--peek-display (fn src1 src2)
-         (if (childframe-workable-p)
+         (if (childframe-completion-workable-p)
              (-let* ((win-width (frame-width))
                      (lsp-ui-peek-list-width (/ (frame-width) 2))
                      (string (-some--> (-zip-fill "" src1 src2)
@@ -267,7 +267,7 @@
                               :poshandler #'posframe-poshandler-frame-center))
            (funcall fn src1 src2)))
        (defun lsp-ui-peek--peek-destroy (fn)
-         (if (childframe-workable-p)
+         (if (childframe-completion-workable-p)
              (progn
                (when (bufferp lsp-ui-peek--buffer)
                  (posframe-hide lsp-ui-peek--buffer))
