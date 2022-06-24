@@ -43,13 +43,13 @@
 
   (setq vertico-resize nil
         vertico-count 17
-        vertico-cycle t
-        completion-in-region-function
-        (lambda (&rest args)
-          (apply (if vertico-mode
-                     #'consult-completion-in-region
-                   #'completion--in-region)
-                 args)))
+        vertico-cycle t)
+  (setq-default completion-in-region-function
+                (lambda (&rest args)
+                  (apply (if vertico-mode
+                             #'consult-completion-in-region
+                           #'completion--in-region)
+                         args)))
   ;; Cleans up path when moving directories with shadowed paths syntax, e.g.
   ;; cleans ~/foo/bar/// to /, and ~/foo/bar/~/ to ~/.
   (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy)
@@ -127,7 +127,26 @@ orderless."
   :defer t
   :commands (+vertico/jump-list +vertico/switch-workspace-buffer +vertico/embark-open-in-new-workspace)
   :bind (("C-s" . consult-line))
-  :init
+  :preface
+  (define-key!
+    [remap apropos]                       #'consult-apropos
+    [remap bookmark-jump]                 #'consult-bookmark
+    [remap evil-show-marks]               #'consult-mark
+    [remap evil-show-jumps]               #'+vertico/jump-list
+    [remap evil-show-registers]           #'consult-register
+    [remap goto-line]                     #'consult-goto-line
+    [remap imenu]                         #'consult-imenu
+    [remap locate]                        #'consult-locate
+    [remap load-theme]                    #'consult-theme
+    [remap man]                           #'consult-man
+    [remap recentf-open-files]            #'consult-recent-file
+    [remap switch-to-buffer]              #'consult-buffer
+    [remap switch-to-buffer-other-window] #'consult-buffer-other-window
+    [remap switch-to-buffer-other-frame]  #'consult-buffer-other-frame
+    [remap yank-pop]                      #'consult-yank-pop
+    [remap persp-switch-to-buffer]        #'+vertico/switch-workspace-buffer)
+  (advice-add #'multi-occur :override #'consult-multi-occur)
+  :config
   (require 'orderless nil t)
   (if IS-WINDOWS
       (progn
@@ -268,24 +287,6 @@ buffer will be opened in the current workspace instead."
     (interactive)
     (+workspace/new)
     (find-file x))
-  (define-key!
-    [remap apropos]                       #'consult-apropos
-    [remap bookmark-jump]                 #'consult-bookmark
-    [remap evil-show-marks]               #'consult-mark
-    [remap evil-show-jumps]               #'+vertico/jump-list
-    [remap evil-show-registers]           #'consult-register
-    [remap goto-line]                     #'consult-goto-line
-    [remap imenu]                         #'consult-imenu
-    [remap locate]                        #'consult-locate
-    [remap load-theme]                    #'consult-theme
-    [remap man]                           #'consult-man
-    [remap recentf-open-files]            #'consult-recent-file
-    [remap switch-to-buffer]              #'consult-buffer
-    [remap switch-to-buffer-other-window] #'consult-buffer-other-window
-    [remap switch-to-buffer-other-frame]  #'consult-buffer-other-frame
-    [remap yank-pop]                      #'consult-yank-pop
-    [remap persp-switch-to-buffer]        #'+vertico/switch-workspace-buffer)
-  (advice-add #'multi-occur :override #'consult-multi-occur)
   :config
   (defvar +vertico-consult-fd-args nil
     "Shell command and arguments the vertico module uses for fd.")
@@ -351,7 +352,32 @@ buffer will be opened in the current workspace instead."
 (use-package consult-dir
   :bind (([remap list-directory] . consult-dir)
          :map vertico-map
-         ("s-d" . consult-dir)))
+         ("s-d" . consult-dir))
+  :config
+  (defun +vertico--consult-dir-docker-hosts ()
+    "Get a list of hosts from docker."
+    (when (require 'docker-tramp nil t)
+      (let ((hosts)
+            (docker-tramp-use-names t))
+        (dolist (cand (docker-tramp--parse-running-containers))
+          (let ((user (unless (string-empty-p (car cand))
+                        (concat (car cand) "@")))
+                (host (car (cdr cand))))
+            (push (concat "/docker:" user host ":/") hosts)))
+        hosts)))
+  (defvar +vertico--consult-dir-source-tramp-docker
+    `(:name     "Docker"
+      :narrow   ?d
+      :category file
+      :face     consult-file
+      :history  file-name-history
+      :items    ,#'+vertico--consult-dir-docker-hosts)
+    "Docker candiadate source for `consult-dir'.")
+
+  (add-to-list 'consult-dir-sources '+vertico--consult-dir-source-tramp-docker t)
+
+  (add-to-list 'consult-dir-sources 'consult-dir--source-tramp-ssh t)
+  (add-to-list 'consult-dir-sources 'consult-dir--source-tramp-local t))
 
 (use-package consult-flycheck
   :after (consult flycheck))
@@ -366,8 +392,8 @@ buffer will be opened in the current workspace instead."
          ("C-c ;" . embark-act)
          ("C-c C-l" . embark-export)
          ("C-c C-e" . +vertico/embark-export-write))
-  :init
   :config
+  (require 'consult)
   (defadvice! +vertico--embark-which-key-prompt-a (fn &rest args)
     "Hide the which-key indicator immediately when using the completing-read prompter."
     :around #'embark-completing-read-prompter
@@ -376,7 +402,7 @@ buffer will be opened in the current workspace instead."
            (remq #'embark-which-key-indicator embark-indicators)))
       (apply fn args)))
   (defun +vertico-embark-target-package-fn ()
-    "Targets Doom's package! statements and returns the package name"
+    "Targets dotfairy's package! statements and returns the package name"
     (when (or (derived-mode-p 'emacs-lisp-mode) (derived-mode-p 'org-mode))
       (save-excursion
         (when (and (search-backward "(" nil t)
@@ -500,23 +526,23 @@ Supports exporting consult-grep to wgrep, file to wdeired, and consult-location 
          (consult-async-split-style consult-async-split-style)
          (consult-async-split-styles-alist consult-async-split-styles-alist))
     ;; Change the split style if the initial query contains the separator.
-    (when query
-      (cl-destructuring-bind (&key type separator initial)
-          (consult--async-split-style)
-        (pcase type
-          (`separator
-           (replace-regexp-in-string (regexp-quote (char-to-string separator))
-                                     (concat "\\" (char-to-string separator))
-                                     query t t))
-          (`perl
-           (when (string-match-p initial query)
-             (setf (alist-get 'perlalt consult-async-split-styles-alist)
-                   `(:initial ,(or (cl-loop for char in (list "%" "@" "!" "&" "/" ";")
-                                            unless (string-match-p char query)
-                                            return char)
-                                   "%")
-                     :type perl)
-                   consult-async-split-style 'perlalt))))))
+    ;; (when query
+    ;;   (cl-destructuring-bind (&key type separator initial)
+    ;;       (consult--async-split-style)
+    ;;     (pcase type
+    ;;       (`separator
+    ;;        (replace-regexp-in-string (regexp-quote (char-to-string separator))
+    ;;                                  (concat "\\" (char-to-string separator))
+    ;;                                  query t t))
+    ;;       (`perl
+    ;;        (when (string-match-p initial query)
+    ;;          (setf (alist-get 'perlalt consult-async-split-styles-alist)
+    ;;                `(:initial ,(or (cl-loop for char in (list "%" "@" "!" "&" "/" ";")
+    ;;                                         unless (string-match-p char query)
+    ;;                                         return char)
+    ;;                                "%")
+    ;;                  :type perl)
+    ;;                consult-async-split-style 'perlalt))))))
     (consult--grep prompt #'consult--ripgrep-builder directory query)))
 
 (defun +vertico/project-search (&optional arg initial-query directory)
