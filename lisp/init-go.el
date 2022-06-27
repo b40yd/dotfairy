@@ -85,6 +85,8 @@
   (use-package go-gen-test)
   (use-package gotest)
   (use-package go-expr-completion)
+  (use-package go-guru)
+  (use-package go-rename)
 
   ;; Install: See https://github.com/golangci/golangci-lint#install
   (use-package flycheck-golangci-lint
