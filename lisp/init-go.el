@@ -58,7 +58,6 @@
                       "golang.org/x/tools/cmd/guru"
                       "golang.org/x/tools/cmd/gorename"
                       "golang.org/x/tools/cmd/godoc"
-                      "github.com/davidrjenni/reftools/cmd/fillstruct"
                       "github.com/golangci/golangci-lint/cmd/golangci-lint")
     "All necessary go tools.")
 
@@ -86,7 +85,6 @@
   ;; Misc
   (use-package go-dlv)
   (use-package go-impl)
-  (use-package go-fill-struct)
   (use-package go-gen-test)
   (use-package gotest)
   (use-package go-expr-completion)
@@ -131,7 +129,6 @@
           (:prefix ("i" . "imports")
            :desc "import add"                       "a" #'go-import-add
            :desc "expr completion"                  "e" #'go-expr-completion
-           :desc "fill struct"                      "f" #'go-fill-struct
            :desc "goto imports"                     "i" #'go-goto-imports      ; Go to imports
            :desc "remove unused imports"            "r" #'go-remove-unused-imports)
           (:prefix ("b" . "build")
