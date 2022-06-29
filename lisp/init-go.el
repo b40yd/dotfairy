@@ -55,6 +55,10 @@
                       "github.com/cweill/gotests/gotests"
                       "github.com/fatih/gomodifytags"
                       "github.com/110y/go-expr-completion"
+                      "golang.org/x/tools/cmd/guru"
+                      "golang.org/x/tools/cmd/gorename"
+                      "golang.org/x/tools/cmd/godoc"
+                      "github.com/davidrjenni/reftools/cmd/fillstruct"
                       "github.com/golangci/golangci-lint/cmd/golangci-lint")
     "All necessary go tools.")
 
@@ -82,6 +86,7 @@
   ;; Misc
   (use-package go-dlv)
   (use-package go-impl)
+  (use-package go-fill-struct)
   (use-package go-gen-test)
   (use-package gotest)
   (use-package go-expr-completion)
@@ -111,6 +116,18 @@
           :desc "add tag"                           "a" #'go-tag-add
           :desc "remove tag"                        "d" #'go-tag-remove
           :desc "doc at point"                      "p" #'godoc-at-point
+          (:prefix ("h" . "help")
+           "." #'godoc-at-point     ; Lookup in godoc
+           "d" #'go-guru-describe   ; Describe this
+           "v" #'go-guru-freevars   ; List free variables
+           "i" #'go-guru-implements ; Implements relations for package types
+           "p" #'go-guru-peers      ; List peers for channel
+           "P" #'go-guru-pointsto   ; What does this point to
+           "r" #'go-guru-referrers  ; List references to object
+           "e" #'go-guru-whicherrs  ; Which errors
+           "w" #'go-guru-what       ; What query
+           "c" #'go-guru-callers    ; Show callers of this function
+           "C" #'go-guru-callees)   ; Show callees of this function
           (:prefix ("i" . "imports")
            :desc "import add"                       "a" #'go-import-add
            :desc "expr completion"                  "e" #'go-expr-completion
