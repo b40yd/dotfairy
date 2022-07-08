@@ -89,6 +89,25 @@
   (doom-themes-visual-bell-config)
   ;; Enable custom neotree theme (all-the-icons must be installed!)
   (doom-themes-neotree-config)
+
+  ;; WORKAROUND: Visual bell on 29
+  ;; @see https://github.com/doomemacs/themes/issues/733
+  (with-no-warnings
+    (defun my-doom-themes-visual-bell-fn ()
+      "Blink the mode-line red briefly. Set `ring-bell-function' to this to use it."
+      (let* ((buf (current-buffer))
+             (cookies `(,(face-remap-add-relative 'mode-line-active
+                                                  'doom-themes-visual-bell)
+                        ,(face-remap-add-relative 'mode-line
+                                                  'doom-themes-visual-bell))))
+        (force-mode-line-update)
+        (run-with-timer 0.15 nil
+                        (lambda ()
+                          (with-current-buffer buf
+                            (mapc #'face-remap-remove-relative cookies)
+                            (force-mode-line-update))))))
+    (advice-add #'doom-themes-visual-bell-fn :override #'my-doom-themes-visual-bell-fn))
+
   ;; Enable customized theme
   ;; FIXME https://github.com/emacs-lsp/lsp-treemacs/issues/89
   (with-eval-after-load 'lsp-treemacs
@@ -412,51 +431,51 @@
                     (* 2 (plist-get info :font-height)))
                  2))))))
 
-;; When `dotfairy-prettify-symbols-alist' is `nil' use font supported ligatures
-(use-package composite
-  :ensure nil
-  :unless dotfairy-prettify-symbols-alist
-  :init (defvar composition-ligature-table (make-char-table nil))
-  :hook (((prog-mode
-           conf-mode nxml-mode markdown-mode help-mode
-           shell-mode eshell-mode term-mode vterm-mode)
-          . (lambda () (setq-local composition-function-table composition-ligature-table))))
-  :config
-  ;; support ligatures, some toned down to prevent hang
-  (let ((alist
-         '((33 . ".\\(?:\\(==\\|[!=]\\)[!=]?\\)")
-           (35 . ".\\(?:\\(###?\\|_(\\|[(:=?[_{]\\)[#(:=?[_{]?\\)")
-           (36 . ".\\(?:\\(>\\)>?\\)")
-           (37 . ".\\(?:\\(%\\)%?\\)")
-           (38 . ".\\(?:\\(&\\)&?\\)")
-           (42 . ".\\(?:\\(\\*\\*\\|[*>]\\)[*>]?\\)")
-           ;; (42 . ".\\(?:\\(\\*\\*\\|[*/>]\\).?\\)")
-           (43 . ".\\(?:\\([>]\\)>?\\)")
-           ;; (43 . ".\\(?:\\(\\+\\+\\|[+>]\\).?\\)")
-           (45 . ".\\(?:\\(-[->]\\|<<\\|>>\\|[-<>|~]\\)[-<>|~]?\\)")
-           ;; (46 . ".\\(?:\\(\\.[.<]\\|[-.=]\\)[-.<=]?\\)")
-           (46 . ".\\(?:\\(\\.<\\|[-=]\\)[-<=]?\\)")
-           (47 . ".\\(?:\\(//\\|==\\|[=>]\\)[/=>]?\\)")
-           ;; (47 . ".\\(?:\\(//\\|==\\|[*/=>]\\).?\\)")
-           (48 . ".\\(?:x[a-zA-Z]\\)")
-           (58 . ".\\(?:\\(::\\|[:<=>]\\)[:<=>]?\\)")
-           (59 . ".\\(?:\\(;\\);?\\)")
-           (60 . ".\\(?:\\(!--\\|\\$>\\|\\*>\\|\\+>\\|-[-<>|]\\|/>\\|<[-<=]\\|=[<>|]\\|==>?\\||>\\||||?\\|~[>~]\\|[$*+/:<=>|~-]\\)[$*+/:<=>|~-]?\\)")
-           (61 . ".\\(?:\\(!=\\|/=\\|:=\\|<<\\|=[=>]\\|>>\\|[=>]\\)[=<>]?\\)")
-           (62 . ".\\(?:\\(->\\|=>\\|>[-=>]\\|[-:=>]\\)[-:=>]?\\)")
-           (63 . ".\\(?:\\([.:=?]\\)[.:=?]?\\)")
-           (91 . ".\\(?:\\(|\\)[]|]?\\)")
-           ;; (92 . ".\\(?:\\([\\n]\\)[\\]?\\)")
-           (94 . ".\\(?:\\(=\\)=?\\)")
-           (95 . ".\\(?:\\(|_\\|[_]\\)_?\\)")
-           (119 . ".\\(?:\\(ww\\)w?\\)")
-           (123 . ".\\(?:\\(|\\)[|}]?\\)")
-           (124 . ".\\(?:\\(->\\|=>\\||[-=>]\\||||*>\\|[]=>|}-]\\).?\\)")
-           (126 . ".\\(?:\\(~>\\|[-=>@~]\\)[-=>@~]?\\)"))))
-    (dolist (char-regexp alist)
-      (set-char-table-range composition-ligature-table (car char-regexp)
-                            `([,(cdr char-regexp) 0 font-shape-gstring]))))
-  (set-char-table-parent composition-ligature-table composition-function-table))
+;; Ligatures support
+(when (and (>= emacs-major-version 28) (not dotfairy-prettify-symbols-alist))
+  (use-package composite
+    :ensure nil
+    :init (defvar composition-ligature-table (make-char-table nil))
+    :hook (((prog-mode
+             conf-mode nxml-mode markdown-mode help-mode
+             shell-mode eshell-mode term-mode vterm-mode)
+            . (lambda () (setq-local composition-function-table composition-ligature-table))))
+    :config
+    ;; support ligatures, some toned down to prevent hang
+    (let ((alist
+           '((33 . ".\\(?:\\(==\\|[!=]\\)[!=]?\\)")
+             (35 . ".\\(?:\\(###?\\|_(\\|[(:=?[_{]\\)[#(:=?[_{]?\\)")
+             (36 . ".\\(?:\\(>\\)>?\\)")
+             (37 . ".\\(?:\\(%\\)%?\\)")
+             (38 . ".\\(?:\\(&\\)&?\\)")
+             (42 . ".\\(?:\\(\\*\\*\\|[*>]\\)[*>]?\\)")
+             ;; (42 . ".\\(?:\\(\\*\\*\\|[*/>]\\).?\\)")
+             (43 . ".\\(?:\\([>]\\)>?\\)")
+             ;; (43 . ".\\(?:\\(\\+\\+\\|[+>]\\).?\\)")
+             (45 . ".\\(?:\\(-[->]\\|<<\\|>>\\|[-<>|~]\\)[-<>|~]?\\)")
+             ;; (46 . ".\\(?:\\(\\.[.<]\\|[-.=]\\)[-.<=]?\\)")
+             (46 . ".\\(?:\\(\\.<\\|[-=]\\)[-<=]?\\)")
+             (47 . ".\\(?:\\(//\\|==\\|[=>]\\)[/=>]?\\)")
+             ;; (47 . ".\\(?:\\(//\\|==\\|[*/=>]\\).?\\)")
+             (48 . ".\\(?:x[a-zA-Z]\\)")
+             (58 . ".\\(?:\\(::\\|[:<=>]\\)[:<=>]?\\)")
+             (59 . ".\\(?:\\(;\\);?\\)")
+
+             (61 . ".\\(?:\\(!=\\|/=\\|:=\\|<<\\|=[=>]\\|>>\\|[=>]\\)[=<>]?\\)")
+             (62 . ".\\(?:\\(->\\|=>\\|>[-=>]\\|[-:=>]\\)[-:=>]?\\)")
+             (63 . ".\\(?:\\([.:=?]\\)[.:=?]?\\)")
+             (91 . ".\\(?:\\(|\\)[]|]?\\)")
+             ;; (92 . ".\\(?:\\([\\n]\\)[\\]?\\)")
+             (94 . ".\\(?:\\(=\\)=?\\)")
+             (95 . ".\\(?:\\(|_\\|[_]\\)_?\\)")
+             (119 . ".\\(?:\\(ww\\)w?\\)")
+             (123 . ".\\(?:\\(|\\)[|}]?\\)")
+             (124 . ".\\(?:\\(->\\|=>\\||[-=>]\\||||*>\\|[]=>|}-]\\).?\\)")
+             (126 . ".\\(?:\\(~>\\|[-=>@~]\\)[-=>@~]?\\)"))))
+      (dolist (char-regexp alist)
+        (set-char-table-range composition-ligature-table (car char-regexp)
+                              `([,(cdr char-regexp) 0 font-shape-gstring]))))
+    (set-char-table-parent composition-ligature-table composition-function-table)))
 
 ;;;###autoload
 (defun dotfairy/toggle-line-numbers ()

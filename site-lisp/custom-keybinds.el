@@ -23,6 +23,7 @@
 ;;
 
 ;;; Code:
+(require 'init-funcs)
 
 ;; Sensible deafult key bindings for non-evil users
 (setq dotfairy-leader-alt-key "C-c"
@@ -40,6 +41,8 @@
     :desc "Enable command log mode"    "e" #'command-log-mode
     :desc "Toggle command log buffer"  "g" #'clm/toggle-command-log-buffer)
    :desc "Music Player"                        "b" #'bongo
+   :desc "Music Player for mpd"                "m" #'mpc
+   :desc "Simple Player for mpc"               "M" #'simple-mpc
    :desc "Reading"                             "r" #'olivetti-mode
    :desc "Quick Run"                           "R" #'quickrun-hydra/body)
 

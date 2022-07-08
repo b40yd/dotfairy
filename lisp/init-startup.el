@@ -70,6 +70,7 @@
 (require 'init-dict)
 (require 'init-pass)
 (require 'init-calendar)
+(require 'init-player)
 
 ;; Language
 (require 'init-tags)
