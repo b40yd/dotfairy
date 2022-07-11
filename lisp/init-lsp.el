@@ -50,8 +50,9 @@
      (map! :leader
            :map lsp-bridge-mode-map
            (:prefix ("l" . "lsp")
-            :desc "Show document" "p" #'lsp-bridge-lookup-documentation
-            :desc "Show signature help" "d" #'lsp-bridge-show-signature-help-in-minibuffer))
+            :desc "Code Action" "a" #'lsp-bridge-code-action
+            :desc "Format Code" "f" #'lsp-bridge-code-format
+            :desc "Show document" "p" #'lsp-bridge-lookup-documentation))
 
      ;; 融合 `lsp-bridge' `find-function' 以及 `dumb-jump' 的智能跳转
      (defun lsp-bridge-jump ()
