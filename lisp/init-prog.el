@@ -206,14 +206,14 @@ Install the doc if it's not installed."
 (use-package xref
   :ensure nil
   :init
-  (with-no-warnings
-    (when (executable-find "rg")
-      (setq xref-search-program 'ripgrep))
+  (when (executable-find "rg")
+    (setq xref-search-program 'ripgrep))
 
+  (with-no-warnings
+    ;; Select from xref candidates with Ivy
     (if (>= emacs-major-version 28)
         (setq xref-show-xrefs-function #'xref-show-definitions-completing-read
               xref-show-definitions-function #'xref-show-definitions-completing-read)
-      ;; Select from xref candidates with Ivy
       (use-package ivy-xref
         :when (featurep 'ivy)
         :after ivy
