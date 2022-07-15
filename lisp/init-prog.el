@@ -33,7 +33,6 @@
   :ensure nil
   :hook (prog-mode . prettify-symbols-mode)
   :init
-  (setq-default prettify-symbols-alist dotfairy-prettify-symbols-alist)
   (setq prettify-symbols-unprettify-at-point 'right-edge))
 
 (use-package protobuf-mode
