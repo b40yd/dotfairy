@@ -69,6 +69,8 @@
   (when (featurep 'ns)
     (push '(ns-transparent-titlebar . t) default-frame-alist)))
 
+(use-package solarized-theme)
+
 ;; Settings for UI theme
 ;; theme:
 ;;     doom-monokai-classic
@@ -322,12 +324,7 @@
     :ensure t
     :init
     (dashboard-setup-startup-hook)
-    :hook (dashboard-mode . (lambda ()
-                              ;; No title
-                              (setq-local frame-title-format nil)
-                              ;; Enable `page-break-lines-mode'
-                              (when (fboundp 'page-break-lines-mode)
-                                (page-break-lines-mode 1))))
+    :hook (dashboard-mode . (lambda () (setq-local frame-title-format nil)))
     :config
     (setq dashboard-startup-banner (or dotfairy-logo 'official)
           dashboard-set-heading-icons t
