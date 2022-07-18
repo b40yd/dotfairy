@@ -621,9 +621,6 @@ prepended to the element after the #+HEADER: tag."
   (use-package ob-http
     :init (cl-pushnew '(http . t) load-language-list))
 
-  (use-package ob-ipython
-    :init (cl-pushnew '(ipython . t) load-language-list))
-
   ;; Use mermadi-cli: npm install -g @mermaid-js/mermaid-cli
   (use-package ob-mermaid
     :init (cl-pushnew '(mermaid . t) load-language-list))
