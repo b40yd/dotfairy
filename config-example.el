@@ -86,6 +86,7 @@
              when (font-installed-p font)
              return (set-fontset-font t '(#x4e00 . #x9fff) font))))
 (dotfairy-setup-fonts)
+(add-hook 'window-setup-hook #'dotfairy-setup-fonts)
 (add-hook 'server-after-make-frame-hook #'dotfairy-setup-fonts)
 
 ;; default workspace
