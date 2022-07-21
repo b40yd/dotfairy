@@ -252,26 +252,6 @@ The return value is the new value of LIST-VAR."
 (use-package smart-region
   :hook (after-init . smart-region-on))
 
-(use-package pomidor
-  :bind ("<f12>" . pomidor)
-  :init
-  (setq alert-default-style 'mode-line)
-
-  (with-eval-after-load 'all-the-icons
-    (setq alert-severity-faces
-          '((urgent   . all-the-icons-red)
-            (high     . all-the-icons-orange)
-            (moderate . all-the-icons-yellow)
-            (normal   . all-the-icons-green)
-            (low      . all-the-icons-blue)
-            (trivial  . all-the-icons-purple))
-          alert-severity-colors
-          `((urgent   . ,(face-foreground 'all-the-icons-red))
-            (high     . ,(face-foreground 'all-the-icons-orange))
-            (moderate . ,(face-foreground 'all-the-icons-yellow))
-            (normal   . ,(face-foreground 'all-the-icons-green))
-            (low      . ,(face-foreground 'all-the-icons-blue))
-            (trivial  . ,(face-foreground 'all-the-icons-purple))))))
 
 (use-package wgrep
   :init
@@ -288,7 +268,7 @@ The return value is the new value of LIST-VAR."
                             (aggressive-indent-mode -1)))))
   :config
   ;; Disable in some modes
-  (dolist (mode '(asm-mode web-mode html-mode css-mode go-mode scala-mode prolog-inferior-mode))
+  (dolist (mode '(asm-mode web-mode html-mode css-mode go-mode moonscript-mode scala-mode prolog-inferior-mode))
     (push mode aggressive-indent-excluded-modes))
 
   ;; Disable in some commands
