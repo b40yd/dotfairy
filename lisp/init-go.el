@@ -58,6 +58,7 @@
                       "golang.org/x/tools/cmd/guru"
                       "golang.org/x/tools/cmd/gorename"
                       "golang.org/x/tools/cmd/godoc"
+                      "github.com/josharian/impl"
                       "github.com/golangci/golangci-lint/cmd/golangci-lint")
     "All necessary go tools.")
 

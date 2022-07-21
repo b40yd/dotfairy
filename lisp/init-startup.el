@@ -85,6 +85,7 @@
 (require 'init-yaml)
 (require 'init-asm)
 (require 'init-sql)
+(require 'init-lua)
 (require 'init-prog)
 
 ;; Highlight
