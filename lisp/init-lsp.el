@@ -906,7 +906,7 @@
            (dap-stopped . (lambda (_args) (dap-hydra)))
            (python-mode . (lambda () (require 'dap-python)))
            (ruby-mode . (lambda () (require 'dap-ruby)))
-           (go-mode . (lambda () (require 'dap-go)))
+           (go-mode . (lambda () (require 'dap-dlv-go)))
            (java-mode . (lambda () (require 'dap-java)))
            (rustic-mode . (lambda ()
                             (require 'dap-lldb)
