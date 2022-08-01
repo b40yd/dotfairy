@@ -107,7 +107,20 @@
              (executable-find "make"))
     (use-package vterm
       :init
-      (setq vterm-always-compile-module t))))
+      :init (setq vterm-always-compile-module t))
+
+    (use-package multi-vterm
+      :config
+      (with-no-warnings
+        (defun my-multi-vterm ()
+          "Create new vterm buffer."
+          (interactive)
+          (let* ((vterm-buffer (multi-vterm-get-buffer)))
+            (setq multi-vterm-buffer-list (nconc multi-vterm-buffer-list (list vterm-buffer)))
+            (set-buffer vterm-buffer)
+            (multi-vterm-internal)
+            (pop-to-buffer vterm-buffer)))
+        (advice-add #'multi-vterm :override #'my-multi-vterm)))))
 
 ;; Shell Pop: leverage `popper'
 (with-no-warnings
@@ -164,8 +177,8 @@
             (make-frame-invisible shell-pop--frame)
             (select-frame-set-input-focus (frame-parent shell-pop--frame))
             (setq shell-pop--frame nil))
-        (let ((width  (max 80 (floor (* (frame-width) 0.5))))
-              (height (floor (* (frame-height) 0.5))))
+        (let ((width  (max 100 (floor (* (frame-width) 0.628))))
+              (height (floor (* (frame-height) 0.628))))
           ;; Shell pop in child frame
           (setq shell-pop--frame
                 (posframe-show
@@ -182,6 +195,7 @@
                  :internal-border-color (face-background 'posframe-border nil t)
                  :background-color (face-background 'tooltip nil t)
                  :override-parameters '((cursor-type . t))
+                 :respect-mode-line t
                  :accept-focus t))
 
           ;; Focus in child frame
