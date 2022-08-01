@@ -885,41 +885,9 @@
                           (upcase ,lang))))))))
 
   (defvar org-babel-lang-list
-    '("go" "python" "ipython" "ruby" "js" "css" "sass" "c" "rust" "java" "cpp" "c++"))
-  (add-to-list 'org-babel-lang-list "shell")
+    '("go" "python" "ipython" "ruby" "js" "css" "sass" "c" "rust" "java" "cpp" "c++" "shell"))
   (dolist (lang org-babel-lang-list)
-    (eval `(lsp-org-babel-enable ,lang)))
-  (setq-default gdb-many-windows t)
-
-  (use-package dap-mode
-    :ensure t
-    :defines dap-python-executable
-    :diminish
-    :bind (:map lsp-mode-map
-           ("<f5>" . dap-debug)
-           ("S-<f5>" . dap-hydra))
-
-    :hook ((after-init . dap-auto-configure-mode)
-           (dap-stopped . (lambda (_args) (dap-hydra)))
-           (python-mode . (lambda () (require 'dap-python)))
-           (ruby-mode . (lambda () (require 'dap-ruby)))
-           (go-mode . (lambda () (require 'dap-dlv-go)))
-           (java-mode . (lambda () (require 'dap-java)))
-           (rustic-mode . (lambda ()
-                            (require 'dap-lldb)
-                            (require 'dap-cpptools)))
-           (swift-mode . (lambda ()
-                           (require 'dap-lldb)))
-           ((c-mode c++-mode objc-mode) . (lambda ()
-                                            (require 'dap-lldb)
-                                            (require 'dap-gdb-lldb)))
-           (php-mode . (lambda () (require 'dap-php)))
-           ((js-mode js2-mode) . (lambda () (require 'dap-chrome)))
-           (powershell-mode . (lambda () (require 'dap-pwsh))))
-    :init
-    (setq dap-auto-configure-features '(sessions locals breakpoints expressions controls))
-    (when (executable-find "python3")
-      (setq dap-python-executable "python3"))))
+    (eval `(lsp-org-babel-enable ,lang))))
 
 (provide 'init-lsp)
 ;;; init-lsp.el ends here

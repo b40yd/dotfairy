@@ -60,6 +60,7 @@
 
 ;; Tools
 (require 'init-lsp)
+(require 'init-debugger)
 (require 'init-git)
 (require 'init-eshell)
 (require 'init-dired)
