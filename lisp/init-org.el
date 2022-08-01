@@ -507,15 +507,18 @@ prepended to the element after the #+HEADER: tag."
         org-list-allow-alphabetical t
         org-latex-pdf-process '("xelatex -interaction nonstopmode %f" "xelatex -interaction nonstopmode %f")
         org-capture-templates
-        `(("b" "book" entry (file ,(concat org-directory "/book.org"))
+        `(("i" "Idea" entry (file ,(concat org-directory "/idea.org"))
            "*  %^{Title} %?\n%U\n%a\n")
-          ("t" "Todo" entry (file ,(concat org-directory "/todo.org"))
+          ("t" "Todo" entry (file ,(concat org-directory "/gtd.org"))
            "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
-          ("n" "Note" entry (file ,(concat org-directory "/notes.org"))
+          ("n" "Note" entry (file ,(concat org-directory "/note.org"))
            "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
-          ("j" "Journal" entry (,(if (>= emacs-major-version 26) 'file+olp+datetree 'file+datetree)
+          ("j" "Journal" entry (file+olp+datetree
                                 ,(concat org-directory "/journal.org"))
-           "*  %^{Title} %?\n%U\n%a\n" :clock-in t :clock-resume t))
+           "*  %^{Title} %?\n%U\n%a\n" :clock-in t :clock-resume t)
+	      ("b" "Book" entry (file+olp+datetree
+                             ,(concat org-directory "/book.org"))
+	       "* Topic: %^{Description}  %^g %? Added: %U"))
         ;; TODO sequences
         org-todo-keywords '((sequence "TODO(t)" "SOMEDAY(s)" "NEXT(n)" "HOLD(h)" "CANCELLED(c@/!)" "WAITING(W@/!)" "DONE(d)"))
         ;; Targets include this file and any file contributing to the agenda -
