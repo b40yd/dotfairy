@@ -109,6 +109,71 @@
   (use-package go-tag
     :init (setq go-tag-args (list "-transform" "camelcase")))
 
+  (defvar +go-test-last nil
+    "The last test run.")
+
+  (defun +go--spawn (cmd)
+    (save-selected-window
+      (compile cmd)))
+
+  (defun +go--run-tests (args)
+    (let ((cmd (concat "go test -test.v " args)))
+      (setq +go-test-last (concat "cd " default-directory ";" cmd))
+      (+go--spawn cmd)))
+
+  ;;;###autoload
+  (defun +go/test-rerun ()
+    (interactive)
+    (if +go-test-last
+        (+go--spawn +go-test-last)
+      (+go/test-all)))
+
+;;;###autoload
+  (defun +go/test-all ()
+    (interactive)
+    (+go--run-tests ""))
+
+;;;###autoload
+  (defun +go/test-nested ()
+    (interactive)
+    (+go--run-tests "./..."))
+
+;;;###autoload
+  (defun +go/test-single ()
+    (interactive)
+    (if (string-match "_test\\.go" buffer-file-name)
+        (save-excursion
+          (re-search-backward "^func[ ]+\\(([[:alnum:]]*?[ ]?[*]?[[:alnum:]]+)[ ]+\\)?\\(Test[[:alnum:]_]+\\)(.*)")
+          (+go--run-tests (concat "-run" "='^\\Q" (match-string-no-properties 2) "\\E$'")))
+      (error "Must be in a _test.go file")))
+
+  ;;;###autoload
+  (defun +go/test-file ()
+    (interactive)
+    (if (string-match "_test\\.go" buffer-file-name)
+        (save-excursion
+          (goto-char (point-min))
+          (let ((func-list))
+            (while (re-search-forward "^func[ ]+\\(([[:alnum:]]*?[ ]?[*]?[[:alnum:]]+)[ ]+\\)?\\(Test[[:alnum:]_]+\\)(.*)" nil t)
+              (push (match-string-no-properties 2) func-list))
+            (+go--run-tests (concat "-run" "='^(" (string-join func-list "|")  ")$'"))))
+      (error "Must be in a _test.go file")))
+
+  ;;;###autoload
+  (defun +go/bench-all ()
+    (interactive)
+    (+go--run-tests "-test.run=NONE -test.bench=\".*\""))
+
+;;;###autoload
+  (defun +go/bench-single ()
+    (interactive)
+    (if (string-match "_test\\.go" buffer-file-name)
+        (save-excursion
+          (re-search-backward "^func[ ]+\\(([[:alnum:]]*?[ ]?[*]?[[:alnum:]]+)[ ]+\\)?\\(Benchmark[[:alnum:]_]+\\)(.*)")
+          (+go--run-tests (concat "-test.run=NONE -test.bench" "='^\\Q" (match-string-no-properties 2) "\\E$'")))
+      (error "Must be in a _test.go file")))
+
+
   (after! go-mode
     (map! :localleader
           :map go-mode-map
@@ -118,7 +183,7 @@
           (:prefix ("h" . "help")
            "." #'godoc-at-point     ; Lookup in godoc
            "d" #'go-guru-describe   ; Describe this
-           "v" #'go-guru-freevars   ; List free variables
+
            "i" #'go-guru-implements ; Implements relations for package types
            "p" #'go-guru-peers      ; List peers for channel
            "P" #'go-guru-pointsto   ; What does this point to
@@ -137,16 +202,24 @@
            :desc "go build"                         "b" (cmd! (compile "go build"))
            :desc "go clean"                         "c" (cmd! (compile "go clean")))
           (:prefix ("t" . "test")
-           :desc "test current project"             "a" #'go-test-current-project
-           :desc "test current coverage"            "c" #'go-test-current-coverage
-           :desc "test current test"                "s" #'go-test-current-test
-           :desc "test current file"                "t" #'go-test-current-file
-           :desc "gen test dwim"                    "g" #'go-gen-test-dwim
-           :desc "gen test all"                     "G" #'go-gen-test-all
-           :desc "gen test exported"                "e" #'go-gen-test-exported
+           "t" #'+go/test-rerun
+           "a" #'+go/test-all
+           "A" #'go-test-current-project
+           "c" #'go-test-current-coverage
+           "s" #'+go/test-single
+           "S" #'go-test-current-test
+           "n" #'+go/test-nested
+           "f" #'+go/test-file
+           "t" #'go-test-current-file
+           "g" #'go-gen-test-dwim
+           "G" #'go-gen-test-all
+           "e" #'go-gen-test-exported
            (:prefix ("b" . "bench")
-            :desc "test current project benchmarks" "a" #'go-test-current-project-benchmarks
-            :desc "test current benchmark"          "s" #'go-test-current-benchmark
-            :desc "test current file benchmarks"    "t" #'go-test-current-file-benchmarks)))))
+            "a" #'+go/bench-all
+            "A" #'go-test-current-project-benchmarks
+            "s" #'+go/bench-single
+            "S" #'go-test-current-benchmark
+            "t" #'go-test-current-file-benchmarks)))))
+
 (provide 'init-go)
 ;;; init-go.el ends here
