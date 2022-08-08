@@ -46,7 +46,8 @@
 
   ;; Syntax highlighting of known Elisp symbols
   (use-package highlight-defined
-    :hook (emacs-lisp-mode . highlight-defined-mode))
+    :hook (emacs-lisp-mode . highlight-defined-mode)
+    :init (setq highlight-defined-face-use-itself t))
 
   (with-no-warnings
     ;; Align indent keywords
