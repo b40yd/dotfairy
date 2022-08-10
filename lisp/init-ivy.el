@@ -317,10 +317,15 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
   (add-hook 'counsel-grep-post-action-hook #'recenter)
 
   ;; Use the faster search tool: ripgrep (`rg')
-  (when (executable-find "rg")
-    (setq counsel-grep-base-command "rg -S --no-heading --line-number --color never '%s' '%s'"))
-  (setq counsel-fzf-cmd
-        "fd --type f --hidden --follow --exclude .git --color never || git ls-tree -r --name-only HEAD || rg --files --hidden --follow --glob '!.git' --color never || find .")
+  (cond
+   ((executable-find "ugrep")
+    (setq counsel-grep-base-command "ugrep --color=never -n -e '%s' '%s'"))
+   ((executable-find "rg")
+    (setq counsel-grep-base-command "rg -S --no-heading --line-number --color never '%s' '%s'")))
+
+  (when (executable-find "fd")
+    (setq counsel-fzf-cmd
+          "fd --type f --hidden --follow --exclude .git --color never || git ls-tree -r --name-only HEAD || rg --files --hidden --follow --glob '!.git' --color never || find ."))
 
   (when (and IS-MAC (executable-find "gls"))
     (setq counsel-find-file-occur-use-find nil
@@ -460,9 +465,9 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
       "Toggle `counsel-rg' and `swiper'/`swiper-isearch' with the current input."
       (interactive)
       (ivy-quit-and-run
-        (if (memq (ivy-state-caller ivy-last) '(swiper swiper-isearch))
-            (my-ivy-switch-to-counsel-rg)
-          (my-ivy-switch-to-swiper-isearch))))
+       (if (memq (ivy-state-caller ivy-last) '(swiper swiper-isearch))
+           (my-ivy-switch-to-counsel-rg)
+         (my-ivy-switch-to-swiper-isearch))))
     (bind-key "<C-return>" #'my-swiper-toggle-counsel-rg swiper-map)
     (bind-key "<C-return>" #'my-swiper-toggle-counsel-rg counsel-ag-map)
 
@@ -471,7 +476,7 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
         "Toggle `rg-dwim' with the current input."
         (interactive)
         (ivy-quit-and-run
-          (rg-dwim default-directory)))
+         (rg-dwim default-directory)))
       (bind-key "<M-return>" #'my-swiper-toggle-rg-dwim swiper-map)
       (bind-key "<M-return>" #'my-swiper-toggle-rg-dwim counsel-ag-map))
 
@@ -479,16 +484,16 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
       "Toggle `swiper' and `swiper-isearch' with the current input."
       (interactive)
       (ivy-quit-and-run
-        (if (eq (ivy-state-caller ivy-last) 'swiper-isearch)
-            (swiper ivy-text)
-          (swiper-isearch ivy-text))))
+       (if (eq (ivy-state-caller ivy-last) 'swiper-isearch)
+           (swiper ivy-text)
+         (swiper-isearch ivy-text))))
     (bind-key "<s-return>" #'my-swiper-toggle-swiper-isearch swiper-map)
 
     (defun my-counsel-find-file-toggle-fzf ()
       "Toggle `counsel-fzf' with the current `counsel-find-file' input."
       (interactive)
       (ivy-quit-and-run
-        (counsel-fzf (or ivy-text "") default-directory)))
+       (counsel-fzf (or ivy-text "") default-directory)))
     (bind-key "<C-return>" #'my-counsel-find-file-toggle-fzf counsel-find-file-map)
 
     (defun my-counsel-toggle ()
@@ -649,6 +654,10 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
   (use-package counsel-projectile
     :hook (counsel-mode . counsel-projectile-mode)
     :init
+    (setq counsel-projectile-grep-initial-input '(ivy-thing-at-point))
+    (when (executable-find "ugrep")
+      (setq counsel-projectile-grep-base-command "ugrep --color=never -rnEI %s"))
+
     (defun +ivy/projectile-find-file ()
       "A more sensible `counsel-projectile-find-file', which will revert to
 `counsel-find-file' if invoked from $HOME or /, `counsel-file-jump' if invoked
