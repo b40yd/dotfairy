@@ -241,8 +241,7 @@
            lsp-ui-doc-delay 0.1
            lsp-ui-imenu-colors `(,(face-foreground 'font-lock-keyword-face)
                                  ,(face-foreground 'font-lock-string-face)
-                                 ,(face-foreground 'font-lock-constant-face)
-                                 ,(face-foreground 'font-lock-variable-name-face)))
+                                 ,(face-foreground 'font-lock-constant-face)))
      (if (facep 'posframe-border)
          (setq lsp-ui-doc-border (face-background 'posframe-border nil t))
        (setq lsp-ui-doc-border (face-foreground 'font-lock-comment-face nil t)))
