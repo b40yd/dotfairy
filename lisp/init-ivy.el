@@ -650,52 +650,6 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
         (hydra-set-posframe-show-params)
         (add-hook 'after-load-theme-hook #'hydra-set-posframe-show-params t))))
 
-  ;; Ivy integration for Projectile
-  (use-package counsel-projectile
-    :hook (counsel-mode . counsel-projectile-mode)
-    :init
-    (setq counsel-projectile-grep-initial-input '(ivy-thing-at-point))
-    (when (executable-find "ugrep")
-      (setq counsel-projectile-grep-base-command "ugrep --color=never -rnEI %s"))
-
-    (defun +ivy/projectile-find-file ()
-      "A more sensible `counsel-projectile-find-file', which will revert to
-`counsel-find-file' if invoked from $HOME or /, `counsel-file-jump' if invoked
-from a non-project, `projectile-find-file' if in a big project (more than
-`ivy-sort-max-size' files), or `counsel-projectile-find-file' otherwise.
-The point of this is to avoid Emacs locking up indexing massive file trees."
-      (interactive)
-      ;; Spoof the command so that ivy/counsel will display the (well fleshed-out)
-      ;; actions list for `counsel-find-file' on C-o. The actions list for the other
-      ;; commands aren't as well configured or are empty.
-      (let ((this-command 'counsel-find-file))
-        (call-interactively
-         (cond ((or (file-equal-p default-directory "~")
-                    (file-equal-p default-directory "/")
-                    (when-let (proot (dotfairy-project-root))
-                      (file-equal-p proot "~")))
-                #'counsel-find-file)
-
-               ((dotfairy-project-p)
-                (let ((files (projectile-current-project-files)))
-                  (if (<= (length files) ivy-sort-max-size)
-                      #'counsel-projectile-find-file
-                    #'projectile-find-file)))
-
-               (#'counsel-file-jump)))))
-    (define-key!
-      [remap projectile-find-file]        #'+ivy/projectile-find-file
-      [remap projectile-find-dir]         #'counsel-projectile-find-dir
-      [remap projectile-switch-to-buffer] #'counsel-projectile-switch-to-buffer
-      [remap projectile-grep]             #'counsel-projectile-grep
-      [remap projectile-ag]               #'counsel-projectile-ag
-      [remap projectile-switch-project]   #'counsel-projectile-switch-project)
-    (setq counsel-projectile-grep-initial-input '(ivy-thing-at-point))
-    :config
-    ;; no highlighting visited files; slows down the filtering
-    (ivy-set-display-transformer #'counsel-projectile-find-file nil)
-    (setq counsel-projectile-sort-files t))
-
   ;; Integrate yasnippet
   (use-package ivy-yasnippet)
 
@@ -807,10 +761,61 @@ The point of this is to avoid Emacs locking up indexing massive file trees."
 
 (use-package ivy-dired-history
   :demand t
-  :after (savehist dired)
+  :after dired
+  :defines (savehist-additional-variables desktop-globals-to-save)
   :bind (:map dired-mode-map
          ("," . dired))
-  :init (add-to-list 'savehist-additional-variables 'ivy-dired-history-variable))
+  :init
+  (with-eval-after-load 'savehist
+    (add-to-list 'savehist-additional-variables 'ivy-dired-history-variable))
+  (with-eval-after-load 'desktop
+    (add-to-list 'desktop-globals-to-save 'ivy-dired-history-variable)))
+
+;; Ivy integration for Projectile
+(use-package counsel-projectile
+  :hook (counsel-mode . counsel-projectile-mode)
+  :init
+  (setq counsel-projectile-grep-initial-input '(ivy-thing-at-point))
+  (when (executable-find "ugrep")
+    (setq counsel-projectile-grep-base-command "ugrep --color=never -rnEI %s"))
+
+  (defun +ivy/projectile-find-file ()
+    "A more sensible `counsel-projectile-find-file', which will revert to
+`counsel-find-file' if invoked from $HOME or /, `counsel-file-jump' if invoked
+from a non-project, `projectile-find-file' if in a big project (more than
+`ivy-sort-max-size' files), or `counsel-projectile-find-file' otherwise.
+The point of this is to avoid Emacs locking up indexing massive file trees."
+    (interactive)
+    ;; Spoof the command so that ivy/counsel will display the (well fleshed-out)
+    ;; actions list for `counsel-find-file' on C-o. The actions list for the other
+    ;; commands aren't as well configured or are empty.
+    (let ((this-command 'counsel-find-file))
+      (call-interactively
+       (cond ((or (file-equal-p default-directory "~")
+                  (file-equal-p default-directory "/")
+                  (when-let (proot (dotfairy-project-root))
+                    (file-equal-p proot "~")))
+              #'counsel-find-file)
+
+             ((dotfairy-project-p)
+              (let ((files (projectile-current-project-files)))
+                (if (<= (length files) ivy-sort-max-size)
+                    #'counsel-projectile-find-file
+                  #'projectile-find-file)))
+
+             (#'counsel-file-jump)))))
+  (define-key!
+    [remap projectile-find-file]        #'+ivy/projectile-find-file
+    [remap projectile-find-dir]         #'counsel-projectile-find-dir
+    [remap projectile-switch-to-buffer] #'counsel-projectile-switch-to-buffer
+    [remap projectile-grep]             #'counsel-projectile-grep
+    [remap projectile-ag]               #'counsel-projectile-ag
+    [remap projectile-switch-project]   #'counsel-projectile-switch-project)
+  (setq counsel-projectile-grep-initial-input '(ivy-thing-at-point))
+  :config
+  ;; no highlighting visited files; slows down the filtering
+  (ivy-set-display-transformer #'counsel-projectile-find-file nil)
+  (setq counsel-projectile-sort-files t))
 
 ;; Better experience with icons
 ;; Enable it before`ivy-rich-mode' for better performance

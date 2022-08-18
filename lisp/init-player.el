@@ -28,7 +28,7 @@
 
 ;; Music player
 (use-package bongo
-  ;; :bind ("C-<f9>" . bongo)
+  ;; :bind ("C-<f8>" . bongo)
   :config
   (with-eval-after-load 'dired
     (with-no-warnings
@@ -50,7 +50,7 @@
 ;; Built-in client for mpd
 (use-package mpc
   :ensure nil
-  :bind ("s-<f9>" . mpc)
+  :bind ("s-<f8>" . mpc)
   :init
   (defun restart-mpd ()
     (interactive)
@@ -62,7 +62,7 @@
   :if (executable-find "mpc")
   :commands (simple-mpc-call-mpc simple-mpc-call-mpc-strings)
   :functions (simple-mpc-current simple-mpc-start-timer)
-  :bind (("M-<f9>" . simple-mpc)
+  :bind (("M-<f8>" . simple-mpc)
          :map simple-mpc-mode-map
          ("P" . simple-mpc-play)
          ("O" . simple-mpc-stop))
