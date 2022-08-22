@@ -57,7 +57,6 @@
             ((js-mode js2-mode) . (lambda () (require 'dap-chrome)))
             (powershell-mode . (lambda () (require 'dap-pwsh))))
      :init
-     (setq dap-auto-configure-features '(sessions locals breakpoints expressions controls))
      (when (executable-find "python3")
        (setq dap-python-executable "python3")))))
 
