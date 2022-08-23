@@ -119,6 +119,9 @@
            lsp-headerline-breadcrumb-enable nil
            lsp-clients-python-library-directories '("/usr/local/" "/usr/")
 
+           lsp-semantic-tokens-enable t
+           lsp-progress-spinner-type 'horizontal-breathing
+
            lsp-enable-file-watchers nil
            lsp-enable-folding nil
            lsp-enable-symbol-highlighting nil
