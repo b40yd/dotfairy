@@ -40,9 +40,11 @@
    (:prefix ("c" . "Command log")
     :desc "Enable command log mode"    "e" #'command-log-mode
     :desc "Toggle command log buffer"  "g" #'clm/toggle-command-log-buffer)
-   :desc "Music Player"                        "b" #'bongo
-   :desc "Music Player for mpd"                "m" #'mpc
-   :desc "Simple Player for mpc"               "M" #'simple-mpc
+   (:prefix ("m" . "Music Player")
+    :desc "Music Player"                        "b" #'bongo
+    :desc "Music Player for mpd"                "m" #'mpc
+    :desc "Music Player for mingus"             "M" #'mingus
+    :desc "Simple Player for mpc"               "s" #'simple-mpc)
    :desc "Reading"                             "r" #'olivetti-mode
    :desc "Quick Run"                           "R" #'quickrun-hydra/body)
 

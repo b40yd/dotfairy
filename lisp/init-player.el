@@ -28,7 +28,6 @@
 
 ;; Music player
 (use-package bongo
-  ;; :bind ("C-<f8>" . bongo)
   :config
   (with-eval-after-load 'dired
     (with-no-warnings
@@ -42,7 +41,7 @@
                  files (append files (list file)))
            nil t)
           (with-bongo-library-buffer
-           (mapc 'bongo-insert-file files)))
+            (mapc 'bongo-insert-file files)))
         (bongo-switch-buffers))
       (bind-key "b" #'bongo-add-dired-files dired-mode-map))))
 
@@ -50,7 +49,6 @@
 ;; Built-in client for mpd
 (use-package mpc
   :ensure nil
-  :bind ("s-<f8>" . mpc)
   :init
   (defun restart-mpd ()
     (interactive)
@@ -59,7 +57,6 @@
 
 ;; MPD Interface
 (use-package mingus
-  :bind ("s-<f8>" . mingus)
   :config (add-to-list 'global-mode-string mingus-mode-line-object))
 
 ;; Simple mpd client
@@ -67,8 +64,7 @@
   (use-package simple-mpc
     :commands (simple-mpc-call-mpc simple-mpc-call-mpc-strings)
     :functions (simple-mpc-current simple-mpc-start-timer)
-    :bind (("M-<f8>" . simple-mpc)
-           :map simple-mpc-mode-map
+    :bind (:map simple-mpc-mode-map
            ("P" . simple-mpc-play)
            ("O" . simple-mpc-stop))
     :init
