@@ -319,7 +319,8 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
   ;; Use the faster search tool: ripgrep (`rg')
   (cond
    ((executable-find "ugrep")
-    (setq counsel-grep-base-command "ugrep --color=never -n -e '%s' '%s'"))
+    (setq counsel-grep-base-command "ugrep --color=never -n -e '%s' '%s'")
+    (setq counsel-rg-base-command '("ugrep" "--color=never" "--ignore-files" "-rnEI" "%s")))
    ((executable-find "rg")
     (setq counsel-grep-base-command "rg -S --no-heading --line-number --color never '%s' '%s'")))
 
