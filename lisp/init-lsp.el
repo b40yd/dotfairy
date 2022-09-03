@@ -717,7 +717,7 @@
                   (format "Prepare local buffer environment for org source block (%s)."
                           (upcase ,lang))))))))
 
-  (defvar org-babel-lang-list
+  (defconst org-babel-lang-list
     '("go" "python" "ipython" "ruby" "js" "css" "sass" "c" "rust" "java" "cpp" "c++" "shell"))
   (dolist (lang org-babel-lang-list)
     (eval `(lsp-org-babel-enable ,lang))))

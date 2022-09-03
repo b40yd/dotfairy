@@ -319,8 +319,7 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
   ;; Use the faster search tool: ripgrep (`rg')
   (cond
    ((executable-find "ugrep")
-    (setq counsel-grep-base-command "ugrep --color=never -n -e '%s' '%s'")
-    (setq counsel-rg-base-command '("ugrep" "--color=never" "--ignore-files" "-rnEI" "%s")))
+    (setq counsel-grep-base-command "ugrep --color=never -n -e '%s' '%s'"))
    ((executable-find "rg")
     (setq counsel-grep-base-command "rg -S --no-heading --line-number --color never '%s' '%s'")))
 
@@ -348,7 +347,7 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
 
     ;; Pre-fill search keywords
     ;; @see https://www.reddit.com/r/emacs/comments/b7g1px/withemacs_execute_commands_like_marty_mcfly/
-    (defvar my-ivy-fly-commands
+    (defconst my-ivy-fly-commands
       '(query-replace-regexp
         flush-lines keep-lines ivy-read
         swiper swiper-backward swiper-all

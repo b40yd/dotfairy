@@ -25,14 +25,22 @@
 ;;; Code:
 (use-package citre
   :diminish
-  :bind (("C-x c j" . citre-jump+)
+  :commands citre-jump-back
+  :functions projectile-project-root
+  :bind (:map prog-mode-map
+         ("C-x c j" . citre-jump+)
          ("C-x c k" . citre-jump-back)
          ("C-x c p" . citre-peek)
          ("C-x c a" . citre-ace-peek)
          ("C-x c u" . citre-update-this-tags-file))
   :init
-  (require 'citre-config)
-  (setq citre-auto-enable-citre-mode-modes '(prog-mode))
+  (setq citre-auto-enable-citre-mode-modes '(prog-mode)
+        citre-default-create-tags-file-location 'global-cache
+        citre-use-project-root-when-creating-tags t
+        citre-prompt-language-for-ctags-command t)
+
+  (with-eval-after-load 'projectile
+    (setq citre-project-root-function #'projectile-project-root))
 
   (defun citre-jump+ ()
     "Jump to the definition of the symbol at point.
@@ -41,6 +49,14 @@ Fallback to `xref-find-definitions'."
     (condition-case _
         (citre-jump)
       (error (call-interactively #'xref-find-definitions))))
+  (defun citre-jump-back+ ()
+    "Go back to the position before last `citre-jump'.
+Fallback to `xref-go-back'."
+    (interactive)
+    (condition-case _
+        (citre-jump-back)
+      (error (call-interactively #'xref-go-back))))
+
   :config
   (with-no-warnings
     (with-eval-after-load 'projectile
@@ -60,13 +76,13 @@ Fallback to `xref-find-definitions'."
 
     (defun lsp-citre-capf-function ()
       "A capf backend that tries lsp first, then Citre."
-      (let ((lsp-result (pcase dotfairy-lsp
-                          ('lsp-mode
-                           (and (fboundp #'lsp-completion-at-point)
-                                (lsp-completion-at-point)))
-                          ('eglot
-                           (and (fboundp #'eglot-completion-at-point)
-                                (eglot-completion-at-point))))))
+      (let ((lsp-result (cond
+                         ((bound-and-true-p lsp-mode)
+                          (and (fboundp #'lsp-completion-at-point)
+                               (lsp-completion-at-point)))
+                         ((bound-and-true-p eglot--managed-mode)
+                          (and (fboundp #'eglot-completion-at-point)
+                               (eglot-completion-at-point))))))
         (if (and lsp-result
                  (try-completion
                   (buffer-substring (nth 0 lsp-result)

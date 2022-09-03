@@ -48,18 +48,18 @@
     (exec-path-from-shell-initialize))
 
   ;; Install or update tools
-  (defvar go--tools '("golang.org/x/tools/gopls"
-                      "golang.org/x/tools/cmd/goimports"
-                      "github.com/go-delve/delve/cmd/dlv"
-                      "github.com/josharian/impl"
-                      "github.com/cweill/gotests/gotests"
-                      "github.com/fatih/gomodifytags"
-                      "github.com/110y/go-expr-completion"
-                      "golang.org/x/tools/cmd/guru"
-                      "golang.org/x/tools/cmd/gorename"
-                      "golang.org/x/tools/cmd/godoc"
-                      "github.com/josharian/impl"
-                      "github.com/golangci/golangci-lint/cmd/golangci-lint")
+  (defconst go--tools '("golang.org/x/tools/gopls"
+                        "golang.org/x/tools/cmd/goimports"
+                        "github.com/go-delve/delve/cmd/dlv"
+                        "github.com/josharian/impl"
+                        "github.com/cweill/gotests/gotests"
+                        "github.com/fatih/gomodifytags"
+                        "github.com/110y/go-expr-completion"
+                        "golang.org/x/tools/cmd/guru"
+                        "golang.org/x/tools/cmd/gorename"
+                        "golang.org/x/tools/cmd/godoc"
+                        "github.com/josharian/impl"
+                        "github.com/golangci/golangci-lint/cmd/golangci-lint")
     "All necessary go tools.")
 
   (defun go-update-tools ()

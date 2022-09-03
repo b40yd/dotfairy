@@ -203,8 +203,8 @@ exist, and `org-link' otherwise."
     (after! org
       ;; A shorter link to attachments
       (+org-define-basic-link "download" (lambda () (or org-download-image-dir org-attach-id-dir "."))
-        :image-data-fun #'+org-image-file-data-fn
-        :requires 'org-download))
+                              :image-data-fun #'+org-image-file-data-fn
+                              :requires 'org-download))
     :config
     (unless org-download-image-dir
       (setq org-download-image-dir org-attach-id-dir))
@@ -422,7 +422,7 @@ If prefix ARG, copy instead of move."
                                     buffer)))
              (heading
               (org-with-point-at marker
-                (org-get-heading 'no-tags 'no-todo)))
+                                 (org-get-heading 'no-tags 'no-todo)))
              ;; Won't work with target buffers whose filename is nil
              (rfloc (list heading filename nil marker))
              (org-after-refile-insert-hook (cons #'org-reveal org-after-refile-insert-hook)))
@@ -616,17 +616,18 @@ prepended to the element after the #+HEADER: tag."
                                :order 30)))))))))
     (setq org-agenda-breadcrumbs-separator " ❯ "))
 
-  (defvar load-language-list '((emacs-lisp . t)
-                               (perl . t)
-                               (python . t)
-                               (ruby . t)
-                               (js . t)
-                               (css . t)
-                               (sass . t)
-                               (C . t)
-                               (sql . t)
-                               (java . t)
-                               (plantuml . t)))
+  (defconst load-language-list '((emacs-lisp . t)
+                                 (perl . t)
+                                 (python . t)
+                                 (ruby . t)
+                                 (js . t)
+                                 (css . t)
+                                 (sass . t)
+                                 (C . t)
+                                 (sql . t)
+                                 (java . t)
+                                 (plantuml . t))
+    "Alist of org ob languages.")
 
   (when (featurep 'plantuml-mode)
     (setq org-plantuml-jar-path plantuml-jar-path))

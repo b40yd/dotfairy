@@ -112,13 +112,32 @@
   (dotfairy-set-variable 'dotfairy-theme theme no-save)
   (dotfairy--load-theme (dotfairy--theme-name theme)))
 
-(defun recompile-elpa ()
-  "Recompile packages in elpa directory. Useful if you switch Emacs versions."
+(defun byte-compile-elpa ()
+  "Compile packages in elpa directory. Useful if you switch Emacs versions."
   (interactive)
   (if (fboundp 'async-byte-recompile-directory)
       (async-byte-recompile-directory package-user-dir)
     (byte-recompile-directory package-user-dir 0 t)))
+(defun byte-compile-site-lisp ()
+  "Compile packages in site-lisp directory."
+  (interactive)
+  (let ((dir (locate-user-emacs-file "site-lisp")))
+    (if (fboundp 'async-byte-recompile-directory)
+        (async-byte-recompile-directory dir)
+      (byte-recompile-directory dir 0 t))))
 
+(defun native-compile-elpa ()
+  "Native-compile packages in elpa directory."
+  (interactive)
+  (if (fboundp 'native-compile-async)
+      (native-compile-async package-user-dir t)))
+
+(defun native-compile-site-lisp ()
+  "Native compile packages in site-lisp directory."
+  (interactive)
+  (let ((dir (locate-user-emacs-file "site-lisp")))
+    (if (fboundp 'native-compile-async)
+        (native-compile-async dir t))))
 ;; Font
 (defun font-installed-p (font-name)
   "Check if font with FONT-NAME is available."
