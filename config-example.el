@@ -82,9 +82,12 @@
                       (set-fontset-font t 'symbol (font-spec :family font) nil 'prepend)))
 
     ;; Specify font for Chinese characters
-    (cl-loop for font in '("WenQuanYi Zen Hei Mono" "WenQuanYi Micro Hei" "Microsoft Yahei")
+    (cl-loop for font in '("WenQuanYi Zen Hei Mono" "WenQuanYi Micro Hei" "Microsoft Yahei" "PingFang SC" "STFangsong")
              when (font-installed-p font)
-             return (set-fontset-font t '(#x4e00 . #x9fff) font))))
+             return (progn
+                      (setq face-font-rescale-alist `((,font . 1.3)))
+                      (set-fontset-font t '(#x4e00 . #x9fff) (font-spec :family font))))))
+
 (dotfairy-setup-fonts)
 (add-hook 'window-setup-hook #'dotfairy-setup-fonts)
 (add-hook 'server-after-make-frame-hook #'dotfairy-setup-fonts)
