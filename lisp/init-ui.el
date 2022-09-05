@@ -46,9 +46,7 @@
 (setq frame-title-format '("DotFairy Emacs - %b")
       icon-title-format frame-title-format)
 
-(when (and (and (display-graphic-p)
-                (eq system-type 'darwin))
-           (eq window-system 'ns))
+(when (display-graphic-p)
   (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
   (add-to-list 'default-frame-alist '(ns-appearance . dark))
   (add-hook 'window-setup-hook #'toggle-frame-fullscreen)
