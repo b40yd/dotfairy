@@ -813,6 +813,12 @@ The point of this is to avoid Emacs locking up indexing massive file trees."
     [remap projectile-switch-project]   #'counsel-projectile-switch-project)
   (setq counsel-projectile-grep-initial-input '(ivy-thing-at-point))
   :config
+  ;; A more sensible `counsel-projectile-find-file' that reverts to
+  ;; `counsel-find-file' if invoked from $HOME, `counsel-file-jump' if invoked
+  ;; from a non-project, `projectile-find-file' if in a big project (more than
+  ;; `ivy-sort-max-size' files), or `counsel-projectile-find-file' otherwise.
+  (setf (alist-get 'projectile-find-file counsel-projectile-key-bindings)
+        #'+ivy/projectile-find-file)
   ;; no highlighting visited files; slows down the filtering
   (ivy-set-display-transformer #'counsel-projectile-find-file nil)
   (setq counsel-projectile-sort-files t))
