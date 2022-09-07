@@ -78,12 +78,12 @@ Actually it is just named after that great bass player."
         (setq mingus-timer (run-with-idle-timer mingus-timer-interval
                                                 mingus-timer-interval
                                                 'mingus-timer-handler)))
-      (mingus-playlist)
-      (mingus-redraw-buffer))
+      (mingus-playlist))
 
     ;; WORKAROUND: Redraw to display faces
     ;; @see https://github.com/pft/mingus/issues/42
-    (advice-add #'mingus-timer-handler :after #'mingus-redraw-buffer)))
+    (add-hook 'mingus-playlist-hooks #'mingus-redraw-buffer)))
+
 
 ;; Simple mpd client
 (when (executable-find "mpc")
