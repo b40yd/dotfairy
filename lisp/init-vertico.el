@@ -41,6 +41,26 @@
         (let ((embark-quit-after-action nil))
           (embark-dwim)))))
 
+  (defvar +vertico/find-file-in--history nil)
+;;;###autoload
+  (defun +vertico/find-file-in (&optional dir initial)
+    "Jump to file under DIR (recursive).
+If INITIAL is non-nil, use as initial input."
+    (interactive)
+    (require 'consult)
+    (let* ((default-directory (or dir default-directory))
+           (prompt-dir (consult--directory-prompt "Find" default-directory))
+           (cmd (split-string-and-unquote +vertico-consult-fd-args " ")))
+      (find-file
+       (consult--read
+        (split-string (cdr (apply #'dotfairy-call-process cmd)) "\n" t)
+        :prompt default-directory
+        :sort nil
+        :initial (if initial (shell-quote-argument initial))
+        :add-history (thing-at-point 'filename)
+        :category 'file
+        :history '(:input +vertico/find-file-in--history)))))
+
   (setq vertico-resize nil
         vertico-count 17
         vertico-cycle t)
