@@ -110,14 +110,15 @@ orderless."
          (completion-basic-all-completions string table pred point)))
   (add-to-list
    'completion-styles-alist
-   '(+vertico-basic-remote-try-completion
+   '(+vertico-basic-remote
+     +vertico-basic-remote-try-completion
      +vertico-basic-remote-all-completions
      "Use basic completion on remote files only"))
   (setq completion-styles '(orderless basic)
         completion-category-defaults nil
         ;; note that despite override in the name orderless can still be used in
         ;; find-file etc.
-        completion-category-overrides '((file (styles orderless partial-completion)))
+        completion-category-overrides '((file (styles +vertico-basic-remote orderless partial-completion)))
         orderless-style-dispatchers '(+vertico-orderless-dispatch)
         orderless-component-separator "[ &]")
   ;; ...otherwise find-file gets different highlighting than other commands
