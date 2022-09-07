@@ -23,6 +23,7 @@
 ;;
 
 ;;; Code:
+(require 'init-const)
 
 ;; On-the-fly spell checker
 (use-package flyspell
@@ -42,7 +43,7 @@
   (use-package flyspell-correct-ivy
     :after ivy
     :bind (:map flyspell-mode-map
-                ([remap flyspell-correct-word-before-point] . flyspell-correct-wrapper))
+           ([remap flyspell-correct-word-before-point] . flyspell-correct-wrapper))
     :init (setq flyspell-correct-interface #'flyspell-correct-ivy)))
 
 ;; Automatically reload files was modified by external program
@@ -57,6 +58,10 @@
   :hook (after-init . global-hungry-delete-mode)
   :init (setq hungry-delete-except-modes
               '(help-mode minibuffer-mode minibuffer-inactive-mode calc-mode)))
+
+;; An all-in-one comment command to rule them all
+(use-package comment-dwim-2
+  :bind ([remap comment-dwim] . comment-dwim-2))
 
 ;; ;; Drag stuff (lines, words, region, etc...) around
 (use-package drag-stuff
@@ -453,6 +458,9 @@ The return value is the new value of LIST-VAR."
                      'face '(:inherit shadow :height 0.8))
                     " "))))
   (setq hs-set-up-overlay #'hs-display-code-line-counts))
+
+(unless IS-WINDOWS
+  (use-package sudo-edit))
 
 (provide 'init-iedit)
 ;;; init-iedit.el ends here
