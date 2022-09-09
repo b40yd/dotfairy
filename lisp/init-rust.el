@@ -98,8 +98,6 @@
 
 (use-package rust-playground)
 
-(use-package racer)
-
 (provide 'init-rust)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; init-rust.el ends here
