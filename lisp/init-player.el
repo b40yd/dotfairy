@@ -61,28 +61,46 @@
   :config
   (add-to-list 'global-mode-string mingus-mode-line-object)
   (with-no-warnings
-    ;; WORKAROUND:Don't reactivate the timer
-    ;; @see https://github.com/pft/mingus/issues/43
-    (defun mingus (&optional set-variables)
-      "MPD Interface by Niels Giesen, Useful and Simple.
-Actually it is just named after that great bass player."
-      (interactive "P")
-      (when set-variables
-        (call-interactively 'mingus-set-variables-interactively))
-      (mingus-switch-to-playlist)
-      (cond ((boundp 'mode-line-modes)
-             (add-to-list 'mode-line-modes mingus-mode-line-object))
-            ((boundp 'global-mode-string)
-             (add-to-list 'global-mode-string mingus-mode-line-object)))
-      (unless (timerp mingus-timer)
-        (setq mingus-timer (run-with-idle-timer mingus-timer-interval
-                                                mingus-timer-interval
-                                                'mingus-timer-handler)))
-      (mingus-playlist))
+    ;; Redefine major modes
+    (define-derived-mode mingus-help-mode special-mode "Mingus-help"
+      "Help screen for `mingus'.
+\\{mingus-help-map}"
+      (set (make-local-variable 'font-lock-defaults)
+           '(mingus-help-font-lock-keywords))
+      (setq buffer-undo-list t)
+      (font-lock-mode t)
+      (use-local-map mingus-help-map)
+      (setq buffer-read-only t))
 
-    ;; WORKAROUND: Redraw to display faces
-    ;; @see https://github.com/pft/mingus/issues/42
-    (add-hook 'mingus-playlist-hooks #'mingus-redraw-buffer)))
+    (define-derived-mode mingus-playlist-mode special-mode "Mingus-playlist"
+      "Mingus playlist mode.
+See function `mingus-help' for instructions.
+\\{mingus-playlist-map}"
+      (use-local-map mingus-playlist-map)
+      (setq buffer-undo-list t)
+      (delete-all-overlays)
+      (font-lock-mode -1)
+      (setq buffer-read-only t)
+      (setq left-fringe-width 16)
+      (run-hooks 'mingus-playlist-hooks))
+
+    (define-derived-mode mingus-browse-mode special-mode "Mingus-browse"
+      "Mingus browse mode.
+\\{mingus-browse-map}"
+      (let ((res mingus-last-query-results))
+        (use-local-map mingus-browse-map)
+        (setq buffer-undo-list t)
+        (delete-all-overlays)
+        (run-hooks 'mingus-browse-hook)
+        (set (make-local-variable '*mingus-positions*) nil)
+        (setq buffer-read-only t)
+        (setq mingus-last-query-results res)))
+    (define-derived-mode mingus-burn-mode special-mode "Mingus-burns"
+      "Mingus burning mode.
+\\{mingus-burnin-mode-map}"
+      (setq buffer-undo-list t)
+      (use-local-map mingus-burnin-map)
+      (setq buffer-read-only t))))
 
 
 ;; Simple mpd client
@@ -99,8 +117,7 @@ Actually it is just named after that great bass player."
            ("u" . simple-mpc-update))
     :init
     (setq simple-mpc-playlist-format
-          "%time%\t[[%title%\t[%artist%|%album%]\t%album%]|[%file%]]"
-          simple-mpc-table-separator "\t")
+          "[%time% ][[%title%[ - %artist%[ (%album%)]]]|[%file%]]")\
     :config
     (defun simple-mpc-play ()
       "Start playing the song."
@@ -131,7 +148,7 @@ IGNORE-AUTO and NOCONFIRM are passed by `revert-buffer'."
           (insert (propertize "🔊 Simple MPC\n"
                               'face 'simple-mpc-main-name)
 
-                  (propertize "\n  ⚙️ Controls\n" 'face 'simple-mpc-main-headers)
+                  (propertize "\n ⚙ Controls\n" 'face 'simple-mpc-main-headers)
                   "\t [t]oggle\n"
                   "\t [n]ext track\n"
                   "\t [p]revious track\n"
@@ -151,7 +168,7 @@ IGNORE-AUTO and NOCONFIRM are passed by `revert-buffer'."
                   "\t [u]pdate database\n"
                   "\t [s]earch database\n"
 
-                  (propertize "\n  🛠️️ Misc\n" 'face 'simple-mpc-main-headers)
+                  (propertize "\n 🛠 Misc\n" 'face 'simple-mpc-main-headers)
                   "\t [q]uit")
           (simple-mpc-mode) ; start major mode
           (switch-to-buffer buf))))

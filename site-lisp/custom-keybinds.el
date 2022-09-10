@@ -110,6 +110,14 @@
   (:prefix-map ("i" . "insert")
    :desc "Snippet"                       "s" #'yas-insert-snippet
    :desc "Unicode"                       "u" #'unicode-property-table-internal)
+
+  (:prefix-map ("k" . "kill")
+   :desc "Kill all buffers"                    "a" #'dotfairy/kill-all-buffers
+   :desc "Kill this buffer in all windows"     "A" #'dotfairy/kill-this-buffer-in-all-windows
+   :desc "Kill buried buffers"                 "k" #'kill-buffer
+   :desc "Kill buried buffers"                 "K" #'dotfairy/kill-buried-buffers
+   :desc "Kill other buffers"                  "o" #'dotfairy/kill-other-buffers
+   :desc "kill matching buffers"               "m" #'dotfairy/kill-matching-buffers)
       ;;; <leader> n --- notes
   (:prefix-map ("n" . "notes")
    :desc "Org agenda"                     "a" #'org-agenda
