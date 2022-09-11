@@ -54,9 +54,9 @@
     (defadvice! +rust--dont-install-packages-a (&rest _)
       :override #'rustic-install-lsp-client-p
       (message "No LSP server running"))
-  ;;; Custom Cargo commands
+    ;;; Custom Cargo commands
     (autoload 'rustic-run-cargo-command "rustic-cargo")
-;;;###autoload
+    ;;;###autoload
     (defun +rust/cargo-audit ()
       "Run 'cargo audit' for the current project."
       (interactive)
