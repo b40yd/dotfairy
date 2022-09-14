@@ -25,6 +25,7 @@
 ;;; Code:
 (require 'init-const)
 (require 'init-custom)
+(require 'init-funcs)
 (require 'init-keybinds)
 
 ;; Colorize color names in buffers
@@ -157,7 +158,10 @@
 ;; Highlight indentions
 (use-package highlight-indent-guides
   :diminish
-  :hook ((prog-mode yaml-mode) . highlight-indent-guides-mode)
+  :hook ((prog-mode yaml-mode) . (lambda ()
+                                   "Highlight indentations in small files for better performance."
+                                   (unless (too-long-file-p)
+                                     (highlight-indent-guides-mode 1))))
   :init (setq highlight-indent-guides-method 'character
               highlight-indent-guides-responsive 'top
               highlight-indent-guides-suppress-auto-error t)
