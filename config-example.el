@@ -99,12 +99,14 @@
 
 ;; default workspace
 (setq default-directory "~/")
+
 ;; .authinfo
-;; machine git.scanbuf.net/api/v4 login <your_git_user>^forge password <your_git_auth_token>
+;; machine api.gitlab.com/api/v4 login <your_git_user>^forge password <your_git_auth_token>
+;; machine api.github.com login forge^forge password <your_git_auth_token>
 ;;
 (with-eval-after-load 'forge
-  ;; (push '("git.scanbuf.net" "git.scanbuf.net/api/v4" "git.scanbuf.net" forge-gitlab-repository) forge-alist)
-  ;; (push '("git.scanbuf.net" "git.scanbuf.net/api/v4" "git.scanbuf.net" forge-github-repository) forge-alist)
+  ;; (push '("api.gitlab.com" "api.gitlab.com/api/v4" "api.gitlab.com" forge-gitlab-repository) forge-alist)
+  ;; (push '("api.github.com" "api.github.com/api/v4" "api.github.com" forge-github-repository) forge-alist)
   )
 
 ;; setting proxy
