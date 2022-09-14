@@ -223,7 +223,7 @@ If ARG (universal argument), open selection in other-window."
            (directory (or in project-root))
            (args (concat (if all-files " -uu")
                          (unless recursive " --maxdepth 1")
-                         " --hidden -g!.git "
+                         " --hidden -g !.git -g !.svn -g !.hg -g !.ccls-cache "
                          (mapconcat #'shell-quote-argument args " "))))
       (setq deactivate-mark t)
       (counsel-rg

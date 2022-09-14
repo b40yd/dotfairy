@@ -538,7 +538,7 @@ Supports exporting consult-grep to wgrep, file to wdeired, and consult-location 
                   (unless recursive "--maxdepth 1 ")
                   "--null --line-buffered --color=never --max-columns=1000 "
                   "--path-separator /   --smart-case --no-heading --line-number "
-                  "--hidden -g !.git -g !.svn -g !.hg "
+                  "--hidden -g !.git -g !.svn -g !.hg -g !.ccls-cache "
                   (mapconcat #'shell-quote-argument args " ")
                   " ."))
          (prompt (if (stringp prompt) (string-trim prompt) "Search"))
