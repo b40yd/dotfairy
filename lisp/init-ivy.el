@@ -228,15 +228,15 @@ If ARG (universal argument), open selection in other-window."
       (setq deactivate-mark t)
       (counsel-rg
        (or query
-           (if (dotfairy-region-active-p)
-               (replace-regexp-in-string
-                "[! |]" (lambda (substr)
-                          (cond ((string= substr " ")
-                                 "  ")
-                                ((string= substr "|")
-                                 "\\\\\\\\|")
-                                ((concat "\\\\" substr))))
-                (rxt-quote-pcre (dotfairy-thing-at-point-or-region)))
+           (when (dotfairy-region-active-p)
+             (replace-regexp-in-string
+              "[! |]" (lambda (substr)
+                        (cond ((string= substr " ")
+                               "  ")
+                              ((string= substr "|")
+                               "\\\\\\\\|")
+                              ((concat "\\\\" substr))))
+              (rxt-quote-pcre (dotfairy-thing-at-point-or-region)))
              (ivy-thing-at-point)))
        directory args
        (or prompt

@@ -543,7 +543,8 @@ Supports exporting consult-grep to wgrep, file to wdeired, and consult-location 
                   " ."))
          (prompt (if (stringp prompt) (string-trim prompt) "Search"))
          (query (or query
-                    (regexp-quote (dotfairy-thing-at-point-or-region))))
+                    (when (dotfairy-region-active-p)
+                      (regexp-quote (dotfairy-thing-at-point-or-region)))))
          (consult-async-split-style consult-async-split-style)
          (consult-async-split-styles-alist consult-async-split-styles-alist))
     ;; Change the split style if the initial query contains the separator.
