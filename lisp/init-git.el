@@ -147,6 +147,7 @@ ensure it is built when we actually use Forge."
       (use-package code-review
         :after magit
         :init
+        (setq code-review-auth-login-marker 'forge)
         ;; TODO This needs to either a) be cleaned up or better b) better map things
         ;; to fit
         (after! evil-collection-magit
