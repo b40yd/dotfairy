@@ -34,48 +34,6 @@
                            (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode 'makefile-mode)
                              (eglot-ensure))))
             ((markdown-mode yaml-mode) . eglot-ensure))))
-  ('lsp-bridge
-   (use-package lsp-bridge
-     :ensure nil
-     :quelpa (lsp-bridge :fetcher github :repo "manateelazycat/lsp-bridge")
-     :bind (("M-." . lsp-bridge-jump)
-            ("M-," . lsp-bridge-jump-back))
-     :init
-     (require 'lsp-bridge)
-     (require 'lsp-bridge-jdtls)
-     :hook (after-init . global-lsp-bridge-mode)
-     :config
-     (setq lsp-bridge-enable-log nil
-           lsp-bridge-enable-signature-help t)
-     (map! :leader
-           :map lsp-bridge-mode-map
-           (:prefix ("l" . "lsp")
-            :desc "Code Action" "a" #'lsp-bridge-code-action
-            :desc "Format Code" "f" #'lsp-bridge-code-format
-            :desc "Show document" "p" #'lsp-bridge-lookup-documentation))
-
-     ;; 融合 `lsp-bridge' `find-function' 以及 `dumb-jump' 的智能跳转
-     (defun lsp-bridge-jump ()
-       (interactive)
-       (cond
-        ((eq major-mode 'emacs-lisp-mode)
-         (let ((symb (function-called-at-point)))
-           (when symb
-             (find-function symb))))
-        (lsp-bridge-mode
-         (lsp-bridge-find-def))
-        (t
-         (require 'dumb-jump)
-         (dumb-jump-go))))
-     (defun lsp-bridge-jump-back ()
-       (interactive)
-       (cond
-        (lsp-bridge-mode
-         (lsp-bridge-return-from-def))
-        (t
-         (require 'dumb-jump)
-         (dumb-jump-back))))
-     ))
   ('lsp-mode
    ;; @see https://emacs-lsp.github.io/lsp-mode/page/performance
    (setq read-process-output-max (* 1024 1024)) ;; 1MB
