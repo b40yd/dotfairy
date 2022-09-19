@@ -40,7 +40,8 @@
    (setenv "LSP_USE_PLISTS" "true")
    (use-package lsp-mode
      :ensure t
-     :defines (lsp-clients-python-library-directories
+     :defines (lsp-diagnostics-disabled-modes
+               lsp-clients-python-library-directories
                lsp-rust-server)
 
      :hook ((prog-mode . (lambda ()
@@ -75,6 +76,10 @@
            lsp-eldoc-enable-hover nil
            lsp-signature-render-documentation nil
            lsp-headerline-breadcrumb-enable nil
+
+           ;; For diagnostics
+           lsp-diagnostics-disabled-modes '(markdown-mode gfm-mode)
+
            lsp-clients-python-library-directories '("/usr/local/" "/usr/")
 
            lsp-semantic-tokens-enable t
