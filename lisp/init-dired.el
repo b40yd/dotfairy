@@ -48,6 +48,27 @@
         ;; Screens are larger nowadays, we can afford slightly larger thumbnails
         image-dired-thumb-size 150)
 
+  ;; Always delete and copy recursively
+  (setq dired-recursive-deletes 'always
+        dired-recursive-copies 'always)
+
+  (when IS-MAC
+    ;; Suppress the warning: `ls does not support --dired'.
+    (setq dired-use-ls-dired nil)
+
+    (when (executable-find "gls")
+      ;; Use GNU ls as `gls' from `coreutils' if available.
+      (setq insert-directory-program "gls")))
+
+  (when (or (and IS-MAC (executable-find "gls"))
+            (and (not IS-MAC) (executable-find "ls")))
+    ;; Using `insert-directory-program'
+    (setq ls-lisp-use-insert-directory-program t)
+
+    ;; Show directory first
+    (unless IS-WINDOWS
+      (setq dired-listing-switches "-alh --group-directories-first")))
+
   ;; Quick sort dired buffers via hydra
   (use-package dired-quick-sort
     :bind (:map dired-mode-map
