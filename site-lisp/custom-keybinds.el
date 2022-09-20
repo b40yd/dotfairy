@@ -52,7 +52,7 @@
    :desc "Kill all buffers"                    "a" #'dotfairy/kill-all-buffers
    :desc "Kill this buffer in all windows"     "A" #'dotfairy/kill-this-buffer-in-all-windows
    :desc "Switch to buffer"                    "b" #'switch-to-buffer
-   :desc "Kill buried buffers"                 "k" #'kill-buffer
+   :desc "Kill buffer"                         "k" #'kill-buffer
    :desc "Kill buried buffers"                 "K" #'dotfairy/kill-buried-buffers
    :desc "New buffer"                          "n" #'+default/new-buffer
    :desc "Save and kill buffer"                "s" #'dotfairy/save-and-kill-buffer
