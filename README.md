@@ -37,6 +37,7 @@ Dotfairy is simple configure emacs.d, It's work on GNU/Linux, MacOS and Windows 
 Please read [blog](https://yourrepository.com/post/manual/how-do-myself-custom-editor/).
 
 ## Install
+
 Now, You can download [denv](https://github.com/7ym0n/denv) scripts. use it install environment.
 
 ```shell
@@ -159,3 +160,7 @@ Add or change the configurations in `~/dotfairy.d/custom.el`, then restart Emacs
 ## Configure Keymap
 
 See [site-lisp/custom-keybinds.el](site-lisp/custom-keybinds.el).
+
+## Issue
+
+[gpg: decryption failed: Inappropriate ioctl for device](https://github.com/b40yd/dotfairy/issues/5)
