@@ -162,9 +162,14 @@ ensure it is built when we actually use Forge."
         (defun +magit/start-code-review (arg)
           (interactive "P")
           (call-interactively
-           (if (or arg (not (featurep 'forge)))
-               #'code-review-start
-             #'code-review-forge-pr-at-point)))
+           (let* ((pullreq (or (forge-pullreq-at-point) (forge-current-topic)))
+                  (repo    (forge-get-repository pullreq))
+                  (githost (concat (oref repo githost) "/api")))
+             (setq code-review-gitlab-host githost
+                   code-review-gitlab-graphql-host githost)
+             (if (or arg (not (featurep 'forge)))
+                 #'code-review-start
+               #'code-review-forge-pr-at-point))))
         (transient-append-suffix 'magit-merge "i"
           '("y" "Review pull request" +magit/start-code-review))
         (after! forge
