@@ -134,8 +134,11 @@ Add or change the configurations in `~/dotfairy.d/custom.el`, then restart Emacs
 ;; .authinfo
 ;; machine api.gitlab.com/api/v4 login <your_git_user>^forge password <your_git_auth_token>
 ;; machine api.github.com login forge^forge password <your_git_auth_token>
+;; this setting private repository code review.
+;; machine <your_private_repo_domain_or_ip>/api login <your_git_user>^forge password <your_git_auth_token>
 ;;
 (with-eval-after-load 'forge
+  ;; if use private repository, your must be add to there.
   ;; (push '("api.gitlab.com" "api.gitlab.com/api/v4" "api.gitlab.com" forge-gitlab-repository) forge-alist)
   ;; (push '("api.github.com" "api.github.com/api/v4" "api.github.com" forge-github-repository) forge-alist)
   )
