@@ -164,9 +164,10 @@ ensure it is built when we actually use Forge."
           (call-interactively
            (let* ((pullreq (or (forge-pullreq-at-point) (forge-current-topic)))
                   (repo    (forge-get-repository pullreq))
-                  (githost (concat (oref repo githost) "/api"))
-                  (code-review-gitlab-host (when (forge-gitlab-repository-p repo) githost))
-                  (code-review-gitlab-graphql-host (when (forge-gitlab-repository-p repo) githost)))
+                  (githost (concat (oref repo githost) "/api")))
+             (when (forge-gitlab-repository-p repo)
+               (setq-default code-review-gitlab-host githost
+                             code-review-gitlab-graphql-host githost))
              (if (or arg (not (featurep 'forge)))
                  #'code-review-start
                #'code-review-forge-pr-at-point))))
