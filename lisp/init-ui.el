@@ -253,6 +253,9 @@
      ("z g" (counsel-set-variable 'doom-modeline-github-interval) "set github interval" :exit t)
      ("z n" (counsel-set-variable 'doom-modeline-gnus-timer) "set gnus interval" :exit t)))))
 
+(use-package nyan-mode
+  :hook (doom-modeline-mode . nyan-mode))
+
 (use-package hide-mode-line
   :hook (((eshell-mode
            completion-list-mode
