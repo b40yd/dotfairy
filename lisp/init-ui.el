@@ -255,13 +255,10 @@
 
 (use-package hide-mode-line
   :hook (((eshell-mode
-           ;; completion-list-mode
-           ;; completion-in-region-mode
-           shell-mode
-           term-mode
-           vterm-mode
-           pdf-annot-list-mode
-           flycheck-error-list-mode) . hide-mode-line-mode)))
+           completion-list-mode
+           completion-in-region-mode
+           shell-mode term-mode
+           vterm-mode pdf-annot-list-mode) . hide-mode-line-mode)))
 
 (use-package minions
   :hook (doom-modeline-mode . minions-mode))
