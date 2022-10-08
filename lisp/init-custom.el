@@ -61,7 +61,7 @@ If Non-nil, use dashboard, otherwise will restore previous session."
     (doom-solarized-dark . doom-solarized-dark)
     (doom-one . doom-one)
     (doom-monokai-pro     . doom-monokai-pro)
-    (doom-dark . doom-nord-aurora)
+    (doom-dark . doom-vibrant)
     (doom-cold . doom-palenight)
     (doom-one-light   . doom-one-light)
     (doom-solarized-light    . doom-solarized-light)

@@ -30,7 +30,8 @@
 (use-package symbol-overlay
   :diminish
   :functions (turn-off-symbol-overlay turn-on-symbol-overlay)
-  :custom-face (symbol-overlay-default-face ((t (:inherit (region bold)))))
+  :custom-face
+  (symbol-overlay-default-face ((t (:background ,(doom-color 'region)))))
   :hook (((prog-mode yaml-mode) . symbol-overlay-mode)
          (iedit-mode . turn-off-symbol-overlay)
          (iedit-mode-end . turn-on-symbol-overlay))
