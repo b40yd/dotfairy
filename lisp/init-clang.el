@@ -52,7 +52,10 @@
   :ensure t
   :bind (:map c-mode-base-map
          ("C-c C-c" . compile))
-  :hook (c-mode-common . (lambda () (c-set-style "stroustrup")))
+  :hook ((c-mode-common . (lambda () (c-set-style "stroustrup")))
+         ((c-mode c++-mode) . (lambda ()
+                                (dotfairy-set-prettify '(
+                                                         ("NULL" . ?∅))))))
   :init (setq-default c-basic-offset 4)
   :config
   (use-package modern-cpp-font-lock
