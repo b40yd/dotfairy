@@ -25,7 +25,12 @@
 (require 'init-funcs)
 ;;; Code:
 
-(use-package lua-mode)
+(use-package lua-mode
+  :hook (lua-mode . (lambda ()
+                      (dotfairy-set-prettify '(("~=" . ?≠)
+                                               ("in" . ?∈)
+                                               ("function" . ?ƒ)
+                                               ("nil" . ?∅))))))
 (use-package moonscript
   :defer t
   :config
