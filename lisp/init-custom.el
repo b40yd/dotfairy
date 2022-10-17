@@ -198,7 +198,6 @@ nil means disabled."
     ("<<" . ?≪)
     ("return" . ?⟼)
     ("defun" . ?ƒ)
-    ("define" . ?ƒ)
     ("bool" . ?𝔹)
     ("false" . ?𝔽)
     ("true" . ?𝕋)
