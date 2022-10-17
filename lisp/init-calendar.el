@@ -25,7 +25,7 @@
 ;;; Code:
 (use-package cal-china-x
   :after calendar
-  :commands cal-china-x-setup
+  :autoload cal-china-x-setup
   :init (cal-china-x-setup)
   :config
   ;; Holidays

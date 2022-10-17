@@ -31,7 +31,7 @@
 (use-package persp-mode
   :diminish
   :defines (recentf-exclude)
-  :commands (get-current-persp persp-contain-buffer-p)
+  :autoload (get-current-persp persp-contain-buffer-p)
   :hook ((after-init . persp-mode))
   :init (setq persp-keymap-prefix (kbd "C-x p")
               persp-nil-name "default"
@@ -100,7 +100,7 @@
 ;; Projectile integration
 (use-package persp-mode-projectile-bridge
   :after (persp-mode projectile)
-  :commands (persp-mode-projectile-bridge-find-perspectives-for-all-buffers
+  :autoload (persp-mode-projectile-bridge-find-perspectives-for-all-buffers
              persp-mode-projectile-bridge-kill-perspectives)
   :hook ((after-init . persp-mode-projectile-bridge-mode)
          (persp-mode-projectile-bridge-mode

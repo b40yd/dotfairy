@@ -27,11 +27,11 @@
 
 ;; pip3 install sqlparse
 (use-package sqlformat
-  :commands (sqlformat sqlformat-buffer sqlformat-region)
+  :autoload (sqlformat sqlformat-buffer sqlformat-region)
   :hook (sql-mode . sqlformat-on-save-mode))
 
 (use-package ejc-sql
-  :commands ejc-sql-mode ejc-connect
+  :autoload ejc-sql-mode ejc-connect
   :hook (sql-mode . ejc-sql-mode))
 
 (provide 'init-sql)

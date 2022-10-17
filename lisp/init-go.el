@@ -30,7 +30,7 @@
 (use-package go-mode
   :ensure t
   :functions go-update-tools
-  :commands godoc-gogetdoc
+  :autoload godoc-gogetdoc
   :hook ((before-save . gofmt-before-save)
          (go-mode . (lambda ()
                       (dotfairy-set-prettify '(("func()" . ?λ)

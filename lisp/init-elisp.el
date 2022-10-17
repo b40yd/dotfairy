@@ -227,7 +227,7 @@ Lisp function does not specify a special indentation."
 
 ;; A better *Help* buffer
 (use-package helpful
-  :commands helpful--buffer
+  :autoload helpful--buffer
   :bind (([remap describe-function] . helpful-callable)
          ([remap describe-command] . helpful-command)
          ([remap describe-variable] . helpful-variable)

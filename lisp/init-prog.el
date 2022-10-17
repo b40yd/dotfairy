@@ -131,7 +131,7 @@
 ;; Search tool
 (use-package grep
   :ensure nil
-  :commands grep-apply-setting
+  :autoload grep-apply-setting
   :config
   (cond
    ((executable-find "ugrep")
@@ -178,7 +178,7 @@
   (setq plantuml-jar-path (expand-file-name "plantuml.jar" dotfairy-local-dir)))
 
 (use-package devdocs
-  :commands (devdocs--installed-docs devdocs--available-docs)
+  :autoload (devdocs--installed-docs devdocs--available-docs)
   :bind (:map prog-mode-map
          ("C-c <f1>" . devdocs-dwim))
   :init

@@ -118,7 +118,7 @@ debian, and derivatives). On most it's 'fd'.")
 
 
 (use-package treemacs
-  :commands (treemacs-follow-mode
+  :autoload (treemacs-follow-mode
              treemacs-filewatch-mode
              treemacs-fringe-indicator-mode
              treemacs-git-mode)
@@ -160,7 +160,7 @@ debian, and derivatives). On most it's 'fd'.")
 
   (use-package treemacs-magit
     :after magit
-    :commands treemacs-magit--schedule-update
+    :autoload treemacs-magit--schedule-update
     :hook ((magit-post-commit
             git-commit-post-finish
             magit-post-stage
