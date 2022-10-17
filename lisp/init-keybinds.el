@@ -66,6 +66,7 @@
 
 (use-package general
   :init
+  (require 'general)
   ;; Convenience aliases
   (defalias 'define-key! #'general-def)
   (defalias 'undefine-key! #'general-unbind)
