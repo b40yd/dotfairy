@@ -115,7 +115,7 @@ kill all magit buffers for this repo."
                     ("State" 6 t nil state nil)
                     ("Updated" 10 t nill updated nil)))
       :config
-      (setq forge-database-file (concat dotfairy-etc-dir "forge/forge-database.sqlite"))
+      (setq forge-database-file (concat dotfairy-cache-dir "forge/forge-database.sqlite"))
 
       (defadvice! +magit--forge-get-repository-lazily-a (&rest _)
         "Make `forge-get-repository' return nil if the binary isn't built yet.
@@ -147,7 +147,12 @@ ensure it is built when we actually use Forge."
       (use-package code-review
         :after magit
         :init
-        (setq code-review-auth-login-marker 'forge)
+        (setq code-review-db-database-file (concat dotfairy-cache-dir "code-review/code-review-db-file.sqlite")
+              code-review-log-file (concat dotfairy-cache-dir "code-review/code-review-error.log")
+              code-review-auth-login-marker 'forge
+              code-review-log-raw-request-responses t
+              code-review-download-dir (expand-file-name "code-review/" dotfairy-cache-dir))
+
         ;; TODO This needs to either a) be cleaned up or better b) better map things
         ;; to fit
         (after! evil-collection-magit
@@ -156,9 +161,7 @@ ensure it is built when we actually use Forge."
               (dolist (state states)
                 (evil-collection-define-key state 'code-review-mode-map evil-binding fn))))
           (evil-set-initial-state 'code-review-mode evil-default-state))
-        (setq code-review-db-database-file (concat dotfairy-etc-dir "code-review/code-review-db-file.sqlite")
-              code-review-log-file (concat dotfairy-etc-dir "code-review/code-review-error.log")
-              code-review-download-dir (concat dotfairy-etc-dir "code-review/"))
+
         (defun +magit/start-code-review (arg)
           (interactive "P")
           (call-interactively
