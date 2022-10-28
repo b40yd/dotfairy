@@ -59,11 +59,15 @@ Fallback to `xref-go-back'."
                  (call-interactively #'xref-go-back)
                (call-interactively #'xref-pop-marker-stack)))))
   :config
+  (with-eval-after-load 'cc-mode (require 'citre-lang-c))
+  (with-eval-after-load 'dired (require 'citre-lang-fileref))
+  (with-eval-after-load 'verilog-mode (require 'citre-lang-verilog))
+
   (with-no-warnings
     (with-eval-after-load 'projectile
       (setq citre-project-root-function #'projectile-project-root))
 
-    ;; Integrate with `lsp-mode' and `eglot'
+    ;; Use Citre xref backend as a fallback
     (define-advice xref--create-fetcher (:around (fn &rest args) fallback)
       (let ((fetcher (apply fn args))
             (citre-fetcher
@@ -75,6 +79,7 @@ Fallback to `xref-go-back'."
                 (funcall fetcher))
               (funcall citre-fetcher)))))
 
+    ;; Combine completions from Citre and lsp
     (defun lsp-citre-capf-function ()
       "A capf backend that tries lsp first, then Citre."
       (let ((lsp-result (cond
