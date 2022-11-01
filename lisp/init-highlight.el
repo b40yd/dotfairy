@@ -116,10 +116,12 @@
 
   (defun my-set-diff-hl-faces ()
     "Set `diff-hl' faces."
-    (custom-set-faces
-     `(diff-hl-change ((t (:foreground ,(face-foreground 'custom-changed) :background nil))))
-     '(diff-hl-insert ((t (:inherit diff-added :background nil))))
-     '(diff-hl-delete ((t (:inherit diff-removed :background nil))))))
+    (apply #'face-spec-set
+           `(diff-hl-change ((t (:foreground ,(face-foreground 'custom-changed) :background unspecified)))))
+    (apply #'face-spec-set
+           '(diff-hl-insert ((t (:inherit diff-added :background unspecified)))))
+    (apply #'face-spec-set
+           '(diff-hl-delete ((t (:inherit diff-removed :background unspecified))))))
 
   (with-no-warnings
     (defun my-diff-hl-fringe-bmp-function (_type _pos)
@@ -153,6 +155,50 @@
         "Pulse the changes."
         (pulse-momentary-highlight-region beg end face))
       (advice-add #'vhl/.make-hl :override #'my-vhl-pulse))))
+
+;; Pulse current line
+(use-package pulse
+  :ensure nil
+  :custom-face
+  (pulse-highlight-start-face ((t (:inherit region :background unspecified))))
+  (pulse-highlight-face ((t (:inherit region :background unspecified :extend t))))
+  :hook (((dumb-jump-after-jump imenu-after-jump) . my-recenter-and-pulse)
+         ((bookmark-after-jump magit-diff-visit-file next-error) . my-recenter-and-pulse-line))
+  :init
+  (with-no-warnings
+    (defun my-pulse-momentary-line (&rest _)
+      "Pulse the current line."
+      (pulse-momentary-highlight-one-line (point)))
+
+    (defun my-pulse-momentary (&rest _)
+      "Pulse the region or the current line."
+      (if (fboundp 'xref-pulse-momentarily)
+          (xref-pulse-momentarily)
+        (my-pulse-momentary-line)))
+
+    (defun my-recenter-and-pulse(&rest _)
+      "Recenter and pulse the region or the current line."
+      (recenter)
+      (my-pulse-momentary))
+
+    (defun my-recenter-and-pulse-line (&rest _)
+      "Recenter and pulse the current line."
+      (recenter)
+      (my-pulse-momentary-line))
+
+    (dolist (cmd '(recenter-top-bottom
+                   other-window switch-to-buffer
+                   aw-select toggle-window-split
+                   windmove-do-window-select
+                   pager-page-down pager-page-up
+                   treemacs-select-window
+                   symbol-overlay-basic-jump))
+      (advice-add cmd :after #'my-pulse-momentary-line))
+
+    (dolist (cmd '(pop-to-mark-command
+                   pop-global-mark
+                   goto-last-change))
+      (advice-add cmd :after #'my-recenter-and-pulse))))
 
 ;; Highlight indentions
 (use-package highlight-indent-guides
