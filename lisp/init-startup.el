@@ -34,7 +34,7 @@
 ;; UI
 (require 'init-ui)
 
-;; editor
+;; Editor
 (require 'init-iedit)
 (require 'init-indent-yank)
 (require 'init-wordwrap)
@@ -55,12 +55,10 @@
    (require 'init-vertico)))
 (require 'init-autoinsert)
 
-;;checking
+;;Checking
 (require 'init-flycheck)
 
 ;; Tools
-(require 'init-lsp)
-(require 'init-debugger)
 (require 'init-git)
 (require 'init-eshell)
 (require 'init-dired)
@@ -88,6 +86,11 @@
 (require 'init-sql)
 (require 'init-lua)
 (require 'init-prog)
+
+;; Lsp Server
+(require 'init-lsp)
+;; Debugger
+(require 'init-debugger)
 
 ;; Highlight
 (require 'init-highlight)

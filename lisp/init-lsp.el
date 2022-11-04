@@ -294,6 +294,7 @@
 
    ;; Python: pyright
    (use-package lsp-pyright
+     :after lsp-mode
      :preface
      ;; Use yapf to format
      (defun lsp-pyright-format-buffer ()
@@ -302,6 +303,12 @@
          (call-process "yapf" nil nil nil "-i" buffer-file-name)))
      :hook (python-mode . (lambda ()
                             (require 'lsp-pyright)
+                            ;; git clone https://github.com/microsoft/python-type-stubs $HOME/.emacs.d/.local/etc/python-type-stubs
+                            (let ((python-type-stubs (expand-file-name "python-type-stubs" dotfairy-etc-dir)))
+                              (if (not (file-exists-p python-type-stubs))
+                                  (dotfairy-exec-process "git" "clone" "https://github.com/microsoft/python-type-stubs" python-type-stubs))
+                              (setq lsp-pyright-use-library-code-for-types t) ;; set this to nil if getting too many false positive type errors
+                              (setq lsp-pyright-stub-path python-type-stubs))
                             (add-hook 'after-save-hook #'lsp-pyright-format-buffer t t)))
      :init (when (executable-find "python3")
              (setq lsp-pyright-python-executable-cmd "python3")))

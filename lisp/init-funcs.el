@@ -862,6 +862,35 @@ regex PATTERN. Returns the number of killed buffers."
       (kill-buffer buf))))
 
 
+(defun dotfairy-exec-process (command &rest args)
+  "Execute COMMAND with ARGS synchronously.Unlike `ss-process',
+this pipes output to `standard-output' on the fly to
+simulate 'exec' in the shell,
+so batch scripts could run external programs
+synchronously without sacrificing their output.
+Warning: freezes indefinitely on any stdin prompt."
+  ;; FIXME Is there any way to handle prompts?
+  ;; (ssh-manager--info (mapconcat 'identity args " "))
+  (with-temp-buffer
+    (cons (let ((process
+                 (make-process :name command
+                               :buffer (current-buffer)
+                               :command (cons command (remq nil args))
+                               :connection-type 'pipe))
+                done-p)
+            (set-process-filter
+             process (lambda (_process output)
+                       (princ output (current-buffer))
+                       (princ output)))
+            (set-process-sentinel
+             process (lambda (process _event)
+                       (when (memq (process-status process) '(exit stop))
+                         (setq done-p t))))
+            (while (not done-p)
+              (sit-for 0.1))
+            (process-exit-status process))
+          (string-trim (buffer-string)))))
+
 ;;;###autoload
 (defun dotfairy-call-process (command &rest args)
   "Execute COMMAND with ARGS synchronously.

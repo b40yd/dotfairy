@@ -139,9 +139,22 @@
 (use-package pyenv-mode
   :after python
   :autoload (+python-pyenv-mode-set-auto-h +python-pyenv-read-version-from-file)
+  :hook ((pyenv-mode . +python-pyenv-mode-set-auto-h)
+         (python-mode . (lambda ()
+                          (when (executable-find "pyenv")
+                            (setq python-shell-interpreter "python")
+                            (pyenv-mode +1)
+                            (add-to-list 'exec-path (expand-file-name "shims" (or (getenv "PYENV_ROOT") "~/.pyenv")))))))
   :config
   ;;;###autoload
   (defvar +pyenv--version nil)
+
+  (defun +python-pyenv-set-venv (version)
+    "Set venv path and version."
+    (when (featurep 'lsp-mode)
+      (setq lsp-pyright-venv-path (expand-file-name (concat "versions/" version)
+                                                    (or (getenv "PYENV_ROOT") "~/.pyenv"))))
+    (pyenv-mode-set +pyenv--version))
 
 ;;;###autoload
   (defun +python-pyenv-mode-set-auto-h ()
@@ -151,7 +164,7 @@
         (make-local-variable '+pyenv--version)
         (setq +pyenv--version (+python-pyenv-read-version-from-file)))
       (if +pyenv--version
-          (pyenv-mode-set +pyenv--version)
+          (+python-pyenv-set-venv +pyenv--version)
         (pyenv-mode-unset))))
 
 ;;;###autoload
@@ -166,13 +179,7 @@
         (if (member version (pyenv-mode-versions))
             version  ;; return.
           (message "pyenv: version `%s' is not installed (set by `%s')."
-                   version file-path)))))
-
-  (when (executable-find "pyenv")
-    (pyenv-mode +1)
-    (add-to-list 'exec-path (expand-file-name "shims" (or (getenv "PYENV_ROOT") "~/.pyenv"))))
-  (add-hook 'python-mode-local-vars-hook #'+python-pyenv-mode-set-auto-h)
-  (add-hook 'doom-switch-buffer-hook #'+python-pyenv-mode-set-auto-h))
+                   version file-path))))))
 
 
 (use-package conda
