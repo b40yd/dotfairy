@@ -31,7 +31,6 @@
 (use-package vertico
   :hook (after-init . vertico-mode)
   :commands (+vertico/embark-preview)
-  :bind (("s-SPC" . #'+vertico/embark-preview))
   :config
   (defun +vertico/embark-preview ()
     "Previews candidate in vertico buffer, unless it's a consult command"
@@ -74,7 +73,6 @@ If INITIAL is non-nil, use as initial input."
   ;; cleans ~/foo/bar/// to /, and ~/foo/bar/~/ to ~/.
   (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy)
   (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
-  (map! :map vertico-map "DEl" #'vertico-directory-delete-char)
   ;; These commands are problematic and automatically show the *Completions* buffer
   (advice-add #'tmm-add-prompt :after #'minibuffer-hide-completions)
   (defadvice! +vertico--suppress-completion-help-a (fn &rest args)
@@ -371,9 +369,7 @@ buffer will be opened in the current workspace instead."
     (add-to-list 'consult-buffer-sources '+vertico--consult-org-source 'append)))
 
 (use-package consult-dir
-  :bind (([remap list-directory] . consult-dir)
-         :map vertico-map
-         ("s-d" . consult-dir))
+  :bind (([remap list-directory] . consult-dir))
   :config
   (defun +vertico--consult-dir-docker-hosts ()
     "Get a list of hosts from docker."
