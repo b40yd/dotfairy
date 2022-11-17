@@ -146,6 +146,7 @@
    :desc "Kill project buffers"            "k" #'dotfairy/kill-project-buffers
    :desc "Browse project"                  "p" #'+default/browse-project
    :desc "Browse other project"            "P" #'dotfairy/browse-in-other-project
+   :desc "Search project for symbol at point"  "y" #'+default/search-project-for-symbol-at-point
    :desc "Search project"                  "s" #'+default/search-project
    :desc "Search Other Project"            "S" #'+default/search-other-project
    :desc "List project todos"              "t" #'magit-todos-list

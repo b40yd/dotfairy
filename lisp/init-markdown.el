@@ -34,6 +34,7 @@
         markdown-make-gfm-checkboxes-buttons t
         markdown-gfm-uppercase-checkbox t
         markdown-fontify-code-blocks-natively t
+        markdown-split-window-direction 'right
         markdown-open-command
         (cond (IS-MAC "open")
               (IS-LINUX "xdg-open"))
@@ -44,9 +45,13 @@
         markdown-xhtml-header-content
         (concat "<meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>"
                 "<style> body { box-sizing: border-box; max-width: 740px; width: 100%; margin: 40px auto; padding: 0 10px; } </style>"
-                "<script id='MathJax-script' async src='https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'></script>"
+                "<script id='MathJax-script' src='https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'></script>"
+                "<link rel='stylesheet' href='https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/styles/default.min.css'>"
                 "<script src='https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/highlight.min.js'></script>"
-                "<script>document.addEventListener('DOMContentLoaded', () => { document.body.classList.add('markdown-body'); document.querySelectorAll('pre[lang] > code').forEach((code) => { code.classList.add(code.parentElement.lang); }); document.querySelectorAll('pre > code').forEach((code) => { hljs.highlightBlock(code); }); });</script>")
+                "<script>document.addEventListener('DOMContentLoaded', () => { document.body.classList.add('markdown-body'); document.querySelectorAll('pre[lang] > code').forEach((code) => { code.classList.add(code.parentElement.lang); }); document.querySelectorAll('pre > code').forEach((code) => { if (code.className != 'mermaid') {hljs.highlightBlock(code);} }); });</script>"
+                "<script src='https://unpkg.com/mermaid@8.4.8/dist/mermaid.min.js'></script>"
+                "<script>mermaid.initialize({theme: 'default',startOnLoad: true});</script>"
+                )
         markdown-gfm-additional-languages "Mermaid")
 
   ;; `multimarkdown' is necessary for `highlight.js' and `mermaid.js'
@@ -62,10 +67,6 @@
   (add-to-list 'markdown-code-lang-modes '("mermaid" . mermaid-mode))
 
   (with-no-warnings
-    ;; Use `which-key' instead
-    (advice-add #'markdown--command-map-prompt :override #'ignore)
-    (advice-add #'markdown--style-map-prompt   :override #'ignore)
-
     ;; Preview with built-in webkit
     (defun my-markdown-export-and-preview (fn)
       "Preview with `xwidget' if applicable, otherwise with the default browser."
