@@ -100,12 +100,15 @@
 
 ;; Highlight uncommitted changes using VC
 (use-package diff-hl
+  :custom-face
+  (diff-hl-change ((t (:inherit custom-changed :foreground unspecified :background unspecified))))
+  (diff-hl-insert ((t (:inherit diff-added :background unspecified))))
+  (diff-hl-delete ((t (:inherit diff-removed :background unspecified))))
   :bind (:map diff-hl-command-map
          ("SPC" . diff-hl-mark-hunk))
   :hook ((after-init . global-diff-hl-mode)
          (after-init . global-diff-hl-show-hunk-mouse-mode)
-         (dired-mode . diff-hl-dired-mode)
-         ((after-init after-load-theme server-after-make-frame) . my-set-diff-hl-faces))
+         (dired-mode . diff-hl-dired-mode))
   :init (setq diff-hl-draw-borders nil)
   :config
   ;; Highlight on-the-fly
@@ -113,16 +116,6 @@
 
   ;; Set fringe style
   (setq-default fringes-outside-margins t)
-
-  (defun my-set-diff-hl-faces ()
-    "Set `diff-hl' faces."
-    (apply #'face-spec-set
-           `(diff-hl-change ((t (:foreground ,(face-foreground 'custom-changed) :background unspecified)))))
-    (apply #'face-spec-set
-           '(diff-hl-insert ((t (:inherit diff-added :background unspecified)))))
-    (apply #'face-spec-set
-           '(diff-hl-delete ((t (:inherit diff-removed :background unspecified))))))
-
   (with-no-warnings
     (defun my-diff-hl-fringe-bmp-function (_type _pos)
       "Fringe bitmap function for use as `diff-hl-fringe-bmp-function'."

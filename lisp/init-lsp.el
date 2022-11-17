@@ -56,11 +56,8 @@
                           (unless (apply #'derived-mode-p dotfairy-lsp-format-on-save-ignore-modes)
                             (add-hook 'before-save-hook #'lsp-format-buffer t t)
                             (add-hook 'before-save-hook #'lsp-organize-imports t t)))))
-     :autoload (lsp-enable-which-key-integration
-                lsp-format-buffer
-                lsp-organize-imports
-                lsp-install-server)
-
+     :autoload lsp-enable-which-key-integration
+     :commands (lsp-format-buffer lsp-organize-imports)
      :bind (:map lsp-mode-map
             ;; ("C-c C-." . lsp-describe-thing-at-point)
             ([remap xref-find-definitions] . lsp-find-definition)
@@ -208,9 +205,15 @@
            lsp-ui-imenu-colors `(,(face-foreground 'font-lock-keyword-face)
                                  ,(face-foreground 'font-lock-string-face)
                                  ,(face-foreground 'font-lock-constant-face)))
-     (if (facep 'posframe-border)
-         (setq lsp-ui-doc-border (face-background 'posframe-border nil t))
-       (setq lsp-ui-doc-border (face-foreground 'font-lock-comment-face nil t)))
+     ;; Set correct color to borders
+     (defun my-lsp-ui-doc-set-border ()
+       "Set the border color of lsp doc."
+       (setq lsp-ui-doc-border
+             (if (facep 'posframe-border)
+                 (face-background 'posframe-border nil t)
+               (face-background 'region nil t))))
+     (my-lsp-ui-doc-set-border)
+     (add-hook 'after-load-theme-hook #'my-lsp-ui-doc-set-border t)
      :config
      (with-no-warnings
        ;; Display peek in child frame if possible
