@@ -873,7 +873,8 @@ when exporting org-mode to '(html hugo md odt)."
          "b" #'org-roam-buffer-toggle
          "c" #'org-roam-capture
          "f" #'org-roam-node-find
-         "g" #'org-roam-graph
+         "g" #'org-roam-ui-mode
+         "o" #'org-roam-ui-open
          "i" #'org-roam-node-insert
          "t" #'org-roam-tag-add
          "T" #'org-roam-tag-remove
