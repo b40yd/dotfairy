@@ -368,8 +368,8 @@
                                     (agenda    . "calendar")
                                     (projects  . "briefcase")
                                     (registers . "database"))
-          dashboard-items '((recents . 5)
-                            (projects . 5)))))
+          dashboard-items '((recents . 10)
+                            (projects . 10)))))
 
 ;; Easily adjust the font size in all frames
 (use-package default-text-scale
