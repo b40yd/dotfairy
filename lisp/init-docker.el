@@ -25,7 +25,7 @@
 ;;; Code:
 (use-package docker
   :ensure t)
-(use-package docker-tramp)
+
 (use-package dockerfile-mode
   :mode "\\Dockerfile\\'")
 (use-package docker-compose-mode)
