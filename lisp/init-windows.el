@@ -136,7 +136,7 @@
   ;; :bind (("M-o" . 'ace-window))
   :pretty-hydra
   ((:title (pretty-hydra-title "Window Management" 'faicon "windows")
-    :foreign-keys warn :quit-key "q")
+    :foreign-keys warn :quit-key ("q" "C-g"))
    ("Actions"
     (("TAB" other-window "switch")
      ("x" ace-delete-window "delete" :exit t)

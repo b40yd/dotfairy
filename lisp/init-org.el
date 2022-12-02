@@ -71,7 +71,7 @@
                               (setq show-paren-mode nil))))
   :pretty-hydra
   ((:title (pretty-hydra-title "Org Template" 'fileicon "org" :face 'all-the-icons-green :height 1.1 :v-adjust 0.0)
-    :color blue :quit-key "q")
+    :color blue :quit-key ("q" "C-g"))
    ("Basic"
     (("a" (hot-expand "<a") "ascii")
      ("c" (hot-expand "<c") "center")

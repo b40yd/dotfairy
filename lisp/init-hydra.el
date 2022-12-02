@@ -34,12 +34,13 @@
     (pretty-hydra-define toggles-hydra (:title (pretty-hydra-title "Toggles" 'faicon "toggle-on")
                                         :color amaranth :quit-key "q")
       ("Basic"
-       (("n" (if (fboundp 'display-line-numbers-mode)
-                 (display-line-numbers-mode (if display-line-numbers-mode -1 1))
-               (global-linum-mode (if global-linum-mode -1 1)))
-         "line number" :toggle (if (fboundp 'display-line-numbers-mode)
-                                   display-line-numbers-mode
-                                 global-linum-mode))
+       (("n" (cond ((fboundp 'display-line-numbers-mode)
+                    (display-line-numbers-mode (if display-line-numbers-mode -1 1)))
+                   ((fboundp 'gblobal-linum-mode)
+                    (global-linum-mode (if global-linum-mode -1 1))))
+         "line number"
+         :toggle (or (bound-and-true-p display-line-numbers-mode)
+                     (bound-and-true-p global-linum-mode)))
         ("a" global-aggressive-indent-mode "aggressive indent" :toggle t)
         ("h" global-hungry-delete-mode "hungry delete" :toggle t)
         ("e" electric-pair-mode "electric pair" :toggle t)

@@ -353,7 +353,7 @@ The return value is the new value of LIST-VAR."
 (use-package dumb-jump
   :pretty-hydra
   ((:title (pretty-hydra-title "Dump Jump" 'faicon "anchor")
-    :color blue :quit-key "q")
+    :color blue :quit-key ("q" "C-g"))
    ("Jump"
     (("j" dumb-jump-go "Go")
      ("o" dumb-jump-go-other-window "Go other window")
@@ -386,7 +386,7 @@ The return value is the new value of LIST-VAR."
   :diminish hs-minor-mode
   :pretty-hydra
   ((:title (pretty-hydra-title "HideShow" 'octicon "fold" :height 1.1 :v-adjust -0.05)
-    :color amaranth :quit-key "q")
+    :color amaranth :quit-key ("q" "C-g"))
    ("Fold"
     (("t" hs-toggle-all "toggle all")
      ("a" hs-show-all "show all")

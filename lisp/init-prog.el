@@ -55,7 +55,7 @@
   :config
   :pretty-hydra
   ((:title (pretty-hydra-title "QuickRun" 'faicon "linux")
-    :color amaranth :quit-key "q")
+    :color amaranth :quit-key ("q" "C-g"))
    ("CMD"
     (("u" quickrun)
      ("r" quickrun-region)
