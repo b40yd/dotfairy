@@ -52,6 +52,7 @@
                             (require 'dap-lldb)))
             ((c-mode c++-mode objc-mode) . (lambda ()
                                              (require 'dap-lldb)
+                                             (require 'dap-cpptools)
                                              (require 'dap-gdb-lldb)))
             (php-mode . (lambda () (require 'dap-php)))
             ((js-mode js2-mode) . (lambda () (require 'dap-chrome)))
