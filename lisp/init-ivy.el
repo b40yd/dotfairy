@@ -868,7 +868,8 @@ The point of this is to avoid Emacs locking up indexing massive file trees."
               (overlay-put ov 'window (selected-window))
               (overlay-put ov 'ivy-posframe t)
               (overlay-put ov 'face
-                           (let* ((face (if (facep 'solaire-default-face)
+                           (let* ((face (if (or (bound-and-true-p solaire-global-mode)
+                                                (bound-and-true-p solaire-mode))
                                             'solaire-default-face
                                           'default))
                                   (bg-color (face-background face nil t)))
