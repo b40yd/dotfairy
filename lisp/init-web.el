@@ -155,7 +155,9 @@
   :after (typescript-mode company flycheck)
   :hook ((typescript-mode . tide-setup)
          (typescript-mode . tide-hl-identifier-mode)
-         (before-save . tide-format-before-save)))
+         (before-save . (lambda ()
+                          (unless dotfairy-lsp-format-disable-on-save
+                            tide-format-before-save)))))
 
 (use-package rjsx-mode
   :mode "\\jsx\\|.[mc]?js\\'"

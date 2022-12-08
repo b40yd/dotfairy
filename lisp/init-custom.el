@@ -168,6 +168,12 @@ nil means disabled."
                  (const :tag "Eglot" eglot)
                  (const :tag "Disable" nil)))
 
+(defcustom dotfairy-lsp-format-disable-on-save
+  nil
+  "Disable auto formatting for all files."
+  :group 'dotfairy
+  :type 'boolean)
+
 (defcustom dotfairy-complete 'ivy
   "Set complete.
 `ivy': See https://github.com/abo-abo/swiper.

@@ -287,8 +287,7 @@
 (use-package emacs
   :bind ((("M-/" . comment-line)
           ("M-?" . comment-or-uncomment-region)))
-  :hook ((before-save . delete-trailing-whitespace)
-         (after-init . delete-selection-mode))
+  :hook ((after-init . delete-selection-mode))
   ;; Settings for the TAB behavior
 
   :init (setq-default tab-width 4

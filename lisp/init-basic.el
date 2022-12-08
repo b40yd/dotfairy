@@ -194,6 +194,7 @@
   :ensure nil
   :hook ((after-init . size-indication-mode)
          (text-mode . visual-line-mode)
+         ;; (before-save . delete-trailing-whitespace)
          ((prog-mode markdown-mode conf-mode) . enable-trailing-whitespace))
   :init
   (setq column-number-mode t
@@ -208,7 +209,8 @@
   (defun enable-trailing-whitespace ()
     "Show trailing spaces and delete on saving."
     (setq show-trailing-whitespace t)
-    (add-hook 'before-save-hook #'delete-trailing-whitespace nil t))
+    (unless dotfairy-lsp-format-disable-on-save
+      (add-hook 'before-save-hook #'delete-trailing-whitespace nil t)))
 
   ;; Prettify the process list
   (with-no-warnings

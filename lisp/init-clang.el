@@ -110,8 +110,12 @@
   :ensure t
   :config
   (setq clang-format-style-option "llvm")
-  (add-hook 'c-mode-hook (lambda() (add-hook 'before-save-hook 'clang-format-buffer)))
-  (add-hook 'c++-mode-hook (lambda() (add-hook 'before-save-hook 'clang-format-buffer))))
+  (add-hook 'c-mode-hook (lambda()
+                           (unless dotfairy-lsp-format-disable-on-save
+                             (add-hook 'before-save-hook 'clang-format-buffer))))
+  (add-hook 'c++-mode-hook (lambda()
+                             (unless dotfairy-lsp-format-disable-on-save
+                               (add-hook 'before-save-hook 'clang-format-buffer)))))
 
 (defvar dotfairy-preprocessor-regexp "^\\s-*#[a-zA-Z0-9_]"
   "The regexp used by `dotfairy/next-preproc-directive' and

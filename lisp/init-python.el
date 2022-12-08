@@ -104,11 +104,6 @@
         (setq-local flycheck-python-pylint-executable "pylint")
         (setq-local flycheck-python-flake8-executable "flake8"))))
 
-  (when (executable-find "black")
-    (use-package python-black
-      :demand t
-      :after python
-      :hook (python-mode . python-black-on-save-mode)))
 
   (use-package pyimport
     :defer t)
