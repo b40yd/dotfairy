@@ -298,7 +298,7 @@ ensure it is built when we actually use Forge."
                                 :max-width (round (* (frame-width) 0.62))
                                 :max-height (round (* (frame-height) 0.62))
                                 :internal-border-width 1
-                                :internal-border-color (face-background 'posframe-border nil t)
+                                ;; :internal-border-color (face-background 'posframe-border nil t)
                                 :background-color (face-background 'tooltip nil t))
                  (unwind-protect
                      (push (read-event) unread-command-events)
