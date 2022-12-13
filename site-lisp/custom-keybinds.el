@@ -182,6 +182,7 @@
   (:prefix-map ("v" . "versioning")
    :desc "Git revert file"            "R"   #'vc-revert
    :desc "Git time machine"           "t"   #'git-timemachine-toggle
+   :desc "Git messager"               "m"   #'git-messenger:popup-message
    :desc "Magit dispatch"             "/"   #'magit-dispatch
    :desc "Magit file dispatch"        "."   #'magit-file-dispatch
    :desc "Forge dispatch"             "'"   #'forge-dispatch
