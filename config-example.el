@@ -26,6 +26,8 @@
 (require 'init-const)
 (require 'init-custom)
 
+(setq warning-minimum-level :error)  ; set warning minimum level default `:error',or `:debug' or `:warning' or `:emergency'
+
 (setq dotfairy-full-name "user name")           ; User full name
 (setq dotfairy-mail-address "user@email.com")   ; Email address
 ;; (setq dotfairy-proxy "127.0.0.1:1080")          ; Network proxy
