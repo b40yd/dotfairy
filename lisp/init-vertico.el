@@ -503,14 +503,6 @@ Supports exporting consult-grep to wgrep, file to wdeired, and consult-location 
             '(projectile-switch-to-buffer . buffer)
             '(projectile-switch-project . project-file)))
 
-(use-package embark-consult
-  :ensure t
-  :after (embark consult)
-  :demand
-  :config
-  (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode))
-
-
 
 (cl-defun +vertico-file-search (&key query in all-files (recursive t) prompt args)
   "Conduct a file search using ripgrep.
