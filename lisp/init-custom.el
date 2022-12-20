@@ -213,5 +213,12 @@ Nil to use font supports ligatures."
   :group 'dotfairy
   :type '(alist :key-type string :value-type (choice character sexp)))
 
+(defcustom dotfairy-tree-sitter
+  (and (fboundp 'treesit-available-p) (treesit-available-p))
+  "Enable tree-sitter or not.
+Native tree-sitter is introduced in 29."
+  :group 'centaur
+  :type 'boolean)
+
 (provide 'init-custom)
 ;;; init-custom.el ends here
