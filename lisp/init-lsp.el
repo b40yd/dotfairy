@@ -85,7 +85,7 @@
 
            lsp-enable-file-watchers nil
            lsp-enable-folding nil
-           lsp-enable-symbol-highlighting nil
+           ;; lsp-enable-symbol-highlighting nil
            lsp-enable-text-document-color nil
 
            lsp-enable-indentation nil
@@ -186,8 +186,7 @@
         ("M-b" backward-word nil)
         ("M-f" forward-word nil)
         ("c" lsp-ui-sideline-apply-code-actions "apply code actions"))))
-     :bind (("C-c u" . lsp-ui-imenu)
-            :map lsp-ui-mode-map
+     :bind (:map lsp-ui-mode-map
             ("C-<f6>" . lsp-ui-hydra/body)
             ("M-RET" . lsp-ui-sideline-apply-code-actions)
             ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
@@ -196,10 +195,7 @@
      :init
      (setq lsp-ui-sideline-show-diagnostics nil
            lsp-ui-sideline-ignore-duplicate t
-           lsp-ui-doc-delay 0.1
-           lsp-ui-imenu-colors `(,(face-foreground 'font-lock-keyword-face)
-                                 ,(face-foreground 'font-lock-string-face)
-                                 ,(face-foreground 'font-lock-constant-face)))
+           lsp-ui-doc-delay 0.1)
      ;; Set correct color to borders
      (defun my-lsp-ui-doc-set-border ()
        "Set the border color of lsp doc."
