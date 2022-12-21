@@ -53,8 +53,8 @@
                           (lsp-enable-which-key-integration)
 
                           ;; Format and organize imports
-                          (unless (or (apply #'derived-mode-p dotfairy-lsp-format-on-save-ignore-modes)
-                                      dotfairy-lsp-format-disable-on-save)
+                          (when (and dotfairy-lsp-format-on-save
+                                     (not (apply #'derived-mode-p dotfairy-lsp-format-on-save-ignore-modes)))
                             (add-hook 'before-save-hook #'lsp-format-buffer t t)
                             (add-hook 'before-save-hook #'lsp-organize-imports t t)))))
      :autoload lsp-enable-which-key-integration
@@ -293,7 +293,7 @@
      :preface
      ;; Use yapf to format
      (defun lsp-pyright-format-buffer ()
-       (interactive)
+
        (when (and (executable-find "yapf") buffer-file-name)
          (call-process "yapf" nil nil nil "-i" buffer-file-name)))
      :hook (python-mode . (lambda ()
@@ -303,18 +303,18 @@
                               (if (not (file-exists-p python-type-stubs))
                                   (dotfairy-exec-process "git" "clone" "https://github.com/microsoft/python-type-stubs" python-type-stubs))
                               (setq lsp-pyright-use-library-code-for-types t) ;; set this to nil if getting too many false positive type errors
-                              (setq lsp-pyright-stub-path python-type-stubs))
+                              (setq lsp-pyright-stub-path python-type-stubs))))
 
-                            (unless dotfairy-lsp-format-disable-on-save
-                              (if (executable-find "black")
-                                  (use-package python-black
-                                    :demand t
-                                    :after python
-                                    :hook (python-mode . python-black-on-save-mode))
-                                (add-hook 'after-save-hook #'lsp-pyright-format-buffer t t)))))
-
-     :init (when (executable-find "python3")
-             (setq lsp-pyright-python-executable-cmd "python3")))
+     :init
+     (when (executable-find "python3")
+       (setq lsp-pyright-python-executable-cmd "python3"))
+     (if (and (executable-find "black")
+              dotfairy-lsp-format-on-save)
+         (use-package python-black
+           :demand t
+           :after python
+           :hook (python-mode . python-black-on-save-mode))
+       (add-hook 'after-save-hook #'lsp-pyright-format-buffer t t)))
 
    ;; Swift
    (use-package lsp-sourcekit)

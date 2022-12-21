@@ -156,7 +156,7 @@
   :hook ((typescript-mode . tide-setup)
          (typescript-mode . tide-hl-identifier-mode)
          (before-save . (lambda ()
-                          (unless dotfairy-lsp-format-disable-on-save
+                          (when dotfairy-lsp-format-on-save
                             tide-format-before-save)))))
 
 (use-package rjsx-mode

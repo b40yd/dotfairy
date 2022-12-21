@@ -99,7 +99,7 @@
   :mode (("CMakeLists\\.txt\\'" . cmake-mode)
          ("\\.cmake\\'" . cmake-mode))
   :config
-  (add-hook 'cmake-mode-hook (lambda()
+  (add-hook 'cmake-mode-hook (lambda ()
                                (add-to-list (make-local-variable 'company-backends)
                                             'company-cmake))))
 
@@ -108,14 +108,11 @@
 ;;
 (use-package clang-format
   :ensure t
+  :hook ((c-mode c++-mode) . (lambda ()
+                               (when dotfairy-lsp-format-on-save
+                                 (add-hook 'before-save-hook 'clang-format-buffer))))
   :config
-  (setq clang-format-style-option "llvm")
-  (add-hook 'c-mode-hook (lambda()
-                           (unless dotfairy-lsp-format-disable-on-save
-                             (add-hook 'before-save-hook 'clang-format-buffer))))
-  (add-hook 'c++-mode-hook (lambda()
-                             (unless dotfairy-lsp-format-disable-on-save
-                               (add-hook 'before-save-hook 'clang-format-buffer)))))
+  (setq clang-format-style-option "llvm"))
 
 (defvar dotfairy-preprocessor-regexp "^\\s-*#[a-zA-Z0-9_]"
   "The regexp used by `dotfairy/next-preproc-directive' and
@@ -146,6 +143,12 @@ See `dotfairy/next-preproc-directive' for details."
       (:prefix ("#" . "Jump preprocessor directives")
        :desc "next preprocessor directive" "]" #'dotfairy/next-preproc-directive
        :desc "previous preprocessor directive" "[" #'dotfairy/previous-preproc-directive))
+
+(use-package c-ts-mode
+  :ensure nil
+  :when (and (fboundp 'treesit-available-p)
+             (treesit-available-p))
+  :init (setq c-ts-mode-indent-offset 4))
 
 (provide 'init-clang)
 ;;; init-clang.el ends here

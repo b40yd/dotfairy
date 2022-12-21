@@ -168,9 +168,9 @@ nil means disabled."
                  (const :tag "Eglot" eglot)
                  (const :tag "Disable" nil)))
 
-(defcustom dotfairy-lsp-format-disable-on-save
+(defcustom dotfairy-lsp-format-on-save
   nil
-  "Disable auto formatting for all files."
+  "Auto format buffers on save."
   :group 'dotfairy
   :type 'boolean)
 
