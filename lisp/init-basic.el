@@ -115,7 +115,7 @@
     (setq use-short-answers t)
   (fset 'yes-or-no-p 'y-or-n-p))
 (setq-default word-wrap t
-              truncate-lines t
+              ;; truncate-lines t
               fill-column 120
               tab-width 4
               indent-tabs-mode nil)
@@ -194,7 +194,7 @@
 (use-package simple
   :ensure nil
   :hook ((after-init . size-indication-mode)
-         (text-mode . visual-line-mode)
+         ;; (text-mode . visual-line-mode)
          ;; (before-save . delete-trailing-whitespace)
          ((prog-mode markdown-mode conf-mode) . enable-trailing-whitespace))
   :init

@@ -59,7 +59,7 @@
    :desc "Kill other buffers"                  "o" #'dotfairy/kill-other-buffers
    :desc "kill matching buffers"               "m" #'dotfairy/kill-matching-buffers
    )
-      ;;; <leader> c --- code
+  ;;; <leader> c --- code
   (:prefix-map ("c" . "coding")
    :desc "Compile or Recompile"                "c" #'+default/compile)
   (:prefix-map ("e" . "editor")
@@ -68,7 +68,7 @@
    :desc "Hungry delete forward"               "f" #'hungry-delete-forward
    :desc "Delete trailing whitespace"          "w" #'delete-trailing-whitespace
    :desc "List errors"                         "x" #'flycheck-list-errors)
-      ;;; <leader> f --- file
+  ;;; <leader> f --- file
   (:prefix-map ("f" . "file")
    :desc "Open project editorconfig"   "." #'editorconfig-find-current-editorconfig
    :desc "Copy this file"              "c" #'dotfairy/copy-this-file
@@ -90,7 +90,7 @@
    :desc "Open init file"              "i" #'dotfairy/open-init-file
    :desc "Open custom file"            "I" #'dotfairy/open-custom-file)
 
-      ;;; <leader> s --- search
+  ;;; <leader> s --- search
   (:prefix-map ("s" . "search")
    :desc "Internet Search Engine"       "/" #'webjump
    :desc "Search All Opened buffer"     "B" #'swiper-all
@@ -106,7 +106,7 @@
    :desc "rg menu"                      "R" #'rg-menu
    :desc "Search buffer"                "s" #'+default/search-buffer
    :desc "Search buffer for thing at point" "S" #'swiper-isearch-thing-at-point)
-      ;;; <leader> i --- insert
+  ;;; <leader> i --- insert
   (:prefix-map ("i" . "insert")
    :desc "Snippet"                       "s" #'yas-insert-snippet
    :desc "Unicode"                       "u" #'unicode-property-table-internal)
@@ -115,10 +115,10 @@
    :desc "Kill all buffers"                    "a" #'dotfairy/kill-all-buffers
    :desc "Kill this buffer in all windows"     "A" #'dotfairy/kill-this-buffer-in-all-windows
    :desc "Kill buried buffers"                 "k" #'kill-buffer
-   :desc "Kill buried buffers"                 "K" #'dotfairy/kill-buried-buffers
+
    :desc "Kill other buffers"                  "o" #'dotfairy/kill-other-buffers
    :desc "kill matching buffers"               "m" #'dotfairy/kill-matching-buffers)
-      ;;; <leader> n --- notes
+  ;;; <leader> n --- notes
   (:prefix-map ("n" . "notes")
    :desc "Org agenda"                     "a" #'org-agenda
    :desc "Cancel current org-clock"       "C" #'org-clock-cancel
@@ -126,7 +126,7 @@
    :desc "Browse notes"                   "F" #'+default/browse-notes
    :desc "Org capture"                    "n" #'org-capture
    :desc "Goto capture"                   "N" #'org-capture-goto-target)
-      ;;; <leader> o --- open
+  ;;; <leader> o --- open
   "o" nil ; we need to unbind it first as Org claims this prefix
   (:prefix-map ("o" . "open")
    :desc "Browser"            "b"  #'browse-url-of-file
@@ -135,7 +135,7 @@
    :desc "Dired"              "-"  #'dired-jump
    :desc "Find file in project sidebar" "P" #'treemacs-find-file)
 
-      ;;; <leader> p --- project
+  ;;; <leader> p --- project
   (:prefix ("p" . "project")
    :desc "Add directory to project"        "a" #'dotfairy/add-directory-as-project
    :desc "Remove blacklist from workspace" "r" #'lsp-workspace-blacklist-remove
@@ -153,7 +153,7 @@
    (:prefix ("4" . "in other window"))
    (:prefix ("5" . "in other frame")))
 
-      ;;; <leader> q --- quit/restart
+  ;;; <leader> q --- quit/restart
   (:prefix-map ("q" . "quit/restart")
    :desc "Delete frame"                 "f" #'delete-frame
    :desc "Clear current frame"          "F" #'dotfairy/kill-all-buffers
@@ -163,7 +163,7 @@
    :desc "Restart & restore Emacs"      "r" #'dotfairy/restart-and-restore
    :desc "Restart Emacs"                "R" #'dotfairy/restart)
 
-      ;;; <leader> & --- snippets
+  ;;; <leader> & --- snippets
   (:prefix-map ("&" . "snippets")
    :desc "New snippet"           "n" #'yas-new-snippet
    :desc "Insert snippet"        "i" #'yas-insert-snippet
@@ -171,14 +171,16 @@
    :desc "Reload snippets"       "r" #'yas-reload-all
    :desc "Read snippets name from minibuffer" "y" #'ivy-yasnippet)
 
-      ;;; <leader> t --- toggle
+  ;;; <leader> t --- toggle
   (:prefix-map ("t" . "toggle")
    :desc "Flymake"                      "f" #'flymake-mode
    :desc "Indent style"                 "I" #'dotfairy/toggle-indent-style
    :desc "Line numbers"                 "l" #'dotfairy/toggle-line-numbers
-   :desc "Read-only mode"               "r" #'read-only-mode)
+   :desc "Read-only mode"               "r" #'read-only-mode
+   :desc "Visible mode"                 "v" #'visible-mode
+   :desc "Soft line wrapping"           "w" #'+word-wrap-mode)
 
-      ;;; <leader> v --- versioning
+  ;;; <leader> v --- versioning
   (:prefix-map ("v" . "versioning")
    :desc "Git revert file"            "R"   #'vc-revert
    :desc "Git time machine"           "t"   #'git-timemachine-toggle
@@ -207,7 +209,7 @@
     :desc "Commit"                    "c"   #'magit-commit-create
     :desc "Fixup"                     "f"   #'magit-commit-fixup))
 
-      ;;; <leader> w --- workspaces/windows
+  ;;; <leader> w --- workspaces/windows
   (:prefix-map ("w" . "workspaces/windows")
    :desc "Display workspaces"           "d" #'+workspace/display
    (:prefix-map ("f" . "frame")
@@ -245,7 +247,7 @@
    :desc "Undo window config"           "u" #'winner-undo
    :desc "Redo window config"           "U" #'winner-redo)
 
-      ;;; <leader> m --- multiple cursors
+  ;;; <leader> m --- multiple cursors
   (:prefix-map ("m" . "multiple-cursors")
    :desc "Toggle Multiple Cursors"                           "m"       #'multiple-cursors-hydra/body
    :desc "Use arrow keys to quickly mark/skip next/previous" "<SPC>"   #'mc/mark-more-like-this-extended
