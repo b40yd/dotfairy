@@ -29,25 +29,43 @@
 ;; Highlight symbols
 (use-package symbol-overlay
   :diminish
-  :functions (turn-off-symbol-overlay turn-on-symbol-overlay)
   :hook (((prog-mode yaml-mode) . symbol-overlay-mode)
          (iedit-mode . turn-off-symbol-overlay)
          (iedit-mode-end . turn-on-symbol-overlay))
   :init (setq symbol-overlay-idle-time 0.1)
   :config
-  ;; Disable symbol highlighting while selecting
-  (defun turn-off-symbol-overlay (&rest _)
-    "Turn off symbol highlighting."
-    (interactive)
-    (symbol-overlay-mode -1))
-  (advice-add #'set-mark :after #'turn-off-symbol-overlay)
+  (with-no-warnings
+    ;; FIXME: https://github.com/wolray/symbol-overlay/issues/88
+    (defun symbol-overlay-get-list (dir &optional symbol exclude)
+      "Get all highlighted overlays in the buffer.
+If SYMBOL is non-nil, get the overlays that belong to it.
+DIR is an integer.
+If EXCLUDE is non-nil, get all overlays excluding those belong to SYMBOL."
+      (let ((lists (progn (overlay-recenter (point)) (overlay-lists)))
+            (func (if (> dir 0) 'cdr (if (< dir 0) 'car nil))))
+        (seq-filter
+         (lambda (ov)
+           (let ((value (overlay-get ov 'symbol)))
+             (and value
+                  (or (not symbol)
+                      (if (string= value symbol) (not exclude)
+                        (and exclude (not (string= value ""))))))))
+         (if func (funcall func lists)
+           (append (car lists) (cdr lists))))))
 
-  (defun turn-on-symbol-overlay (&rest _)
-    "Turn on symbol highlighting."
-    (interactive)
-    (when (derived-mode-p 'prog-mode 'yaml-mode)
-      (symbol-overlay-mode 1)))
-  (advice-add #'deactivate-mark :after #'turn-on-symbol-overlay)
+    ;; Disable symbol highlighting while selecting
+    (defun turn-off-symbol-overlay (&rest _)
+      "Turn off symbol highlighting."
+      (interactive)
+      (symbol-overlay-mode -1))
+    (advice-add #'set-mark :after #'turn-off-symbol-overlay)
+
+    (defun turn-on-symbol-overlay (&rest _)
+      "Turn on symbol highlighting."
+      (interactive)
+      (when (derived-mode-p 'prog-mode 'yaml-mode)
+        (symbol-overlay-mode 1)))
+    (advice-add #'deactivate-mark :after #'turn-on-symbol-overlay))
   (map! :localleader
     (:prefix ("s" . "Overlay")
      "d" #'symbol-overlay-remove-all

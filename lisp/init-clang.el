@@ -52,15 +52,11 @@
   :ensure t
   :bind (:map c-mode-base-map
          ("C-c C-c" . compile))
-  :hook ((c-mode-common . (lambda () (c-set-style "stroustrup")))
-         ((c-mode c++-mode) . (lambda ()
+  :hook (((c-mode c++-mode) . (lambda ()
                                 (dotfairy-set-prettify '(
                                                          ("NULL" . ?∅))))))
-  :init (setq-default c-basic-offset 4)
-  :config
-  (use-package modern-cpp-font-lock
-    :diminish
-    :init (modern-c++-font-lock-global-mode t)))
+  :init
+  (setq-default c-basic-offset 4))
 
 
 ;;
