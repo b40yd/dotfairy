@@ -212,7 +212,10 @@
 
   ;;; <leader> w --- workspaces/windows
   (:prefix-map ("w" . "workspaces/windows")
+   :desc "Create workspace"             "c" #'+workspace/new-named
    :desc "Display workspaces"           "d" #'+workspace/display
+   :desc "Delete workspace"             "D" #'+workspace/delete
+   :desc "Kill workspace"               "k" #'+workspace/kill-session
    (:prefix-map ("f" . "frame")
     :desc "Frame maximized"              "f" #'dotfairy/frame-maximize
     :desc "Frame fullscreen"             "F" #'toggle-frame-fullscreen
@@ -222,8 +225,6 @@
     :desc "Frame left half"              "h" #'dotfairy/frame-left-half
     :desc "Frame right half"             "l" #'dotfairy/frame-right-half)
    :desc "Rename workspace"             "r" #'+workspace/rename
-   :desc "Create workspace"             "c" #'+workspace/new-named
-   :desc "Delete workspace"             "k" #'+workspace/delete
    :desc "Save workspace"               "S" #'+workspace/save
    :desc "Switch to other workspace"    "o" #'+workspace/other
    :desc "Switch to left workspace"     "p" #'+workspace/switch-left

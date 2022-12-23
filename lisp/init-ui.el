@@ -78,7 +78,7 @@
 (use-package doom-themes
   :custom-face
   (doom-modeline-buffer-file ((t (:inherit (mode-line bold)))))
-  :custom (doom-themes-treemacs-theme "doom-colors")
+  ;; :custom (doom-themes-treemacs-theme "doom-colors")
   :init
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
@@ -311,8 +311,31 @@
 ;; Show line numbers
 (use-package display-line-numbers
   :ensure nil
+  :commands (dotfairy/toggle-line-numbers)
   :hook ((prog-mode yaml-mode conf-mode) . display-line-numbers-mode)
-  :init (setq display-line-numbers-width-start t))
+  :init (setq display-line-numbers-width-start t)
+  ;;;###autoload
+  (defun dotfairy/toggle-line-numbers ()
+    "Toggle line numbers.
+Cycles through regular, relative and no line numbers. The order depends on what
+`display-line-numbers-type' is set to. If you're using Emacs 26+, and
+visual-line-mode is on, this skips relative and uses visual instead.
+See `display-line-numbers' for what these values mean."
+    (interactive)
+    (defvar dotfairy--line-number-style display-line-numbers-type)
+    (let* ((styles `(t ,(if visual-line-mode 'visual 'relative) nil))
+           (order (cons display-line-numbers-type (remq display-line-numbers-type styles)))
+           (queue (memq dotfairy--line-number-style order))
+           (next (if (= (length queue) 1)
+                     (car order)
+                   (car (cdr queue)))))
+      (setq dotfairy--line-number-style next)
+      (setq display-line-numbers next)
+      (message "Switched to %s line numbers"
+               (pcase next
+                 (`t "normal")
+                 (`nil "disabled")
+                 (_ (symbol-name next)))))))
 
 ;; Suppress GUI features
 (setq use-file-dialog nil
@@ -492,27 +515,5 @@
                               `([,(cdr char-regexp) 0 font-shape-gstring]))))
     (set-char-table-parent composition-ligature-table composition-function-table)))
 
-;;;###autoload
-(defun dotfairy/toggle-line-numbers ()
-  "Toggle line numbers.
-Cycles through regular, relative and no line numbers. The order depends on what
-`display-line-numbers-type' is set to. If you're using Emacs 26+, and
-visual-line-mode is on, this skips relative and uses visual instead.
-See `display-line-numbers' for what these values mean."
-  (interactive)
-  (defvar dotfairy--line-number-style display-line-numbers-type)
-  (let* ((styles `(t ,(if visual-line-mode 'visual 'relative) nil))
-         (order (cons display-line-numbers-type (remq display-line-numbers-type styles)))
-         (queue (memq dotfairy--line-number-style order))
-         (next (if (= (length queue) 1)
-                   (car order)
-                 (car (cdr queue)))))
-    (setq dotfairy--line-number-style next)
-    (setq display-line-numbers next)
-    (message "Switched to %s line numbers"
-             (pcase next
-               (`t "normal")
-               (`nil "disabled")
-               (_ (symbol-name next))))))
 (provide 'init-ui)
 ;;; init-ui.el ends here

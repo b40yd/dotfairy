@@ -55,7 +55,7 @@
    (require 'init-vertico)))
 (require 'init-autoinsert)
 
-;;Checking
+;; Checking
 (require 'init-flycheck)
 
 ;; Tools

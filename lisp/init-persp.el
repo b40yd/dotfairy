@@ -577,9 +577,9 @@ workspace to delete."
         (persps (length (+workspace-list-names)))
         (buffers 0))
     (let ((persp-autokill-buffer-on-remove t))
-      (unless (cl-every #'+workspace-delete (+workspace-list-names))
+      (unless (cl-every #'+workspace-delete (list (+workspace-current-name)))
         (+workspace-error "Could not clear session")))
-    (+workspace-switch +workspaces-main t)
+    (+workspace-switch persp-nil-name t)
     (setq buffers (dotfairy/kill-all-buffers (buffer-list)))
     (when interactive
       (message "Killed %d workspace(s), %d window(s) & %d buffer(s)"
