@@ -212,10 +212,6 @@
 
   ;;; <leader> w --- workspaces/windows
   (:prefix-map ("w" . "workspaces/windows")
-   :desc "Create workspace"             "c" #'+workspace/new-named
-   :desc "Display workspaces"           "d" #'+workspace/display
-   :desc "Delete workspace"             "D" #'+workspace/delete
-   :desc "Kill workspace"               "k" #'+workspace/kill-session
    (:prefix-map ("f" . "frame")
     :desc "Frame maximized"              "f" #'dotfairy/frame-maximize
     :desc "Frame fullscreen"             "F" #'toggle-frame-fullscreen
@@ -224,28 +220,7 @@
     :desc "Frame top half"               "k" #'dotfairy/frame-top-half
     :desc "Frame left half"              "h" #'dotfairy/frame-left-half
     :desc "Frame right half"             "l" #'dotfairy/frame-right-half)
-   :desc "Rename workspace"             "r" #'+workspace/rename
-   :desc "Save workspace"               "S" #'+workspace/save
-   :desc "Switch to other workspace"    "o" #'+workspace/other
-   :desc "Switch to left workspace"     "p" #'+workspace/switch-left
-   :desc "Switch to right workspace"    "n" #'+workspace/switch-right
-   :desc "Switch to"                    "w" #'+workspace/switch-to
-   :desc "Switch to workspace 1"        "1" #'+workspace/switch-to-0
-   :desc "Switch to workspace 2"        "2" #'+workspace/switch-to-1
-   :desc "Switch to workspace 3"        "3" #'+workspace/switch-to-2
-   :desc "Switch to workspace 4"        "4" #'+workspace/switch-to-3
-   :desc "Switch to workspace 5"        "5" #'+workspace/switch-to-4
-   :desc "Switch to workspace 6"        "6" #'+workspace/switch-to-5
-   :desc "Switch to workspace 7"        "7" #'+workspace/switch-to-6
-   :desc "Switch to workspace 8"        "8" #'+workspace/switch-to-7
-   :desc "Switch to workspace 9"        "9" #'+workspace/switch-to-8
-   :desc "Switch to last workspace"     "0" #'+workspace/switch-to-final
-   :desc "Autosave session"             "a" #'dotfairy/quicksave-session
-   :desc "Save session"                 "s" #'dotfairy/save-session
-   :desc "Load session"                 "l" #'dotfairy/load-session
-   :desc "Load last autosaved session"  "L" #'dotfairy/quickload-session
    :desc "Management windows"           "m" #'ace-window-hydra/body
-   :desc "Close window or workspace"    "q" #'+workspace/close-window-or-workspace
    :desc "Undo window config"           "u" #'winner-undo
    :desc "Redo window config"           "U" #'winner-redo)
 

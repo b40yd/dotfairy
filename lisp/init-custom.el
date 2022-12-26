@@ -217,7 +217,14 @@ Nil to use font supports ligatures."
   (and (fboundp 'treesit-available-p) (treesit-available-p))
   "Enable tree-sitter or not.
 Native tree-sitter is introduced in 29."
-  :group 'centaur
+  :group 'dotfairy
+  :type 'boolean)
+
+
+(defcustom dotfairy-restore-frame-geometry t
+  "Restore the frame's geometry at startup.
+If Non-nil, save and restore the frame's geometry."
+  :group 'dotfairy
   :type 'boolean)
 
 (provide 'init-custom)

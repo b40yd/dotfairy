@@ -272,5 +272,8 @@
     (revert-buffer t t)
     (message "Reverted this buffer")))
 
+(use-package compat
+  :demand t)
+
 (provide 'init-basic)
 ;;; init-basic.el ends here
