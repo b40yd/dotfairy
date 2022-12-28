@@ -195,6 +195,7 @@
      :init
      (setq lsp-ui-sideline-show-diagnostics nil
            lsp-ui-sideline-ignore-duplicate t
+           lsp-ui-imenu-auto-refresh 'after-save
            lsp-ui-doc-delay 0.1)
      ;; Set correct color to borders
      (defun my-lsp-ui-doc-set-border ()

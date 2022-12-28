@@ -278,6 +278,7 @@
            completion-list-mode
            completion-in-region-mode
            shell-mode term-mode
+           lsp-ui-imenu-mode
            vterm-mode pdf-annot-list-mode) . hide-mode-line-mode)))
 
 (use-package minions
