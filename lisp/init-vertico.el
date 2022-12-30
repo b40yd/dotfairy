@@ -552,7 +552,7 @@ Supports exporting consult-grep to wgrep, file to wdeired, and consult-location 
                                    "%")
                      :type perl)
                    consult-async-split-style 'perlalt))))))
-    (consult--grep prompt #'consult--ripgrep-builder directory query)))
+    (consult--grep prompt (consult--ripgrep-make-builder) directory query)))
 
 (defun +vertico/project-search (&optional arg initial-query directory)
   "Peforms a live project search from the project root using ripgrep.
