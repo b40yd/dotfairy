@@ -163,7 +163,6 @@ orderless."
     [remap switch-to-buffer-other-frame]  #'consult-buffer-other-frame
     [remap yank-pop]                      #'consult-yank-pop
     [remap persp-switch-to-buffer]        #'+vertico/switch-workspace-buffer)
-  (advice-add #'multi-occur :override #'consult-multi-occur)
   :config
   (require 'orderless nil t)
   (if IS-WINDOWS
