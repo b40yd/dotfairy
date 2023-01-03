@@ -66,7 +66,6 @@
                                                    ("not in" . ?∉)  ; "not in" is only used for testing the absence of membership.
                                                    ("is" . ?≡)
                                                    ("is not" . ?≢)
-                                                   ("all" . ?∀)
                                                    ("any" . ?∃)
                                                    ("False" . ?𝔽)
                                                    ("True" . ?𝕋)
