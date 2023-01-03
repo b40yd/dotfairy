@@ -31,7 +31,7 @@
   :ensure nil
   :init (setq css-indent-offset 2))
 
-;; SCSS mode
+;; SCSS 
 (use-package scss-mode
   :init
   ;; Disable complilation on save
@@ -41,9 +41,20 @@
 (unless (fboundp 'less-css-mode)
   (use-package less-css-mode))
 
+(use-package js-mode
+  :ensure nil
+  :defines (js-indent-level flycheck-javascript-eslint-executable)
+  :config
+  (setq js-indent-level 2)
+
+  (with-eval-after-load 'flycheck
+    ;; https://github.com/mantoni/eslint_d.js
+    ;; Install: npm -i -g eslint_d
+    (when (executable-find "eslint_d")
+      (setq flycheck-javascript-eslint-executable "eslint_d"))))
+
 ;; JavaScript
 (use-package js2-mode
-  :defines flycheck-javascript-eslint-executable
   :mode (("\\.js\\'" . js2-mode)
          ("\\.jsx\\'" . js2-jsx-mode))
   :interpreter (("node" . js2-mode)
@@ -81,7 +92,6 @@
                                                 ("undefined" . ?∅)
                                                 ("String" . ?𝕊)
                                                 ("Infinity" . ?∞))))))
-  :init (setq js-indent-level 2)
   :config
   ;; Use default keybindings for lsp
   (unbind-key "M-." js2-mode-map)
@@ -91,16 +101,7 @@
               (executable-find "eslint")
               (executable-find "jshint"))
       (setq js2-mode-show-strict-warnings nil
-            js2-mode-show-parse-errors nil))
-    (when (executable-find "eslint_d")
-      ;; https://github.com/mantoni/eslint_d.js
-      ;; npm -i -g eslint_d
-      (setq flycheck-javascript-eslint-executable "eslint_d")))
-
-  (use-package js2-refactor
-    :diminish
-    :hook (js2-mode . js2-refactor-mode)
-    :config (js2r-add-keybindings-with-prefix "C-c C-m")))
+            js2-mode-show-parse-errors nil))))
 
 ;; Format HTML, CSS and JavaScript/JSON
 ;; Install: npm -g install prettier
