@@ -59,8 +59,22 @@
 (use-package mingus
   :bind ("s-<f8>" . mingus)
   :config
-  (add-to-list 'global-mode-string mingus-mode-line-object)
   (with-no-warnings
+    ;; Fix "timer already activated" error
+    (defun mingus (&optional set-variables)
+      "MPD Interface by Niels Giesen, Useful and Simple.
+Actually it is just named after that great bass player."
+      (interactive "P")
+      (when set-variables
+        (call-interactively 'mingus-set-variables-interactively))
+      (mingus-switch-to-playlist)
+      (add-to-list 'global-mode-string mingus-mode-line-object)
+      (unless (timerp mingus-timer)
+        (setq mingus-timer (run-with-idle-timer mingus-timer-interval
+                                                mingus-timer-interval
+                                                'mingus-timer-handler)))
+      (mingus-playlist))
+
     ;; Redefine major modes
     (define-derived-mode mingus-help-mode special-mode "Mingus-help"
       "Help screen for `mingus'.
