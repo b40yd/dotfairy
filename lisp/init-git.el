@@ -184,8 +184,10 @@ ensure it is built when we actually use Forge."
 
   (use-package magit-todos
     :defines magit-todos-nice
+    :commands magit-todos--scan-with-git-grep
     :init
     (setq magit-todos-nice (if (executable-find "nice") t nil))
+    (setq magit-todos-scanner #'magit-todos--scan-with-git-grep)
     (let ((inhibit-message t))
       (magit-todos-mode 1))
     :config
