@@ -191,7 +191,10 @@ ensure it is built when we actually use Forge."
     (let ((inhibit-message t))
       (magit-todos-mode 1))
     :config
-    (setq magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?"))
+    (setq magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?")
+    (with-eval-after-load 'magit-status
+      (transient-append-suffix 'magit-status-jump '(0 0 -1)
+        '("t " "Todos" magit-todos-jump-to-todos))))
 
   (use-package magit-gitflow
     :hook (magit-mode . turn-on-magit-gitflow)
