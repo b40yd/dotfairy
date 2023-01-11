@@ -85,10 +85,6 @@
                  :poshandler poshandler
                  :hidehandler #'flycheck-posframe-hidehandler))))
           (advice-add #'flycheck-posframe-show-posframe :override #'my-flycheck-posframe-show-posframe)))
-    (use-package flycheck-pos-tip
-      :defines flycheck-pos-tip-timeout
-      :hook (global-flycheck-mode . flycheck-pos-tip-mode)
-      :config (setq flycheck-pos-tip-timeout 30))
     (use-package flycheck-popup-tip
       :hook (flycheck-mode . flycheck-popup-tip-mode))))
 
