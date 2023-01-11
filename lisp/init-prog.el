@@ -290,28 +290,5 @@ Install the doc if it's not installed."
                   (toml-mode       . toml-ts-mode)
                   (typescript-mode . typescript-ts-mode)))))
 
-;; Use quelpa install turbo-log
-(use-package turbo-log
-  :ensure nil
-  :quelpa (turbo-log :fetcher github :repo "artawower/turbo-log.el")
-  :config
-  (setq turbo-log-msg-format-template "\"🚀: %s\""
-        turbo-log-allow-insert-without-tree-sitter-p t)
-  (turbo-log-configure
-   :modes (typescript-mode js2-mode web-mode rjsx-mode)
-   :strategy merge
-   :msg-format-template "\"Default: %s\"")
-  :hook (after-init . (lambda ()
-                        (map! :localleader
-                              :map (python-mode-map rjsx-mode-map js-mode-map go-mode-map rust-mode-map java-mode-map typescript-mode-map)
-                              (:prefix ("SPC" . "Print")
-                               "l" #'turbo-log-print
-                               "i" #'turbo-log-print-immediately
-                               "h" #'turbo-log-comment-all-logs
-                               "s" #'turbo-log-uncomment-all-logs
-                               "[" #'turbo-log-paste-as-logger
-                               "]" #'turbo-log-paste-as-logger-immediately
-                               "d" #'turbo-log-delete-all-logs)))))
-
 (provide 'init-prog)
 ;;; init-prog.el ends here
