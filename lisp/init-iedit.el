@@ -173,37 +173,10 @@
 
 ;; Multiple cursors
 (use-package multiple-cursors
-  :pretty-hydra
-  ((:title (pretty-hydra-title "Multiple-Cursors" 'material "border_all" :height 1.1 :v-adjust -0.225)
-    :color amaranth :quit-key ("q" "C-g"))
-   ("Actions"
-    (
-     ("@" mc/edit-lines               "edit lines")
-     ("," mc/skip-to-next-like-this                   "skip to next like this")
-     ("." mc/skip-to-previous-like-this               "skip to previous like this")
-     ("/" mc/mark-pop "Mark pop")
-     (";" mc/mark-all-words-like-this                 "Only mark all matches word")
-     ("[" mc/mark-next-word-like-this                 "Only mark next like this world")
-     ("]" mc/mark-previous-word-like-this             "Only mark previous like this word")
-     ("+" mc/mark-all-words-like-this-in-defun        "Only mark all current function matches word")
-     ("f" mc/mark-all-like-this-in-defun              "Mark all current function matches the current region")
-     )
-    "---"
-    (
-     ("m" mc/mark-all-like-this                       "Mark all matches the current region")
-     ("n" mc/mark-next-like-this                      "Add cursor to next line")
-     ("M" mc/mark-all-dwim                            "Smart mark all")
-     ("N" mc/unmark-next-like-this                    "Unmark next like this")
-     ("p" mc/mark-previous-like-this                  "Add cursor to previous line")
-     ("P" mc/unmark-previous-like-this                "Unmark previous like this")
-     ("w" mc/mark-next-like-this-word                 "Mark next like this word")
-     ("W" mc/mark-previous-like-this-word             "Mark previous like this word")
-     ("<mouse-1>" mc/add-cursor-on-click              "Bind to a mouse event to add cursors by clicking")
-     )))
   :bind (("C-M-<mouse-1>" . mc/add-cursor-on-click)
          ("<mouse-1>" . mc/keyboard-quit)
-         ("C->" . mc/mark-next-lines)
-         ("C-<" . mc/mark-previous-lines)
+         ("C-M->" . mc/unmark-next-like-this)
+         ("C-M-<" . mc/unmark-previous-like-this)
          ("<double-mouse-1>" . mouse-set-point)
          ("M-SPC" . set-rectangular-region-anchor)
          ("C->" . mc/mark-next-like-this)
@@ -212,52 +185,6 @@
          ("M-|" . mc/vertical-align-with-space)
          :map mc/keymap)
   :config
-  (defun my-append-to-list (list-var elements)
-    "Append ELEMENTS to the end of LIST-VAR.
-
-The return value is the new value of LIST-VAR."
-    (unless (consp elements)
-      (error "ELEMENTS must be a list"))
-    (let ((list (symbol-value list-var)))
-      (if list
-          (setcdr (last list) elements)
-        (set list-var elements)))
-    (symbol-value list-var))
-
-  (with-eval-after-load 'multiple-cursors-core
-    (my-append-to-list 'mc--default-cmds-to-run-once '(swiper-mc
-                                                       counsel-M-x
-                                                       delete-horizontal-space
-                                                       mouse-drag-region-rectangle
-                                                       multiple-cursors-hydra/body
-                                                       multiple-cursors-hydra/mc/mark-next-like-this
-                                                       multiple-cursors-hydra/mc/mark-next-like-this-word
-                                                       multiple-cursors-hydra/mc/mark-next-word-like-this
-                                                       multiple-cursors-hydra/mc/mark-previous-like-this
-                                                       multiple-cursors-hydra/mc/mark-previous-like-this-word
-                                                       multiple-cursors-hydra/mc/mark-previous-word-like-this
-                                                       multiple-cursors-hydra/mc/add-cursor-on-click
-                                                       multiple-cursors-hydra/mc/mark-pop
-                                                       multiple-cursors-hydra/mc/unmark-next-like-this
-                                                       multiple-cursors-hydra/mc/unmark-previous-like-this
-                                                       multiple-cursors-hydra/mc/skip-to-next-like-this
-                                                       multiple-cursors-hydra/mc/skip-to-previous-like-this
-                                                       multiple-cursors-hydra/mc/edit-lines
-                                                       multiple-cursors-hydra/mc/mark-all-like-this
-                                                       multiple-cursors-hydra/mc/mark-all-words-like-this
-                                                       multiple-cursors-hydra/mc/mark-all-like-this-in-defun
-                                                       multiple-cursors-hydra/mc/mark-all-words-like-this-in-defun
-                                                       multiple-cursors-hydra/mc/mark-all-dwim
-                                                       multiple-cursors-hydra/nil))
-
-    (my-append-to-list 'mc--default-cmds-to-run-for-all '(mc/vertical-align-with-space
-                                                          mwim-beginning-of-code-or-line-or-comment
-                                                          mwim-end-of-code-or-line))
-    (mc/save-lists))
-  (with-eval-after-load 'hungry-delete
-    (add-to-list 'mc--default-cmds-to-run-for-all 'hungry-delete-backward)
-    (mc/save-lists))
-  :init
   (setq mc/list-file (concat dotfairy-etc-dir "mc-lists.el")))
 
 ;; Smartly select region, rectangle, multi cursors

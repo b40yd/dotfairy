@@ -40,6 +40,8 @@
    (:prefix ("c" . "Command log")
     :desc "Enable command log mode"    "e" #'command-log-mode
     :desc "Toggle command log buffer"  "g" #'clm/toggle-command-log-buffer)
+   :desc "Kubernetes Overview"                               "b"       #'kubernetes-overview
+   :desc "Docker Management"                                 "d"       #'docker
    (:prefix ("m" . "Music Player")
     :desc "Music Player"                        "b" #'bongo
     :desc "Music Player for mpd"                "m" #'mpc
@@ -222,13 +224,7 @@
     :desc "Frame right half"             "l" #'dotfairy/frame-right-half)
    :desc "Management windows"           "m" #'ace-window-hydra/body
    :desc "Undo window config"           "u" #'winner-undo
-   :desc "Redo window config"           "U" #'winner-redo)
+   :desc "Redo window config"           "U" #'winner-redo))
 
-  ;;; <leader> m --- multiple cursors
-  (:prefix-map ("m" . "multiple-cursors")
-   :desc "Toggle Multiple Cursors"                           "m"       #'multiple-cursors-hydra/body
-   :desc "Use arrow keys to quickly mark/skip next/previous" "<SPC>"   #'mc/mark-more-like-this-extended
-   :desc "Docker Management"                                 "d"       #'docker
-   :desc "Kubernetes Overview"                               "b"       #'kubernetes-overview))
-(provide 'custom-keybinds)
+  (provide 'custom-keybinds)
 ;;; custom-keybinds.el ends here
