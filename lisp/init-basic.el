@@ -209,7 +209,7 @@
     "Show trailing spaces and delete on saving."
     (setq show-trailing-whitespace t)
     (when (and dotfairy-lsp-format-on-save (not (member major-mode
-                                                        dotfairy-lsp-format-on-save-ignore-modes)))
+                                                        dotfairy-delete-trailing-whitespace-ignore-modes)))
       (add-hook 'before-save-hook #'delete-trailing-whitespace nil t)))
 
   ;; Prettify the process list
