@@ -56,9 +56,7 @@
 ;; Hungry deletion
 (use-package hungry-delete
   :diminish
-  :hook (after-init . global-hungry-delete-mode)
-  :init (setq hungry-delete-except-modes
-              '(help-mode minibuffer-mode minibuffer-inactive-mode calc-mode)))
+  :hook (after-init . global-hungry-delete-mode))
 
 ;; An all-in-one comment command to rule them all
 (use-package comment-dwim-2

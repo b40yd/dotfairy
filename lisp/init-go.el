@@ -31,10 +31,10 @@
   :ensure t
   :functions go-update-tools
   :autoload godoc-gogetdoc
-  :hook ((before-save . (lambda ()
-                          (when dotfairy-lsp-format-on-save
-                            (gofmt-before-save))))
-         (go-mode . (lambda ()
+  :hook ((go-mode . (lambda ()
+                      (add-hook! 'before-save (lambda ()
+                                                (when dotfairy-lsp-format-on-save
+                                                  (gofmt-before-save))))
                       (dotfairy-set-prettify '(("func()" . ?λ)
                                                ("func" . ?ƒ)
                                                ("map" . ?↦)

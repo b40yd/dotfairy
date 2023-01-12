@@ -55,9 +55,6 @@
    (require 'init-vertico)))
 (require 'init-autoinsert)
 
-;; Checking
-(require 'init-flycheck)
-
 ;; Tools
 (require 'init-git)
 (require 'init-eshell)
@@ -89,6 +86,10 @@
 
 ;; Lsp Server
 (require 'init-lsp)
+
+;; Checking
+(require 'init-flycheck)
+
 ;; Debugger
 (require 'init-debugger)
 

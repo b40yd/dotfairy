@@ -156,7 +156,6 @@
   :hook ((pyenv-mode . +python-pyenv-mode-set-auto-h)
          (python-mode . (lambda ()
                           (when (executable-find "pyenv")
-                            (setq python-shell-interpreter "python")
                             (pyenv-mode +1)
                             (add-to-list 'exec-path (expand-file-name "shims" (or (getenv "PYENV_ROOT") "~/.pyenv")))))))
   :config
@@ -168,6 +167,7 @@
     (when (featurep 'lsp-mode)
       (setq lsp-pyright-venv-path (expand-file-name (concat "versions/" version)
                                                     (or (getenv "PYENV_ROOT") "~/.pyenv"))))
+    (setq python-shell-interpreter version)
     (pyenv-mode-set +pyenv--version))
 
 ;;;###autoload
