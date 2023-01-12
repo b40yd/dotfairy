@@ -84,15 +84,6 @@ If Non-nil, use dashboard, otherwise will restore previous session."
   :group 'dotfairy
   :type '(repeat (symbol :tag "Major-Mode")))
 
-
-(defcustom dotfairy-delete-trailing-whitespace-ignore-modes '()
-  "The modes that don't auto delete trailing whitespace while saving the buffers.
-`prog-mode' means ignoring all derived modes."
-  :group 'dotfairy
-  :type '(repeat (symbol :tag "Major-Mode")))
-
-
-
 (defcustom dotfairy-server nil
   "Enable `server-mode' or not."
   :group 'dotfairy

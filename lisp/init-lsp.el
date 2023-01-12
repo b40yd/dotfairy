@@ -307,14 +307,14 @@
 
      :init
      (when (executable-find "python3")
-       (setq lsp-pyright-python-executable-cmd "python3"))
-     (if (and (executable-find "black")
-              dotfairy-lsp-format-on-save)
-         (use-package python-black
-           :demand t
-           :after python
-           :hook (python-mode . python-black-on-save-mode))
-       (add-hook 'after-save-hook #'lsp-pyright-format-buffer t t)))
+       (setq lsp-pyright-python-executable-cmd "python3")
+       (if (and (executable-find "black")
+                dotfairy-lsp-format-on-save)
+           (use-package python-black
+             :demand t
+             :after python
+             :hook (python-mode . python-black-on-save-mode))
+         (add-hook 'after-save-hook #'lsp-pyright-format-buffer t t))))
 
    ;; Swift
    (use-package lsp-sourcekit)

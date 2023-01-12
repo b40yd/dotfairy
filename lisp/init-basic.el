@@ -136,8 +136,8 @@
 (when (or IS-MAC IS-LINUX (daemonp))
   (use-package exec-path-from-shell
     :init
-    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "PYTHONPATH" "JAVA_HOME" "MAVEN_HOME")
-          exec-path-from-shell-arguments '("-l"))
+    ;; (setq exec-path-from-shell-variables '("PATH" "MANPATH" "PYTHONPATH" "JAVA_HOME" "MAVEN_HOME")
+    ;;       exec-path-from-shell-arguments '("-l"))
     (exec-path-from-shell-initialize)))
 
 ;; Only list the commands of the current modes
@@ -208,8 +208,7 @@
   (defun enable-trailing-whitespace ()
     "Show trailing spaces and delete on saving."
     (setq show-trailing-whitespace t)
-    (when (and dotfairy-lsp-format-on-save (not (member major-mode
-                                                        dotfairy-delete-trailing-whitespace-ignore-modes)))
+    (when dotfairy-lsp-format-on-save
       (add-hook 'before-save-hook #'delete-trailing-whitespace nil t)))
 
   ;; Prettify the process list
