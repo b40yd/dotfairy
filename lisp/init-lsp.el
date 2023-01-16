@@ -33,7 +33,7 @@
      :hook ((prog-mode . (lambda ()
                            (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode 'makefile-mode)
                              (eglot-ensure))))
-            ((markdown-mode yaml-mode) . eglot-ensure))))
+            ((markdown-mode yaml-mode yaml-ts-mode) . eglot-ensure))))
   ('lsp-mode
    ;; @see https://emacs-lsp.github.io/lsp-mode/page/performance
    (setq read-process-output-max (* 1024 1024)) ;; 1MB
@@ -47,7 +47,7 @@
      :hook ((prog-mode . (lambda ()
                            (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode 'makefile-mode)
                              (lsp-deferred))))
-            ((markdown-mode yaml-mode) . lsp-deferred)
+            ((markdown-mode yaml-mode yaml-ts-mode) . lsp-deferred)
             (lsp-mode . (lambda ()
                           ;; Integrate `which-key'
                           (lsp-enable-which-key-integration)
@@ -109,9 +109,11 @@
 
        ;; Enable `lsp-mode' in sh/bash/zsh
        (defun my-lsp-bash-check-sh-shell (&rest _)
-         (and (eq major-mode 'sh-mode)
+         (and (memq major-mode '(sh-mode bash-ts-mode))
               (memq sh-shell '(sh bash zsh))))
        (advice-add #'lsp-bash-check-sh-shell :override #'my-lsp-bash-check-sh-shell)
+       (add-to-list 'lsp-language-id-configuration '(bash-ts-mode . "shellscript"))
+
        ;; Only display icons in GUI
        (defun my-lsp-icons-get-symbol-kind (fn &rest args)
          (and (icons-displayable-p) (apply fn args)))
@@ -296,25 +298,25 @@
 
        (when (and (executable-find "yapf") buffer-file-name)
          (call-process "yapf" nil nil nil "-i" buffer-file-name)))
-     :hook (python-mode . (lambda ()
-                            (require 'lsp-pyright)
-                            ;; git clone https://github.com/microsoft/python-type-stubs $HOME/.emacs.d/.local/etc/python-type-stubs
-                            (let ((python-type-stubs (expand-file-name "python-type-stubs" dotfairy-etc-dir)))
-                              (if (not (file-exists-p python-type-stubs))
-                                  (dotfairy-exec-process "git" "clone" "https://github.com/microsoft/python-type-stubs" python-type-stubs))
-                              (setq lsp-pyright-use-library-code-for-types t) ;; set this to nil if getting too many false positive type errors
-                              (setq lsp-pyright-stub-path python-type-stubs))))
+     :hook (((python-mode python-ts-mode) . (lambda ()
+                                              (require 'lsp-pyright)
+                                              ;; git clone https://github.com/microsoft/python-type-stubs $HOME/.emacs.d/.local/etc/python-type-stubs
+                                              (let ((python-type-stubs (expand-file-name "python-type-stubs" dotfairy-etc-dir)))
+                                                (if (not (file-exists-p python-type-stubs))
+                                                    (dotfairy-exec-process "git" "clone" "https://github.com/microsoft/python-type-stubs" python-type-stubs))
+                                                (setq lsp-pyright-use-library-code-for-types t) ;; set this to nil if getting too many false positive type errors
+                                                (setq lsp-pyright-stub-path python-type-stubs)
+                                                (if dotfairy-lsp-format-on-save
+                                                    (add-hook 'after-save-hook #'lsp-pyright-format-buffer t t))))))
 
      :init
      (when (executable-find "python3")
        (setq lsp-pyright-python-executable-cmd "python3")
-       (if (and (executable-find "black")
-                dotfairy-lsp-format-on-save)
+       (if (executable-find "black")
            (use-package python-black
              :demand t
              :after python
-             :hook (python-mode . python-black-on-save-mode))
-         (add-hook 'after-save-hook #'lsp-pyright-format-buffer t t))))
+             :hook (python-mode . python-black-on-save-mode)))))
 
    ;; Swift
    (use-package lsp-sourcekit)
