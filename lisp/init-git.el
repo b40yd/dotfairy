@@ -104,82 +104,81 @@ kill all magit buffers for this repo."
   ;; see config: https://magit.vc/manual/ghub/Storing-a-Token.html#Storing-a-Token
   ;; writting like as gitlib.com:
   ;; echo "machine gitlab.com/api/v4 login $YOU_AUTH_NAME^forge password $YOU_AUTH_TOKEN" ~/.authinfo
-  (when (executable-find "cc")
-    (use-package forge
-      :demand t
-      :defines forge-topic-list-columns
-      :commands forge-create-pullreq forge-create-issue
-      :init (setq forge-topic-list-columns
-                  '(("#" 5 t (:right-align t) number nil)
-                    ("Title" 60 t nil title  nil)
-                    ("State" 6 t nil state nil)
-                    ("Updated" 10 t nill updated nil)))
-      :config
-      (setq forge-database-file (concat dotfairy-cache-dir "forge/forge-database.sqlite"))
+  (use-package forge
+    :demand t
+    :defines forge-topic-list-columns
+    :commands forge-create-pullreq forge-create-issue
+    :init (setq forge-topic-list-columns
+                '(("#" 5 t (:right-align t) number nil)
+                  ("Title" 60 t nil title  nil)
+                  ("State" 6 t nil state nil)
+                  ("Updated" 10 t nill updated nil)))
+    :config
+    (setq forge-database-file (concat dotfairy-cache-dir "forge/forge-database.sqlite"))
 
-      (defadvice! +magit--forge-get-repository-lazily-a (&rest _)
-        "Make `forge-get-repository' return nil if the binary isn't built yet.
+    (defadvice! +magit--forge-get-repository-lazily-a (&rest _)
+      "Make `forge-get-repository' return nil if the binary isn't built yet.
 This prevents emacsql getting compiled, which appears to come out of the blue
 and blocks Emacs for a short while."
-        :before-while #'forge-get-repository
-        (file-executable-p emacsql-sqlite-executable))
+      :before-while #'forge-get-repository
+      (file-executable-p emacsql-sqlite-executable))
 
-      (defadvice! +magit--forge-build-binary-lazily-a (&rest _)
-        "Make `forge-dispatch' only build emacsql if necessary.
+    (defadvice! +magit--forge-build-binary-lazily-a (&rest _)
+      "Make `forge-dispatch' only build emacsql if necessary.
 Annoyingly, the binary gets built as soon as Forge is loaded. Since we've
 disabled that in `+magit--forge-get-repository-lazily-a', we must manually
 ensure it is built when we actually use Forge."
-        :before #'forge-dispatch
-        (unless (file-executable-p emacsql-sqlite-executable)
-          (emacsql-sqlite-compile 2)
-          (if (not (file-executable-p emacsql-sqlite-executable))
-              (message (concat "Failed to build emacsql; forge may not work correctly.\n"
-                               "See *Compile-Log* buffer for details"))
-            ;; HACK Due to changes upstream, forge doesn't initialize completely if
-            ;;      it doesn't find `emacsql-sqlite-executable', so we have to do it
-            ;;      manually after installing it.
-            (setq forge--sqlite-available-p t)
-            (magit-add-section-hook 'magit-status-sections-hook 'forge-insert-pullreqs nil t)
-            (magit-add-section-hook 'magit-status-sections-hook 'forge-insert-issues   nil t)
-            (after! forge-topic
-              (dolist (hook forge-bug-reference-hooks)
-                (add-hook hook #'forge-bug-reference-setup))))))
-      (use-package code-review
-        :after magit
-        :init
-        (setq code-review-db-database-file (concat dotfairy-cache-dir "code-review/code-review-db-file.sqlite")
-              code-review-log-file (concat dotfairy-cache-dir "code-review/code-review-error.log")
-              code-review-auth-login-marker 'forge
-              code-review-log-raw-request-responses t
-              code-review-download-dir (expand-file-name "code-review/" dotfairy-cache-dir))
+      :before #'forge-dispatch
+      (unless (file-executable-p emacsql-sqlite-executable)
+        (emacsql-sqlite-compile 2)
+        (if (not (file-executable-p emacsql-sqlite-executable))
+            (message (concat "Failed to build emacsql; forge may not work correctly.\n"
+                             "See *Compile-Log* buffer for details"))
+          ;; HACK Due to changes upstream, forge doesn't initialize completely if
+          ;;      it doesn't find `emacsql-sqlite-executable', so we have to do it
+          ;;      manually after installing it.
+          (setq forge--sqlite-available-p t)
+          (magit-add-section-hook 'magit-status-sections-hook 'forge-insert-pullreqs nil t)
+          (magit-add-section-hook 'magit-status-sections-hook 'forge-insert-issues   nil t)
+          (after! forge-topic
+            (dolist (hook forge-bug-reference-hooks)
+              (add-hook hook #'forge-bug-reference-setup))))))
+    (use-package code-review
+      :after magit
+      :init
+      (setq code-review-db-database-file (concat dotfairy-cache-dir "code-review/code-review-db-file.sqlite")
+            code-review-log-file (concat dotfairy-cache-dir "code-review/code-review-error.log")
+            code-review-auth-login-marker 'forge
+            code-review-log-raw-request-responses t
+            code-review-download-dir (expand-file-name "code-review/" dotfairy-cache-dir))
 
-        ;; TODO This needs to either a) be cleaned up or better b) better map things
-        ;; to fit
-        (after! evil-collection-magit
-          (dolist (binding evil-collection-magit-mode-map-bindings)
-            (pcase-let* ((`(,states _ ,evil-binding ,fn) binding))
-              (dolist (state states)
-                (evil-collection-define-key state 'code-review-mode-map evil-binding fn))))
-          (evil-set-initial-state 'code-review-mode evil-default-state))
+      ;; TODO This needs to either a) be cleaned up or better b) better map things
+      ;; to fit
+      (after! evil-collection-magit
+        (dolist (binding evil-collection-magit-mode-map-bindings)
+          (pcase-let* ((`(,states _ ,evil-binding ,fn) binding))
+            (dolist (state states)
+              (evil-collection-define-key state 'code-review-mode-map evil-binding fn))))
+        (evil-set-initial-state 'code-review-mode evil-default-state))
 
-        (defun +magit/start-code-review (arg)
-          (interactive "P")
-          (call-interactively
-           (let* ((pullreq (or (forge-pullreq-at-point) (forge-current-topic)))
-                  (repo    (forge-get-repository pullreq))
-                  (githost (concat (oref repo githost) "/api")))
-             (when (forge-gitlab-repository-p repo)
-               (setq-default code-review-gitlab-host githost
-                             code-review-gitlab-graphql-host githost))
-             (if (or arg (not (featurep 'forge)))
-                 #'code-review-start
-               #'code-review-forge-pr-at-point))))
-        (transient-append-suffix 'magit-merge "i"
-          '("y" "Review pull request" +magit/start-code-review))
-        (after! forge
-          (transient-append-suffix 'forge-dispatch "c u"
-            '("c r" "Review pull request" +magit/start-code-review))))
-      ))
+      (defun +magit/start-code-review (arg)
+        (interactive "P")
+        (call-interactively
+         (let* ((pullreq (or (forge-pullreq-at-point) (forge-current-topic)))
+                (repo    (forge-get-repository pullreq))
+                (githost (concat (oref repo githost) "/api")))
+           (when (forge-gitlab-repository-p repo)
+             (setq-default code-review-gitlab-host githost
+                           code-review-gitlab-graphql-host githost))
+           (if (or arg (not (featurep 'forge)))
+               #'code-review-start
+             #'code-review-forge-pr-at-point))))
+      (transient-append-suffix 'magit-merge "i"
+        '("y" "Review pull request" +magit/start-code-review))
+      (after! forge
+        (transient-append-suffix 'forge-dispatch "c u"
+          '("c r" "Review pull request" +magit/start-code-review))))
+    )
 
 
   (use-package magit-todos

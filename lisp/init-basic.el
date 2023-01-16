@@ -273,5 +273,9 @@
 (use-package compat
   :demand t)
 
+;; Sqlite
+(when (>= emacs-major-version 29)
+  (use-package emacsql-sqlite-builtin))
+
 (provide 'init-basic)
 ;;; init-basic.el ends here
