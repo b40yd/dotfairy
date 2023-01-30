@@ -125,15 +125,16 @@
             t))
 
 ;; Auto update packages
-(use-package auto-package-update
-  :init
-  (setq auto-package-update-delete-old-versions t
-        auto-package-update-hide-results t)
-  (defun my-upgrade-packages (&optional async)
-    (interactive)
-    (auto-package-update-now async)
-    (quelpa-upgrade-all))
-  (defalias 'upgrade-packages #'my-upgrade-packages))
+(unless (fboundp 'package-update-all)
+  (use-package auto-package-update
+    :init
+    (setq auto-package-update-delete-old-versions t
+          auto-package-update-hide-results t)
+    (defun my-upgrade-packages (&optional async)
+      (interactive)
+      (auto-package-update-now async)
+      (quelpa-upgrade-all))
+    (defalias 'upgrade-packages #'my-upgrade-packages)))
 
 ;; Update
 (defun update-config ()

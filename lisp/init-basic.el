@@ -275,7 +275,9 @@
 
 ;; Sqlite
 (when (>= emacs-major-version 29)
-  (use-package emacsql-sqlite-builtin))
+  (use-package emacsql-sqlite-builtin
+    :defines emacsql-sqlite-c-compilers
+    :init (setq emacsql-sqlite-c-compilers nil)))
 
 (provide 'init-basic)
 ;;; init-basic.el ends here
