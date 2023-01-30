@@ -193,6 +193,7 @@
 
 (use-package simple
   :ensure nil
+  :commands (enable-trailing-whitespace)
   :hook ((after-init . size-indication-mode)
          ((prog-mode markdown-mode conf-mode) . enable-trailing-whitespace))
   :init
