@@ -251,18 +251,6 @@
 		          tabulated-list-entries)))))
     (advice-add #'list-processes--refresh :after #'my-list-processes--prettify)))
 
-(use-package time
-  :ensure nil
-  :unless (display-graphic-p)
-  :hook (after-init . display-time-mode)
-  :init (setq display-time-24hr-format t
-              display-time-day-and-date t))
-
-(when (>= emacs-major-version 27)
-  (use-package so-long
-    :ensure nil
-    :hook (after-init . global-so-long-mode)))
-
 ;; File and buffer
 (defun dotfairy/revert-this-buffer ()
   "Revert the current buffer."
@@ -275,7 +263,7 @@
   :demand t)
 
 ;; Sqlite
-(when (>= emacs-major-version 29)
+(when (fboundp 'sqlite-open)
   (use-package emacsql-sqlite-builtin
     :defines emacsql-sqlite-c-compilers
     :init (setq emacsql-sqlite-c-compilers nil)))

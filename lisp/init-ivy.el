@@ -841,6 +841,7 @@ The point of this is to avoid Emacs locking up indexing massive file trees."
 ;; Display completion in child frame
 (when (childframe-completion-workable-p)
   (use-package ivy-posframe
+    :diminish
     :custom-face
     (ivy-posframe ((t (:inherit tooltip))))
     (ivy-posframe-border ((t (:inherit posframe-border))))

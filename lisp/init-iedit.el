@@ -47,6 +47,11 @@
            ([remap flyspell-correct-word-before-point] . flyspell-correct-wrapper))
     :init (setq flyspell-correct-interface #'flyspell-correct-ivy)))
 
+(when (>= emacs-major-version 27)
+  (use-package so-long
+    :ensure nil
+    :hook (after-init . global-so-long-mode)))
+
 ;; Automatically reload files was modified by external program
 (use-package autorevert
   :ensure t

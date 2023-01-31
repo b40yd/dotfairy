@@ -67,6 +67,12 @@
   (when (featurep 'ns)
     (push '(ns-transparent-titlebar . t) default-frame-alist)))
 
+
+(use-package time
+  :ensure nil
+  :init (setq display-time-24hr-format t
+              display-time-day-and-date t))
+
 (use-package solarized-theme)
 
 ;; Settings for UI theme
@@ -127,9 +133,6 @@
         doom-modeline-unicode-fallback t
         doom-modeline-window-width-limit 120
         doom-modeline-minor-modes t)
-  ;; Prevent flash of unstyled modeline at startup
-  (unless after-init-time
-    (setq-default mode-line-format nil))
   :config
 ;;;###autoload
   (defun +modeline-update-env-in-all-windows-h (&rest _)
