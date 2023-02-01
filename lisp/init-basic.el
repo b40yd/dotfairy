@@ -264,9 +264,7 @@
 
 ;; Sqlite
 (when (fboundp 'sqlite-open)
-  (use-package emacsql-sqlite-builtin
-    :defines emacsql-sqlite-c-compilers
-    :init (setq emacsql-sqlite-c-compilers nil)))
+  (use-package emacsql-sqlite-builtin))
 
 (provide 'init-basic)
 ;;; init-basic.el ends here
