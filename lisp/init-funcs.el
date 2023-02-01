@@ -225,7 +225,7 @@ Return the fastest package archive."
                (require 'chart nil t)
                (require 'url nil t))
       (chart-bar-quickie
-       'horizontal
+       'vertical
        "Speed test for the ELPA mirrors"
        (mapcar (lambda (p) (symbol-name (car p))) dotfairy-package-archives-alist)
        "ELPA"

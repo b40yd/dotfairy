@@ -58,5 +58,7 @@
 (when (featurep 'ns)
   (push '(ns-transparent-titlebar . t) default-frame-alist))
 
+(setq frame-title-format "Dotfairy Emacs - loading...")
+
 (provide 'early-init)
 ;;; early-init.el ends here
