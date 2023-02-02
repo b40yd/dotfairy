@@ -137,34 +137,21 @@
     (defalias 'upgrade-packages #'my-upgrade-packages)))
 
 ;; Update
-(defun dotfairy-update-config ()
+(defun update-config ()
   "Update Dotfairy Emacs configurations to the latest version."
   (interactive)
-  (let ((temp-dir (expand-file-name user-emacs-directory)))
-    (if (file-exists-p temp-dir)
-        (progn
-          (message "Updating configurations...")
-          (cd temp-dir)
-          (shell-command "git pull")
-          (message "Updating configurations...done"))
-      (message "\"%s\" doesn't exist" temp-dir))))
-(defalias 'update-config #'dotfairy-update-config)
+  (let ((dir (expand-file-name user-emacs-directory)))
+    (unless (file-exists-p dir)
+      (user-error "\"%s\" doesn't exist" dir))
 
-(defun dotfairy--update-package ()
-  (cond
-   ((fboundp 'paradox-upgrade-packages)
-    (paradox-upgrade-packages))
-   ((fboundp 'package-update-all)
-    (package-update-all))))
-
-(defun dotfairy--display-update-report ()
-  (let ((buf (get-buffer "*Paradox Report*")))
-    (when (buffer-live-p buf)
-      (pop-to-buffer buf))))
-
+    (message "Updating configurations...")
+    (cd dir)
+    (shell-command "git pull")
+    (message "Updating configurations...done")))
+(defalias 'dotfairy/update-config #'update-config)
 
 (defvar dotfairy--updating-packages nil)
-(defun dotfairy-update-packages (&optional force sync)
+(defun update-packages (&optional force sync)
   "Refresh package contents and update all packages.
 If FORCE is non-nil, the updating process will be restarted by force.
 If SYNC is non-nil, the updating process is synchronous."
@@ -184,19 +171,23 @@ If SYNC is non-nil, the updating process is synchronous."
               (async-start
                `(lambda ()
                   ,(async-inject-variables "\\`\\(load-path\\)\\'")
+                  (require 'init-funcs)
                   (require 'init-package)
-                  (dotfairy--update-package))
-               (lambda (_)
+                  (package-update-all)
+                  (and (bound-and-true-p auto-package-update-buffer-name)
+                       (buffer-live-p auto-package-update-buffer-name)
+                       (with-current-buffer auto-package-update-buffer-name
+                         (buffer-string))))
+               (lambda (result)
                  (setq dotfairy--updating-packages nil)
-                 (dotfairy--display-update-report)
+                 (and result (message "%s" result))
                  (message "Updating packages...done"))))
-      (dotfairy--update-package)
-      (dotfairy--display-update-report)
+      (package-update-all)
       (message "Updating packages...done"))))
-(defalias 'update-packages #'dotfairy-update-packages)
+(defalias 'dotfairy/update-packages #'update-packages)
 
 (defvar dotfairy--updating nil)
-(defun dotfairy-update (&optional force sync)
+(defun update-config-and-packages(&optional force sync)
   "Update confgiurations and packages.
 If FORCE is non-nil, the updating process will be restarted by force.
 If SYNC is non-nil, the updating process is synchronous."
@@ -216,38 +207,53 @@ If SYNC is non-nil, the updating process is synchronous."
               (async-start
                `(lambda ()
                   ,(async-inject-variables "\\`\\(load-path\\)\\'")
+                  (require 'init-funcs)
                   (require 'init-package)
-                  (dotfairy-update-config)
-                  (dotfairy-update-packages nil t))
-               (lambda (_)
+                  (update-config)
+                  (update-packages nil t)
+                  (and (bound-and-true-p auto-package-update-buffer-name)
+                       (buffer-live-p auto-package-update-buffer-name)
+                       (with-current-buffer auto-package-update-buffer-name
+                         (buffer-string))))
+               (lambda (result)
                  (setq dotfairy--updating nil)
-                 (dotfairy--display-update-report)
+                 (and result (message "%s" result))
                  (message "Updating Dotfairy Emacs...done"))))
-      (dotfairy-update-config)
-      (dotfairy-update-packages nil t)
-      (dotfairy--display-update-report)
+      (update-config)
+      (update-packages nil t)
       (message "Updating Dotfairy Emacs...done"))))
-(defalias 'update-config-and-packages #'dotfairy-update)
+(defalias 'dotfairy/update #'update-config-and-packages)
 
-(defun dotfairy-update-all ()
+(defun update-all()
   "Update dotfiles, org files, configurations and packages to the latest."
   (interactive)
-  (dotfairy-update-org)
-  (dotfairy-update))
-(defalias 'update-all #'dotfairy-update-all)
+  (update-org)
+  (update-config-and-packages))
+(defalias 'dotfairy/update-all #'update-all)
 
-(defun dotfairy-update-org ()
+(defun dotfairy/try-get-org-remote-repository ()
+  "Download org remote repository."
+  (interactive)
+  (if (and (stringp dotfairy-org-repository)
+           (not (string= dotfairy-org-repository "")))
+      (progn
+        (message "Get Org remote files...")
+        (shell-command (concat "git clone " dotfairy-org-repository " " dotfairy-org-dir))
+        (message "Get Org remote files...done"))))
+
+(defun update-org ()
   "Update Org files to the latest version."
   (interactive)
   (let ((dir (expand-file-name dotfairy-org-dir)))
     (if (file-exists-p dir)
         (progn
-          (message "Updating org files...")
+          (message "Updating Org files...")
           (cd dir)
           (shell-command "git pull")
-          (message "Updating org files...done"))
-      (message "\"%s\" doesn't exist" dir))))
-(defalias 'update-org #'dotfairy-update-org)
+          (message "Updating Org files...done"))
+      (dotfairy/try-get-org-remote-repository))))
+(defalias 'dotfairy/update-org #'update-org)
+
 
 (provide 'init-package)
 ;;; init-package.el ends here

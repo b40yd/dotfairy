@@ -56,6 +56,7 @@
 ;; confirm exit emacs
 (setq confirm-kill-emacs 'y-or-n-p)
 (setq ssh-manager-sessions '()) ;Add SSH connect sessions
+;;(setq dotfairy-org-repository "") ; Set Org git repository url address.
 
 ;; Fonts
 (defun dotfairy-setup-fonts ()

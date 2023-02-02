@@ -227,5 +227,10 @@ If Non-nil, save and restore the frame's geometry."
   :group 'dotfairy
   :type 'boolean)
 
+(defcustom dotfairy-org-repository ""
+  "Set network proxy."
+  :group 'dotfairy
+  :type 'string)
+
 (provide 'init-custom)
 ;;; init-custom.el ends here

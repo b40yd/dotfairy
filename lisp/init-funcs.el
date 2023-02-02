@@ -154,17 +154,16 @@
   "Create custom directory."
   (if (not (file-directory-p dotfairy-local-dir))
       (make-directory dotfairy-local-dir))
-  (if (not (file-directory-p dotfairy-org-dir))
-      (make-directory dotfairy-org-dir))
-  (if (not (file-directory-p (concat dotfairy-org-dir "roam/")))
-      (make-directory (concat dotfairy-org-dir "roam/")))
+  ;; (if (not (file-directory-p dotfairy-org-dir))
+  ;;     (make-directory dotfairy-org-dir))
+  ;; (if (not (file-directory-p (concat dotfairy-org-dir "roam/")))
+  ;;     (make-directory (concat dotfairy-org-dir "roam/")))
   (if (not (file-directory-p dotfairy-etc-dir))
       (make-directory dotfairy-etc-dir))
   (if (not (file-directory-p dotfairy-private-dir))
       (make-directory dotfairy-private-dir))
   (if (not (file-directory-p dotfairy-cache-dir))
-      (make-directory dotfairy-cache-dir))
-  )
+      (make-directory dotfairy-cache-dir)))
 
 (defun dotfairy-set-variable (variable value &optional no-save)
   "Set the VARIABLE to VALUE, and return VALUE.
