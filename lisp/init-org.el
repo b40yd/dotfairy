@@ -203,8 +203,8 @@ exist, and `org-link' otherwise."
     (after! org
       ;; A shorter link to attachments
       (+org-define-basic-link "download" (lambda () (or org-download-image-dir org-attach-id-dir "."))
-                              :image-data-fun #'+org-image-file-data-fn
-                              :requires 'org-download))
+        :image-data-fun #'+org-image-file-data-fn
+        :requires 'org-download))
     :config
     (unless org-download-image-dir
       (setq org-download-image-dir org-attach-id-dir))
@@ -422,7 +422,7 @@ If prefix ARG, copy instead of move."
                                     buffer)))
              (heading
               (org-with-point-at marker
-                                 (org-get-heading 'no-tags 'no-todo)))
+                (org-get-heading 'no-tags 'no-todo)))
              ;; Won't work with target buffers whose filename is nil
              (rfloc (list heading filename nil marker))
              (org-after-refile-insert-hook (cons #'org-reveal org-after-refile-insert-hook)))
@@ -690,10 +690,17 @@ prepended to the element after the #+HEADER: tag."
     (unless (file-exists-p org-roam-directory)
       (make-directory org-roam-directory))
     (add-to-list 'org-agenda-files org-roam-directory)
+    (use-package websocket
+      :after org-roam)
     (use-package org-roam-ui
       :init
       (when (featurep 'xwidget-internal)
-        (setq org-roam-ui-browser-function #'xwidget-webkit-browse-url))))
+        (setq org-roam-ui-browser-function #'xwidget-webkit-browse-url))
+      :config
+      (setq org-roam-ui-sync-theme t
+            org-roam-ui-follow t
+            org-roam-ui-update-on-save t
+            org-roam-ui-open-on-start t)))
 
   ;; Auto-toggle Org LaTeX fragments
   (use-package org-fragtog
