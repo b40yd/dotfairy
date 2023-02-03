@@ -44,7 +44,7 @@
             (dap-terminated . (lambda (_) (dap-hydra/nil)))
             ((python-mode python-ts-mode)            . (lambda () (require 'dap-python)))
             ((ruby-mode ruby-ts-mode)                . (lambda () (require 'dap-ruby)))
-            ((go-mode go-ts-mode)                    . (lambda () (require 'dap-go)))
+            ((go-mode go-ts-mode)                    . (lambda () (require 'dap-dlv-go)))
             ((java-mode java-ts-mode jdee-mode)      . (lambda () (require 'dap-java)))
             ((c-mode c-ts-mode c++-mode c++-ts-mode) . (lambda () (require 'dap-cpptools)))
             ((objc-mode swift-mode)                  . (lambda () (require 'dap-lldb)))
