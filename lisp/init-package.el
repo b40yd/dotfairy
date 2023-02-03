@@ -150,78 +150,19 @@
     (message "Updating configurations...done")))
 (defalias 'dotfairy/update-config #'update-config)
 
-(defvar dotfairy--updating-packages nil)
-(defun update-packages (&optional force sync)
-  "Refresh package contents and update all packages.
-If FORCE is non-nil, the updating process will be restarted by force.
-If SYNC is non-nil, the updating process is synchronous."
+(defun update-packages ()
+  "Refresh package contents and update all packages."
   (interactive)
-
-  (if (process-live-p dotfairy--updating-packages)
-      (when force
-        (kill-process dotfairy--updating-packages)
-        (setq dotfairy--updating-packages nil))
-    (setq dotfairy--updating-packages nil))
-
   (message "Updating packages...")
-  (unless dotfairy--updating-packages
-    (if (and (not sync)
-             (require 'async nil t))
-        (setq dotfairy--updating-packages
-              (async-start
-               `(lambda ()
-                  ,(async-inject-variables "\\`\\(load-path\\)\\'")
-                  (require 'init-funcs)
-                  (require 'init-package)
-                  (package-update-all)
-                  (and (bound-and-true-p auto-package-update-buffer-name)
-                       (buffer-live-p auto-package-update-buffer-name)
-                       (with-current-buffer auto-package-update-buffer-name
-                         (buffer-string))))
-               (lambda (result)
-                 (setq dotfairy--updating-packages nil)
-                 (and result (message "%s" result))
-                 (message "Updating packages...done"))))
-      (package-update-all)
-      (message "Updating packages...done"))))
+  (package-update-all)
+  (message "Updating packages...done"))
 (defalias 'dotfairy/update-packages #'update-packages)
 
-(defvar dotfairy--updating nil)
-(defun update-config-and-packages(&optional force sync)
-  "Update confgiurations and packages.
-If FORCE is non-nil, the updating process will be restarted by force.
-If SYNC is non-nil, the updating process is synchronous."
-  (interactive "P")
-
-  (if (process-live-p dotfairy--updating)
-      (when force
-        (kill-process dotfairy--updating)
-        (setq dotfairy--updating nil))
-    (setq dotfairy--updating nil))
-
-  (message "Updating Dotfairy Emacs...")
-  (unless dotfairy--updating
-    (if (and (not sync)
-             (require 'async nil t))
-        (setq dotfairy--updating
-              (async-start
-               `(lambda ()
-                  ,(async-inject-variables "\\`\\(load-path\\)\\'")
-                  (require 'init-funcs)
-                  (require 'init-package)
-                  (update-config)
-                  (update-packages nil t)
-                  (and (bound-and-true-p auto-package-update-buffer-name)
-                       (buffer-live-p auto-package-update-buffer-name)
-                       (with-current-buffer auto-package-update-buffer-name
-                         (buffer-string))))
-               (lambda (result)
-                 (setq dotfairy--updating nil)
-                 (and result (message "%s" result))
-                 (message "Updating Dotfairy Emacs...done"))))
-      (update-config)
-      (update-packages nil t)
-      (message "Updating Dotfairy Emacs...done"))))
+(defun update-config-and-packages()
+  "Update confgiurations and packages."
+  (interactive)
+  (update-config)
+  (update-packages))
 (defalias 'dotfairy/update #'update-config-and-packages)
 
 (defun update-all()

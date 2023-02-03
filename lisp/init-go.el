@@ -181,7 +181,7 @@
           :map go-mode-map
           :desc "add tag"                           "a" #'go-tag-add
           :desc "remove tag"                        "d" #'go-tag-remove
-          :desc "doc at point"                      "p" #'godoc-at-point
+          :desc "doc at point"                      "p" #'godoc
           (:prefix ("h" . "help")
            "." #'godoc-at-point     ; Lookup in godoc
            "d" #'go-guru-describe   ; Describe this

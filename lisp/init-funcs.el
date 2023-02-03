@@ -103,8 +103,7 @@
   "Disable others and enable new one."
   (when theme
     (mapc #'disable-theme custom-enabled-themes)
-    (load-theme theme t)
-    (message "Loaded theme `%s'" theme)))
+    (load-theme theme t)))
 
 (defun dotfairy-load-theme (theme &optional no-save)
   "Load color THEME. Save to `custom-file' if NO-SAVE is nil."
@@ -778,22 +777,6 @@ If DERIVED-P, test with `derived-mode-p', otherwise use `eq'."
                           (memq (buffer-local-value 'major-mode buf) modes)))
                       (or buffer-list (dotfairy-buffer-list)))))
 
-;;;###autoload
-(defun dotfairy-visible-windows (&optional window-list)
-  "Return a list of the visible, non-popup (dedicated) windows."
-  (cl-loop for window in (or window-list (window-list))
-           when (or (window-parameter window 'visible)
-                    (not (window-dedicated-p window)))
-           collect window))
-
-;;;###autoload
-(defun dotfairy-visible-buffers (&optional buffer-list)
-  "Return a list of visible buffers (i.e. not buried)."
-  (let ((buffers (delete-dups (mapcar #'window-buffer (window-list)))))
-    (if buffer-list
-        (cl-delete-if (lambda (b) (memq b buffer-list))
-                      buffers)
-      (delete-dups buffers))))
 
 ;;;###autoload
 (defun dotfairy-buried-buffers (&optional buffer-list)
