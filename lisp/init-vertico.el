@@ -407,6 +407,8 @@ buffer will be opened in the current workspace instead."
          ("C-c ;" . embark-act)
          ("C-c C-l" . embark-export)
          ("C-c C-e" . +vertico/embark-export-write))
+  :init
+  (setq prefix-help-command 'embark-prefix-help-command)
   :config
   (require 'consult)
   (defadvice! +vertico--embark-which-key-prompt-a (fn &rest args)
