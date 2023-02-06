@@ -336,10 +336,10 @@ buffer will be opened in the current workspace instead."
    +default/search-cwd +default/search-other-cwd
    +default/search-notes-for-symbol-at-point
    consult--source-recent-file consult--source-project-recent-file consult--source-bookmark
-   :preview-key "C-<SPC>")
+   :preview-key "C-SPC")
   (consult-customize
    consult-theme
-   :preview-key (list "C-<SPC>" :debounce 0.5 'any))
+   :preview-key (list "C-SPC" :debounce 0.5 'any))
   (when (featurep 'org)
     (defvar +vertico--consult-org-source
       (list :name     "Org Buffer"
