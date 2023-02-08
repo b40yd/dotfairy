@@ -164,11 +164,31 @@
 (use-package swift-mode) ;; swift language
 
 ;; Misc
-(use-package copyit)                    ; copy path, url, etc.
 (use-package diffview)                  ; side-by-side diff view
 (use-package esup)                      ; Emacs startup profiler
 (use-package focus)                     ; Focus on the current region
-(use-package list-environment)
+(use-package list-environment
+  :hook (list-environment-mode . (lambda ()
+                                   (setq tabulated-list-format
+                                         (vconcat `(("" ,(if (icon-displayable-p) 2 0)))
+                                                  tabulated-list-format))
+                                   (tabulated-list-init-header)))
+  :init
+  (with-no-warnings
+    (defun my-list-environment-entries ()
+      "Generate environment variable entries list for tabulated-list."
+      (mapcar (lambda (env)
+                (let* ((kv (split-string env "="))
+                       (key (car kv))
+                       (val (mapconcat #'identity (cdr kv) "=")))
+                  (list key (vector
+                             (if (icon-displayable-p)
+                                 (all-the-icons-octicon "key" :height 0.8 :v-adjust -0.05)
+                               "")
+                             `(,key face font-lock-keyword-face)
+                             `(,val face font-lock-string-face)))))
+              process-environment))
+    (advice-add #'list-environment-entries :override #'my-list-environment-entries)))
 (use-package memory-usage)
 (use-package tldr)
 (use-package command-log-mode)
