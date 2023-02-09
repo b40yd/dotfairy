@@ -29,7 +29,7 @@
 
 (use-package go-mode
   :ensure t
-  :functions go-update-tools
+  :functions go-install-tools
   :autoload godoc-gogetdoc
   :hook ((go-mode . (lambda ()
                       (add-hook! 'before-save (lambda ()
@@ -37,18 +37,12 @@
                                                   (gofmt-before-save))))
                       (dotfairy-set-prettify '(("func()" . ?λ)
                                                ("func" . ?ƒ)
-                                               ("map" . ?↦)
+                               ("map" . ?↦)
                                                (":=" . ?≔)
                                                ("string" . ?𝕊)
                                                ("nil" . ?∅))))))
-  :config
-  ;; Env vars
-  (with-eval-after-load 'exec-path-from-shell
-    (exec-path-from-shell-copy-envs '("GOPATH" "GO111MODULE" "GOPROXY"))
-    (if (not (executable-find "go"))
-        (exec-path-from-shell-setenv "PATH" (format "%s/bin" (cdr (dotfairy-call-process "go" "env" "GOPATH")))))
-    (exec-path-from-shell-initialize))
-
+  :init
+  (setq godoc-at-point-function #'godoc-gogetdoc)
   ;; Install or update tools
   (defconst go--tools '("golang.org/x/tools/gopls"
                         "golang.org/x/tools/cmd/goimports"
@@ -64,8 +58,8 @@
                         "github.com/golangci/golangci-lint/cmd/golangci-lint")
     "All necessary go tools.")
 
-  (defun go-update-tools ()
-    "Install or update go tools."
+  (defun go-install-tools ()
+    "Install go tools."
     (interactive)
     (unless (executable-find "go")
       (user-error "Unable to find `go' in `exec-path'!"))
@@ -81,9 +75,18 @@
                (message "Installed %s" pkg)
              (message "Failed to install %s: %d" pkg status)))))))
 
+  :config
+  ;; Env vars
+  (with-eval-after-load 'exec-path-from-shell
+    (exec-path-from-shell-copy-envs '("GOPATH" "GO111MODULE" "GOPROXY"))
+    (if (not (executable-find "go"))
+        (exec-path-from-shell-setenv "PATH" (format "%s/bin" (cdr (dotfairy-call-process "go" "env" "GOPATH")))))
+    (exec-path-from-shell-initialize))
+
   ;; Try to install go tools if `gopls' is not found
   (unless (executable-find "gopls")
-    (go-update-tools))
+    (go-install-tools))
+
 
   ;; Misc
   (use-package go-dlv)
