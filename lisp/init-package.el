@@ -175,12 +175,15 @@
 (defun dotfairy/try-get-org-remote-repository ()
   "Download org remote repository."
   (interactive)
-  (if (and (stringp dotfairy-org-repository)
-           (not (string= dotfairy-org-repository "")))
-      (progn
-        (message "Get Org remote files...")
-        (shell-command (concat "git clone " dotfairy-org-repository " " dotfairy-org-dir))
-        (message "Get Org remote files...done"))))
+  (let ((roam-dir (expand-file-name "roam" dotfairy-org-dir)))
+    (if (and (stringp dotfairy-org-repository)
+             (not (string= dotfairy-org-repository "")))
+        (progn
+          (message "Get Org remote files...")
+          (shell-command (concat "git clone " dotfairy-org-repository " " dotfairy-org-dir))
+          (if (not (file-exists-p roam-dir))
+              (make-directory roam-dir))
+          (message "Get Org remote files...done")))))
 
 (defun update-org ()
   "Update Org files to the latest version."
