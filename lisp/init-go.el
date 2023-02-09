@@ -37,7 +37,7 @@
                                                   (gofmt-before-save))))
                       (dotfairy-set-prettify '(("func()" . ?λ)
                                                ("func" . ?ƒ)
-                               ("map" . ?↦)
+                                               ("map" . ?↦)
                                                (":=" . ?≔)
                                                ("string" . ?𝕊)
                                                ("nil" . ?∅))))))
