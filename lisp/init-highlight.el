@@ -137,17 +137,6 @@
     (with-eval-after-load 'magit
       (add-hook 'magit-pre-refresh-hook #'diff-hl-magit-pre-refresh)
       (add-hook 'magit-post-refresh-hook #'diff-hl-magit-post-refresh))))
-;; Highlight some operations
-(use-package volatile-highlights
-  :diminish
-  :hook (after-init . volatile-highlights-mode)
-  :config
-  (with-no-warnings
-    (when (fboundp 'pulse-momentary-highlight-region)
-      (defun my-vhl-pulse (beg end &optional _buf face)
-        "Pulse the changes."
-        (pulse-momentary-highlight-region beg end face))
-      (advice-add #'vhl/.make-hl :override #'my-vhl-pulse))))
 
 ;; Pulse current line
 (use-package pulse
@@ -295,6 +284,15 @@ FACE defaults to inheriting from default and highlight."
                               (window-start) msg ))))))
           (blink-matching-open))))
     (advice-add #'show-paren-function :after #'show-paren-off-screen)))
+
+;; Pulse modified region
+(if (>= emacs-major-version 27)
+    (use-package goggles
+      :diminish
+      :hook ((prog-mode text-mode) . goggles-mode))
+  (use-package volatile-highlights
+    :diminish
+    :hook (after-init . volatile-highlights-mode)))
 
 (provide 'init-highlight)
 ;;; init-highlight.el ends here
