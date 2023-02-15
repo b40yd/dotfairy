@@ -186,9 +186,31 @@
          ("C-<" . mc/mark-previous-like-this)
          ("C-c C->" . mc/mark-all-like-this)
          ("M-|" . mc/vertical-align-with-space)
-         :map mc/keymap)
+         ("C-c m" . multiple-cursors-hydra/body)
+         :map mc/keymap
+         ("C-|" . mc/vertical-align-with-space))
   :config
-  (setq mc/list-file (concat dotfairy-etc-dir "mc-lists.el")))
+  (setq mc/list-file (concat dotfairy-etc-dir "mc-lists.el"))
+  :pretty-hydra
+  ((:title (pretty-hydra-title "Multiple Cursors" 'material "border_all" :height 1.2 :v-adjust -0.225)
+    :color amaranth :quit-key ("q" "C-g"))
+   ("Up"
+	(("p" mc/mark-previous-like-this "prev")
+	 ("P" mc/skip-to-previous-like-this "skip")
+	 ("M-p" mc/unmark-previous-like-this "unmark")
+	 ("|" mc/vertical-align "align with input CHAR"))
+    "Down"
+    (("n" mc/mark-next-like-this "next")
+	 ("N" mc/skip-to-next-like-this "skip")
+	 ("M-n" mc/unmark-next-like-this "unmark"))
+    "Misc"
+    (("l" mc/edit-lines "edit lines" :exit t)
+	 ("a" mc/mark-all-like-this "mark all" :exit t)
+	 ("s" mc/mark-all-in-region-regexp "search" :exit t)
+     ("<mouse-1>" mc/add-cursor-on-click "click"))
+    "% 2(mc/num-cursors) cursor%s(if (> (mc/num-cursors) 1) \"s\" \"\")"
+	(("0" mc/insert-numbers "insert numbers" :exit t)
+	 ("A" mc/insert-letters "insert letters" :exit t)))))
 
 ;; Smartly select region, rectangle, multi cursors
 (use-package smart-region
