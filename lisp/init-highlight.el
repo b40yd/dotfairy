@@ -70,13 +70,6 @@
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
 
-(use-package beacon
-  :ensure t
-  :init
-  (beacon-mode 1)
-  :config
-  (setq beacon-color "#9b4086"))
-
 ;; Highlight TODO
 (use-package hl-todo
   :hook (after-init . global-hl-todo-mode)
