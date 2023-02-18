@@ -103,6 +103,10 @@
         (setq-local flycheck-python-pylint-executable "pylint")
         (setq-local flycheck-python-flake8-executable "flake8"))))
 
+  (use-package python-black
+    :demand t
+    :after python
+    :hook (python-mode . python-black-on-save-mode))
 
   (use-package pyimport
     :defer t)
@@ -248,7 +252,7 @@ executable and packages."
                'append))
 
 (use-package poetry
-  :after python
+  :ensure t
   :init
   (setq poetry-tracking-strategy 'switch-buffer)
   (add-hook 'python-mode-hook #'poetry-tracking-mode))
