@@ -147,13 +147,13 @@ orderless."
   :bind (("C-s" . consult-line))
   :preface
   (define-key!
-    [remap apropos]                       #'consult-apropos
     [remap bookmark-jump]                 #'consult-bookmark
     [remap evil-show-marks]               #'consult-mark
     [remap evil-show-jumps]               #'+vertico/jump-list
     [remap evil-show-registers]           #'consult-register
     [remap goto-line]                     #'consult-goto-line
     [remap imenu]                         #'consult-imenu
+    [remap Info-search]                   #'consult-info
     [remap locate]                        #'consult-locate
     [remap load-theme]                    #'consult-theme
     [remap man]                           #'consult-man
@@ -528,7 +528,7 @@ Supports exporting consult-grep to wgrep, file to wdeired, and consult-location 
                   "--path-separator /   --smart-case --no-heading --line-number "
                   "--hidden -g !.git -g !.svn -g !.hg -g !.ccls-cache "
                   (mapconcat #'shell-quote-argument args " ")
-                  " ."))
+                  "."))
          (prompt (if (stringp prompt) (string-trim prompt) "Search"))
          (query (or query
                     (when (dotfairy-region-active-p)
