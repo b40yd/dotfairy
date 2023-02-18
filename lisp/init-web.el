@@ -31,7 +31,7 @@
   :ensure nil
   :init (setq css-indent-offset 2))
 
-;; SCSS 
+;; SCSS
 (use-package scss-mode
   :init
   ;; Disable complilation on save
@@ -168,6 +168,9 @@
 (use-package emmet-mode
   :hook ((web-mode rjsx-mode) . emmet-mode)
   :config)
+
+(use-package auto-rename-tag
+  :hook ((xml-mode web-mode) . auto-rename-tag-mode))
 
 (after! emmet-mode
   (map! :leader
