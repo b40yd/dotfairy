@@ -557,7 +557,8 @@ If prefix ARG is non-nil, prompt for a known project to open in dired."
 
 (defun +default/browse-project ()
   "Browse files from the current project's root."
-  (interactive) (dotfairy-project-browse (dotfairy-project-root)))
+  (interactive)
+  (dotfairy-project-browse (or (dotfairy-project-root) default-directory)))
 
 (defun +default/browse-notes ()
   "Browse files from `org-directory'."
