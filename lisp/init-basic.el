@@ -90,7 +90,6 @@
 ;;
 ;;; Clipboard / kill-ring
 ;; Cull duplicates in the kill ring to reduce bloat and make the kill ring
-;; easier to peruse (with `counsel-yank-pop' or `helm-show-kill-ring'.
 (setq kill-ring-max 1024)
 (setq kill-do-not-save-duplicates t)
 

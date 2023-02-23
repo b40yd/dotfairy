@@ -152,15 +152,6 @@ ensure it is built when we actually use Forge."
             code-review-log-raw-request-responses t
             code-review-download-dir (expand-file-name "code-review/" dotfairy-cache-dir))
 
-      ;; TODO This needs to either a) be cleaned up or better b) better map things
-      ;; to fit
-      (after! evil-collection-magit
-        (dolist (binding evil-collection-magit-mode-map-bindings)
-          (pcase-let* ((`(,states _ ,evil-binding ,fn) binding))
-            (dolist (state states)
-              (evil-collection-define-key state 'code-review-mode-map evil-binding fn))))
-        (evil-set-initial-state 'code-review-mode evil-default-state))
-
       (defun +magit/start-code-review (arg)
         (interactive "P")
         (call-interactively

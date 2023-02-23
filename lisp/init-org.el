@@ -203,8 +203,8 @@ exist, and `org-link' otherwise."
     (after! org
       ;; A shorter link to attachments
       (+org-define-basic-link "download" (lambda () (or org-download-image-dir org-attach-id-dir "."))
-                              :image-data-fun #'+org-image-file-data-fn
-                              :requires 'org-download))
+        :image-data-fun #'+org-image-file-data-fn
+        :requires 'org-download))
     :config
     (unless org-download-image-dir
       (setq org-download-image-dir org-attach-id-dir))
@@ -422,7 +422,7 @@ If prefix ARG, copy instead of move."
                                     buffer)))
              (heading
               (org-with-point-at marker
-                                 (org-get-heading 'no-tags 'no-todo)))
+                (org-get-heading 'no-tags 'no-todo)))
              ;; Won't work with target buffers whose filename is nil
              (rfloc (list heading filename nil marker))
              (org-after-refile-insert-hook (cons #'org-reveal org-after-refile-insert-hook)))
@@ -774,9 +774,6 @@ when exporting org-mode to '(html hugo md odt)."
         (:when (featurep 'ivy)
          "." #'counsel-org-goto
          "/" #'counsel-org-goto-all)
-        (:when (featurep 'helm)
-         "." #'helm-org-in-buffer-headings
-         "/" #'helm-org-agenda-files-headings)
         (:when (featurep 'vertico)
          "." #'consult-org-heading
          "/" #'consult-org-agenda)
@@ -839,9 +836,6 @@ when exporting org-mode to '(html hugo md odt)."
          (:when (featurep 'ivy)
           "g" #'counsel-org-goto
           "G" #'counsel-org-goto-all)
-         (:when (featurep 'helm)
-          "g" #'helm-org-in-buffer-headings
-          "G" #'helm-org-agenda-files-headings)
          (:when (featurep 'vertico)
           "g" #'consult-org-heading
           "G" #'consult-org-agenda)

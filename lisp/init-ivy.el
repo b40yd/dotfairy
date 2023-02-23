@@ -298,8 +298,7 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
   (setq ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
 
   ;; Set minibuffer height for different commands
-  (setq ivy-height-alist '((counsel-evil-registers . 5)
-                           (counsel-yank-pop . 8)
+  (setq ivy-height-alist '((counsel-yank-pop . 8)
                            (counsel-git-log . 4)
                            (swiper . 15)
                            (counsel-projectile-ag . 15)

@@ -273,8 +273,6 @@ editorconfig or dtrt-indent installed."
            (read-number "New indent size: "))))
   (setq tab-width width)
   (setq-local standard-indent width)
-  (when (boundp 'evil-shift-width)
-    (setq evil-shift-width width))
   (cond ((require 'editorconfig nil t)
          (let (editorconfig-lisp-use-default-indent)
            (editorconfig-set-indentation nil width)))
@@ -341,9 +339,7 @@ Ignores `nil' elements in SEGMENTS."
 (defun dotfairy-region-active-p ()
   "Return non-nil if selection is active."
   (declare (side-effect-free t))
-  (or (use-region-p)
-      (and (bound-and-true-p evil-local-mode)
-           (evil-visual-state-p))))
+  (or (use-region-p)))
 
 ;;;###autoload
 (defun dotfairy-region-beginning ()

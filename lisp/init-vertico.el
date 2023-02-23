@@ -147,8 +147,6 @@ orderless."
   :preface
   (define-key!
     [remap bookmark-jump]                 #'consult-bookmark
-    [remap evil-show-marks]               #'consult-mark
-    [remap evil-show-registers]           #'consult-register
     [remap goto-line]                     #'consult-goto-line
     [remap imenu]                         #'consult-imenu
     [remap Info-search]                   #'consult-info

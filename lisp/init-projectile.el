@@ -504,8 +504,7 @@ If DIR is not a project, it will be indexed (but not cached)."
              ;; cache beyond reason.
              (setq projectile-enable-caching nil))
            (call-interactively
-            ;; Intentionally avoid `helm-projectile-find-file', because it runs
-            ;; asynchronously, and thus doesn't see the lexical
+            ;; because it runs asynchronously, and thus doesn't see the lexical
             ;; `default-directory'
             (if (bound-and-true-p ivy-mode)
                 #'counsel-projectile-find-file
