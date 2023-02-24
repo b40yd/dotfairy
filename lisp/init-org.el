@@ -547,7 +547,6 @@ prepended to the element after the #+HEADER: tag."
                                                "🐰" "🐱" "🐲" "🐳" "🐴" "🐵" "🐶" "🐷" "🐸" "🐹" "🐺" "🐻"
                                                "🐼" "𝍖" "🩠" "🩡" "🩢" "🩣" "🩤" "🩥" "🩦")
           org-superstar-leading-bullet ?\s
-          org-hide-leading-stars t
           org-superstar-item-bullet-alist
           '((?* . ?🞿)
             (?+ . ?⮚)
@@ -780,20 +779,6 @@ when exporting org-mode to '(html hugo md odt)."
         "@" #'org-mark-subtree
         "A" #'org-archive-subtree
         "b" #'org-switchb
-        "e" #'org-export-dispatch
-        "f" #'org-footnote-new
-        "h" #'org-toggle-heading
-        "i" #'org-toggle-item
-        "I" #'org-id-get-create
-        "n" #'org-store-link
-        "o" #'org-set-property
-        "q" #'org-set-tags-command
-        "t" #'org-todo
-        "T" #'org-todo-list
-        "x" #'org-toggle-checkbox
-        "S" #'org-tree-slide-mode
-        "m" #'org-tags-view
-        "v" #'org-display-inline-images
         (:prefix ("a" . "attachments")
          "a" #'org-attach
          "d" #'org-attach-delete-one
@@ -928,7 +913,22 @@ when exporting org-mode to '(html hugo md odt)."
           "H" #'org-table-hline-and-move)
          (:prefix ("t" . "toggle")
           "f" #'org-table-toggle-formula-debugger
-          "o" #'org-table-toggle-coordinate-overlays)))
+          "o" #'org-table-toggle-coordinate-overlays))
+        (:prefix ("x" . "toggle")
+         "e" #'org-export-dispatch
+         "f" #'org-footnote-new
+         "h" #'org-toggle-heading
+         "i" #'org-toggle-item
+         "I" #'org-id-get-create
+         "n" #'org-store-link
+         "o" #'org-set-property
+         "q" #'org-set-tags-command
+         "t" #'org-todo
+         "T" #'org-todo-list
+         "x" #'org-toggle-checkbox
+         "S" #'org-tree-slide-mode
+         "m" #'org-tags-view
+         "v" #'org-display-inline-images))
   (map! :after org-agenda
         :map org-agenda-mode-map
         :m "M-<return>" #'org-agenda-show-and-scroll-up
