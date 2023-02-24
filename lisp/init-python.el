@@ -109,38 +109,46 @@
     :hook (python-mode . python-black-on-save-mode))
 
   (use-package pyimport
-    :defer t)
+    :defer t
+    :init
+    (defun +python/optimize-imports ()
+      "organize imports"
+      (interactive)
+      (pyimport-remove-unused)
+      (py-isort-buffer))
+    (map! :after python
+          :map python-mode-map
+          :localleader
+          (:prefix ("i" . "imports")
+           :desc "Insert missing imports" "i" #'pyimport-insert-missing
+           :desc "Remove unused imports"  "R" #'pyimport-remove-unused
+           :desc "Optimize imports"       "o" #'+python/optimize-imports)))
 
   (use-package py-isort
-    :defer t)
+    :defer t
+    :init
+    (map! :after python
+          :map python-mode-map
+          :localleader
+          (:prefix ("i" . "imports")
+           :desc "Sort imports"      "s" #'py-isort-buffer
+           :desc "Sort region"       "r" #'py-isort-region)))
 
   (use-package python-pytest
     :custom
-    (python-pytest-confirm t))
-
-  (defun +python/optimize-imports ()
-    "organize imports"
-    (interactive)
-    (pyimport-remove-unused)
-    (py-isort-buffer))
-
-  (map! :localleader
-        :after python
-        :map python-mode-map
-        (:prefix ("i" . "imports")
-         :desc "Insert missing imports" "i" #'pyimport-insert-missing
-         :desc "Remove unused imports"  "r" #'pyimport-remove-unused
-         :desc "Optimize imports"       "o" #'+python/optimize-imports)
-        (:prefix ("i" . "imports")
-         :desc "Sort imports"      "s" #'py-isort-buffer
-         :desc "Sort region"       "r" #'py-isort-region)
-        (:prefix ("t" . "test")
-         "f" #'python-pytest-file-dwim
-         "F" #'python-pytest-file
-         "s" #'python-pytest-function-dwim
-         "S" #'python-pytest-function
-         "r" #'python-pytest-repeat
-         "p" #'python-pytest-dispatch)))
+    (python-pytest-confirm t)
+    :init
+    (map! :after python
+          :localleader
+          :map python-mode-map
+          :prefix ("t" . "test")
+          "a" #'python-pytest
+          "f" #'python-pytest-file-dwim
+          "F" #'python-pytest-file
+          "t" #'python-pytest-function-dwim
+          "T" #'python-pytest-function
+          "r" #'python-pytest-repeat
+          "p" #'python-pytest-dispatch)))
 
 (use-package pyvenv
   :after python
@@ -156,12 +164,6 @@
 
 (use-package pyenv-mode
   :after python
-  :autoload (+python-pyenv-mode-set-auto-h +python-pyenv-read-version-from-file)
-  :hook ((pyenv-mode . +python-pyenv-mode-set-auto-h)
-         (python-mode . (lambda ()
-                          (when (executable-find "pyenv")
-                            (pyenv-mode +1)
-                            (add-to-list 'exec-path (expand-file-name "shims" (or (getenv "PYENV_ROOT") "~/.pyenv")))))))
   :config
   ;;;###autoload
   (defvar +pyenv--version nil)
@@ -197,7 +199,12 @@
         (if (member version (pyenv-mode-versions))
             version  ;; return.
           (message "pyenv: version `%s' is not installed (set by `%s')."
-                   version file-path))))))
+                   version file-path)))))
+  (when (executable-find "pyenv")
+    (pyenv-mode +1)
+    (add-to-list 'exec-path (expand-file-name "shims" (or (getenv "PYENV_ROOT") "~/.pyenv"))))
+  (add-hook 'python-mode-local-vars-hook #'+python-pyenv-mode-set-auto-h)
+  (add-hook 'doom-switch-buffer-hook #'+python-pyenv-mode-set-auto-h))
 
 
 (use-package conda
@@ -256,6 +263,19 @@ executable and packages."
   :init
   (setq poetry-tracking-strategy 'switch-buffer)
   (add-hook 'python-mode-hook #'poetry-tracking-mode))
+
+(use-package cython-mode
+  :mode "\\.p\\(yx\\|x[di]\\)\\'"
+  :config
+  (setq cython-default-compile-format "cython -a %s")
+  (map! :map cython-mode-map
+        :localleader
+        :prefix "c"
+        :desc "Cython compile buffer"    "c" #'cython-compile))
+
+(use-package flycheck-cython
+  :after cython-mode)
+
 
 (provide 'init-python)
 ;;; init-python.el ends here
