@@ -31,7 +31,7 @@
 
 ;; Kill & Mark things easily
 (use-package easy-kill
-  :bind (([remap kill-ring-save] . easy-kill)
+  :bind (;;([remap kill-ring-save] . easy-kill)
          ([remap mark-sexp] . easy-mark)))
 
 ;; Interactively insert and edit items from kill-ring
