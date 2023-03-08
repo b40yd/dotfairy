@@ -30,6 +30,9 @@
 (use-package dired
   :ensure nil
   :config
+  ;; Guess a default target directory
+  (setq dired-dwim-target t)
+
   ;; Always delete and copy recursively
   (setq dired-auto-revert-buffer t  ; don't prompt to revert; just do it
         dired-dwim-target t  ; suggest a target for moving/copying intelligently
@@ -47,10 +50,6 @@
         image-dired-temp-rotate-image-file (concat image-dired-dir "temp-rotate-image")
         ;; Screens are larger nowadays, we can afford slightly larger thumbnails
         image-dired-thumb-size 150)
-
-  ;; Always delete and copy recursively
-  (setq dired-recursive-deletes 'always
-        dired-recursive-copies 'always)
 
   (when IS-MAC
     ;; Suppress the warning: `ls does not support --dired'.
