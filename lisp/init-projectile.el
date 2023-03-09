@@ -49,7 +49,7 @@ debian, and derivatives). On most it's 'fd'.")
         projectile-globally-ignored-files '(".DS_Store" "TAGS")
         projectile-globally-ignored-file-suffixes '(".elc" ".pyc" ".o" ".class")
         projectile-kill-buffers-filter 'kill-only-files
-        projectile-known-projects-file (concat dotfairy-cache-dir "projectile.projects"))
+        projectile-known-projects-file (expand-file-name "projectile.projects" dotfairy-cache-dir))
   (projectile-mode +1)
 
   :config

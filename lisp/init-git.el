@@ -33,11 +33,6 @@
   :bind
   (("C-x g" . magit-status))
   :config
-  (defun my-transient-file (file-name)
-    (concat dotfairy-local-dir (convert-standard-filename file-name)))
-  (setq transient-history-file (my-transient-file "transient/history.el")
-        transient-values-file (my-transient-file "transient/values.el")
-        transient-levels-file (my-transient-file "transient/levels.el"))
   (define-key magit-mode-map "q" #'+magit/quit)
   (define-key magit-mode-map "Q" #'+magit/quit-all)
   ;; modeline magit status update, But doing so isn't good for performance
@@ -370,6 +365,11 @@ ensure it is built when we actually use Forge."
     (transient-posframe-border ((t (:inherit posframe-border :background unspecified))))
     :hook (after-init . transient-posframe-mode)
     :init
+    (defun my-transient-file (file-name)
+      (expand-file-name (convert-standard-filename file-name) dotfairy-local-dir))
+    (setq transient-history-file (my-transient-file "transient/history.el")
+          transient-values-file (my-transient-file "transient/values.el")
+          transient-levels-file (my-transient-file "transient/levels.el"))
     (setq transient-posframe-border-width 3
           transient-posframe-min-height nil
           transient-posframe-min-width 80

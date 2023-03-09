@@ -431,7 +431,10 @@
     ;; Better sorting and filtering
     (use-package prescient
       :commands prescient-persist-mode
-      :init (prescient-persist-mode 1))
+      :init
+      (setq prescient-save-file
+            (expand-file-name "var/prescient-save.el" dotfairy-cache-dir))
+      (prescient-persist-mode 1))
 
     (use-package company-prescient
       :init (company-prescient-mode 1))
