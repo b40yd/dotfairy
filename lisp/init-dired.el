@@ -57,16 +57,13 @@
 
     (when (executable-find "gls")
       ;; Use GNU ls as `gls' from `coreutils' if available.
-      (setq insert-directory-program "gls")))
+      (setq insert-directory-program "gls")
+      ;; Using `insert-directory-program'
+      (setq ls-lisp-use-insert-directory-program t)))
 
-  (when (or (and IS-MAC (executable-find "gls"))
-            (and (not IS-MAC) (executable-find "ls")))
-    ;; Using `insert-directory-program'
-    (setq ls-lisp-use-insert-directory-program t)
-
-    ;; Show directory first
-    (unless IS-WINDOWS
-      (setq dired-listing-switches "-alh --group-directories-first")))
+  ;; Show directory first
+  (unless (and IS-MAC (not (executable-find "gls")))
+    (setq dired-listing-switches "-alh --group-directories-first"))
 
   ;; Quick sort dired buffers via hydra
   (use-package dired-quick-sort
