@@ -65,10 +65,10 @@
   (setq ibuffer-projectile-prefix
         (if (icons-displayable-p)
             (concat
-             (all-the-icons-octicon "file-directory"
+             (all-the-icons-octicon "repo"
                                     :face ibuffer-filter-group-name-face
                                     :v-adjust 0.0
-                                    :height 1.0)
+                                    :height 1.1)
              " ")
           "Project: ")))
 
