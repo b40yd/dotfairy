@@ -35,16 +35,16 @@
   (setq poetry-tracking-strategy 'switch-buffer)
   (add-hook 'python-mode-hook #'poetry-tracking-mode))
 
-(use-package pyvenv
-  :after python
-  :init
-  (add-hook 'pyvenv-post-activate-hooks #'+modeline-update-env-in-all-windows-h)
-  (add-hook 'pyvenv-pre-deactivate-hooks #'+modeline-clear-env-in-all-windows-h)
-  :config
-  (add-hook 'python-mode-local-vars-hook #'pyvenv-track-virtualenv)
-  (add-to-list 'global-mode-string
-               '(pyvenv-virtual-env-name (" venv:" pyvenv-virtual-env-name " "))
-               'append))
+;; (use-package pyvenv
+;;   :after python
+;;   :init
+;;   (add-hook 'pyvenv-post-activate-hooks #'+modeline-update-env-in-all-windows-h)
+;;   (add-hook 'pyvenv-pre-deactivate-hooks #'+modeline-clear-env-in-all-windows-h)
+;;   :config
+;;   (add-hook 'python-mode-local-vars-hook #'pyvenv-track-virtualenv)
+;;   (add-to-list 'global-mode-string
+;;                '(pyvenv-virtual-env-name (" venv:" pyvenv-virtual-env-name " "))
+;;                'append))
 
 
 (use-package pyenv-mode
@@ -92,56 +92,56 @@
   (add-hook 'doom-switch-buffer-hook #'+python-pyenv-mode-set-auto-h))
 
 
-(use-package conda
-  :after python
-  :commands (+python/set-conda-home)
-  :config
-  ;;;###autoload
-  (defun +python/set-conda-home ()
-    "Set `conda-anaconda-home' (ANACONDA_HOME).
-Usually it's `~/.anaconda3' on local machine, but it can be set to a remote
-directory using TRAMP syntax, e.g. `/ssh:host:/usr/bin/anaconda3'. This way, you
-can use a remote conda environment, including the corresponding remote python
-executable and packages."
-    (interactive)
-    (require 'conda)
-    (when-let (home (read-directory-name "Set conda home: " "~" nil nil conda-anaconda-home))
-      (setq conda-anaconda-home home)
-      (message "Successfully changed conda home to: %s" (abbreviate-file-name home))))
+;; (use-package conda
+;;   :after python
+;;   :commands (+python/set-conda-home)
+;;   :config
+;;   ;;;###autoload
+;;   (defun +python/set-conda-home ()
+;;     "Set `conda-anaconda-home' (ANACONDA_HOME).
+;; Usually it's `~/.anaconda3' on local machine, but it can be set to a remote
+;; directory using TRAMP syntax, e.g. `/ssh:host:/usr/bin/anaconda3'. This way, you
+;; can use a remote conda environment, including the corresponding remote python
+;; executable and packages."
+;;     (interactive)
+;;     (require 'conda)
+;;     (when-let (home (read-directory-name "Set conda home: " "~" nil nil conda-anaconda-home))
+;;       (setq conda-anaconda-home home)
+;;       (message "Successfully changed conda home to: %s" (abbreviate-file-name home))))
 
-  ;; The location of your anaconda home will be guessed from a list of common
-  ;; possibilities, starting with `conda-anaconda-home''s default value (which
-  ;; will consult a ANACONDA_HOME envvar, if it exists).
-  ;;
-  ;; If none of these work for you, `conda-anaconda-home' must be set
-  ;; explicitly. Afterwards, run M-x `conda-env-activate' to switch between
-  ;; environments
-  (or (cl-loop for dir in (list conda-anaconda-home
-                                "~/.anaconda"
-                                "~/.miniconda"
-                                "~/.miniconda3"
-                                "~/.miniforge3"
-                                "~/anaconda3"
-                                "~/miniconda3"
-                                "~/miniforge3"
-                                "~/opt/miniconda3"
-                                "/usr/bin/anaconda3"
-                                "/usr/local/anaconda3"
-                                "/usr/local/miniconda3"
-                                "/usr/local/Caskroom/miniconda/base"
-                                "~/.conda")
-               if (file-directory-p dir)
-               return (setq conda-anaconda-home (expand-file-name dir)
-                            conda-env-home-directory (expand-file-name dir)))
-      (message "Cannot find Anaconda installation"))
+;;   ;; The location of your anaconda home will be guessed from a list of common
+;;   ;; possibilities, starting with `conda-anaconda-home''s default value (which
+;;   ;; will consult a ANACONDA_HOME envvar, if it exists).
+;;   ;;
+;;   ;; If none of these work for you, `conda-anaconda-home' must be set
+;;   ;; explicitly. Afterwards, run M-x `conda-env-activate' to switch between
+;;   ;; environments
+;;   (or (cl-loop for dir in (list conda-anaconda-home
+;;                                 "~/.anaconda"
+;;                                 "~/.miniconda"
+;;                                 "~/.miniconda3"
+;;                                 "~/.miniforge3"
+;;                                 "~/anaconda3"
+;;                                 "~/miniconda3"
+;;                                 "~/miniforge3"
+;;                                 "~/opt/miniconda3"
+;;                                 "/usr/bin/anaconda3"
+;;                                 "/usr/local/anaconda3"
+;;                                 "/usr/local/miniconda3"
+;;                                 "/usr/local/Caskroom/miniconda/base"
+;;                                 "~/.conda")
+;;                if (file-directory-p dir)
+;;                return (setq conda-anaconda-home (expand-file-name dir)
+;;                             conda-env-home-directory (expand-file-name dir)))
+;;       (message "Cannot find Anaconda installation"))
 
-  ;; integration with term/eshell
-  (conda-env-initialize-interactive-shells)
-  (after! eshell (conda-env-initialize-eshell))
+;;   ;; integration with term/eshell
+;;   (conda-env-initialize-interactive-shells)
+;;   (after! eshell (conda-env-initialize-eshell))
 
-  (add-to-list 'global-mode-string
-               '(conda-env-current-name (" conda:" conda-env-current-name " "))
-               'append))
+;;   (add-to-list 'global-mode-string
+;;                '(conda-env-current-name (" conda:" conda-env-current-name " "))
+;;                'append))
 
 
 (use-package python
