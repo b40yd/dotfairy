@@ -290,14 +290,18 @@ orderless."
 (use-package embark
   :defer t
   :commands (+vertico/embark-export-write)
-  :bind (([remap describe-bindings] . embark-bindings)
-         ("C-c ;" . embark-act)
-         :map minibuffer-local-map
-         ("C-c ;" . embark-act)
-         ("C-c C-l" . embark-export)
-         ("C-c C-e" . +vertico/embark-export-write))
   :init
-  (setq prefix-help-command 'embark-prefix-help-command)
+  (setq which-key-use-C-h-commands nil
+        prefix-help-command 'embark-prefix-help-command)
+  (map! [remap describe-bindings] #'embark-bindings
+        "C-c ;"               #'embark-act  ; to be moved to :config default if accepted
+        (:map minibuffer-local-map
+         "C-c ;"               #'embark-act
+         "C-c C-;"           #'embark-export
+         "C-c C-l"           #'embark-collect
+         :desc "Export to writable buffer" "C-c C-e" #'+vertico/embark-export-write)
+        (:leader
+         :desc "Actions" "a" #'embark-act)) ; to be moved to :config default if accepted
   :config
   (require 'consult)
   (defadvice! +vertico--embark-which-key-prompt-a (fn &rest args)
