@@ -353,6 +353,14 @@ targets."
         cons
         '+vertico-embark-target-package-fn
         (nthcdr pos embark-target-finders)))
+  ;; export write
+  (use-package embark-consult
+    :ensure t
+    :after (embark consult)
+    :demand
+    :config
+    (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode))
+
   (defun +vertico/embark-export-write ()
     "Export the current vertico results to a writable buffer if possible.
 Supports exporting consult-grep to wgrep, file to wdeired, and consult-location to occur-edit"
@@ -369,6 +377,7 @@ Supports exporting consult-grep to wgrep, file to wdeired, and consult-location 
                 (x (user-error "embark category %S doesn't support writable export" x)))))
            (embark-after-export-hook `(,@embark-after-export-hook ,edit-command)))
       (embark-export)))
+
   (defun +vertico/embark-magit-status (file)
     "Run `magit-status` on repo containing the embark target."
     (interactive "GFile: ")
