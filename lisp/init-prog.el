@@ -165,6 +165,7 @@
 
 ;; Misc
 (use-package diffview)                  ; side-by-side diff view
+(use-package disk-usage)
 (use-package esup)                      ; Emacs startup profiler
 (use-package focus)                     ; Focus on the current region
 (use-package list-environment
