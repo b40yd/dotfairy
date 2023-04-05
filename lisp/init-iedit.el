@@ -63,11 +63,7 @@
   :diminish
   :hook (after-init . global-hungry-delete-mode))
 
-;; An all-in-one comment command to rule them all
-(use-package comment-dwim-2
-  :bind ([remap comment-dwim] . comment-dwim-2))
-
-;; ;; Drag stuff (lines, words, region, etc...) around
+;; Drag stuff (lines, words, region, etc...) around
 (use-package drag-stuff
   :diminish
   :autoload drag-stuff-define-keys
