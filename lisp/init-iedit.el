@@ -152,13 +152,18 @@
 (use-package delsel
   :hook (after-init . delete-selection-mode))
 
-(use-package undo-tree
-  :diminish
-  :hook (after-init . global-undo-tree-mode)
-  :init
-  (setq undo-tree-visualizer-timestamps t
-        undo-tree-enable-undo-in-region nil
-        undo-tree-auto-save-history nil))
+;; Treat undo history as a tree
+(if (>= emacs-major-version 28)
+    (use-package vundo
+      :bind ("C-x u" . vundo)
+      :config (setq vundo-glyph-alist vundo-unicode-symbols))
+  (use-package undo-tree
+    :diminish
+    :hook (after-init . global-undo-tree-mode)
+    :init (setq undo-tree-visualizer-timestamps t
+                undo-tree-visualizer-diff t
+                undo-tree-enable-undo-in-region nil
+                undo-tree-auto-save-history nil)))
 
 ;; Increase selected region by semantic units
 (use-package expand-region
