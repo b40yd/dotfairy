@@ -30,6 +30,7 @@
 ;;; Code:
 
 (use-package poetry
+  :defer t
   :ensure t
   :init
   (setq poetry-tracking-strategy 'switch-buffer)
@@ -48,6 +49,7 @@
 
 
 (use-package pyenv-mode
+  :defer t
   :after python
   :config
   ;;;###autoload

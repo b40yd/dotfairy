@@ -74,7 +74,8 @@
            lsp-eldoc-enable-hover nil
            lsp-signature-render-documentation nil
            lsp-headerline-breadcrumb-enable nil
-
+           lsp-log-io nil
+           lsp-idle-delay 0.500
            ;; For diagnostics
            lsp-diagnostics-disabled-modes '(markdown-mode gfm-mode)
 
