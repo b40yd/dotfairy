@@ -32,7 +32,7 @@
 (pcase dotfairy-lsp
   ('lsp-mode
    (use-package dap-mode
-     :ensure t
+     :disabled
      :defines dap-python-executable
      :diminish
      :bind (:map lsp-mode-map
