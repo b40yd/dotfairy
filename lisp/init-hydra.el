@@ -23,7 +23,7 @@
             (v-adjust (or v-adjust 0.0)))
         (concat
          (when (and (icons-displayable-p) icon-type icon-name)
-           (let ((f (intern (format "all-the-icons-%s" icon-type))))
+           (let ((f (intern (format "nerd-icons-%s" icon-type))))
              (when (fboundp f)
                (concat
                 (apply f (list icon-name :face face :height height :v-adjust v-adjust))
@@ -31,7 +31,7 @@
          (propertize title 'face face))))
 
     ;; Global toggles
-    (pretty-hydra-define toggles-hydra (:title (pretty-hydra-title "Toggles" 'faicon "toggle-on")
+    (pretty-hydra-define toggles-hydra (:title (pretty-hydra-title "Toggles" 'faicon "nf-fa-toggle_on")
                                         :color amaranth :quit-key "q")
       ("Basic"
        (("n" (cond ((fboundp 'display-line-numbers-mode)

@@ -145,9 +145,8 @@
 (defun icons-displayable-p ()
   "Return non-nil if `all-the-icons' is displayable."
   (and display-icon
-       (or (display-graphic-p) (daemonp))
-       (or (featurep 'all-the-icons)
-           (require 'all-the-icons nil t))))
+       (or (featurep 'nerd-icons)
+           (require 'nerd-icons nil t))))
 
 (defun make-custom-directory()
   "Create custom directory."
@@ -914,7 +913,7 @@ NEW-SESSION specifies whether to create a new xwidget-webkit session."
 (defun too-long-file-p ()
   "Check whether the file is too long."
   (if (fboundp 'buffer-line-statistics)
-      (> (car (buffer-line-statistics)) 3000)
+      (> (car (buffer-line-statistics)) 10000)
     (> (buffer-size) 100000)))
 
 (provide 'init-funcs)

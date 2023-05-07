@@ -99,7 +99,7 @@
   (with-eval-after-load 'wdired
     (bind-key "<C-return>" #'rect-hydra/body wdired-mode-map))
   :pretty-hydra
-  ((:title (pretty-hydra-title "Rectangle" 'material "border_all" :height 1.1 :v-adjust -0.225)
+  ((:title (pretty-hydra-title "Rectangle" 'mdicon "nf-md-border_all")
     :color amaranth :body-pre (rectangle-mark-mode) :post (deactivate-mark) :quit-key ("q" "C-g"))
    ("Move"
     (("h" backward-char "←")
@@ -186,7 +186,7 @@
          :map mc/keymap
          ("C-|" . mc/vertical-align-with-space))
   :pretty-hydra
-  ((:title (pretty-hydra-title "Multiple-Cursors" 'material "border_all" :height 1.1 :v-adjust -0.225)
+  ((:title (pretty-hydra-title "Multiple-Cursors" 'mdicon "nf-md-border_all")
     :color amaranth :quit-key ("q" "C-g"))
    ("Actions"
     (
@@ -357,7 +357,7 @@ The return value is the new value of LIST-VAR."
 ;; Jump to definition
 (use-package dumb-jump
   :pretty-hydra
-  ((:title (pretty-hydra-title "Dump Jump" 'faicon "anchor")
+  ((:title (pretty-hydra-title "Dump Jump" 'faicon "nf-fa-anchor")
     :color blue :quit-key ("q" "C-g"))
    ("Jump"
     (("j" dumb-jump-go "Go")
@@ -390,7 +390,7 @@ The return value is the new value of LIST-VAR."
   :ensure nil
   :diminish hs-minor-mode
   :pretty-hydra
-  ((:title (pretty-hydra-title "HideShow" 'octicon "fold" :height 1.1 :v-adjust -0.05)
+  ((:title (pretty-hydra-title "HideShow" 'octicon "nf-oct-fold")
     :color amaranth :quit-key ("q" "C-g"))
    ("Fold"
     (("t" hs-toggle-all "toggle all")

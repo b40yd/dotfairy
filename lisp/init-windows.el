@@ -135,7 +135,7 @@
 (use-package ace-window
   ;; :bind (("M-o" . 'ace-window))
   :pretty-hydra
-  ((:title (pretty-hydra-title "Window Management" 'faicon "windows")
+  ((:title (pretty-hydra-title "Window Management" 'faicon "nf-fa-th")
     :foreign-keys warn :quit-key ("q" "C-g"))
    ("Actions"
     (("TAB" other-window "switch")
@@ -221,13 +221,14 @@
 (when (>= emacs-major-version 26)
   (use-package popper
     :defines popper-echo-dispatch-actions
-    :autoload popper-group-by-projectile
+    :autoload popper-group-by-directory
     :bind (:map popper-mode-map
            ("C-h z" . popper-toggle-latest)
            ("C-<tab>"   . popper-cycle)
            ("C-M-<tab>" . popper-toggle-type))
     :hook (after-init . popper-mode)
     :init
+    (setq popper-group-function #'popper-group-by-directory)
     (setq popper-reference-buffers
           '("\\*Messages\\*"
             "Output\\*$" "\\*Pp Eval Output\\*$"
@@ -275,7 +276,6 @@
             "\\*quickrun\\*$"
             "\\*tldr\\*$"
             "\\*vc-.*\\*$"
-            "^\\*elfeed-entry\\*$"
             "^\\*macro expansion\\**"
 
             "\\*Agenda Commands\\*" "\\*Org Agenda.*\\*"
@@ -285,8 +285,7 @@
             "\\*prolog\\*" inferior-python-mode inf-ruby-mode swift-repl-mode
             "\\*rustfmt\\*$" rustic-compilation-mode rustic-cargo-clippy-mode
             rustic-cargo-outdated-mode rustic-cargo-run-mode rustic-cargo-test-mode))
-    (with-eval-after-load 'projectile
-      (setq popper-group-function #'popper-group-by-projectile))
+    
     (with-eval-after-load 'doom-modeline
       (setq popper-mode-line
             '(:eval (let ((face (if (doom-modeline--active)
@@ -294,12 +293,7 @@
                                   'mode-line-inactive)))
                       (if (and (icons-displayable-p)
                                (bound-and-true-p doom-modeline-mode))
-                          (format " %s "
-                                  (all-the-icons-octicon
-                                   "pin"
-                                   :height 0.9
-                                   :v-adjust 0.0
-                                   :face face))
+                          (format " %s " (nerd-icons-octicon "nf-oct-pin" :face face))
                         (propertize " POP" 'face face))))))
     (setq popper-echo-dispatch-actions t)
     :config

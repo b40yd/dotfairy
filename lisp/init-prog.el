@@ -116,17 +116,7 @@
   :init (setq rg-group-result t
               rg-show-columns t)
   :config
-  (cl-pushnew '("tmpl" . "*.tmpl") rg-custom-type-aliases)
-
-  (with-eval-after-load 'projectile
-    (defalias 'projectile-ripgrep #'rg-project)
-    (bind-key "s R" #'rg-project projectile-command-map))
-
-  (with-eval-after-load 'counsel
-    (bind-keys
-     :map rg-global-map
-     ("R" . counsel-rg)
-     ("F" . counsel-fzf))))
+  (cl-pushnew '("tmpl" . "*.tmpl") rg-custom-type-aliases))
 
 ;; Search tool
 (use-package grep
@@ -171,7 +161,7 @@
 (use-package list-environment
   :hook (list-environment-mode . (lambda ()
                                    (setq tabulated-list-format
-                                         (vconcat `(("" ,(if (icon-displayable-p) 2 0)))
+                                         (vconcat `(("" ,(if (icons-displayable-p) 2 0)))
                                                   tabulated-list-format))
                                    (tabulated-list-init-header)))
   :init
@@ -183,8 +173,8 @@
                        (key (car kv))
                        (val (mapconcat #'identity (cdr kv) "=")))
                   (list key (vector
-                             (if (icon-displayable-p)
-                                 (all-the-icons-octicon "key" :height 0.8 :v-adjust -0.05)
+                             (if (icons-displayable-p)
+                                 (nerd-icons-octicon "key" :height 0.8 :v-adjust -0.05)
                                "")
                              `(,key face font-lock-keyword-face)
                              `(,val face font-lock-string-face)))))

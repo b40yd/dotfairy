@@ -144,6 +144,9 @@
   (setq read-extended-command-predicate
         #'command-completion-default-include-p))
 
+;; need install all-the-icons fonts
+(use-package nerd-icons)
+
 ;; Start server
 (use-package server
   :ensure nil
@@ -228,9 +231,7 @@
                       (icon (if (icons-displayable-p)
                                 (concat
                                  " "
-                                 (all-the-icons-faicon "bolt"
-                                                       :height 1.0 :v-adjust -0.05
-                                                       :face 'all-the-icons-lblue))
+                                 (nerd-icons-faicon "nf-fa-bolt" :face 'nerd-icons-lblue))
                               " x"))
                       (name (aref val 0))
                       (pid (aref val 1))

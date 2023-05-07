@@ -29,6 +29,16 @@
 ;; Highlight symbols
 (use-package symbol-overlay
   :diminish
+  :custom-face
+  (symbol-overlay-default-face ((t (:inherit region :background unspecified :foreground unspecified))))
+  (symbol-overlay-face-1 ((t (:inherit nerd-icons-blue :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-2 ((t (:inherit nerd-icons-pink :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-3 ((t (:inherit nerd-icons-yellow :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-4 ((t (:inherit nerd-icons-orange :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-5 ((t (:inherit nerd-icons-red :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-6 ((t (:inherit nerd-icons-purple :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-7 ((t (:inherit nerd-icons-green :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-8 ((t (:inherit nerd-icons-cyan :background unspecified :foreground unspecified :inverse-video t))))
   :hook (((prog-mode yaml-mode) . symbol-overlay-mode)
          (iedit-mode . turn-off-symbol-overlay)
          (iedit-mode-end . turn-on-symbol-overlay))
@@ -290,8 +300,9 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
         ivy-height 12
         ivy-fixed-height-minibuffer t
         ivy-count-format "(%d/%d) "
-        ivy-ignore-buffers '("\\` " "\\`\\*tramp/" "\\`\\*xref" "\\`\\*helpful "
-                             "\\`\\*.+-posframe-buffer\\*" "\\` ?\\*company-.+\\*")
+        ivy-ignore-buffers '("\\` " "\\`\\*tramp/" "\\`\\*xref" "\\`\\*helpful .+\\*"
+                             "\\`\\*.+-posframe-buffer\\*" "\\` ?\\*company-.+\\*"
+                             "\\`flycheck_.+")
         ivy-on-del-error-function #'ignore
         ivy-initial-inputs-alist nil)
   ;; Use orderless regex strategy
@@ -807,19 +818,11 @@ The point of this is to avoid Emacs locking up indexing massive file trees."
   (ivy-set-display-transformer #'counsel-projectile-find-file nil)
   (setq counsel-projectile-sort-files t))
 
-;; Better experience with icons
-;; Enable it before`ivy-rich-mode' for better performance
-(use-package all-the-icons-ivy-rich
-  :if (icons-displayable-p)
-  :config
-  ;; Fixd Windows icons
-  (setq all-the-icons-ivy-rich-icon-size 0.8)
-  :hook (ivy-mode . all-the-icons-ivy-rich-mode))
-
 ;; More friendly display transformer for Ivy
-(use-package ivy-rich
-  :hook (;; Must load after `counsel-projectile'
-         (counsel-projectile-mode . ivy-rich-mode)
+;; Enable before`ivy-rich-mode' for better performance
+(use-package nerd-icons-ivy-rich
+  :hook ((ivy-mode      . nerd-icons-ivy-rich-mode)
+         (counsel-mode  . ivy-rich-mode)
          (ivy-rich-mode . ivy-rich-project-root-cache-mode)
          (ivy-rich-mode . (lambda ()
                             "Use abbreviate in `ivy-rich-mode'."
@@ -827,7 +830,16 @@ The point of this is to avoid Emacs locking up indexing massive file trees."
                                   (or (and ivy-rich-mode 'abbreviate) 'name)))))
   :init
   ;; For better performance
-  (setq ivy-rich-parse-remote-buffer nil))
+  (setq ivy-rich-parse-remote-buffer nil)
+  (setq nerd-icons-ivy-rich-icon t)
+  :config
+  (plist-put nerd-icons-ivy-rich-display-transformers-list
+             'centaur-load-theme
+             '(:columns
+               ((nerd-icons-ivy-rich-theme-icon)
+                (ivy-rich-candidate))
+               :delimiter "\t"))
+  (nerd-icons-ivy-rich-reload))
 
 ;; Display completion in child frame
 (when (childframe-completion-workable-p)

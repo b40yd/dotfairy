@@ -116,8 +116,9 @@
 
   ;; Enable customized theme
   ;; FIXME https://github.com/emacs-lsp/lsp-treemacs/issues/89
-  (with-eval-after-load 'lsp-treemacs
-    (doom-themes-treemacs-config))
+  (when (featurep 'all-the-icons)
+    (with-eval-after-load 'lsp-treemacs
+      (doom-themes-treemacs-config)))
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 
@@ -155,7 +156,7 @@
   :bind (:map doom-modeline-mode-map
          ("<f6>" . doom-modeline-hydra/body))
   :pretty-hydra
-  ((:title (pretty-hydra-title "Mode Line" 'fileicon "emacs" :face 'all-the-icons-purple :v-adjust -0.1)
+  ((:title (pretty-hydra-title "Mode Line" 'sucicon "nf-custom-emacs" :face 'nerd-icons-purple)
     :color amaranth :quit-key ("q" "C-g"))
    ("Icon"
     (("i" (setq doom-modeline-icon (not doom-modeline-icon))
@@ -301,17 +302,6 @@
   ;; Display time
   (display-time-mode 1))
 
-;; need install all-the-icons fonts
-;; web site https://github.com/domtronn/all-the-icons.el
-(use-package all-the-icons
-  :custom (all-the-icons-scale-factor 1.1)
-  :commands (all-the-icons-octicon
-             all-the-icons-faicon
-             all-the-icons-fileicon
-             all-the-icons-wicon
-             all-the-icons-material
-             all-the-icons-alltheicon))
-
 ;; Show line numbers
 (use-package display-line-numbers
   :ensure nil
@@ -375,6 +365,14 @@ See `display-line-numbers' for what these values mean."
                               ;; Enable `page-break-lines-mode'
                               (when (fboundp 'page-break-lines-mode)
                                 (page-break-lines-mode 1))))
+    :functions (nerd-icons-faicon
+                nerd-icons-mdicon
+                winner-undo
+                widget-forward)
+    :custom-face
+    (dashboard-heading ((t (:inherit (font-lock-string-face bold)))))
+    (dashboard-items-face ((t (:weight normal))))
+    (dashboard-no-items-face ((t (:weight normal))))
     :config
     (setq dashboard-startup-banner (or dotfairy-logo 'official)
           dashboard-set-heading-icons t
@@ -382,18 +380,21 @@ See `display-line-numbers' for what these values mean."
           dashboard-set-file-icons t
           dashboard-set-footer t
           dashboard-set-navigator t
-          dashboard-footer-icon (cond ((icons-displayable-p)
-                                       (all-the-icons-faicon "heart"
-                                                             :height 1.1
-                                                             :v-adjust -0.05
-                                                             :face 'error))
-                                      ((char-displayable-p ?🧡) "🧡 ")
-                                      (t (propertize ">" 'face 'dashboard-footer)))
-          dashboard-heading-icons '((recents   . "history")
-                                    (bookmarks . "bookmark")
-                                    (agenda    . "calendar")
-                                    (projects  . "briefcase")
-                                    (registers . "database"))
+          dashboard-projects-backend 'project-el
+          dashboard-path-style 'truncate-middle
+          dashboard-path-max-length 60
+          dashboard-display-icons-p #'icons-displayable-p
+          dashboard-icon-type 'nerd-icons
+          dashboard-heading-icons '((recents   . "nf-oct-history")
+                                    (bookmarks . "nf-oct-bookmark")
+                                    (agenda    . "nf-oct-calendar")
+                                    (projects  . "nf-oct-briefcase")
+                                    (registers . "nf-oct-database"))
+          dashboard-footer-icon (cond
+                                 ((icons-displayable-p)
+                                  (nerd-icons-octicon "nf-oct-heart" :height 1.2 :face 'nerd-icons-lred))
+
+                                 (t (propertize ">" 'face 'dashboard-footer)))
           dashboard-items '((recents . 10)
                             (projects . 10)))))
 

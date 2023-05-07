@@ -32,11 +32,10 @@
   :init (setq ibuffer-filter-group-name-face '(:inherit (font-lock-string-face bold)))
   :config
   ;; Display icons for buffers
-  (use-package all-the-icons-ibuffer
-    :hook (ibuffer-mode . all-the-icons-ibuffer-mode)
-    :init
-    (setq all-the-icons-ibuffer-icon t))
-
+  (use-package nerd-icons-ibuffer
+    :hook (ibuffer-mode . nerd-icons-ibuffer-mode)
+    :init (setq nerd-icons-ibuffer-icon t))
+  
   ;; Use human readable Size column instead of original one
   (define-ibuffer-column size
     (:name "Size" :inline t :header-mouse-map ibuffer-size-header-map)
@@ -55,22 +54,15 @@
       (advice-add #'ibuffer-find-file :override #'my-ibuffer-find-file))))
 
 ;; Group ibuffer's list by project root
-(use-package ibuffer-projectile
-  :functions all-the-icons-octicon ibuffer-do-sort-by-alphabetic
-  :hook ((ibuffer . (lambda ()
-                      (ibuffer-projectile-set-filter-groups)
-                      (unless (eq ibuffer-sorting-mode 'alphabetic)
-                        (ibuffer-do-sort-by-alphabetic)))))
+(use-package ibuffer-project
+  :hook (ibuffer . (lambda ()
+                     (setq ibuffer-filter-groups (ibuffer-project-generate-filter-groups))
+                     (unless (eq ibuffer-sorting-mode 'project-file-relative)
+                       (ibuffer-do-sort-by-project-file-relative))))
+  :init (setq ibuffer-project-use-cache t)
   :config
-  (setq ibuffer-projectile-prefix
-        (if (icons-displayable-p)
-            (concat
-             (all-the-icons-octicon "repo"
-                                    :face ibuffer-filter-group-name-face
-                                    :v-adjust 0.0
-                                    :height 1.1)
-             " ")
-          "Project: ")))
+  (add-to-list 'ibuffer-project-root-functions '(file-remote-p . "Remote"))
+  (add-to-list 'ibuffer-project-root-functions '("\\*.+\\*" . "Default")))
 
 ;; Group ibuffer's list by vc root
 ;; (use-package ibuffer-vc
