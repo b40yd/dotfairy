@@ -144,7 +144,7 @@
   (setq read-extended-command-predicate
         #'command-completion-default-include-p))
 
-;; need install all-the-icons fonts
+;; need install nerd-icons fonts
 (use-package nerd-icons)
 
 ;; Start server
