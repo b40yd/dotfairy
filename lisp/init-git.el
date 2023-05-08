@@ -115,6 +115,7 @@ kill all magit buffers for this repo."
                   ("State" 6 t nil state nil)
                   ("Updated" 10 t nill updated nil)))
     :config
+    (require 'emacsql-sqlite)
     (setq forge-database-file (concat dotfairy-cache-dir "forge/forge-database.sqlite"))
 
     (defadvice! +magit--forge-get-repository-lazily-a (&rest _)
