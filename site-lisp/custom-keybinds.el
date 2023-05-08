@@ -163,8 +163,7 @@
    :desc "Kill Emacs (and daemon)"      "K" #'save-buffers-kill-emacs
    :desc "Quit Emacs"                   "q" #'kill-emacs
    :desc "Save and quit Emacs"          "Q" #'save-buffers-kill-terminal
-   :desc "Restart & restore Emacs"      "r" #'dotfairy/restart-and-restore
-   :desc "Restart Emacs"                "R" #'dotfairy/restart)
+   )
 
   ;;; <leader> & --- snippets
   (:prefix-map ("&" . "snippets")
