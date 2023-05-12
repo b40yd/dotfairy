@@ -174,17 +174,7 @@
                                     persp nil nil)))
             persp)))
       (advice-add #'persp-mode-project-bridge-add-new-persp
-                  :override #'my-persp-mode-project-bridge-add-new-persp)
-
-      ;; HACK: Switch to buffer after switching perspective
-      (defun my-persp-mode-project-bridge-hook-switch (fn &rest _args)
-        "Switch to a perspective when hook is activated."
-        (let ((buf (current-buffer)))
-          (funcall fn)
-          (when (buffer-live-p buf)
-            (switch-to-buffer buf))))
-      (advice-add #'persp-mode-project-bridge-hook-switch
-                  :around #'my-persp-mode-project-bridge-hook-switch))))
+                  :override #'my-persp-mode-project-bridge-add-new-persp))))
 
 (provide 'init-persp)
 ;;; init-persp.el ends here

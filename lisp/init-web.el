@@ -43,15 +43,9 @@
 
 (use-package js-mode
   :ensure nil
-  :defines (js-indent-level flycheck-javascript-eslint-executable)
+  :defines js-indent-level
   :config
-  (setq js-indent-level 2)
-
-  (with-eval-after-load 'flycheck
-    ;; https://github.com/mantoni/eslint_d.js
-    ;; Install: npm -i -g eslint_d
-    (when (executable-find "eslint_d")
-      (setq flycheck-javascript-eslint-executable "eslint_d"))))
+  (setq js-indent-level 2))
 
 ;; JavaScript
 (use-package js2-mode
@@ -94,14 +88,7 @@
                                                 ("Infinity" . ?∞))))))
   :config
   ;; Use default keybindings for lsp
-  (unbind-key "M-." js2-mode-map)
-
-  (with-eval-after-load 'flycheck
-    (when (or (executable-find "eslint_d")
-              (executable-find "eslint")
-              (executable-find "jshint"))
-      (setq js2-mode-show-strict-warnings nil
-            js2-mode-show-parse-errors nil))))
+  (unbind-key "M-." js2-mode-map))
 
 ;; Format HTML, CSS and JavaScript/JSON
 ;; Install: npm -g install prettier

@@ -88,7 +88,7 @@
 (require 'init-lsp)
 
 ;; Checking
-(require 'init-flycheck)
+(require 'init-flymake)
 
 ;; Debugger
 (require 'init-debugger)
