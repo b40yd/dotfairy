@@ -67,6 +67,8 @@
   (when (featurep 'ns)
     (push '(ns-transparent-titlebar . t) default-frame-alist)))
 
+;; need install nerd-icons fonts
+(use-package nerd-icons :demand t)
 
 (use-package time
   :ensure nil
