@@ -25,8 +25,8 @@
 ;;; Code:
 (use-package flymake
   :hook (prog-mode . flymake-mode)
-  :init (setq flymake-fringe-indicator-position 'right-fringe)
-  :config (add-to-list 'elisp-flymake-byte-compile-load-path load-path))
+  :init (setq flymake-fringe-indicator-position 'right-fringe
+              elisp-flymake-byte-compile-load-path load-path))
 
 (use-package flymake-diagnostic-at-point
   :commands flymake-diagnostic-at-point-mode
