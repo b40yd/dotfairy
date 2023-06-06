@@ -1,8 +1,8 @@
 ;;; init-ssh.el --- A SSH manager remote servers  tools -*- lexical-binding: t -*-
 
-;; Copyright © 2021, 7ym0n, all rights reserved.
+;; Copyright © 2020-2024 b40yd
 
-;; Author: 7ym0n <bb.qnyd@gmail.com>
+;; Author: b40yd <bb.qnyd@gmail.com>
 ;; Keywords: ssh, tools
 ;; URL: https://github.com/7ym0n/dotfairy-ssh-manager
 ;; Version: 0.1.0

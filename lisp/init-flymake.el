@@ -1,6 +1,6 @@
 ;;; init-flymake.el ---                                   -*- lexical-binding: t; -*-
 
-;; Copyright © 2023, b40yd, all rights reserved.
+;; Copyright © 2020-2024 b40yd
 
 ;; Author: b40yd <bb.qnyd@gmail.com>
 ;; Keywords:
