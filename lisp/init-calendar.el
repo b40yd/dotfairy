@@ -1,8 +1,8 @@
 ;;; init-calendar.el ---                                   -*- lexical-binding: t; -*-
 
-;; Copyright © 2021, 7ym0n.q6e, all rights reserved.
+;; Copyright © 2020-2024 b40yd
 
-;; Author: 7ym0n.q6e <bb.qnyd@gmail.com>
+;; Author: b40yd <bb.qnyd@gmail.com>
 ;; Keywords:
 
 ;; This program is free software; you can redistribute it and/or modify
