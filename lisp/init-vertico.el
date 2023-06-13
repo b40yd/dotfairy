@@ -188,7 +188,6 @@ orderless."
 
 
   (autoload 'consult--multi "consult")
-  :config
   (defvar +vertico-consult-fd-args nil
     "Shell command and arguments the vertico module uses for fd.")
 

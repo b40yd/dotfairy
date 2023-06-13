@@ -127,8 +127,10 @@
 
 ;; Mode-line
 (use-package doom-modeline
-  :hook (after-init . doom-modeline-mode)
   :autoload (+modeline-update-env-in-all-windows-h +modeline-clear-env-in-all-windows-h)
+  :bind (:map doom-modeline-mode-map
+         ("<f6>" . doom-modeline-hydra/body))
+  :hook (after-init . doom-modeline-mode)
   :init
   (setq doom-modeline-icon display-icon
         doom-modeline-height 1
@@ -155,8 +157,6 @@
               (bound-and-true-p doom-modeline-load-string))))
     (force-mode-line-update t))
 
-  :bind (:map doom-modeline-mode-map
-         ("<f6>" . doom-modeline-hydra/body))
   :pretty-hydra
   ((:title (pretty-hydra-title "Mode Line" 'sucicon "nf-custom-emacs" :face 'nerd-icons-purple)
     :color amaranth :quit-key ("q" "C-g"))
@@ -358,9 +358,7 @@ See `display-line-numbers' for what these values mean."
 
 (when dotfairy-dashboard
   (use-package dashboard
-    :ensure t
-    :init
-    (dashboard-setup-startup-hook)
+    :diminish dashboard-mode
     :hook (dashboard-mode . (lambda ()
                               ;; No title
                               (setq-local frame-title-format nil)
@@ -375,6 +373,8 @@ See `display-line-numbers' for what these values mean."
     (dashboard-heading ((t (:inherit (font-lock-string-face bold)))))
     (dashboard-items-face ((t (:weight normal))))
     (dashboard-no-items-face ((t (:weight normal))))
+    :init
+    (dashboard-setup-startup-hook)
     :config
     (setq dashboard-startup-banner (or dotfairy-logo 'official)
           dashboard-set-heading-icons t
