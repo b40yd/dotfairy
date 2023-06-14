@@ -279,7 +279,7 @@ FACE defaults to inheriting from default and highlight."
     (advice-add #'show-paren-function :after #'show-paren-off-screen)))
 
 ;; Pulse modified region
-(if (>= emacs-major-version 27)
+(if emacs/27
     (use-package goggles
       :diminish
       :hook ((prog-mode text-mode) . goggles-mode))

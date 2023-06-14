@@ -30,6 +30,11 @@
 (defconst IS-WINDOWS (memq system-type '(cygwin windows-nt ms-dos)))
 (defconst IS-BSD     (or IS-MAC (eq system-type 'berkeley-unix)))
 
+(defconst emacs/26 (>= emacs-major-version 26))
+(defconst emacs/27 (>= emacs-major-version 27))
+(defconst emacs/28 (>= emacs-major-version 28))
+(defconst emacs/29 (>= emacs-major-version 29))
+
 ;;; Directories/files
 (defconst dotfairy-emacs-dir
   (eval-when-compile (file-truename user-emacs-directory))

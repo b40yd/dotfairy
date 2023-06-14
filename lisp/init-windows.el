@@ -218,7 +218,7 @@
                 (aw--select-window (1+ n))))))
 
 ;; Enforce rules for popups
-(when (>= emacs-major-version 26)
+(when emacs/26
   (use-package popper
     :defines popper-echo-dispatch-actions
     :autoload popper-group-by-directory

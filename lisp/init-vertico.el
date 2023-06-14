@@ -254,13 +254,13 @@ orderless."
   :config
   (defun +vertico--consult-dir-docker-hosts ()
     "Get a list of hosts from docker."
-    (when (if (>= emacs-major-version 29)
+    (when (if emacs/29
               (require 'tramp-container nil t)
             (setq-local docker-tramp-use-names t)
             (require 'docker-tramp nil t))
       (let ((hosts)
             (docker-query-fn #'docker-tramp--parse-running-containers))
-        (when (>= emacs-major-version 29)
+        (when emacs/29
           (setq docker-query-fn #'tramp-docker--completion-function))
         (dolist (cand (funcall docker-query-fn))
           (let ((user (unless (string-empty-p (car cand))

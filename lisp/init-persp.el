@@ -148,7 +148,7 @@
    :save-vars '(major-mode default-directory)))
 
 ;; Projectile integration
-(when (>= emacs-major-version 27)
+(when emacs/27
   (use-package persp-mode-project-bridge
     :autoload (persp-mode-project-bridge-find-perspectives-for-all-buffers
                persp-mode-project-bridge-kill-perspectives)

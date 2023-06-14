@@ -243,7 +243,7 @@ Install the doc if it's not installed."
   :ensure nil
   :init
   (with-no-warnings
-    (when (>= emacs-major-version 28)
+    (when emacs/28
       (cond
        ((executable-find "ugrep")
         (add-to-list 'xref-search-program-alist
@@ -253,14 +253,14 @@ Install the doc if it's not installed."
         (setq xref-search-program 'ripgrep))))
 
     ;; Select from xref candidates with Ivy
-    (if (>= emacs-major-version 28)
+    (if emacs/28
         (setq xref-show-xrefs-function #'xref-show-definitions-completing-read
               xref-show-definitions-function #'xref-show-definitions-completing-read)
       (use-package ivy-xref
         :when (featurep 'ivy)
         :after ivy
         :init
-        (when (>= emacs-major-version 27)
+        (when emacs/27
           (setq xref-show-definitions-function #'ivy-xref-show-defs))
         (setq xref-show-xrefs-function #'ivy-xref-show-xrefs)))))
 

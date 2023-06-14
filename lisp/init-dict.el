@@ -26,7 +26,7 @@
 (require 'init-keybinds)
 
 ;; A multi dictionaries interface
-(when (>= emacs-major-version 27)
+(when emacs/27
   (use-package fanyi
     :init
     (map! :leader

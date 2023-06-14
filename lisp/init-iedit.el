@@ -47,7 +47,7 @@
            ([remap flyspell-correct-word-before-point] . flyspell-correct-wrapper))
     :init (setq flyspell-correct-interface #'flyspell-correct-ivy)))
 
-(when (>= emacs-major-version 27)
+(when emacs/27
   (use-package so-long
     :ensure nil
     :hook (after-init . global-so-long-mode)))
@@ -153,7 +153,7 @@
   :hook (after-init . delete-selection-mode))
 
 ;; Treat undo history as a tree
-(if (>= emacs-major-version 28)
+(if emacs/27
     (use-package vundo
       :bind ("C-x u" . vundo)
       :config (setq vundo-glyph-alist vundo-unicode-symbols))

@@ -636,7 +636,7 @@ prepended to the element after the #+HEADER: tag."
     (setq org-plantuml-jar-path plantuml-jar-path))
 
   ;; ob-sh renamed to ob-shell since 26.1.
-  (if (>= emacs-major-version 26)
+  (if emacs/26
       (cl-pushnew '(shell . t) load-language-list)
     (cl-pushnew '(sh . t) load-language-list))
 

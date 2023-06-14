@@ -60,7 +60,7 @@
 ;; Disable tool, menu, and scrollbars. Doom is designed to be keyboard-centric,
 ;; so these are just clutter (the scrollbar also impacts performance). Whats
 ;; more, the menu bar exposes functionality that Doom doesn't endorse.
-(unless (>= emacs-major-version 27)
+(unless emacs/27
   (push '(menu-bar-lines . 0) default-frame-alist)
   (push '(tool-bar-lines . 0) default-frame-alist)
   (push '(vertical-scroll-bars) default-frame-alist)
@@ -415,7 +415,7 @@ See `display-line-numbers' for what these values mean."
 ;; Good pixel line scrolling
 (if (fboundp 'pixel-scroll-precision-mode)
     (pixel-scroll-precision-mode t)
-  (when (and (>= emacs-major-version 27) (not (eq system-type 'darwin)))
+  (when (and emacs/27 (not (eq system-type 'darwin)))
     (use-package good-scroll
       :diminish
       :hook (after-init . good-scroll-mode)
@@ -423,7 +423,7 @@ See `display-line-numbers' for what these values mean."
              ([remap prior] . good-scroll-down-full-screen)))))
 
 ;; Smooth scrolling over images
-(when (>= emacs-major-version 26)
+(when emacs/26
   (use-package iscroll
     :diminish
     :hook (image-mode . iscroll-mode)))
@@ -477,7 +477,7 @@ See `display-line-numbers' for what these values mean."
                  2))))))
 
 ;; Ligatures support
-(when (and (>= emacs-major-version 28) (not dotfairy-prettify-symbols-alist))
+(when (and emacs/28 (not dotfairy-prettify-symbols-alist))
   (use-package composite
     :ensure nil
     :init (defvar composition-ligature-table (make-char-table nil))
