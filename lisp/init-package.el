@@ -108,9 +108,24 @@
 ;; A modern Packages Menu
 (use-package paradox
   :hook (emacs-startup . paradox-enable)
+  :custom-face
+  (paradox-archive-face ((t (:inherit font-lock-doc-face))))
+  (paradox-description-face ((t (:inherit completions-annotations))))
   :init (setq paradox-execute-asynchronously t
               paradox-github-token t
-              paradox-display-star-count nil)
+              paradox-display-star-count nil
+              paradox-status-face-alist ;
+              '(("built-in"   . font-lock-builtin-face)
+                ("available"  . success)
+                ("new"        . (success bold))
+                ("held"       . font-lock-constant-face)
+                ("disabled"   . font-lock-warning-face)
+                ("avail-obso" . font-lock-comment-face)
+                ("installed"  . font-lock-comment-face)
+                ("dependency" . font-lock-comment-face)
+                ("incompat"   . font-lock-comment-face)
+                ("deleted"    . font-lock-comment-face)
+                ("unsigned"   . font-lock-warning-face)))
   :config
   (add-hook 'paradox-after-execute-functions
             (lambda (_)

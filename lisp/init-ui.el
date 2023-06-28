@@ -84,9 +84,6 @@
 ;;     doom-one-light
 ;;     doom-dark+
 (use-package doom-themes
-  :custom-face
-  (doom-modeline-buffer-file ((t (:inherit (mode-line bold)))))
-  ;; :custom (doom-themes-treemacs-theme "doom-colors")
   :init
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
