@@ -142,8 +142,7 @@ See `dotfairy/next-preproc-directive' for details."
 
 (use-package c-ts-mode
   :ensure nil
-  :when (and (fboundp 'treesit-available-p)
-             (treesit-available-p))
+  :when dotfairy-tree-sitter
   :init (setq c-ts-mode-indent-offset 4))
 
 (provide 'init-clang)

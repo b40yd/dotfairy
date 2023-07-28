@@ -276,10 +276,12 @@ Install the doc if it's not installed."
   :hook (after-init . bmx-mode-setup-defaults))
 
 ;; Tree-sitter
-(when dotfairy-tree-sitter
-  (use-package treesit-auto
-    :hook (after-init . global-treesit-auto-mode)
-    :init (setq treesit-auto-install 'prompt)))
+;; (when dotfairy-tree-sitter
+;;   (use-package treesit-auto
+;;     :demand t
+;;     :hook (after-init . global-treesit-auto-mode)
+;;     :init
+;;     (setq treesit-auto-install 'prompt)))
 
 (provide 'init-prog)
 ;;; init-prog.el ends here

@@ -67,9 +67,6 @@
   (when (featurep 'ns)
     (push '(ns-transparent-titlebar . t) default-frame-alist)))
 
-;; need install nerd-icons fonts
-(use-package nerd-icons :demand t)
-
 (use-package time
   :ensure nil
   :init (setq display-time-24hr-format t
@@ -444,34 +441,6 @@ See `display-line-numbers' for what these values mean."
           ;; empty ;blank lines at BOB or EOB
           ;; highlight spaces/tabs at BOL depending on `indent-tabs-mode'
           indentation)))
-
-;; Child frame
-(when (childframe-completion-workable-p)
-  (use-package posframe
-    :hook (after-load-theme . posframe-delete-all)
-    :init
-    (defface posframe-border
-      `((t (:inherit region)))
-      "Face used by the `posframe' border."
-      :group 'posframe)
-
-    (with-eval-after-load 'persp-mode
-      (add-hook 'persp-load-buffer-functions
-                (lambda (&rest _)
-                  (posframe-delete-all))))
-    :config
-    (with-no-warnings
-      (defun my-posframe--prettify-frame (&rest _)
-        (set-face-background 'fringe nil posframe--frame))
-      (advice-add #'posframe--create-posframe :after #'my-posframe--prettify-frame)
-
-      (defun posframe-poshandler-frame-center-near-bottom (info)
-        (cons (/ (- (plist-get info :parent-frame-width)
-                    (plist-get info :posframe-width))
-                 2)
-              (/ (+ (plist-get info :parent-frame-height)
-                    (* 2 (plist-get info :font-height)))
-                 2))))))
 
 ;; Ligatures support
 (when (and emacs/28 (not dotfairy-prettify-symbols-alist))

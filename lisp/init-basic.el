@@ -263,5 +263,38 @@
 (when (fboundp 'sqlite-open)
   (use-package emacsql-sqlite-builtin))
 
+;; Child frame
+(when (childframe-completion-workable-p)
+  (use-package posframe
+    :hook (after-load-theme . posframe-delete-all)
+    :init
+    (defface posframe-border
+      `((t (:inherit region)))
+      "Face used by the `posframe' border."
+      :group 'posframe)
+
+    (with-eval-after-load 'persp-mode
+      (add-hook 'persp-load-buffer-functions
+                (lambda (&rest _)
+                  (posframe-delete-all))))
+    :config
+    (with-no-warnings
+      (defun my-posframe--prettify-frame (&rest _)
+        (set-face-background 'fringe nil posframe--frame))
+      (advice-add #'posframe--create-posframe :after #'my-posframe--prettify-frame)
+
+      (defun posframe-poshandler-frame-center-near-bottom (info)
+        (cons (/ (- (plist-get info :parent-frame-width)
+                    (plist-get info :posframe-width))
+                 2)
+              (/ (+ (plist-get info :parent-frame-height)
+                    (* 2 (plist-get info :font-height)))
+                 2))))))
+
+
+;; need install nerd-icons fonts
+(use-package nerd-icons :demand t)
+
+
 (provide 'init-basic)
 ;;; init-basic.el ends here

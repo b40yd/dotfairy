@@ -671,7 +671,8 @@
               (TypeParameter . ,(nerd-icons-codicon "nf-cod-symbol_class"))
               (Template      . ,(nerd-icons-codicon "nf-cod-symbol_snippet"))))
           (setq company-box-icons-alist 'company-box-icons-nerd)
-          ))))
+          )
+        )))
 
   ;; Enable LSP in org babel
   ;; https://github.com/emacs-lsp/lsp-mode/issues/377

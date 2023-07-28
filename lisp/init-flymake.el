@@ -23,6 +23,11 @@
 ;;
 
 ;;; Code:
+(require 'init-const)
+(require 'init-custom)
+(require 'init-funcs)
+(require 'init-basic)
+
 (use-package flymake
   :hook (prog-mode . flymake-mode)
   :init (setq flymake-fringe-indicator-position 'right-fringe
