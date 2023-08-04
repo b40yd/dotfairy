@@ -3,7 +3,24 @@
 ;;; (c) 7ym0n, https://gitlab.com/7ym0n/dotfairy
 ;;;
 (use-package hydra
-  :hook (emacs-lisp-mode . hydra-add-imenu))
+  :hook (emacs-lisp-mode . hydra-add-imenu)
+  :init
+  (when (childframe-completion-workable-p)
+    (setq hydra-hint-display-type 'posframe)
+
+    (with-eval-after-load 'posframe
+      (defun hydra-set-posframe-show-params ()
+        "Set hydra-posframe style."
+        (setq hydra-posframe-show-params
+              `(:left-fringe 8
+                :right-fringe 8
+                :internal-border-width 2
+                :internal-border-color ,(face-background 'posframe-border nil t)
+                :background-color ,(face-background 'tooltip nil t)
+                :lines-truncate t
+                :poshandler posframe-poshandler-frame-center-near-bottom)))
+      (hydra-set-posframe-show-params)
+      (add-hook 'after-load-theme-hook #'hydra-set-posframe-show-params t))))
 
 (use-package pretty-hydra
   :bind (("C-c c v" . toggles-hydra/body))
@@ -59,8 +76,7 @@
         ("i" highlight-indent-guides-mode "indent" :toggle t)
         ("T" global-hl-todo-mode "todo" :toggle t))
        "Coding"
-       (("f" global-flycheck-mode "flycheck" :toggle t)
-        ("F" flymake-mode "flymake" :toggle t)
+       (("f" flymake-mode "flymake" :toggle t)
         ("O" hs-minor-mode "hideshow" :toggle t)
         ("u" subword-mode "subword" :toggle t)
         ("W" which-function-mode "which function" :toggle t)

@@ -89,11 +89,6 @@ If Non-nil, use dashboard, otherwise will restore previous session."
   :group 'dotfairy
   :type 'boolean)
 
-(defcustom dotfairy-company-prescient t
-  "Enable `company-prescient' or not. it's on Windows 10 very slow."
-  :group 'dotfairy
-  :type 'boolean)
-
 (defcustom dotfairy-quelpa-upgrade nil
   "Enable `quelpa-upgrade-p' or not. it will try upgrade packages."
   :group 'dotfairy

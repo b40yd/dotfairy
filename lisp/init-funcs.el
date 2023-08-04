@@ -111,7 +111,7 @@
   (dotfairy-set-variable 'dotfairy-theme theme no-save)
   (dotfairy--load-theme (dotfairy--theme-name theme)))
 
-(defun byte-compile-elpa ()
+(defun byte-comsdpile-elpa ()
   "Compile packages in elpa directory. Useful if you switch Emacs versions."
   (interactive)
   (if (fboundp 'async-byte-recompile-directory)
@@ -165,7 +165,7 @@
 
 (defun dotfairy-set-variable (variable value &optional no-save)
   "Set the VARIABLE to VALUE, and return VALUE.
-Save to `custom-file' if NO-SAVE is nil."
+Save to option if NO-SAVE is nil."
   (customize-set-variable variable value)
   (when (and (not no-save)
              (file-writable-p custom-file))
@@ -880,10 +880,9 @@ code of the process and OUTPUT is its stdout output."
 
 (defun childframe-workable-p ()
   "Whether childframe is workable."
-  (or (not (or noninteractive
-               emacs-basic-display
-               (not (display-graphic-p))))
-      (daemonp)))
+  (not (or noninteractive
+           emacs-basic-display
+           (not (display-graphic-p)))))
 
 (defun childframe-completion-workable-p ()
   "Whether childframe completion is workable."
@@ -894,8 +893,8 @@ code of the process and OUTPUT is its stdout output."
 (defun dotfairy-webkit-browse-url (url &optional pop-buffer new-session)
   "Browse URL with xwidget-webkit' and switch or pop to the buffer.
 
-POP-BUFFER specifies whether to pop to the buffer.
-NEW-SESSION specifies whether to create a new xwidget-webkit session."
+   POP-BUFFER specifies whether to pop to the buffer.
+   NEW-SESSION specifies whether to create a new xwidget-webkit session."
   (interactive (progn
                  (require 'browse-url)
                  (browse-url-interactive-arg "xwidget-webkit URL: ")))

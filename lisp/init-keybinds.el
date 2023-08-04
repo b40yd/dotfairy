@@ -167,7 +167,9 @@ localleader prefix."
   (setq which-key-sort-order #'which-key-key-order-alpha
         which-key-sort-uppercase-first nil
         which-key-add-column-padding 1
+        which-key-max-description-length 30
         which-key-max-display-columns nil
+        which-key-lighter nil
         which-key-min-display-lines 6
         which-key-side-window-slot -10)
   (which-key-mode)
@@ -187,7 +189,7 @@ localleader prefix."
       (which-key-posframe ((t (:inherit tooltip))))
       (which-key-posframe-border ((t (:inherit posframe-border :background unspecified))))
       :init
-      (setq which-key-posframe-border-width 3
+      (setq which-key-posframe-border-width posframe-border-width
             which-key-posframe-poshandler #'posframe-poshandler-frame-center-near-bottom
             which-key-posframe-parameters '((left-fringe . 8)
                                             (right-fringe . 8)))

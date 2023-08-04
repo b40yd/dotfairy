@@ -242,6 +242,7 @@
             "\\*Finder\\*"
             "\\*Kill Ring\\*"
             "\\*Go-Translate\\*"
+            "\\*Embark \\(Collect\\|Live\\):.*\\*"
 
             bookmark-bmenu-mode
             comint-mode
@@ -255,7 +256,6 @@
 
             gnus-article-mode devdocs-mode
             grep-mode occur-mode rg-mode deadgrep-mode ag-mode pt-mode
-            ivy-occur-mode ivy-occur-grep-mode
             youdao-dictionary-mode osx-dictionary-mode fanyi-mode
 
             "^\\*Process List\\*" process-menu-mode
@@ -285,7 +285,7 @@
             "\\*prolog\\*" inferior-python-mode inf-ruby-mode swift-repl-mode
             "\\*rustfmt\\*$" rustic-compilation-mode rustic-cargo-clippy-mode
             rustic-cargo-outdated-mode rustic-cargo-run-mode rustic-cargo-test-mode))
-    
+
     (with-eval-after-load 'doom-modeline
       (setq popper-mode-line
             '(:eval (let ((face (if (doom-modeline--active)

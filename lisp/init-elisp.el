@@ -202,11 +202,6 @@ Lisp function does not specify a special indentation."
                 (revert-buffer nil t)))))))
     (bind-key "r" #'remove-hook-at-point help-mode-map)))
 
-;; Show function arglist or variable docstring
-;; `global-eldoc-mode' is enabled by default.
-(use-package eldoc
-  :ensure nil
-  :diminish)
 
 ;; Interactive macro expander
 (use-package macrostep
@@ -234,12 +229,6 @@ Lisp function does not specify a special indentation."
                                "r" #'remove-hook-at-point))))
   :init
   (with-no-warnings
-    (with-eval-after-load 'counsel
-      (setq counsel-describe-function-function #'helpful-callable
-            counsel-describe-variable-function #'helpful-variable
-            counsel-describe-symbol-function #'helpful-symbol
-            counsel-descbinds-function #'helpful-callable))
-
     (with-eval-after-load 'apropos
       ;; patch apropos buttons to call helpful instead of help
       (dolist (fun-bt '(apropos-function apropos-macro apropos-command))

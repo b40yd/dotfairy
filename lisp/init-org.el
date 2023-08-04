@@ -531,40 +531,14 @@ prepended to the element after the #+HEADER: tag."
         org-refile-targets '((org-agenda-files :maxlevel . 5)
                              (nil :maxlevel . 5)))
 
-
-  (use-package org-fancy-priorities
-    :diminish
-    :hook (org-mode . org-fancy-priorities-mode)
-    :init (setq org-fancy-priorities-list
-                (if (char-displayable-p ?🟈)
-                    '("🟔" "🟑" "🟍" "✯" "🟈") ;;"🟔" "🟑" "🟍" "✯" "🟈"
-                  '("HIGH" "MEDIUM" "LOW" "WARN" "OPTIONAL"))))
-
-  (use-package org-superstar
-    :hook (org-mode . org-superstar-mode)
-    :init
-    (setq org-superstar-prettify-item-bullets t
-          org-superstar-headline-bullets-list'("🐀" "🐁" "🐂" "🐃" "🐄" "🐅" "🐆" "🐇" "🐈" "🐉" "🐊" "🐋"
-                                               "🐌" "🐍" "🐎" "🐏" "🐐" "🐑" "🐒" "🐓" "🐔" "🐕" "🐖" "🐗"
-                                               "🐘" "🐙" "🐚" "🐛" "🐜" "🐝" "🐞" "🐟" "🐠" "🐡" "🐢" "🐣"
-                                               "🐤" "🐥" "🐦" "🐧" "🐨" "🐩" "🐪" "🐫" "🐬" "🐭" "🐮" "🐯"
-                                               "🐰" "🐱" "🐲" "🐳" "🐴" "🐵" "🐶" "🐷" "🐸" "🐹" "🐺" "🐻"
-                                               "🐼" "𝍖" "🩠" "🩡" "🩢" "🩣" "🩤" "🩥" "🩦")
-          org-superstar-leading-bullet ?\s
-          org-superstar-item-bullet-alist
-          '((?* . ?🞿)
-            (?+ . ?⮚)
-            (?- . ?•))
-          ;; Enable custom bullets for TODO items
-          org-superstar-special-todo-items t
-          org-superstar-todo-bullet-alist
-          '(("TODO" "⚐")
-            ("NEXT" "⚛")
-            ("SOMEDAY" "🌅")
-            ("HOLD" "✰")
-            ("WAITING" "☕")
-            ("CANCELLED" "✘")
-            ("DONE" "✔"))))
+  (use-package org-modern
+    :hook ((org-mode . org-modern-mode)
+           (org-agenda-finalize . org-modern-agenda)
+           (org-modern-mode . (lambda ()
+                                "Adapt `org-modern-mode'."
+                                ;; Disable Prettify Symbols mode
+                                (setq prettify-symbols-alist nil)
+                                (prettify-symbols-mode -1)))))
 
   (use-package org-super-agenda
     :hook ((org-agenda-mode org-mode) . org-super-agenda-mode)

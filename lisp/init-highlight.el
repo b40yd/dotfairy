@@ -174,7 +174,7 @@
 
 ;; Highlight indentions
 (use-package highlight-indent-guides
-  :diminish
+
   :hook ((prog-mode yaml-mode) . (lambda ()
                                    "Highlight indentations in small files for better performance."
                                    (unless (too-long-file-p)
@@ -200,25 +200,7 @@
       (advice-add #'macrostep-collapse
                   :after (lambda (&rest _)
                            (when (derived-mode-p 'prog-mode 'yaml-mode)
-                             (highlight-indent-guides-mode 1)))))
-
-    ;; Don't display indentations in `swiper'
-    ;; https://github.com/DarthFennec/highlight-indent-guides/issues/40
-    (when (bound-and-true-p ivy-mode)
-      (with-eval-after-load 'ivy
-        (defun my-ivy-cleanup-indentation (str)
-          "Clean up indentation highlighting in ivy minibuffer."
-          (let ((pos 0)
-                (next 0)
-                (limit (length str))
-                (prop 'highlight-indent-guides-prop))
-            (while (and pos next)
-              (setq next (text-property-not-all pos limit prop nil str))
-              (when next
-                (setq pos (text-property-any next limit prop nil str))
-                (ignore-errors
-                  (remove-text-properties next pos '(display nil face nil) str))))))
-        (advice-add #'ivy-cleanup-string :after #'my-ivy-cleanup-indentation)))))
+                             (highlight-indent-guides-mode 1)))))))
 
 ;; Highlight the current line
 (use-package hl-line
@@ -279,13 +261,9 @@ FACE defaults to inheriting from default and highlight."
     (advice-add #'show-paren-function :after #'show-paren-off-screen)))
 
 ;; Pulse modified region
-(if emacs/27
-    (use-package goggles
-      :diminish
-      :hook ((prog-mode text-mode) . goggles-mode))
-  (use-package volatile-highlights
-    :diminish
-    :hook (after-init . volatile-highlights-mode)))
+(use-package goggles
+  :diminish
+  :hook ((prog-mode text-mode) . goggles-mode))
 
 (provide 'init-highlight)
 ;;; init-highlight.el ends here

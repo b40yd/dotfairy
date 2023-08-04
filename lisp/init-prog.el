@@ -49,6 +49,8 @@
 (use-package rmsbolt
   :defer t)
 
+(use-package csv-mode)
+
 ;; quickrun - Execute editing buffer and show its output quickly.
 ;; https://github.com/syohex/emacs-quickrun
 (use-package quickrun
@@ -122,7 +124,7 @@
 (use-package grep
   :ensure nil
   :autoload grep-apply-setting
-  :config
+  :init
   (cond
    ((executable-find "ugrep")
     (grep-apply-setting
@@ -191,14 +193,15 @@
 (use-package devdocs
   :autoload (devdocs--installed-docs devdocs--available-docs)
   :bind (:map prog-mode-map
-         ("C-c <f1>" . devdocs-dwim))
+         ("M-<f1>" . devdocs-dwim)
+         ("C-h D"  . devdocs-dwim))
   :init
   (defconst devdocs-major-mode-docs-alist
     '((c-mode          . ("c"))
       (c++-mode        . ("cpp"))
       (python-mode     . ("python~3.10" "python~2.7"))
       (ruby-mode       . ("ruby~3.1"))
-      (go-mode         . ("go"))
+
       (rustic-mode     . ("rust"))
       (css-mode        . ("css"))
       (html-mode       . ("html"))
@@ -206,7 +209,7 @@
       (js-mode         . ("javascript" "jquery"))
       (js2-mode        . ("javascript" "jquery"))
       (emacs-lisp-mode . ("elisp")))
-    "Alist of major-mode and list of docset names.")
+    "Alist of major-mode and docs.")
 
   (mapc
    (lambda (mode)
@@ -215,7 +218,7 @@
                  (setq-local devdocs-current-docs (cdr mode)))))
    devdocs-major-mode-docs-alist)
 
-  (setq devdocs-data-dir (expand-file-name "devdocs" dotfairy-local-dir))
+  (setq devdocs-data-dir (expand-file-name "devdocs" user-emacs-directory))
 
   (defun devdocs-dwim()
     "Look up a DevDocs documentation entry.
@@ -242,46 +245,20 @@ Install the doc if it's not installed."
 (use-package xref
   :ensure nil
   :init
-  (with-no-warnings
-    (when emacs/28
-      (cond
-       ((executable-find "ugrep")
-        (add-to-list 'xref-search-program-alist
-                     '(ugrep . "xargs -0 ugrep <C> --null -ns -e <R>"))
-        (setq xref-search-program 'ugrep))
-       ((executable-find "rg")
-        (setq xref-search-program 'ripgrep))))
+  ;; Use faster search tool
+  (setq xref-search-program (cond
+                             ((executable-find "ugrep") 'ugrep)
+                             ((executable-find "rg") 'ripgrep)
+                             (t 'grep)))
 
-    ;; Select from xref candidates with Ivy
-    (if emacs/28
-        (setq xref-show-xrefs-function #'xref-show-definitions-completing-read
-              xref-show-definitions-function #'xref-show-definitions-completing-read)
-      (use-package ivy-xref
-        :when (featurep 'ivy)
-        :after ivy
-        :init
-        (when emacs/27
-          (setq xref-show-definitions-function #'ivy-xref-show-defs))
-        (setq xref-show-xrefs-function #'ivy-xref-show-xrefs)))))
+  ;; Select from xref candidates in minibuffer
+  (setq xref-show-definitions-function #'xref-show-definitions-completing-read
+        xref-show-xrefs-function #'xref-show-definitions-completing-read))
 
 
 ;; align table
 (use-package valign
   :hook ((org-mode markdown-mode) . valign-mode))
-
-;; Batch Mode eXtras
-(use-package bmx-mode
-  :after company
-  :diminish
-  :hook (after-init . bmx-mode-setup-defaults))
-
-;; Tree-sitter
-;; (when dotfairy-tree-sitter
-;;   (use-package treesit-auto
-;;     :demand t
-;;     :hook (after-init . global-treesit-auto-mode)
-;;     :init
-;;     (setq treesit-auto-install 'prompt)))
 
 (provide 'init-prog)
 ;;; init-prog.el ends here

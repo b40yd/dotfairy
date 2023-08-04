@@ -140,10 +140,10 @@ See `dotfairy/next-preproc-directive' for details."
        :desc "next preprocessor directive" "]" #'dotfairy/next-preproc-directive
        :desc "previous preprocessor directive" "[" #'dotfairy/previous-preproc-directive))
 
-(use-package c-ts-mode
-  :ensure nil
-  :when dotfairy-tree-sitter
-  :init (setq c-ts-mode-indent-offset 4))
+
+(when dotfairy-tree-sitter
+  (use-package c-ts-mode
+    :init (setq c-ts-mode-indent-offset 4)))
 
 (provide 'init-clang)
 ;;; init-clang.el ends here

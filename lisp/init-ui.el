@@ -38,6 +38,13 @@
 (setq frame-inhibit-implied-resize t
       frame-resize-pixelwise t)
 
+;; Initial frame
+(setq initial-frame-alist '((top . 0.5)
+                            (left . 0.5)
+                            (width . 0.628)
+                            (height . 0.8)
+                            (fullscreen)))
+
 ;; Don't use GTK+ tooltip
 (when (boundp 'x-gtk-use-system-tooltips)
   (setq x-gtk-use-system-tooltips nil))
@@ -49,23 +56,18 @@
 (when (display-graphic-p)
   (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
   (add-to-list 'default-frame-alist '(ns-appearance . dark))
-  (add-hook 'window-setup-hook #'toggle-frame-fullscreen)
+  ;; (add-hook 'window-setup-hook #'toggle-frame-fullscreen)
+  (add-hook 'server-after-make-frame-hook
+            (lambda ()
+              (if (display-graphic-p)
+                  (menu-bar-mode 1)
+                (menu-bar-mode -1))))
   (add-hook 'after-load-theme-hook
             (lambda ()
               (let ((bg (frame-parameter nil 'background-mode)))
                 (set-frame-parameter nil 'ns-appearance bg)
                 (setcdr (assq 'ns-appearance default-frame-alist) bg)))))
 
-;; Menu/Tool/Scroll bars
-;; Disable tool, menu, and scrollbars. Doom is designed to be keyboard-centric,
-;; so these are just clutter (the scrollbar also impacts performance). Whats
-;; more, the menu bar exposes functionality that Doom doesn't endorse.
-(unless emacs/27
-  (push '(menu-bar-lines . 0) default-frame-alist)
-  (push '(tool-bar-lines . 0) default-frame-alist)
-  (push '(vertical-scroll-bars) default-frame-alist)
-  (when (featurep 'ns)
-    (push '(ns-transparent-titlebar . t) default-frame-alist)))
 
 (use-package time
   :ensure nil
@@ -82,41 +84,7 @@
 ;;     doom-dark+
 (use-package doom-themes
   :init
-  ;; Global settings (defaults)
-  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-        doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (dotfairy-load-theme dotfairy-theme t)
-  :config
-  ;; Enable flashing mode-line on errors
-  (doom-themes-visual-bell-config)
-  ;; Enable custom neotree theme (all-the-icons must be installed!)
-  (doom-themes-neotree-config)
-
-  ;; WORKAROUND: Visual bell on 29
-  ;; @see https://github.com/doomemacs/themes/issues/733
-  (with-no-warnings
-    (defun my-doom-themes-visual-bell-fn ()
-      "Blink the mode-line red briefly. Set `ring-bell-function' to this to use it."
-      (let* ((buf (current-buffer))
-             (cookies `(,(face-remap-add-relative 'mode-line-active
-                                                  'doom-themes-visual-bell)
-                        ,(face-remap-add-relative 'mode-line
-                                                  'doom-themes-visual-bell))))
-        (force-mode-line-update)
-        (run-with-timer 0.15 nil
-                        (lambda ()
-                          (with-current-buffer buf
-                            (mapc #'face-remap-remove-relative cookies)
-                            (force-mode-line-update))))))
-    (advice-add #'doom-themes-visual-bell-fn :override #'my-doom-themes-visual-bell-fn))
-
-  ;; Enable customized theme
-  ;; FIXME https://github.com/emacs-lsp/lsp-treemacs/issues/89
-  (when (featurep 'all-the-icons)
-    (with-eval-after-load 'lsp-treemacs
-      (doom-themes-treemacs-config)))
-  ;; Corrects (and improves) org-mode's native fontification.
-  (doom-themes-org-config))
+  (dotfairy-load-theme dotfairy-theme t))
 
 
 ;; Mode-line
@@ -130,7 +98,6 @@
         doom-modeline-height 1
         doom-modeline-buffer-encoding t
         doom-modeline-unicode-fallback t
-        doom-modeline-window-width-limit 120
         doom-modeline-minor-modes t)
   :config
 ;;;###autoload
@@ -184,8 +151,8 @@
       "misc info" :toggle doom-modeline-display-misc-in-all-mode-lines)
      ("L" (setq doom-modeline-lsp (not doom-modeline-lsp))
       "lsp" :toggle doom-modeline-lsp)
-     ("P" (setq doom-modeline-persp-name (not doom-modeline-persp-name))
-      "perspective" :toggle doom-modeline-persp-name)
+     ("P" (setq doom-modeline-workspace-name (not doom-modeline-workspace-name))
+      "workspace" :toggle doom-modeline-workspace-name)
      ("G" (setq doom-modeline-github (not doom-modeline-github))
       "github" :toggle doom-modeline-github)
      ("N" (setq doom-modeline-gnus (not doom-modeline-gnus))
@@ -268,15 +235,36 @@
               (grip-browse-preview)
             (message "Not in preview"))
       "browse preview" :exit t)
-     ("z h" (counsel-set-variable 'doom-modeline-height) "set height" :exit t)
-     ("z w" (counsel-set-variable 'doom-modeline-bar-width) "set bar width" :exit t)
-     ("z g" (counsel-set-variable 'doom-modeline-github-interval) "set github interval" :exit t)
-     ("z n" (counsel-set-variable 'doom-modeline-gnus-timer) "set gnus interval" :exit t)))))
+     ("z h" (read-from-minibuffer
+             "Eval: "
+             (format "(setq %s %s)"
+                     'doom-modeline-height
+                     (symbol-value 'doom-modeline-height)))
+      "set height" :exit t)
+     ("z w" (read-from-minibuffer
+             "Eval: "
+             (format "(setq %s %s)"
+                     'doom-modeline-bar-width
+                     (symbol-value 'doom-modeline-bar-width)))
+      "set bar width" :exit t)
+     ("z g" (read-from-minibuffer
+             "Eval: "
+             (format "(setq %s %s)"
+                     'doom-modeline-github-interval
+                     (symbol-value 'doom-modeline-github-interval)))
+      "set github interval" :exit t)
+     ("z n" (read-from-minibuffer
+             "Eval: "
+             (format "(setq %s %s)"
+                     'doom-modeline-gnus-timer
+                     (symbol-value 'doom-modeline-gnus-timer)))
+      "set gnus interval" :exit t)))))
 
 (use-package hide-mode-line
   :hook (((eshell-mode
            completion-list-mode
            completion-in-region-mode
+           embark-collect-mode
            shell-mode term-mode
            lsp-ui-imenu-mode
            vterm-mode pdf-annot-list-mode) . hide-mode-line-mode)))
@@ -409,7 +397,7 @@ See `display-line-numbers' for what these values mean."
 ;; Good pixel line scrolling
 (if (fboundp 'pixel-scroll-precision-mode)
     (pixel-scroll-precision-mode t)
-  (when (and emacs/27 (not (eq system-type 'darwin)))
+  (unless (not (eq system-type 'darwin))
     (use-package good-scroll
       :diminish
       :hook (after-init . good-scroll-mode)

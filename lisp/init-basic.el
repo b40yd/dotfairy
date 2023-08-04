@@ -139,20 +139,13 @@
     ;;       exec-path-from-shell-arguments '("-l"))
     (exec-path-from-shell-initialize)))
 
-;; Only list the commands of the current modes
-(when (boundp 'read-extended-command-predicate)
-  (setq read-extended-command-predicate
-        #'command-completion-default-include-p))
-
 ;; Start server
 (use-package server
-  :ensure nil
   :if dotfairy-server
   :hook (after-init . server-mode))
 
 ;; History
 (use-package saveplace
-  :ensure nil
   :init
   (setq save-place-file (concat dotfairy-cache-dir "saveplace")
         save-place-limit 100)
@@ -160,7 +153,6 @@
 
 
 (use-package recentf
-  :ensure nil
   :bind (("C-x C-r" . recentf-open-files))
   :hook (after-init . recentf-mode)
   :init (setq recentf-max-saved-items 300
@@ -178,7 +170,6 @@
   (add-to-list 'recentf-filename-handlers #'substring-no-properties))
 
 (use-package savehist
-  :ensure nil
   :hook (after-init . savehist-mode)
   :init (setq enable-recursive-minibuffers t ; Allow commands in minibuffers
               history-length 1000
@@ -241,11 +232,9 @@
                       (buf-label (aref val 3))
                       (tty (list (aref val 4) 'face 'font-lock-doc-face))
                       (thread (list (aref val 5) 'face 'font-lock-doc-face))
-                      (cmd (list (aref val (if emacs/27 6 5)) 'face 'completions-annotations)))
-            (push (list p (if emacs/27
-                              (vector icon name pid status buf-label tty thread cmd)
-                            (vector icon name pid status buf-label tty cmd)))
-		          tabulated-list-entries)))))
+                      (cmd (list (aref val 6) 'face 'completions-annotations)))
+            (push (list p (vector icon name pid status buf-label tty thread cmd))
+                  tabulated-list-entries)))))
     (advice-add #'list-processes--refresh :after #'my-list-processes--prettify)))
 
 ;; File and buffer
@@ -273,10 +262,6 @@
       "Face used by the `posframe' border."
       :group 'posframe)
 
-    (with-eval-after-load 'persp-mode
-      (add-hook 'persp-load-buffer-functions
-                (lambda (&rest _)
-                  (posframe-delete-all))))
     :config
     (with-no-warnings
       (defun my-posframe--prettify-frame (&rest _)
@@ -293,8 +278,11 @@
 
 
 ;; need install nerd-icons fonts
-(use-package nerd-icons :demand t)
-
+(use-package nerd-icons
+  :config
+  (when (and (display-graphic-p)
+             (not (font-installed-p nerd-icons-font-family)))
+    (nerd-icons-install-fonts t)))
 
 (provide 'init-basic)
 ;;; init-basic.el ends here
