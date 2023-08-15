@@ -374,11 +374,10 @@ See `display-line-numbers' for what these values mean."
                                     (agenda    . "nf-oct-calendar")
                                     (projects  . "nf-oct-briefcase")
                                     (registers . "nf-oct-database"))
-          dashboard-footer-icon (cond
-                                 ((icons-displayable-p)
-                                  (nerd-icons-octicon "nf-oct-heart" :height 1.2 :face 'nerd-icons-lred))
-
-                                 (t (propertize ">" 'face 'dashboard-footer)))
+          dashboard-footer-icon
+          (if (icons-displayable-p)
+              (nerd-icons-octicon "nf-oct-heart" :height 1.2 :face 'nerd-icons-lred)
+            (propertize ">" 'face 'dashboard-footer))
           dashboard-items '((recents . 10)
                             (projects . 10)))))
 

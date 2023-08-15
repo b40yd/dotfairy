@@ -459,5 +459,18 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
   (interactive)
   (consult-line (thing-at-point 'symbol)))
 
+(when (childframe-completion-workable-p)
+  (use-package vertico-posframe
+    :hook (vertico-mode . vertico-posframe-mode)
+    :init (setq vertico-posframe-poshandler
+                #'posframe-poshandler-frame-center-near-bottom
+                vertico-posframe-parameters
+                '((left-fringe  . 8)
+                  (right-fringe . 8)))))
+
+(use-package nerd-icons-completion
+  :when (icons-displayable-p)
+  :hook (vertico-mode . nerd-icons-completion-mode))
+
 (provide 'init-vertico)
 ;;; init-vertico.el ends here

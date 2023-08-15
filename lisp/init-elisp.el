@@ -205,11 +205,11 @@ Lisp function does not specify a special indentation."
 
 ;; Interactive macro expander
 (use-package macrostep
-  :custom-face
-  (macrostep-expansion-highlight-face ((t (:inherit tooltip :extend t))))
   :hook (after-init . (lambda ()
                         (map! :localleader
                               :map emacs-lisp-mode-map
+                              "e" #'macrostep-expand
+                              :map lisp-interaction-mode-map
                               "e" #'macrostep-expand))))
 
 ;; A better *Help* buffer
