@@ -69,7 +69,6 @@
 (require 'init-player)
 
 ;; Language
-(require 'init-tags)
 (require 'init-elisp)
 (require 'init-clang)
 (require 'init-go)

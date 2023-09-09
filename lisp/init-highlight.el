@@ -82,6 +82,19 @@
     (add-to-list 'hl-todo-keyword-faces `(,keyword . "#d0bf8f")))
   (dolist (keyword '("DEBUG" "STUB"))
     (add-to-list 'hl-todo-keyword-faces `(,keyword . "#7cb8bb")))
+
+  (defun hl-todo-rg (regexp &optional files dir)
+    "Use `rg' to find all TODO or similar keywords."
+    (interactive
+     (progn
+       (unless (require 'rg nil t)
+         (error "`rg' is not installed"))
+       (let ((regexp (replace-regexp-in-string "\\\\[<>]*" "" (hl-todo--regexp))))
+         (list regexp
+               (rg-read-files)
+               (read-directory-name "Base directory: " nil default-directory t)))))
+    (rg regexp files dir))
+
   (map! :localleader
         :map hl-todo-mode-map
         (:prefix ("t" . "TODO")
@@ -89,6 +102,7 @@
          "C-p" #'hl-todo-previous
          "C-n" #'hl-todo-next
          "C-o" #'hl-todo-occur
+         "C-r" #'hl-todo-rg
          "C-i" #'hl-todo-insert)))
 
 ;; Highlight uncommitted changes using VC

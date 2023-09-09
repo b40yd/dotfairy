@@ -92,11 +92,11 @@
                       (set-fontset-font t 'emoji (font-spec :family font) nil 'prepend))))
 
     ;; Specify font for Chinese characters
-    (cl-loop for font in '("WenQuanYi Zen Hei Mono" "WenQuanYi Micro Hei" "Microsoft Yahei" "PingFang SC" "STFangsong")
+    (cl-loop for font in '("LXGW WenKai Screen" "WenQuanYi Micro Hei Mono" "PingFang SC" "Microsoft Yahei UI" "Simhei")
              when (font-installed-p font)
              return (progn
                       (setq face-font-rescale-alist `((,font . 1.3)))
-                      (set-fontset-font t '(#x4e00 . #x9fff) (font-spec :family font))))))
+                      (set-fontset-font t 'han (font-spec :family font))))))
 
 (dotfairy-setup-fonts)
 (add-hook 'window-setup-hook #'dotfairy-setup-fonts)
