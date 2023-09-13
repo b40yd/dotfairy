@@ -29,8 +29,13 @@
 
 
 (use-package vertico
-  :hook (after-init . vertico-mode)
   :commands (+vertico/embark-preview)
+  :bind (:map vertico-map
+         ("RET" . vertico-directory-enter)
+         ("DEL" . vertico-directory-delete-char)
+         ("M-DEL" . vertico-directory-delete-word))
+  :hook ((after-init . vertico-mode)
+         (rfn-eshadow-update-overlay . vertico-directory-tidy))
   :config
   (defun +vertico/embark-preview ()
     "Previews candidate in vertico buffer, unless it's a consult command"
@@ -164,6 +169,9 @@ If INITIAL is non-nil, use as initial input."
     [remap switch-to-buffer-other-window] #'consult-buffer-other-window
     [remap switch-to-buffer-other-frame]  #'consult-buffer-other-frame
     [remap yank-pop]                      #'consult-yank-pop)
+  ;; Enable automatic preview at point in the *Completions* buffer. This is
+  ;; relevant when you use the default completion UI.
+  :hook (completion-list-mode . consult-preview-at-point-mode)
   :config
   (require 'orderless nil t)
   (if IS-WINDOWS
