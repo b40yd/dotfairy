@@ -29,12 +29,12 @@
 (use-package ibuffer
   :ensure nil
   :bind ("C-x C-b" . ibuffer)
-  :init (setq ibuffer-filter-group-name-face '(:inherit (font-lock-string-face bold)))
-  :config
-  ;; Display icons for buffers
-  (use-package nerd-icons-ibuffer
-    :hook (ibuffer-mode . nerd-icons-ibuffer-mode)
-    :init (setq nerd-icons-ibuffer-icon t)))
+  :init (setq ibuffer-filter-group-name-face '(:inherit (font-lock-string-face bold))))
+
+;; Display icons for buffers
+(use-package nerd-icons-ibuffer
+  :hook (ibuffer-mode . nerd-icons-ibuffer-mode)
+  :init (setq nerd-icons-ibuffer-icon t))
 
 ;; Group ibuffer's list by project root
 (use-package ibuffer-project

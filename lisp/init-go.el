@@ -100,6 +100,10 @@
   (use-package go-tag
     :init (setq go-tag-args (list "-transform" "camelcase")))
 
+  (when dotfairy-tree-sitter
+    (use-package go-ts-mode
+      :init (setq go-ts-mode-indent-offset 4)))
+
   (defvar +go-test-last nil
     "The last test run.")
 

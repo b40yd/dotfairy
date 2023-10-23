@@ -161,11 +161,6 @@
 (use-package esup)                      ; Emacs startup profiler
 (use-package focus)                     ; Focus on the current region
 (use-package list-environment
-  :hook (list-environment-mode . (lambda ()
-                                   (setq tabulated-list-format
-                                         (vconcat `(("" ,(if (icons-displayable-p) 1 0)))
-                                                  tabulated-list-format))
-                                   (tabulated-list-init-header)))
   :init
   (with-no-warnings
     (defun my-list-environment-entries ()
@@ -175,9 +170,6 @@
                        (key (car kv))
                        (val (mapconcat #'identity (cdr kv) "=")))
                   (list key (vector
-                             (if (icons-displayable-p)
-                                 (nerd-icons-octicon "nf-oct-key" :height 0.8 :v-adjust 0.1)
-                               "")
                              `(,key face font-lock-keyword-face)
                              `(,val face font-lock-string-face)))))
               process-environment))
