@@ -68,11 +68,9 @@
                 (set-frame-parameter nil 'ns-appearance bg)
                 (setcdr (assq 'ns-appearance default-frame-alist) bg)))))
 
-
 (use-package time
-  :ensure nil
-  :init (setq display-time-24hr-format t
-              display-time-day-and-date t))
+  :init (setq display-time-default-load-average nil
+              display-time-format "%H:%M"))
 
 (use-package solarized-theme)
 
