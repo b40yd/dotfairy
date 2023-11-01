@@ -55,13 +55,7 @@
             (powershell-mode                         . (lambda () (require 'dap-pwsh))))
      :init
      (when (executable-find "python3")
-       (setq dap-python-executable "python3"))))
-  ('eglot
-   (use-package dape
-     :ensure nil
-     :quelpa (dape :fetcher github :repo "svaante/dape")
-     :config
-     (setq dape-inline-variables t))))
+       (setq dap-python-executable "python3")))))
 
 (provide 'init-debugger)
 ;;; init-debugger.el ends here
