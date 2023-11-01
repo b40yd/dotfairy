@@ -34,13 +34,13 @@
    (use-package dap-mode
      :disabled
      :defines dap-python-executable
+     :functions dap-hydra/nil
      :diminish
      :bind (:map lsp-mode-map
             ("<f5>" . dap-debug)
-            ("S-<f5>" . dap-hydra))
-
+            ("M-<f5>" . dap-hydra))
      :hook ((after-init . dap-auto-configure-mode)
-            (dap-stopped . (lambda (_args) (dap-hydra)))
+            (dap-stopped . (lambda (_) (dap-hydra)))
             (dap-terminated . (lambda (_) (dap-hydra/nil)))
             ((python-mode python-ts-mode)            . (lambda () (require 'dap-python)))
             ((ruby-mode ruby-ts-mode)                . (lambda () (require 'dap-ruby)))
@@ -54,7 +54,13 @@
             (powershell-mode                         . (lambda () (require 'dap-pwsh))))
      :init
      (when (executable-find "python3")
-       (setq dap-python-executable "python3")))))
+       (setq dap-python-executable "python3"))))
+  ('eglot
+   (use-package dape
+     :ensure nil
+     :quelpa (dape :fetcher github :repo "svaante/dape")
+     :config
+     (setq dape-inline-variables t))))
 
 (provide 'init-debugger)
 ;;; init-debugger.el ends here
