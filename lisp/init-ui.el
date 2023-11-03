@@ -282,7 +282,18 @@
                       display-time-24hr-format t
                       display-time-day-and-date t)
   ;; Display time
-  (display-time-mode 1))
+  (display-time-mode 1)
+  ;; TAB cycle if there are only few candidates
+  (setq completion-cycle-threshold 3)
+
+  ;; Only list the commands of the current modes
+  (when (boundp 'read-extended-command-predicate)
+    (setq read-extended-command-predicate
+          #'command-completion-default-include-p))
+
+  ;; Enable indentation+completion using the TAB key.
+  ;; `completion-at-point' is often bound to M-TAB.
+  (setq tab-always-indent 'complete))
 
 ;; Show line numbers
 (use-package display-line-numbers

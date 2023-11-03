@@ -280,6 +280,11 @@ If INITIAL is non-nil, use as initial input."
 (use-package consult-flycheck
   :after (consult flycheck))
 
+(use-package consult-flyspell
+  :bind ("M-g s" . consult-flyspell))
+
+(use-package consult-yasnippet
+  :bind ("M-g y" . consult-yasnippet))
 
 (use-package embark
   :defer t

@@ -36,44 +36,21 @@
   (setq poetry-tracking-strategy 'switch-buffer)
   (add-hook 'python-mode-hook #'poetry-tracking-mode))
 
-;; (use-package pyvenv
-;;   :after python
-;;   :init
-;;   (add-hook 'pyvenv-post-activate-hooks #'+modeline-update-env-in-all-windows-h)
-;;   (add-hook 'pyvenv-pre-deactivate-hooks #'+modeline-clear-env-in-all-windows-h)
-;;   :config
-;;   (add-hook 'python-mode-local-vars-hook #'pyvenv-track-virtualenv)
-;;   (add-to-list 'global-mode-string
-;;                '(pyvenv-virtual-env-name (" venv:" pyvenv-virtual-env-name " "))
-;;                'append))
+(use-package pyvenv
+  :after python
+  :config
+  (add-hook 'python-mode-local-vars-hook #'pyvenv-track-virtualenv)
+  (add-to-list 'global-mode-string
+               '(pyvenv-virtual-env-name (" venv:" pyvenv-virtual-env-name " "))
+               'append))
 
 
 (use-package pyenv-mode
   :defer t
   :after python
   :config
-  ;;;###autoload
-  (defvar +pyenv--version nil)
-
-  (defun +python-pyenv-set-venv (version)
-    "Set venv path and version."
-    (when (featurep 'lsp-mode)
-      (setq lsp-pyright-venv-path (expand-file-name (concat "versions/" version)
-                                                    (or (getenv "PYENV_ROOT") "~/.pyenv"))))
-    (setq python-shell-interpreter version)
-    (pyenv-mode-set +pyenv--version))
-
 ;;;###autoload
-  (defun +python-pyenv-mode-set-auto-h ()
-    "Set pyenv-mode version from buffer-local variable."
-    (when (eq major-mode 'python-mode)
-      (when (not (local-variable-p '+pyenv--version))
-        (make-local-variable '+pyenv--version)
-        (setq +pyenv--version (+python-pyenv-read-version-from-file)))
-      (if +pyenv--version
-          (+python-pyenv-set-venv +pyenv--version)
-        (pyenv-mode-unset))))
-
+  (defvar +pyenv--version nil)
 ;;;###autoload
   (defun +python-pyenv-read-version-from-file ()
     "Read pyenv version from .python-version file."
@@ -87,63 +64,21 @@
             version  ;; return.
           (message "pyenv: version `%s' is not installed (set by `%s')."
                    version file-path)))))
+;;;###autoload
+  (defun +python-pyenv-mode-set-auto-h ()
+    "Set pyenv-mode version from buffer-local variable."
+    (when (eq major-mode 'python-mode)
+      (when (not (local-variable-p '+pyenv--version))
+        (make-local-variable '+pyenv--version)
+        (setq +pyenv--version (+python-pyenv-read-version-from-file)))
+      (if +pyenv--version
+          (pyenv-mode-set +pyenv--version)
+        (pyenv-mode-unset))))
+
   (when (executable-find "pyenv")
     (pyenv-mode +1)
     (add-to-list 'exec-path (expand-file-name "shims" (or (getenv "PYENV_ROOT") "~/.pyenv"))))
-  (add-hook 'python-mode-local-vars-hook #'+python-pyenv-mode-set-auto-h)
-  (add-hook 'doom-switch-buffer-hook #'+python-pyenv-mode-set-auto-h))
-
-
-;; (use-package conda
-;;   :after python
-;;   :commands (+python/set-conda-home)
-;;   :config
-;;   ;;;###autoload
-;;   (defun +python/set-conda-home ()
-;;     "Set `conda-anaconda-home' (ANACONDA_HOME).
-;; Usually it's `~/.anaconda3' on local machine, but it can be set to a remote
-;; directory using TRAMP syntax, e.g. `/ssh:host:/usr/bin/anaconda3'. This way, you
-;; can use a remote conda environment, including the corresponding remote python
-;; executable and packages."
-;;     (interactive)
-;;     (require 'conda)
-;;     (when-let (home (read-directory-name "Set conda home: " "~" nil nil conda-anaconda-home))
-;;       (setq conda-anaconda-home home)
-;;       (message "Successfully changed conda home to: %s" (abbreviate-file-name home))))
-
-;;   ;; The location of your anaconda home will be guessed from a list of common
-;;   ;; possibilities, starting with `conda-anaconda-home''s default value (which
-;;   ;; will consult a ANACONDA_HOME envvar, if it exists).
-;;   ;;
-;;   ;; If none of these work for you, `conda-anaconda-home' must be set
-;;   ;; explicitly. Afterwards, run M-x `conda-env-activate' to switch between
-;;   ;; environments
-;;   (or (cl-loop for dir in (list conda-anaconda-home
-;;                                 "~/.anaconda"
-;;                                 "~/.miniconda"
-;;                                 "~/.miniconda3"
-;;                                 "~/.miniforge3"
-;;                                 "~/anaconda3"
-;;                                 "~/miniconda3"
-;;                                 "~/miniforge3"
-;;                                 "~/opt/miniconda3"
-;;                                 "/usr/bin/anaconda3"
-;;                                 "/usr/local/anaconda3"
-;;                                 "/usr/local/miniconda3"
-;;                                 "/usr/local/Caskroom/miniconda/base"
-;;                                 "~/.conda")
-;;                if (file-directory-p dir)
-;;                return (setq conda-anaconda-home (expand-file-name dir)
-;;                             conda-env-home-directory (expand-file-name dir)))
-;;       (message "Cannot find Anaconda installation"))
-
-;;   ;; integration with term/eshell
-;;   (conda-env-initialize-interactive-shells)
-;;   (after! eshell (conda-env-initialize-eshell))
-
-;;   (add-to-list 'global-mode-string
-;;                '(conda-env-current-name (" conda:" conda-env-current-name " "))
-;;                'append))
+  (add-hook 'python-mode-local-vars-hook #'+python-pyenv-mode-set-auto-h))
 
 
 (use-package python
@@ -193,14 +128,18 @@
   (setq python-shell-completion-native-enable nil)
 
   :config
-  ;; Default to Python 3. Prefer the versioned Python binaries since some
-  ;; systems stupidly make the unversioned one point at Python 2.
-  (when (and (executable-find "python3")
-             (string= python-shell-interpreter "python"))
-    (setq python-shell-interpreter "python3"))
   ;; Env vars
   (with-eval-after-load 'exec-path-from-shell
     (exec-path-from-shell-copy-env "PYTHONPATH"))
+
+  ;; Stop the spam!
+  (setq python-indent-guess-indent-offset-verbose nil)
+
+  ;; Default to Python 3. Prefer the versioned Python binaries since some
+  ;; systems link the unversioned one to Python 2.
+  (when (and (executable-find "python3")
+             (string= python-shell-interpreter "python"))
+    (setq python-shell-interpreter "python3"))
 
   (add-hook! 'python-mode-hook
     (defun +python-use-correct-flycheck-executables-h ()
