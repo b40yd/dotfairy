@@ -45,8 +45,7 @@
    (:prefix ("m" . "Music Player")
     :desc "Music Player"                        "b" #'bongo
     :desc "Music Player for mpd"                "m" #'mpc
-    :desc "Music Player for mingus"             "M" #'mingus
-    :desc "Simple Player for mpc"               "s" #'simple-mpc)
+    :desc "Music Player for mingus"             "M" #'mingus)
    :desc "Reading"                             "r" #'olivetti-mode
    :desc "Quick Run"                           "R" #'quickrun-hydra/body)
 
@@ -74,8 +73,7 @@
    :desc "Hungry delete backward"              "b" #'hungry-delete-backward
    :desc "Dired change to wdired-mode"         "e" #'wdired-change-to-wdired-mode
    :desc "Hungry delete forward"               "f" #'hungry-delete-forward
-   :desc "Delete trailing whitespace"          "w" #'delete-trailing-whitespace
-   :desc "List errors"                         "x" #'flycheck-list-errors)
+   :desc "Delete trailing whitespace"          "w" #'delete-trailing-whitespace)
   ;;; <leader> f --- file
   (:prefix-map ("f" . "file")
    :desc "Open project editorconfig"   "." #'editorconfig-find-current-editorconfig
@@ -112,8 +110,7 @@
    :desc "Search other project"         "P" #'+default/search-other-project
    :desc "Counsel rg search"            "r" #'counsel-rg
    :desc "rg menu"                      "R" #'rg-menu
-   :desc "Search buffer"                "s" #'+default/search-buffer
-   :desc "Search buffer for thing at point" "S" #'swiper-isearch-thing-at-point)
+   :desc "Search buffer"                "s" #'+default/search-buffer)
   ;;; <leader> i --- insert
   (:prefix-map ("i" . "insert")
    :desc "Snippet"                       "s" #'yas-insert-snippet
@@ -129,7 +126,6 @@
   ;;; <leader> n --- notes
   (:prefix-map ("n" . "notes")
    :desc "Org agenda"                     "a" #'org-agenda
-   :desc "Cancel current org-clock"       "C" #'org-clock-cancel
    :desc "Find file in notes"             "f" #'+default/find-in-notes
    :desc "Browse notes"                   "F" #'+default/browse-notes
    :desc "Org capture"                    "n" #'org-capture
@@ -147,7 +143,6 @@
   (:prefix ("p" . "project")
    :desc "Add directory to project"        "a" #'dotfairy/add-directory-as-project
    :desc "Remove known project"            "d" #'projectile-remove-known-project
-   :desc "Remove blacklist from workspace" "r" #'lsp-workspace-blacklist-remove
    :desc "Restart current workspace"       "R" #'lsp-workspace-restart
    :desc "Find file in current project"    "f" #'projectile-find-file
    :desc "Find file in other project"      "F" #'dotfairy/find-file-in-other-project
