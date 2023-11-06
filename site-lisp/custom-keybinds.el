@@ -63,7 +63,13 @@
    )
   ;;; <leader> c --- code
   (:prefix-map ("c" . "coding")
-   :desc "Compile or Recompile"                "c" #'+default/compile)
+   :desc "Compile or Recompile"                "c" #'+default/compile
+   :desc "Remember init"                       "i" #'remember-init
+   :desc "Remember jump"                       "g" #'remember-jump
+   :desc "Open newline below"                  "o" #'open-newline-below
+   :desc "Open newline above"                  "O" #'open-newline-above
+   :desc "Duplicate line or region below"      "l" #'duplicate-line-or-region-below
+   :desc "Duplicate line or region above"      "L" #'duplicate-line-or-region-above)
   (:prefix-map ("e" . "editor")
    :desc "Hungry delete backward"              "b" #'hungry-delete-backward
    :desc "Dired change to wdired-mode"         "e" #'wdired-change-to-wdired-mode
