@@ -233,19 +233,19 @@
     :init
     (setq popper-group-function #'popper-group-by-directory)
     (setq popper-reference-buffers
-          '("\\*Messages\\*"
+          '("\\*Messages\\*$"
             "Output\\*$" "\\*Pp Eval Output\\*$"
-            "\\*Compile-Log\\*"
-            "\\*Completions\\*"
-            "\\*Warnings\\*"
-            "\\*Async Shell Command\\*"
-            "\\*Apropos\\*"
-            "\\*Backtrace\\*"
-            "\\*Calendar\\*"
-            "\\*Finder\\*"
-            "\\*Kill Ring\\*"
-            "\\*Go-Translate\\*"
-            "\\*Embark \\(Collect\\|Live\\):.*\\*"
+            "\\*Compile-Log\\*$"
+            "\\*Completions\\*$"
+            "\\*Warnings\\*$"
+            "\\*Async Shell Command\\*$"
+            "\\*Apropos\\*$"
+            "\\*Backtrace\\*$"
+            "\\*Calendar\\*$"
+            "\\*Finder\\*$"
+            "\\*Kill Ring\\*$"
+            "\\*Go-Translate\\*$"
+            "\\*Embark \\(Collect\\|Live\\):.*\\*$"
 
             bookmark-bmenu-mode
             comint-mode
@@ -261,13 +261,13 @@
             grep-mode occur-mode rg-mode deadgrep-mode ag-mode pt-mode
             youdao-dictionary-mode osx-dictionary-mode fanyi-mode
 
-            "^\\*Process List\\*" process-menu-mode
+            "^\\*Process List\\*$" process-menu-mode
             list-environment-mode cargo-process-mode
 
-            "^\\*eshell.*\\*$"         eshell-mode
-            "^\\*shell.*\\*$"          shell-mode
-            "^\\*term.*\\*$"           term-mode
-            "^\\*vterm[inal]*.*\\*.*$" vterm-mode
+            "^\\*.*eshell.*\\*$"         eshell-mode
+            "^\\*.*shell.*\\*$"          shell-mode
+            "^\\*.*term.*\\*$"           term-mode
+            "^\\*.*vterm[inal]*.*\\*.*$" vterm-mode
 
             "\\*DAP Templates\\*$" dap-server-log-mode
             "\\*ELP Profiling Restuls\\*" profiler-report-mode

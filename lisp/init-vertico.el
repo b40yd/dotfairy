@@ -148,7 +148,7 @@ If INITIAL is non-nil, use as initial input."
         ;; find-file etc.
         completion-category-overrides '((file (styles orderless partial-completion)))
         orderless-style-dispatchers '(+vertico-orderless-dispatch)
-        orderless-component-separator "[ &]")
+        orderless-component-separator #'orderless-escapable-split-on-space)
   ;; ...otherwise find-file gets different highlighting than other commands
   (set-face-attribute 'completions-first-difference nil :inherit nil))
 
