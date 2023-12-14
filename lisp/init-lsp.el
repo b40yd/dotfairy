@@ -873,7 +873,7 @@
               (Template      . ,(nerd-icons-codicon "nf-cod-symbol_snippet"))))
           (setq company-box-icons-alist 'company-box-icons-nerd))))))
 
-(unless dotfairy-lsp
+(when dotfairy-lsp
   ;; Enable LSP in org babel
   ;; https://github.com/emacs-lsp/lsp-mode/issues/377
   (cl-defmacro lsp-org-babel-enable (lang)
@@ -910,8 +910,8 @@
                           (upcase ,lang))))))))
 
   (defconst org-babel-lang-list
-    '("go" "python" "ipython" "ruby" "js" "css" "sass" "c" "rust" "java" "cpp" "c++"))
-  (add-to-list 'org-babel-lang-list "shell")
+    '("go" "python" "ipython" "ruby" "js" "css" "sass" "c" "rust" "java" "cpp" "c++" "shell")
+    "The supported programming languages for interactive Babel.")
   (dolist (lang org-babel-lang-list)
     (eval `(lsp-org-babel-enable ,lang))))
 
