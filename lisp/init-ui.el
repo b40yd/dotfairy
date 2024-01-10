@@ -81,6 +81,9 @@
 ;;     doom-one-light
 ;;     doom-dark+
 (use-package doom-themes
+  :custom
+  (doom-themes-enable-bold t)
+  (doom-themes-enable-italic t)
   :init
   (dotfairy-load-theme dotfairy-theme t))
 
