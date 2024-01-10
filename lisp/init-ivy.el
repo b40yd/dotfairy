@@ -326,8 +326,6 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
 
   ;; Use the faster search tool: ripgrep (`rg')
   (cond
-   ((executable-find "ugrep")
-    (setq counsel-grep-base-command "ugrep --color=never -n -e '%s' '%s'"))
    ((executable-find "rg")
     (setq counsel-grep-base-command "rg -S --no-heading --line-number --color never '%s' '%s'")))
 
@@ -771,8 +769,6 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
   :hook (counsel-mode . counsel-projectile-mode)
   :init
   (setq counsel-projectile-grep-initial-input '(ivy-thing-at-point))
-  (when (executable-find "ugrep")
-    (setq counsel-projectile-grep-base-command "ugrep --color=never -rnEI %s"))
 
   (defun +ivy/projectile-find-file ()
     "A more sensible `counsel-projectile-find-file', which will revert to
