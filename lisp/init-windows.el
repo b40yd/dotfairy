@@ -139,9 +139,9 @@
     :foreign-keys warn :quit-key ("q" "C-g"))
    ("Actions"
     (("TAB" other-window "switch")
-     ("x" ace-delete-window "delete" :exit t)
+     ("x" ace-delete-window "delete")
      ("m" ace-delete-other-windows "maximize" :exit t)
-     ("s" ace-swap-window "swap" :exit t)
+     ("s" ace-swap-window "swap")
      ("a" ace-select-window "select" :exit t)
      ("f" toggle-frame-fullscreen "fullscreen" :exit t))
     "Resize"
@@ -161,10 +161,12 @@
      ("=" text-scale-increase "in")
      ("-" text-scale-decrease "out")
      ("0" (text-scale-increase 0) "reset"))
-    "Appearance"
-    (("F" set-frame-font "font")
-     ("P" treemacs "treemacs")
-     ("T" counsel-load-theme "theme"))))
+    "Misc"
+    (("o" set-frame-font "frame font")
+     ("f" make-frame-command "new frame")
+     ("d" delete-frame "delete frame")
+     ("<left>" winner-undo "winner undo")
+     ("<right>" winner-redo "winner redo"))))
   :custom-face
   (aw-leading-char-face ((t (:inherit font-lock-keyword-face :foreground unspecified :bold t :height 1.0))))
   (aw-mode-line-face ((t (:inherit mode-line-emphasis :bold t))))
