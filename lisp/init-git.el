@@ -117,6 +117,12 @@ kill all magit buffers for this repo."
     :config
     (require 'emacsql-sqlite)
     (setq forge-database-file (concat dotfairy-cache-dir "forge/forge-database.sqlite"))
+    ;; All forge list modes are derived from `forge-topic-list-mode'
+    (map! :map forge-topic-list-mode-map :n "q" #'kill-current-buffer)
+    (when (not forge-add-default-bindings)
+      (map! :map magit-mode-map [remap magit-browse-thing] #'forge-browse-dwim
+            :map magit-remote-section-map [remap magit-browse-thing] #'forge-browse-remote
+            :map magit-branch-section-map [remap magit-browse-thing] #'forge-browse-branch))
 
     (defadvice! +magit--forge-get-repository-lazily-a (&rest _)
       "Make `forge-get-repository' return nil if the binary isn't built yet.
