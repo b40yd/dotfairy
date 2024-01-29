@@ -167,8 +167,8 @@
 
 ;; Increase selected region by semantic units
 (use-package expand-region
-  :bind (("M-+" . er/expand-region)
-         ("M--" . er/contract-region)))
+  :bind (("C-c +" . er/expand-region)
+         ("C-c -" . er/contract-region)))
 
 ;; Multiple cursors
 (use-package multiple-cursors

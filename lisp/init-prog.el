@@ -240,5 +240,11 @@ Install the doc if it's not installed."
 (use-package valign
   :hook ((org-mode markdown-mode) . valign-mode))
 
+;; Frame transparence
+(use-package transwin
+  :bind (("M-+" . transwin-inc)
+         ("M--" . transwin-dec)
+         ("M-0" . transwin-toggle)))
+
 (provide 'init-prog)
 ;;; init-prog.el ends here

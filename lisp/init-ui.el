@@ -57,6 +57,7 @@
   (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
   (add-to-list 'default-frame-alist '(ns-appearance . dark))
   ;; (add-hook 'window-setup-hook #'toggle-frame-fullscreen)
+
   (add-hook 'server-after-make-frame-hook
             (lambda ()
               (if (display-graphic-p)

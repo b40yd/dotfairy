@@ -159,7 +159,6 @@ If INITIAL is non-nil, use as initial input."
   (define-key!
     [remap bookmark-jump]                 #'consult-bookmark
     [remap goto-line]                     #'consult-goto-line
-    [remap imenu]                         #'consult-imenu
     [remap Info-search]                   #'consult-info
     [remap locate]                        #'consult-locate
     [remap load-theme]                    #'consult-theme
