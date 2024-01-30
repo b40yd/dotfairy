@@ -64,25 +64,6 @@
           (+vertico/embark-preview)
         (user-error (vertico-directory-enter)))))
 
-  (defvar +vertico/find-file-in--history nil)
-;;;###autoload
-  (defun +vertico/find-file-in (&optional dir initial)
-    "Jump to file under DIR (recursive).
-If INITIAL is non-nil, use as initial input."
-    (interactive)
-    (require 'consult)
-    (let* ((default-directory (or dir default-directory))
-           (prompt-dir (consult--directory-prompt "Find" default-directory))
-           (cmd (split-string-and-unquote +vertico-consult-fd-args " ")))
-      (find-file
-       (consult--read
-        (split-string (cdr (apply #'dotfairy-call-process cmd)) "\n" t)
-        :prompt default-directory
-        :sort nil
-        :initial (if initial (shell-quote-argument initial))
-        :add-history (thing-at-point 'filename)
-        :category 'file
-        :history '(:input +vertico/find-file-in--history)))))
 
   (setq vertico-resize nil
         vertico-count 17
@@ -182,28 +163,47 @@ If INITIAL is non-nil, use as initial input."
 
 
   (autoload 'consult--multi "consult")
-  (defvar +vertico-consult-fd-args nil
-    "Shell command and arguments the vertico module uses for fd.")
+
+  ;;;###autoload
+  (defun +vertico/consult-fd-or-find (&optional dir initial)
+    "Runs consult-fd if fd version > 8.6.0 exists, consult-find otherwise.
+See URL `https://github.com/minad/consult/issues/770'."
+    (interactive "P")
+    ;; TODO this condition was adapted from a similar one in lisp/doom-projects.el, to be replaced with a more robust check post v3
+    (if (when-let*
+            ((bin (if (ignore-errors (file-remote-p default-directory nil t))
+                      (cl-find-if (dotfairy-rpartial #'executable-find t)
+                                  (list "fdfind" "fd"))
+                    dotfairy-projectile-fd-binary))
+             (version (with-memoization dotfairy-projects--fd-version
+                        (cadr (split-string (cdr (dotfairy-call-process bin "--version"))
+                                            " " t))))
+             ((ignore-errors (version-to-list version))))
+          ;; TODO remove once fd 8.6.0 is widespread enough to be the minimum version for doom
+          (version< "8.6.0" version))
+        (consult-fd dir initial)
+      (consult-find dir initial)))
 
   (defadvice! +vertico--consult-recent-file-a (&rest _args)
     "`consult-recent-file' needs to have `recentf-mode' on to work correctly"
     :before #'consult-recent-file
     (recentf-mode +1))
 
-  (setq consult-project-root-function #'dotfairy-project-root
+  (setq consult-project-function #'dotfairy-project-root
         consult-narrow-key "<"
         consult-line-numbers-widen t
         consult-async-min-input 2
         consult-async-refresh-delay  0.15
         consult-async-input-throttle 0.2
         consult-async-input-debounce 0.1)
-  (unless +vertico-consult-fd-args
-    (setq +vertico-consult-fd-args
-          (if dotfairy-projectile-fd-binary
-              (format "%s --color=never -i -H -E .git --regex %s"
-                      dotfairy-projectile-fd-binary
-                      (if IS-WINDOWS "--path-separator=/" ""))
-            consult-find-args)))
+  (if dotfairy-projectile-fd-binary
+      (setq consult-fd-args
+            '(dotfairy-projectile-fd-binary
+              "--color=never"
+              ;; https://github.com/sharkdp/fd/issues/839
+              "--full-path --absolute-path"
+              "--hidden --exclude .git"
+              (when IS-WINDOWS "--path-separator=/"))))
 
   (consult-customize
    consult-ripgrep consult-git-grep consult-grep
@@ -380,6 +380,7 @@ Supports exporting consult-grep to wgrep, file to wdeired, and consult-location 
     "Run `magit-status` on repo containing the embark target."
     (interactive "GFile: ")
     (magit-status (locate-dominating-file file ".git")))
+
   (map! (:map embark-file-map
          :desc "Open target with sudo"        "s"   #'dotfairy/sudo-find-file
          (:when (featurep 'magit)
