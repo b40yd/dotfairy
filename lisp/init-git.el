@@ -101,6 +101,12 @@ kill all magit buffers for this repo."
               (kill-process process)
               (kill-buffer buf)))))))
 
+  ;; Unbind M-1, M-2, M-3, and M-4 shortcuts due to conflict with `ace-window'
+  (unbind-key "M-1" magit-mode-map)
+  (unbind-key "M-2" magit-mode-map)
+  (unbind-key "M-3" magit-mode-map)
+  (unbind-key "M-4" magit-mode-map)
+
   ;; Access Git forges from Magit
   ;; see config: https://magit.vc/manual/ghub/Storing-a-Token.html#Storing-a-Token
   ;; writting like as gitlib.com:

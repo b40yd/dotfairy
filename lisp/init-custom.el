@@ -23,6 +23,9 @@
 ;;
 
 ;;; Code:
+(eval-when-compile
+  (require 'package))
+
 (defgroup dotfairy nil
   "Dotfairy Emacs customization."
   :group 'convenience
