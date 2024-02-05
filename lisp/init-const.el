@@ -25,15 +25,42 @@
 ;;; Code:
 (require 'subr-x)
 
-(defconst IS-MAC     (eq system-type 'darwin))
-(defconst IS-LINUX   (eq system-type 'gnu/linux))
-(defconst IS-WINDOWS (memq system-type '(cygwin windows-nt ms-dos)))
-(defconst IS-BSD     (or IS-MAC (eq system-type 'berkeley-unix)))
 
-(defconst emacs/26 (>= emacs-major-version 26))
-(defconst emacs/27 (>= emacs-major-version 27))
-(defconst emacs/28 (>= emacs-major-version 28))
-(defconst emacs/29 (>= emacs-major-version 29))
+;;; Custom features & global constants
+;; Doom has its own features that its modules, CLI, and user extensions can
+;; announce, and don't belong in `features', so they are stored here, which can
+;; include information about the external system environment.
+(defconst doom-features
+  (pcase system-type
+    ('darwin                           '(macos bsd))
+    ((or 'cygwin 'windows-nt 'ms-dos)  '(windows))
+    ((or 'gnu 'gnu/linux)              '(linux))
+    ((or 'gnu/kfreebsd 'berkeley-unix) '(linux bsd)))
+  "A list of symbols denoting available features in the active Doom profile.")
+
+;; Convenience aliases for internal use only (may be removed later).
+(defconst doom-system            (car doom-features))
+(defconst doom--system-windows-p (eq 'windows doom-system))
+(defconst doom--system-macos-p   (eq 'macos doom-system))
+(defconst doom--system-linux-p   (eq 'linux doom-system))
+
+;; `system-type' is esoteric, so I create a pseudo feature as a stable and
+;; consistent alternative, and all while using the same `featurep' interface
+;; we're already familiar with.
+(push :system features)
+(put :system 'subfeatures doom-features)
+
+(with-no-warnings
+  (defconst IS-MAC      doom--system-macos-p)
+  (defconst IS-LINUX    doom--system-linux-p)
+  (defconst IS-WINDOWS  doom--system-windows-p)
+  (defconst IS-BSD      (memq 'bsd doom-features))
+  (defconst emacs/26 (>= emacs-major-version 26))
+  (defconst emacs/27 (>= emacs-major-version 27))
+  (defconst emacs/28 (>= emacs-major-version 28))
+  (defconst emacs/29 (>= emacs-major-version 29))
+  (defconst MODULES     (featurep 'dynamic-modules))
+  (defconst NATIVECOMP  (featurep 'native-compile)))
 
 ;;; Directories/files
 (defconst dotfairy-emacs-dir
