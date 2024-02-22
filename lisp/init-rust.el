@@ -6,7 +6,16 @@
   (add-to-list 'projectile-project-root-files "Cargo.toml"))
 
 (use-package rust-mode
-  :mode ("\\.rs$" . rust-mode))
+  :mode ("\\.rs$" . rust-mode)
+  :hook ((rustic-mode . (lambda ()
+                          (dotfairy-set-prettify '(("fn" . ?ƒ)
+                                                   ("None" . ?∅)
+                                                   ("<<=" . (?≪ (Br . Bl) ?=))
+                                                   ("||=" . ?⊫)
+                                                   ("|=" . ?⊨)
+                                                   (".." . ?‥)
+                                                   ("..." . ?…)
+                                                   ("::" . ?∷)))))))
 ;; Rust
 (when (memq dotfairy-lsp '(lsp-mode eglot))
   (use-package rustic
@@ -17,15 +26,6 @@
     ;; disable rustic flycheck error display in modeline. Its redundant
     (setq rustic-flycheck-setup-mode-line-p nil)
 
-    :hook ((rustic-mode . (lambda ()
-                            (dotfairy-set-prettify '(("fn" . ?ƒ)
-                                                     ("None" . ?∅)
-                                                     ("<<=" . (?≪ (Br . Bl) ?=))
-                                                     ("||=" . ?⊫)
-                                                     ("|=" . ?⊨)
-                                                     (".." . ?‥)
-                                                     ("..." . ?…)
-                                                     ("::" . ?∷))))))
     :config
     (setq rustic-indent-method-chain t)
 

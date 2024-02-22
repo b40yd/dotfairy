@@ -67,7 +67,7 @@
 (defun dotfairy/sudo-find-file (file)
   "Open FILE as root."
   (interactive "FOpen file as root: ")
-  (find-file (dotfairy/sudo-file-path file)))
+  (find-file (dotfairy/sudo-file-path (expand-file-name file))))
 
 ;;;###autoload
 (defun dotfairy/sudo-this-file ()
