@@ -196,7 +196,6 @@ See URL `https://github.com/minad/consult/issues/770'."
         consult-async-refresh-delay  0.15
         consult-async-input-throttle 0.2
         consult-async-input-debounce 0.1
-        consult-async-input-debounce 0.1
         consult-fd-args
         '((if (executable-find "fdfind" 'remote) "fdfind" "fd")
           "--color=never"
