@@ -329,7 +329,7 @@ ensure it is built when we actually use Forge."
   :ensure t
   :diminish
   :pretty-hydra
-  ((:title (pretty-hydra-title "Smerge" 'octicon "diff")
+  ((:title (pretty-hydra-title "Smerge" 'octicon "nf-oct-diff")
     :color pink :quit-key ("q" "C-g"))
    ("Move"
     (("n" (progn (smerge-vc-next-conflict) (recenter-top-bottom (/ (window-height) 8))) "recenter next")
