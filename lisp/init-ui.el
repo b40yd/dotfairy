@@ -381,9 +381,20 @@ See `display-line-numbers' for what these values mean."
     (setq dashboard-startup-banner (or dotfairy-logo 'official)
           dashboard-set-heading-icons t
           dashboard-center-content t
+          dashboard-vertically-center-content t
           dashboard-set-file-icons t
-          dashboard-set-footer t
-          dashboard-set-navigator t
+          ;; dashboard-set-footer t
+          ;; dashboard-set-navigator t
+          dashboard-startupify-list '(dashboard-insert-banner
+                                      dashboard-insert-newline
+                                      dashboard-insert-banner-title
+                                      dashboard-insert-newline
+                                      dashboard-insert-navigator
+                                      dashboard-insert-newline
+                                      dashboard-insert-init-info
+                                      dashboard-insert-items
+                                      dashboard-insert-newline
+                                      dashboard-insert-footer)
           dashboard-projects-backend 'project-el
           dashboard-path-style 'truncate-middle
           dashboard-path-max-length 60
