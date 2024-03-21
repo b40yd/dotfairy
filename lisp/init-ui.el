@@ -28,7 +28,9 @@
 (require 'init-funcs)
 
 ;; Optimization
-(setq-default cursor-in-non-selected-windows nil)
+(setq-default cursor-in-non-selected-windows nil
+              tab-width 4
+              indent-tabs-mode nil)
 (setq idle-update-delay 1.0
       highlight-nonselected-windows nil
       fast-but-imprecise-scrolling t
@@ -71,7 +73,10 @@
 
 (use-package time
   :init (setq display-time-default-load-average nil
-              display-time-format "%H:%M"))
+              display-time-format "%H:%M"
+              display-time-24hr-format t
+              display-time-day-and-date t)
+  (display-time-mode t))
 
 (use-package solarized-theme)
 
@@ -279,14 +284,7 @@
   :bind ((("M-/" . comment-line)
           ("M-?" . comment-or-uncomment-region)))
   :hook ((after-init . delete-selection-mode))
-  ;; Settings for the TAB behavior
-
-  :init (setq-default tab-width 4
-                      indent-tabs-mode nil
-                      display-time-24hr-format t
-                      display-time-day-and-date t)
-  ;; Display time
-  (display-time-mode 1)
+  :config
   ;; TAB cycle if there are only few candidates
   (setq completion-cycle-threshold 3)
 
