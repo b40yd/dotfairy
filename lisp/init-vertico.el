@@ -282,7 +282,8 @@ See URL `https://github.com/minad/consult/issues/770'."
   :bind ("M-g s" . consult-flyspell))
 
 (use-package consult-yasnippet
-  :bind ("M-g y" . consult-yasnippet))
+  :bind ("M-g y" . consult-yasnippet)
+  :init (map! [remap yas-insert-snippet] #'consult-yasnippet))
 
 (use-package embark
   :defer t
