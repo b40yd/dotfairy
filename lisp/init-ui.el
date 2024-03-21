@@ -73,7 +73,7 @@
 
 (use-package time
   :init (setq display-time-default-load-average nil
-              display-time-format "%H:%M"
+              display-time-format "%Y-%m-%d %H:%M"
               display-time-24hr-format t
               display-time-day-and-date t)
   (display-time-mode t))
