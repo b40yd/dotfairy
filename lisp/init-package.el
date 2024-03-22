@@ -42,8 +42,7 @@
   (set-package-archives (dotfairy-test-package-archives 'no-chart)))
 
 ;; Load `custom-file'
-(if (file-exists-p custom-file)
-    (load custom-file))
+(and (file-readable-p custom-file) (load custom-file))
 
 ;; Load custom-post file
 (defun load-custom-post-file ()
@@ -55,7 +54,7 @@
          (load dotfairy-custom-post-file))))
 (add-hook 'after-init-hook #'load-custom-post-file)
 
-;; HACK: DO NOT save package-selected-packages to init/custom file forcibly.
+;; HACK: DO NOT save `package-selected-packages' to `custom-file'
 ;; https://github.com/jwiegley/use-package/issues/383#issuecomment-247801751
 (defun my-package--save-selected-packages (&optional value)
   "Set `package-selected-packages' to VALUE but don't save to variable `custom-file'."
@@ -88,8 +87,8 @@
         use-package-expand-minimally t
         use-package-enable-imenu-support t))
 
-(eval-when-compile
-  (require 'use-package))
+;; (eval-when-compile
+;;   (require 'use-package))
 
 ;; Use quelpa install packages
 (use-package quelpa
@@ -108,18 +107,13 @@
 ;; Update GPG keyring for GNU ELPA
 (use-package gnu-elpa-keyring-update)
 
-
-;; Auto update packages
-(unless (fboundp 'package-update-all)
+;; Update packages
+(unless (fboundp 'package-upgrade-all)
   (use-package auto-package-update
     :init
     (setq auto-package-update-delete-old-versions t
           auto-package-update-hide-results t)
-    (defun my-upgrade-packages (&optional async)
-      (interactive)
-      (auto-package-update-now async)
-      (quelpa-upgrade-all))
-    (defalias 'upgrade-packages #'my-upgrade-packages)))
+    (defalias 'package-upgrade-all #'auto-package-update-now)))
 
 ;; Update
 (defun update-config ()
