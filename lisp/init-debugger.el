@@ -31,31 +31,44 @@
 
 (pcase dotfairy-lsp
   ('lsp-mode
-   (use-package dap-mode
-     :defines dap-python-executable
-     :functions dap-hydra/nil
-     :diminish
-     :bind (:map lsp-mode-map
-            ("<f5>" . dap-debug)
-            ("M-<f5>" . dap-hydra))
-     :hook ((after-init . dap-auto-configure-mode)
-            (dap-stopped . (lambda (_) (dap-hydra)))
-            (dap-terminated . (lambda (_) (dap-hydra/nil)))
-            ((python-mode python-ts-mode)            . (lambda ()
-                                                         (require 'dap-python)
-                                                         (setq dap-python-debugger 'debugpy)))
-            ((ruby-mode ruby-ts-mode)                . (lambda () (require 'dap-ruby)))
-            ((go-mode go-ts-mode)                    . (lambda () (require 'dap-dlv-go)))
-            ((java-mode java-ts-mode jdee-mode)      . (lambda () (require 'dap-java)))
-            ((c-mode c-ts-mode c++-mode c++-ts-mode) . (lambda () (require 'dap-cpptools)))
-            ((objc-mode swift-mode)                  . (lambda () (require 'dap-lldb)))
-            (php-mode                                . (lambda () (require 'dap-php)))
-            (elixir-mode                             . (lambda () (require 'dap-elixir)))
-            ((js-mode js2-mode js-ts-mode)           . (lambda () (require 'dap-chrome)))
-            (powershell-mode                         . (lambda () (require 'dap-pwsh))))
-     :init
-     (when (executable-find "python3")
-       (setq dap-python-executable "python3")))))
+   (use-package dape
+     :bind (("<f5>" . dape)
+            ("M-<f5>" . dape-hydra/body))
+     :custom (dape-buffer-window-arrangment 'right)
+     :pretty-hydra
+     ((:title (pretty-hydra-title "Debug" 'codicon "nf-cod-debug")
+       :color pink :quit-key ("q" "C-g"))
+      ("Stepping"
+       (("n" dape-next "next")
+        ("s" dape-step-in "step in")
+        ("o" dape-step-out "step out")
+        ("c" dape-continue "continue")
+        ("p" dape-pause "pause")
+        ("k" dape-kill "kill")
+        ("r" dape-restart "restart")
+        ("D" dape-disconnect-quit "disconnect"))
+       "Switch"
+       (("m" dape-read-memory "memory")
+        ("t" dape-select-thread "thread")
+        ("w" dape-watch-dwim "watch")
+        ("S" dape-select-stack "stack")
+        ("i" dape-info "info")
+        ("R" dape-repl "repl"))
+       "Breakpoints"
+       (("b" dape-breakpoint-toggle "toggle")
+        ("l" dape-breakpoint-log "log")
+        ("e" dape-breakpoint-expression "expression")
+        ("B" dape-breakpoint-remove-all "clear"))
+       "Debug"
+       (("d" dape "dape")
+        ("Q" dape-quit "quit" :exit t))))
+     :config
+     ;; Save buffers on startup, useful for interpreted languages
+     (add-hook 'dape-on-start-hooks
+               (defun dape--save-on-start ()
+                 (save-some-buffers t t)))
+     ;; Display hydra on startup
+     (add-hook 'dape-on-start-hooks #'dape-hydra/body))))
 
 (provide 'init-debugger)
 ;;; init-debugger.el ends here

@@ -87,8 +87,8 @@
         use-package-expand-minimally t
         use-package-enable-imenu-support t))
 
-;; (eval-when-compile
-;;   (require 'use-package))
+(eval-when-compile
+  (require 'use-package))
 
 ;; Use quelpa install packages
 (use-package quelpa
