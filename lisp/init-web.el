@@ -133,15 +133,6 @@
 (use-package haml-mode)
 (use-package php-mode)
 
-(use-package tide
-  :ensure t
-  :after (typescript-mode company flycheck)
-  :hook ((typescript-mode . tide-setup)
-         (typescript-mode . tide-hl-identifier-mode)
-         (before-save . (lambda ()
-                          (when dotfairy-lsp-format-on-save
-                            tide-format-before-save)))))
-
 (use-package rjsx-mode
   :mode "\\jsx\\|.[mc]?js\\'"
   :interpreter "node"

@@ -27,6 +27,65 @@
 (require 'init-funcs)
 (require 'init-keybinds)
 
+(use-package orderless
+  :ensure t
+  :config
+
+  (defun +vertico-orderless-dispatch (pattern _index _total)
+    (cond
+     ;; Ensure $ works with Consult commands, which add disambiguation suffixes
+     ((string-suffix-p "$" pattern)
+      `(orderless-regexp . ,(concat (substring pattern 0 -1) "[\x200000-\x300000]*$")))
+     ;; Ignore single !
+     ((string= "!" pattern) `(orderless-literal . ""))
+     ;; Without literal
+     ((string-prefix-p "!" pattern) `(orderless-without-literal . ,(substring pattern 1)))
+     ;; Annotation
+     ((string-prefix-p "&" pattern) `(orderless-annotation . ,(substring pattern 1)))
+     ((string-suffix-p "&" pattern) `(orderless-annotation . ,(substring pattern 0 -1)))
+     ;; Character folding
+     ((string-prefix-p "%" pattern) `(char-fold-to-regexp . ,(substring pattern 1)))
+     ((string-suffix-p "%" pattern) `(char-fold-to-regexp . ,(substring pattern 0 -1)))
+     ;; Initialism matching
+     ((string-prefix-p "`" pattern) `(orderless-initialism . ,(substring pattern 1)))
+     ((string-suffix-p "`" pattern) `(orderless-initialism . ,(substring pattern 0 -1)))
+     ;; Literal matching
+     ((string-prefix-p "=" pattern) `(orderless-literal . ,(substring pattern 1)))
+     ((string-suffix-p "=" pattern) `(orderless-literal . ,(substring pattern 0 -1)))
+     ;; Flex matching
+     ((string-prefix-p "~" pattern) `(orderless-flex . ,(substring pattern 1)))
+     ((string-suffix-p "~" pattern) `(orderless-flex . ,(substring pattern 0 -1)))))
+
+  (defun +vertico-basic-remote-try-completion (string table pred point)
+    (and (vertico--remote-p string)
+         (completion-basic-try-completion string table pred point)))
+
+  (defun +vertico-basic-remote-all-completions (string table pred point)
+    (and (vertico--remote-p string)
+         (completion-basic-all-completions string table pred point)))
+  (add-to-list
+   'completion-styles-alist
+   '(+vertico-basic-remote-try-completion
+     +vertico-basic-remote-all-completions
+     "Use basic completion on remote files only"))
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        ;; note that despite override in the name orderless can still be used in
+        ;; find-file etc.
+        completion-category-overrides '((file (styles orderless partial-completion)))
+        orderless-style-dispatchers '(+vertico-orderless-dispatch)
+        orderless-component-separator #'orderless-escapable-split-on-space)
+  ;; ...otherwise find-file gets different highlighting than other commands
+  (set-face-attribute 'completions-first-difference nil :inherit nil))
+
+;; Support Pinyin
+(use-package pinyinlib
+  :after orderless
+  :autoload pinyinlib-build-regexp-string
+  :init
+  (defun completion--regex-pinyin (str)
+    (orderless-regexp (pinyinlib-build-regexp-string str)))
+  (add-to-list 'orderless-matching-styles 'completion--regex-pinyin))
 
 (use-package vertico
   :commands (+vertico/embark-preview)
@@ -85,53 +144,37 @@
     (letf! ((#'minibuffer-completion-help #'ignore))
       (apply fn args))))
 
-(use-package orderless
-  :ensure t
+
+(when (childframe-completion-workable-p)
+  (use-package vertico-posframe
+    :hook (vertico-mode . vertico-posframe-mode)
+    :init (setq vertico-posframe-poshandler
+                #'posframe-poshandler-frame-center-near-bottom
+                vertico-posframe-parameters
+                '((left-fringe  . 8)
+                  (right-fringe . 8)))))
+
+(use-package nerd-icons-completion
+  :when (icons-displayable-p)
+  :hook (vertico-mode . nerd-icons-completion-mode))
+
+(use-package marginalia
+  :hook (after-init . marginalia-mode)
+  :init
+  (map! :map minibuffer-local-map
+        :desc "Cycle marginalia views" "M-A" #'marginalia-cycle)
   :config
-
-  (defun +vertico-orderless-dispatch (pattern _index _total)
-    (cond
-     ;; Ensure $ works with Consult commands, which add disambiguation suffixes
-     ((string-suffix-p "$" pattern)
-      `(orderless-regexp . ,(concat (substring pattern 0 -1) "[\x200000-\x300000]*$")))
-     ;; Ignore single !
-     ((string= "!" pattern) `(orderless-literal . ""))
-     ;; Without literal
-     ((string-prefix-p "!" pattern) `(orderless-without-literal . ,(substring pattern 1)))
-     ;; Character folding
-     ((string-prefix-p "%" pattern) `(char-fold-to-regexp . ,(substring pattern 1)))
-     ((string-suffix-p "%" pattern) `(char-fold-to-regexp . ,(substring pattern 0 -1)))
-     ;; Initialism matching
-     ((string-prefix-p "`" pattern) `(orderless-initialism . ,(substring pattern 1)))
-     ((string-suffix-p "`" pattern) `(orderless-initialism . ,(substring pattern 0 -1)))
-     ;; Literal matching
-     ((string-prefix-p "=" pattern) `(orderless-literal . ,(substring pattern 1)))
-     ((string-suffix-p "=" pattern) `(orderless-literal . ,(substring pattern 0 -1)))
-     ;; Flex matching
-     ((string-prefix-p "~" pattern) `(orderless-flex . ,(substring pattern 1)))
-     ((string-suffix-p "~" pattern) `(orderless-flex . ,(substring pattern 0 -1)))))
-
-  (defun +vertico-basic-remote-try-completion (string table pred point)
-    (and (vertico--remote-p string)
-         (completion-basic-try-completion string table pred point)))
-
-  (defun +vertico-basic-remote-all-completions (string table pred point)
-    (and (vertico--remote-p string)
-         (completion-basic-all-completions string table pred point)))
-  (add-to-list
-   'completion-styles-alist
-   '(+vertico-basic-remote-try-completion
-     +vertico-basic-remote-all-completions
-     "Use basic completion on remote files only"))
-  (setq completion-styles '(orderless basic)
-        completion-category-defaults nil
-        ;; note that despite override in the name orderless can still be used in
-        ;; find-file etc.
-        completion-category-overrides '((file (styles orderless partial-completion)))
-        orderless-style-dispatchers '(+vertico-orderless-dispatch)
-        orderless-component-separator #'orderless-escapable-split-on-space)
-  ;; ...otherwise find-file gets different highlighting than other commands
-  (set-face-attribute 'completions-first-difference nil :inherit nil))
+  (advice-add #'marginalia--project-root :override #'dotfairy-project-root)
+  (pushnew! marginalia-command-categories
+            '(+default/find-file-under-here . file)
+            '(dotfairy/find-file-in-emacsd . project-file)
+            '(dotfairy/find-file-in-other-project . project-file)
+            '(flycheck-error-list-set-filter . builtin)
+            '(persp-switch-to-buffer . buffer)
+            '(projectile-find-file . project-file)
+            '(projectile-recentf . project-file)
+            '(projectile-switch-to-buffer . buffer)
+            '(projectile-switch-project . project-file)))
 
 (use-package consult
   :defer t
@@ -186,7 +229,7 @@ See URL `https://github.com/minad/consult/issues/770'."
 
   (defadvice! +vertico--consult-recent-file-a (&rest _args)
     "`consult-recent-file' needs to have `recentf-mode' on to work correctly"
-    :before #'consult-recent-file
+    :before (list #'consult-recent-file #'consult-buffer)
     (recentf-mode +1))
 
   (setq consult-project-function #'dotfairy-project-root
@@ -245,22 +288,34 @@ See URL `https://github.com/minad/consult/issues/770'."
 (use-package consult-dir
   :bind (([remap list-directory] . consult-dir))
   :config
+  ;; TODO: Replace with `tramp-container--completion-function' when we drop
+  ;;   support for <29
+  (defun +vertico--consult-dir-container-hosts (host)
+    "Get a list of hosts from HOST."
+    (cl-loop for line in (cdr
+                          (ignore-errors
+                            (apply #'process-lines +vertico-consult-dir-container-executable
+                                   (append +vertico-consult-dir-container-args (list "ps")))))
+             for cand = (split-string line "[[:space:]]+" t)
+             collect (format "/%s:%s:/" host (car (last cand)))))
+
+  (defun +vertico--consult-dir-podman-hosts ()
+    (let ((+vertico-consult-dir-container-executable "podman"))
+      (+vertico--consult-dir-container-hosts "podman")))
+
   (defun +vertico--consult-dir-docker-hosts ()
-    "Get a list of hosts from docker."
-    (when (if emacs/29
-              (require 'tramp-container nil t)
-            (setq-local docker-tramp-use-names t)
-            (require 'docker-tramp nil t))
-      (let ((hosts)
-            (docker-query-fn #'docker-tramp--parse-running-containers))
-        (when emacs/29
-          (setq docker-query-fn #'tramp-docker--completion-function))
-        (dolist (cand (funcall docker-query-fn))
-          (let ((user (unless (string-empty-p (car cand))
-                        (concat (car cand) "@")))
-                (host (car (cdr cand))))
-            (push (concat "/docker:" user host ":/") hosts)))
-        hosts)))
+    (let ((+vertico-consult-dir-container-executable "docker"))
+      (+vertico--consult-dir-container-hosts "docker")))
+
+  (defvar +vertico--consult-dir-source-tramp-podman
+    `(:name     "Podman"
+      :narrow   ?p
+      :category file
+      :face     consult-file
+      :history  file-name-history
+      :items    ,#'+vertico--consult-dir-podman-hosts)
+    "Podman candidate source for `consult-dir'.")
+
   (defvar +vertico--consult-dir-source-tramp-docker
     `(:name     "Docker"
       :narrow   ?d
@@ -268,15 +323,13 @@ See URL `https://github.com/minad/consult/issues/770'."
       :face     consult-file
       :history  file-name-history
       :items    ,#'+vertico--consult-dir-docker-hosts)
-    "Docker candiadate source for `consult-dir'.")
+    "Docker candidate source for `consult-dir'.")
 
+  (add-to-list 'consult-dir-sources '+vertico--consult-dir-source-tramp-podman t)
   (add-to-list 'consult-dir-sources '+vertico--consult-dir-source-tramp-docker t)
 
   (add-to-list 'consult-dir-sources 'consult-dir--source-tramp-ssh t)
   (add-to-list 'consult-dir-sources 'consult-dir--source-tramp-local t))
-
-(use-package consult-flycheck
-  :after (consult flycheck))
 
 (use-package consult-flyspell
   :bind ("M-g s" . consult-flyspell))
@@ -386,23 +439,6 @@ Supports exporting consult-grep to wgrep, file to wdeired, and consult-location 
          (:when (featurep 'magit)
           :desc "Open magit-status of target" "g"   #'+vertico/embark-magit-status))))
 
-(use-package marginalia
-  :hook (after-init . marginalia-mode)
-  :init
-  (map! :map minibuffer-local-map
-        :desc "Cycle marginalia views" "M-A" #'marginalia-cycle)
-  :config
-  (advice-add #'marginalia--project-root :override #'dotfairy-project-root)
-  (pushnew! marginalia-command-categories
-            '(+default/find-file-under-here . file)
-            '(dotfairy/find-file-in-emacsd . project-file)
-            '(dotfairy/find-file-in-other-project . project-file)
-            '(flycheck-error-list-set-filter . builtin)
-            '(persp-switch-to-buffer . buffer)
-            '(projectile-find-file . project-file)
-            '(projectile-recentf . project-file)
-            '(projectile-switch-to-buffer . buffer)
-            '(projectile-switch-project . project-file)))
 
 ;;;###autoload
 (cl-defun +vertico-file-search (&key query in all-files (recursive t) prompt args)
@@ -471,19 +507,6 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
 (defun +vertico/search-symbol-at-point ()
   (interactive)
   (consult-line (thing-at-point 'symbol)))
-
-(when (childframe-completion-workable-p)
-  (use-package vertico-posframe
-    :hook (vertico-mode . vertico-posframe-mode)
-    :init (setq vertico-posframe-poshandler
-                #'posframe-poshandler-frame-center-near-bottom
-                vertico-posframe-parameters
-                '((left-fringe  . 8)
-                  (right-fringe . 8)))))
-
-(use-package nerd-icons-completion
-  :when (icons-displayable-p)
-  :hook (vertico-mode . nerd-icons-completion-mode))
 
 (provide 'init-vertico)
 ;;; init-vertico.el ends here

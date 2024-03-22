@@ -93,11 +93,7 @@
 (use-package cmake-mode
   :ensure t
   :mode (("CMakeLists\\.txt\\'" . cmake-mode)
-         ("\\.cmake\\'" . cmake-mode))
-  :config
-  (add-hook 'cmake-mode-hook (lambda ()
-                               (add-to-list (make-local-variable 'company-backends)
-                                            'company-cmake))))
+         ("\\.cmake\\'" . cmake-mode)))
 
 ;;
 ;; for c formatting

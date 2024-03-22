@@ -301,8 +301,7 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
         ivy-fixed-height-minibuffer t
         ivy-count-format "(%d/%d) "
         ivy-ignore-buffers '("\\` " "\\`\\*tramp/" "\\`\\*xref" "\\`\\*helpful .+\\*"
-                             "\\`\\*.+-posframe-buffer\\*" "\\` ?\\*company-.+\\*"
-                             "\\`flycheck_.+")
+                             "\\`\\*.+-posframe-buffer\\*" "\\`")
         ivy-on-del-error-function #'ignore
         ivy-initial-inputs-alist nil)
   ;; Use orderless regex strategy

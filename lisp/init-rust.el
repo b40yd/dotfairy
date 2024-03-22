@@ -36,17 +36,14 @@
     (setq rustic-babel-format-src-block nil
           rustic-format-trigger nil)
 
-    (if (not (memq dotfairy-lsp '(lsp-mode)))
-        (after! rustic-flycheck
-          (add-to-list 'flycheck-checkers 'rustic-clippy))
-      (setq rustic-lsp-client
-            (cond ((memq dotfairy-lsp '(eglot))
-                   'eglot)
-                  ((memq dotfairy-lsp '(lsp-mode))
-                   'lsp-mode)
-                  (t
-                   nil)))
-      (add-hook 'rustic-mode-local-vars-hook #'rustic-setup-lsp 'append))
+    (setq rustic-lsp-client
+          (cond ((memq dotfairy-lsp '(eglot))
+                 'eglot)
+                ((memq dotfairy-lsp '(lsp-mode))
+                 'lsp-mode)
+                (t
+                 nil)))
+    (add-hook 'rustic-mode-local-vars-hook #'rustic-setup-lsp 'append)
 
     ;; HACK If lsp/eglot isn't available, it attempts to install lsp-mode via
     ;;   package.el. Doom manages its own dependencies through straight so disable
@@ -66,8 +63,6 @@
           ;; format using rustfmt on save
           rustic-format-on-save t)
 
-    (after! flycheck
-      (add-to-list 'flycheck-checkers 'rustic-clippy))
 
     (map! :map rustic-mode-map
           :localleader
