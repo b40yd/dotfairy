@@ -384,6 +384,40 @@ or aliases."
   (declare (doc-string 1) (pure t) (side-effect-free t))
   `(lambda (&rest _) (interactive) ,@body))
 
+(defmacro cmds! (&rest branches)
+  "Returns a dispatcher that runs the a command in BRANCHES.
+Meant to be used as a target for keybinds (e.g. with `define-key' or `map!').
+
+BRANCHES is a flat list of CONDITION COMMAND pairs. CONDITION is a lisp form
+that is evaluated when (and each time) the dispatcher is invoked. If it returns
+non-nil, COMMAND is invoked, otherwise it falls through to the next pair.
+
+The last element of BRANCHES can be a COMMANd with no CONDITION. This acts as
+the fallback if all other conditions fail.
+
+Otherwise, Emacs will fall through the keybind and search the next keymap for a
+keybind (as if this keybind never existed).
+
+See `general-key-dispatch' for what other arguments it accepts in BRANCHES."
+  (declare (doc-string 1))
+  (let ((docstring (if (stringp (car branches)) (pop branches) ""))
+        fallback)
+    (when (cl-oddp (length branches))
+      (setq fallback (car (last branches))
+            branches (butlast branches)))
+    (let ((defs (cl-loop for (key value) on branches by 'cddr
+                         unless (keywordp key)
+                         collect (list key value))))
+      `'(menu-item
+         ,(or docstring "") nil
+         :filter (lambda (&optional _)
+                   (let (it)
+                     (cond ,@(mapcar (lambda (pred-def)
+                                       `((setq it ,(car pred-def))
+                                         ,(cadr pred-def)))
+                                     defs)
+                           (t ,fallback))))))))
+
 (defun dotfairy-rpartial (fn &rest args)
   "Return a partial application of FUN to right-hand ARGS.
 ARGS is a list of the last N arguments to pass to FUN. The result is a new

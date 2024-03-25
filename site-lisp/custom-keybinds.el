@@ -94,7 +94,9 @@
    :desc "Sudo this file"              "u" #'dotfairy/sudo-this-file
    :desc "Sudo find file"              "U" #'dotfairy/sudo-find-file
    :desc "Open init file"              "i" #'dotfairy/open-init-file
-   :desc "Open custom file"            "I" #'dotfairy/open-custom-file)
+   :desc "Open custom file"            "I" #'dotfairy/open-custom-file
+   :desc "Yank file path"              "y" #'+default/yank-buffer-path
+   :desc "Yank file path from project" "Y" #'+default/yank-buffer-path-relative-to-project)
 
   ;;; <leader> s --- search
   (:prefix-map ("s" . "search")
@@ -144,7 +146,6 @@
    :desc "Add directory to project"        "a" #'dotfairy/add-directory-as-project
    :desc "Remove known project"            "d" #'projectile-remove-known-project
    :desc "Restart current workspace"       "R" #'lsp-workspace-restart
-   :desc "Find file in current project"    "f" #'projectile-find-file
    :desc "Find file in other project"      "F" #'dotfairy/find-file-in-other-project
    :desc "Add to workspace"                "i" #'lsp-workspace-folders-add
    :desc "Kill project buffers"            "k" #'dotfairy/kill-project-buffers

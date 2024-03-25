@@ -693,5 +693,45 @@ ARG is set, prompt for a known project to search from."
   (require 'org)
   (+default/search-project-for-symbol-at-point
    symbol org-directory))
+
+
+;;;###autoload
+(defun +default/yank-buffer-path (&optional root)
+  "Copy the current buffer's path to the kill ring."
+  (interactive)
+  (if-let (filename (or (buffer-file-name (buffer-base-buffer))
+                        (bound-and-true-p list-buffers-directory)))
+      (let ((path (abbreviate-file-name
+                   (if root
+                       (file-relative-name filename root)
+                     filename))))
+        (kill-new path)
+        (if (string= path (car kill-ring))
+            (message "Copied path: %s" path)
+          (user-error "Couldn't copy filename in current buffer")))
+    (error "Couldn't find filename in current buffer")))
+
+;;;###autoload
+(defun +default/yank-buffer-path-relative-to-project (&optional include-root)
+  "Copy the current buffer's path to the kill ring.
+With non-nil prefix INCLUDE-ROOT, also include the project's root."
+  (interactive "P")
+  (+default/yank-buffer-path
+   (if include-root
+       (file-name-directory (directory-file-name (dotfairy-project-root)))
+     (dotfairy-project-root))))
+
+
+;;;###autoload
+(defun +default/insert-file-path (arg)
+  "Insert the file name (absolute path if prefix ARG).
+If `buffer-file-name' isn't set, uses `default-directory'."
+  (interactive "P")
+  (let ((path (or buffer-file-name default-directory)))
+    (insert
+     (if arg
+         (abbreviate-file-name path)
+       (file-name-nondirectory path)))))
+
 (provide 'init-projectile)
 ;;; init-projectile.el ends here

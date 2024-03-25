@@ -27,6 +27,96 @@
 (require 'init-funcs)
 (require 'init-keybinds)
 
+(use-package vertico
+  :commands (+vertico/embark-preview)
+  :bind (:map vertico-map
+         ("RET" . vertico-directory-enter)
+         ("DEL" . vertico-directory-delete-char)
+         ("M-DEL" . vertico-directory-delete-word))
+  :hook ((after-init . vertico-mode)
+         (rfn-eshadow-update-overlay . vertico-directory-tidy))
+
+  :init
+  (defadvice! +vertico-crm-indicator-a (args)
+    :filter-args #'completing-read-multiple
+    (cons (format "[CRM%s] %s"
+                  (replace-regexp-in-string
+                   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                   crm-separator)
+                  (car args))
+          (cdr args)))
+  :config
+  (setq vertico-resize nil
+        vertico-count 17
+        vertico-cycle t)
+  (setq-default completion-in-region-function
+                (lambda (&rest args)
+                  (apply (if vertico-mode
+                             #'consult-completion-in-region
+                           #'completion--in-region)
+                         args)))
+
+
+  ;;;###autoload
+  (defvar embark-quit-after-action)
+  (defun +vertico/embark-preview ()
+    "Previews candidate in vertico buffer, unless it's a consult command"
+    (interactive)
+    (unless (bound-and-true-p consult--preview-function)
+      (if (fboundp 'embark-dwim)
+          (save-selected-window
+            (let (embark-quit-after-action)
+              (embark-dwim)))
+        (user-error "Embark not installed, aborting..."))))
+
+;;;###autoload
+  (defun +vertico/enter-or-preview ()
+    "Enter directory or embark preview on current candidate."
+    (interactive)
+    (when (> 0 vertico--index)
+      (user-error "No vertico session is currently active"))
+    (if (and (let ((cand (vertico--candidate)))
+               (or (string-suffix-p "/" cand)
+                   (and (vertico--remote-p cand)
+                        (string-suffix-p ":" cand))))
+             (not (equal vertico--base ""))
+             (eq 'file (vertico--metadata-get 'category)))
+        (vertico-insert)
+      (condition-case _
+          (+vertico/embark-preview)
+        (user-error (vertico-directory-enter)))))
+
+
+  (setq vertico-resize nil
+        vertico-count 17
+        vertico-cycle t)
+  (setq-default completion-in-region-function
+                (lambda (&rest args)
+                  (apply (if vertico-mode
+                             #'consult-completion-in-region
+                           #'completion--in-region)
+                         args)))
+  ;; Cleans up path when moving directories with shadowed paths syntax, e.g.
+  ;; cleans ~/foo/bar/// to /, and ~/foo/bar/~/ to ~/.
+  (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy)
+  (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
+  ;; These commands are problematic and automatically show the *Completions* buffer
+  (advice-add #'tmm-add-prompt :after #'minibuffer-hide-completions)
+  (defadvice! +vertico--suppress-completion-help-a (fn &rest args)
+    :around #'ffap-menu-ask
+    (letf! ((#'minibuffer-completion-help #'ignore))
+      (apply fn args)))
+
+  (map! :map vertico-map
+    "M-RET" #'vertico-exit-input
+    "M-." #'+vertico/embark-preview
+    "C-j"   #'vertico-next
+    "C-M-j" #'vertico-next-group
+    "C-k"   #'vertico-previous
+    "C-M-k" #'vertico-previous-group
+    "C-h" (cmds! (eq 'file (vertico--metadata-get 'category)) #'vertico-directory-up)
+    "C-l" (cmds! (eq 'file (vertico--metadata-get 'category)) #'+vertico/enter-or-preview)))
+
 (use-package orderless
   :ensure t
   :config
@@ -87,64 +177,6 @@
     (orderless-regexp (pinyinlib-build-regexp-string str)))
   (add-to-list 'orderless-matching-styles 'completion--regex-pinyin))
 
-(use-package vertico
-  :commands (+vertico/embark-preview)
-  :bind (:map vertico-map
-         ("RET" . vertico-directory-enter)
-         ("DEL" . vertico-directory-delete-char)
-         ("M-DEL" . vertico-directory-delete-word))
-  :hook ((after-init . vertico-mode)
-         (rfn-eshadow-update-overlay . vertico-directory-tidy))
-  :config
-  (defun +vertico/embark-preview ()
-    "Previews candidate in vertico buffer, unless it's a consult command"
-    (interactive)
-    (unless (bound-and-true-p consult--preview-function)
-      (if (fboundp 'embark-dwim)
-          (save-selected-window
-            (let (embark-quit-after-action)
-              (embark-dwim)))
-        (user-error "Embark not installed, aborting..."))))
-
-;;;###autoload
-  (defun +vertico/enter-or-preview ()
-    "Enter directory or embark preview on current candidate."
-    (interactive)
-    (when (> 0 vertico--index)
-      (user-error "No vertico session is currently active"))
-    (if (and (let ((cand (vertico--candidate)))
-               (or (string-suffix-p "/" cand)
-                   (and (vertico--remote-p cand)
-                        (string-suffix-p ":" cand))))
-             (not (equal vertico--base ""))
-             (eq 'file (vertico--metadata-get 'category)))
-        (vertico-insert)
-      (condition-case _
-          (+vertico/embark-preview)
-        (user-error (vertico-directory-enter)))))
-
-
-  (setq vertico-resize nil
-        vertico-count 17
-        vertico-cycle t)
-  (setq-default completion-in-region-function
-                (lambda (&rest args)
-                  (apply (if vertico-mode
-                             #'consult-completion-in-region
-                           #'completion--in-region)
-                         args)))
-  ;; Cleans up path when moving directories with shadowed paths syntax, e.g.
-  ;; cleans ~/foo/bar/// to /, and ~/foo/bar/~/ to ~/.
-  (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy)
-  (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
-  ;; These commands are problematic and automatically show the *Completions* buffer
-  (advice-add #'tmm-add-prompt :after #'minibuffer-hide-completions)
-  (defadvice! +vertico--suppress-completion-help-a (fn &rest args)
-    :around #'ffap-menu-ask
-    (letf! ((#'minibuffer-completion-help #'ignore))
-      (apply fn args))))
-
-
 (when (childframe-completion-workable-p)
   (use-package vertico-posframe
     :hook (vertico-mode . vertico-posframe-mode)
@@ -178,7 +210,8 @@
 
 (use-package consult
   :defer t
-  :bind (("C-s" . consult-line))
+  :bind (("C-s" . consult-line)
+         ("C-c p f" . +vertico/consult-fd-or-find))
   :preface
   (define-key!
     [remap bookmark-jump]                 #'consult-bookmark
@@ -196,6 +229,7 @@
   ;; relevant when you use the default completion UI.
   :hook (completion-list-mode . consult-preview-at-point-mode)
   :config
+  (defvar dotfairy-projects--fd-version nil)
   (require 'orderless nil t)
   (if IS-WINDOWS
       (progn
