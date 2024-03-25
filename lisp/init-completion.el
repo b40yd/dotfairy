@@ -75,21 +75,16 @@ use the minibuffer such as `query-replace'.")
       (`(,beg ,end ,table ,pred ,extras)
        (let ((completion-extra-properties extras)
              completion-cycle-threshold completion-cycling)
-         (cond ((and (modulep! :completion vertico)
+         (cond ((and (bound-and-true-p vertico-mode)
                      (fboundp #'consult-completion-in-region))
                 (consult-completion-in-region beg end table pred))
-               ((and (modulep! :completion ivy)
+               ((and (bound-and-true-p ivy-mode)
                      (fboundp #'ivy-completion-in-region))
                 (ivy-completion-in-region (marker-position beg) (marker-position end) table pred))
                ;; Important: `completion-in-region-function' is set to corfu at
                ;; this moment, so `completion-in-region' (single -) doesn't work
                ;; below.
-               ((modulep! :completion helm)
-                ;; Helm is special and wants to _wrap_ `completion--in-region'
-                ;; instead of replacing it in `completion-in-region-function'.
-                ;; But because the advice is too unreliable we "fake" the wrapping.
-                (helm--completion-in-region #'completion--in-region beg end table pred))
-               ((modulep! :completion ido)
+               ((bound-and-true-p ido-mode)
                 (completion--in-region beg end table pred))
                (t (error "No minibuffer completion UI available for moving to!")))))))
 
@@ -183,22 +178,21 @@ use the minibuffer such as `query-replace'.")
     (defun +corfu-add-cape-elisp-block-h ()
       (add-hook 'completion-at-point-functions #'cape-elisp-block 0 t)))
   ;; Enable Dabbrev completion basically everywhere as a fallback.
-  (when (bound-and-true-p dabbrev)
-    (setq cape-dabbrev-check-other-buffers t)
-    ;; Set up `cape-dabbrev' options.
-    (defun +dabbrev-friend-buffer-p (other-buffer)
-      (< (buffer-size other-buffer) +corfu-buffer-scanning-size-limit))
-    (add-hook! (prog-mode text-mode conf-mode comint-mode minibuffer-setup
-                          eshell-mode)
-      (defun +corfu-add-cape-dabbrev-h ()
-        (add-hook 'completion-at-point-functions #'cape-dabbrev 20 t)))
-    (after! dabbrev
-      (setq dabbrev-friend-buffer-function #'+dabbrev-friend-buffer-p
-            dabbrev-ignored-buffer-regexps
-            '("^ "
-              "\\(TAGS\\|tags\\|ETAGS\\|etags\\|GTAGS\\|GRTAGS\\|GPATH\\)\\(<[0-9]+>\\)?")
-            dabbrev-upcase-means-case-search t)
-      (add-to-list 'dabbrev-ignored-buffer-modes 'pdf-view-mode)))
+  (setq cape-dabbrev-check-other-buffers t)
+  ;; Set up `cape-dabbrev' options.
+  (defun +dabbrev-friend-buffer-p (other-buffer)
+    (< (buffer-size other-buffer) +corfu-buffer-scanning-size-limit))
+  (add-hook! (prog-mode text-mode conf-mode comint-mode minibuffer-setup
+                        eshell-mode)
+    (defun +corfu-add-cape-dabbrev-h ()
+      (add-hook 'completion-at-point-functions #'cape-dabbrev 20 t)))
+  (after! dabbrev
+    (setq dabbrev-friend-buffer-function #'+dabbrev-friend-buffer-p
+          dabbrev-ignored-buffer-regexps
+          '("^ "
+            "\\(TAGS\\|tags\\|ETAGS\\|etags\\|GTAGS\\|GRTAGS\\|GPATH\\)\\(<[0-9]+>\\)?")
+          dabbrev-upcase-means-case-search t)
+    (add-to-list 'dabbrev-ignored-buffer-modes 'pdf-view-mode))
 
   ;; Make these capfs composable.
   (advice-add #'lsp-completion-at-point :around #'cape-wrap-noninterruptible)
