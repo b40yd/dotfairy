@@ -207,8 +207,8 @@ exist, and `org-link' otherwise."
     (after! org
       ;; A shorter link to attachments
       (+org-define-basic-link "download" (lambda () (or org-download-image-dir org-attach-id-dir "."))
-                              :image-data-fun #'+org-image-file-data-fn
-                              :requires 'org-download))
+        :image-data-fun #'+org-image-file-data-fn
+        :requires 'org-download))
     :config
     (unless org-download-image-dir
       (setq org-download-image-dir org-attach-id-dir))
@@ -426,7 +426,7 @@ If prefix ARG, copy instead of move."
                                     buffer)))
              (heading
               (org-with-point-at marker
-                                 (org-get-heading 'no-tags 'no-todo)))
+                (org-get-heading 'no-tags 'no-todo)))
              ;; Won't work with target buffers whose filename is nil
              (rfloc (list heading filename nil marker))
              (org-after-refile-insert-hook (cons #'org-reveal org-after-refile-insert-hook)))
@@ -525,7 +525,7 @@ prepended to the element after the #+HEADER: tag."
                              ,(concat org-directory "/book.org"))
 	       "* Topic: %^{Description}  %^g %? Added: %U"))
         ;; TODO sequences
-        org-todo-keywords '((sequence "TODO(t)" "SOMEDAY(s)" "NEXT(n)" "HOLD(h)" "CANCELLED(c@/!)" "WAITING(W@/!)" "DONE(d)"))
+        org-todo-keywords '((sequence "TODO(t)" "SOMEDAY(s)" "NEXT(n)" "HOLD(h)" "CANCEL(c@/!)" "WAIT(w@/!)" "DONE(d)"))
         ;; Targets include this file and any file contributing to the agenda -
         ;; up to 5 levels deep
         org-refile-targets '((org-agenda-files :maxlevel . 5)
@@ -533,12 +533,7 @@ prepended to the element after the #+HEADER: tag."
 
   (use-package org-modern
     :hook ((org-mode . org-modern-mode)
-           (org-agenda-finalize . org-modern-agenda)
-           (org-modern-mode . (lambda ()
-                                "Adapt `org-modern-mode'."
-                                ;; Disable Prettify Symbols mode
-                                (setq prettify-symbols-alist nil)
-                                (prettify-symbols-mode -1)))))
+           (org-agenda-finalize . org-modern-agenda)))
 
   (use-package org-super-agenda
     :hook ((org-agenda-mode org-mode) . org-super-agenda-mode)
