@@ -533,7 +533,9 @@ prepended to the element after the #+HEADER: tag."
 
   (use-package org-modern
     :hook ((org-mode . org-modern-mode)
-           (org-agenda-finalize . org-modern-agenda)))
+           (org-agenda-finalize . org-modern-agenda))
+    :init
+    (setq org-modern-table nil))
 
   (use-package org-super-agenda
     :hook ((org-agenda-mode org-mode) . org-super-agenda-mode)

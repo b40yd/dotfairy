@@ -238,7 +238,7 @@ Install the doc if it's not installed."
 
 ;; align table
 (use-package valign
-  :hook ((markdown-mode) . valign-mode))
+  :hook ((org-mode markdown-mode) . valign-mode))
 
 ;; Frame transparence
 (use-package transwin
