@@ -320,7 +320,10 @@ See URL `https://github.com/minad/consult/issues/770'."
     (add-to-list 'consult-buffer-sources '+vertico--consult-org-source 'append)))
 
 (use-package consult-dir
-  :bind (([remap list-directory] . consult-dir))
+  :bind (([remap list-directory] . consult-dir)
+         :map vertico-map
+         ("C-x C-d" . consult-dir)
+         ("C-x C-j" . consult-dir-jump-file))
   :config
   ;; TODO: Replace with `tramp-container--completion-function' when we drop
   ;;   support for <29
