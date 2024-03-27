@@ -72,11 +72,9 @@
                 (setcdr (assq 'ns-appearance default-frame-alist) bg)))))
 
 (use-package time
+  :hook (after-init . display-time-mode)
   :init (setq display-time-default-load-average nil
-              display-time-format "%Y-%m-%d %H:%M"
-              display-time-24hr-format t
-              display-time-day-and-date t)
-  (display-time-mode t))
+              display-time-format "%H:%M"))
 
 (use-package solarized-theme)
 
@@ -102,9 +100,6 @@
   :hook (after-init . doom-modeline-mode)
   :init
   (setq doom-modeline-icon display-icon
-        doom-modeline-height 1
-        doom-modeline-buffer-encoding t
-        doom-modeline-unicode-fallback t
         doom-modeline-minor-modes t)
   :config
 ;;;###autoload
