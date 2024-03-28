@@ -795,10 +795,6 @@ when exporting org-mode to '(html hugo md odt)."
          "t" #'org-time-stamp
          "T" #'org-time-stamp-inactive)
         (:prefix ("g" . "goto")
-         "g" #'org-goto
-         (:when (featurep 'ivy)
-          "g" #'counsel-org-goto
-          "G" #'counsel-org-goto-all)
          (:when (featurep 'vertico)
           "g" #'consult-org-heading
           "G" #'consult-org-agenda)
