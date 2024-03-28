@@ -945,7 +945,7 @@ code of the process and OUTPUT is its stdout output."
 
 (defun too-long-file-p ()
   "Check whether the file is too long."
-  (or (> (buffer-size) 100000)
+  (or (> (buffer-size) 500000)
       (and (fboundp 'buffer-line-statistics)
            (> (car (buffer-line-statistics)) 10000))))
 
