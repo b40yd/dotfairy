@@ -421,7 +421,7 @@ The return value is the new value of LIST-VAR."
     (("M-<" beginning-of-buffer "⭶")
      ("M->" end-of-buffer "⭸"))))
   :bind (:map hs-minor-mode-map
-         ("C-~" . hideshow-hydra/body))
+         ("M-`" . hideshow-hydra/body))
   :hook (prog-mode . hs-minor-mode)
   :config
   ;; More functions
