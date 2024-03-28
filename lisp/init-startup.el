@@ -59,6 +59,7 @@
 
 ;; Tools
 (require 'init-git)
+(require 'init-make)
 (require 'init-eshell)
 (require 'init-dired)
 (require 'init-restclient)
