@@ -63,10 +63,16 @@
                           ;; Integrate `which-key'
                           (lsp-enable-which-key-integration)
 
+                          (defun lsp-format-buffer-no-error ()
+                            (condition-case _ (lsp-format-buffer)
+                              (lsp-capability-not-supported nil)))
+                          (defun lsp-format-before-save ()
+                            (when (and (boundp 'lsp-mode) lsp-mode dotfairy-lsp-format-on-save)
+                              (lsp-format-buffer-no-error)))
                           ;; Format and organize imports
                           (when (and dotfairy-lsp-format-on-save
                                      (not (apply #'derived-mode-p dotfairy-lsp-format-on-save-ignore-modes)))
-                            (add-hook 'before-save-hook #'lsp-format-buffer t t)
+                            (add-hook 'before-save-hook #'lsp-format-before-save)
                             (add-hook 'before-save-hook #'lsp-organize-imports t t)))))
      :bind (:map lsp-mode-map
             ("C-c C-d" . lsp-describe-thing-at-point)
@@ -78,6 +84,9 @@
                  lsp-modeline-code-actions-enable nil
                  lsp-modeline-diagnostics-enable nil
                  lsp-modeline-workspace-status-enable nil
+
+                 ;; For corfu
+                 lsp-completion-provider :none
 
                  lsp-semantic-tokens-enable t
                  lsp-progress-spinner-type 'progress-bar-filled
