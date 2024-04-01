@@ -210,8 +210,8 @@ exist, and `org-link' otherwise."
     (after! org
       ;; A shorter link to attachments
       (+org-define-basic-link "download" (lambda () (or org-download-image-dir org-attach-id-dir "."))
-                              :image-data-fun #'+org-image-file-data-fn
-                              :requires 'org-download))
+        :image-data-fun #'+org-image-file-data-fn
+        :requires 'org-download))
     :config
     (unless org-download-image-dir
       (setq org-download-image-dir org-attach-id-dir))
@@ -429,7 +429,7 @@ If prefix ARG, copy instead of move."
                                     buffer)))
              (heading
               (org-with-point-at marker
-                                 (org-get-heading 'no-tags 'no-todo)))
+                (org-get-heading 'no-tags 'no-todo)))
              ;; Won't work with target buffers whose filename is nil
              (rfloc (list heading filename nil marker))
              (org-after-refile-insert-hook (cons #'org-reveal org-after-refile-insert-hook)))
@@ -546,52 +546,48 @@ prepended to the element after the #+HEADER: tag."
     (setq org-agenda-custom-commands
           '(("z" "Super view"
              ((agenda "" ((org-agenda-span 'day)
-                          (org-super-agenda-groups
-                           '((:name "Today"
-                              :time-grid t
-                              :date today
-                              :scheduled today
-                              :order 1)
-                             (:name "Due Today"
-                              :deadline today
-                              :order 2)
-                             (:name "Next Work"
-                              :deadline future
-                              :order 2)
-                             (:name "Overdue"
-                              :deadline past
-                              :order 3)))))
+                          (org-super-agenda-groups '((:name "Today"
+                                                      :time-grid t
+                                                      :scheduled today
+                                                      :order 1)
+                                                     (:name "Due Today"
+                                                      :deadline today
+                                                      :order 2)
+                                                     (:name "Next Work"
+                                                      :deadline future
+                                                      :order 2)
+                                                     (:name "Overdue"
+                                                      :deadline past
+                                                      :order 3)
+                                                     ))))
               (alltodo "" ((org-agenda-overriding-header "")
-                           (org-super-agenda-groups
-                            '((:name "Passed Deadline"
-                               :and (:deadline past :todo ("TODO" "WAITING" "HOLD" "NEXT"))
-                               :face (:background "#7f1b19"))
-                              (:name "Important"
-                               :tag "Important"
-                               :priority "A"
-                               :order 1)
-                              (:name "Issues"
-                               :and (:tag "Issue" :todo ("TODO" "WAITING" "HOLD" "NEXT"))
-                               :order 1)
-                              (:name "Next to do"
-                               :todo ("TODO" "NEXT")
-                               :order 2)
-                              (:name "Waiting"
-                               :todo "WAITING"
-                               :order 3)
-                              (:name "On Hold"
-                               :todo ("SOMEDAY" "HOLD")
-                               :order 4)
-                              (:name "Projects"
-                               :tag "Project"
-                               :order 14)
-                              (:name "Research"
-                               :tag "Research"
-                               :order 15)
-                              (:name "To read"
-                               :tag "Book"
-                               :order 30)))))))))
-    (setq org-agenda-breadcrumbs-separator " ❯ "))
+                           (org-super-agenda-groups '((:name "Important"
+                                                       :tag "Important"
+                                                       :priority "A"
+                                                       :order 0)
+                                                      (:name "Waiting"
+                                                       :todo "WAIT"
+                                                       :order 4)
+                                                      (:name "On Hold"
+                                                       :todo ("SOMEDAY" "HOLD")
+                                                       :order 5)
+                                                      (:name "Issues"
+                                                       :tag "Issue"
+                                                       :order 6)
+                                                      (:name "Projects"
+                                                       :tag "Project"
+                                                       :order 7)
+                                                      (:name "Research"
+                                                       :tag "Research"
+                                                       :order 8)
+                                                      (:name "To read"
+                                                       :tag "Book"
+                                                       :order 9)
+                                                      (:name "Next to do"
+                                                       :todo ("TODO" "NEXT")
+                                                       :order 10)
+                                                      )))))))
+          org-agenda-breadcrumbs-separator " ❯ "))
 
   (defconst load-language-list '((emacs-lisp . t)
                                  (perl . t)
