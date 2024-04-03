@@ -325,6 +325,9 @@ See URL `https://github.com/minad/consult/issues/770'."
          ("C-x C-d" . consult-dir)
          ("C-x C-j" . consult-dir-jump-file))
   :config
+  ;; DEPRECATED: Remove when Doom core replaces projectile with project.el
+  (setq consult-dir-project-list-function #'consult-dir-projectile-dirs)
+
   ;; TODO: Replace with `tramp-container--completion-function' when we drop
   ;;   support for <29
   (defun +vertico--consult-dir-container-hosts (host)

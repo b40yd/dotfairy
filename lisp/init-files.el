@@ -75,16 +75,17 @@
   (interactive)
   (find-file
    (dotfairy/sudo-file-path
-    (or buffer-file-name
+    (or (buffer-file-name (buffer-base-buffer))
         (when (or (derived-mode-p 'dired-mode)
                   (derived-mode-p 'wdired-mode))
-          default-directory)))))
+          default-directory)
+        (user-error "Cannot determine the file path of the current buffer")))))
 
 ;;;###autoload
 (defun dotfairy/sudo-save-buffer ()
   "Save this file as root."
   (interactive)
-  (let ((file (dotfairy/sudo-file-path buffer-file-name)))
+  (let ((file (dotfairy/sudo-file-path (buffer-file-name (buffer-base-buffer)))))
     (if-let (buffer (find-file-noselect file))
         (let ((origin (current-buffer)))
           (copy-to-buffer buffer (point-min) (point-max))
