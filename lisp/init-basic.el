@@ -251,6 +251,8 @@
       "Face used by the `posframe' border."
       :group 'posframe)
 
+    (defvar posframe-border-width 2
+      "Default posframe border width.")
     :config
     (with-no-warnings
       (defun my-posframe--prettify-frame (&rest _)
