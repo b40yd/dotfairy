@@ -93,7 +93,7 @@
    :desc "Rename/move this file"       "m" #'dotfairy/move-this-file
    :desc "Rename this buffer file"     "M" #'dotfairy/rename-this-file
    :desc "Recent files"                "r" #'recentf-open-files
-   :desc "Recent project files"        "R" #'projectile-recentf
+   :desc "Remove recent file"          "R" #'dotfairy/remove-recent-file
    :desc "Sudo this file"              "u" #'dotfairy/sudo-this-file
    :desc "Sudo find file"              "U" #'dotfairy/sudo-find-file
    :desc "Open init file"              "i" #'dotfairy/open-init-file
@@ -148,6 +148,7 @@
   (:prefix ("p" . "project")
    :desc "Add directory to project"        "a" #'dotfairy/add-directory-as-project
    :desc "Remove known project"            "d" #'projectile-remove-known-project
+   :desc "Recent project files"            "r" #'projectile-recentf
    :desc "Restart current workspace"       "R" #'lsp-workspace-restart
    :desc "Find file in other project"      "F" #'dotfairy/find-file-in-other-project
    :desc "Add to workspace"                "i" #'lsp-workspace-folders-add
