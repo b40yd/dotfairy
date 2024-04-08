@@ -31,10 +31,10 @@
       user-mail-address dotfairy-mail-address)
 
 (when (fboundp 'set-charset-priority)
-  (set-charset-priority 'unicode))       ; pretty
+  (set-charset-priority 'unicode))
 
 (set-language-environment 'utf-8)
-(prefer-coding-system 'utf-8-unix)            ; pretty
+(prefer-coding-system 'utf-8-unix)
 (setq locale-coding-system 'utf-8)
 
 (set-default-coding-systems 'utf-8-unix)
@@ -48,7 +48,6 @@
 
 (when (eq system-type 'windows-nt)
   (set-language-environment 'chinese-gb18030)
-  (prefer-coding-system 'utf-8-unix)
   (setq locale-coding-system 'gb18030)
   (setq file-name-coding-system 'gb18030)
   (set-next-selection-coding-system 'utf-16-le)
