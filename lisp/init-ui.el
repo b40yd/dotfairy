@@ -47,10 +47,6 @@
                             (height . 0.8)
                             (fullscreen)))
 
-;; Don't use GTK+ tooltip
-(when (boundp 'x-gtk-use-system-tooltips)
-  (setq x-gtk-use-system-tooltips nil))
-
 ;; Title
 (setq frame-title-format '("DotFairy Emacs - %b")
       icon-title-format frame-title-format)
@@ -342,10 +338,6 @@ See `display-line-numbers' for what these values mean."
       window-divider-default-bottom-width 1
       window-divider-default-right-width 1)
 (add-hook 'window-setup-hook #'window-divider-mode)
-
-;; Don't use GTK+ tooltip
-(when (boundp 'x-gtk-use-system-tooltips)
-  (setq x-gtk-use-system-tooltips nil))
 
 ;; Settings for highlight parentheses
 (use-package highlight-parentheses
