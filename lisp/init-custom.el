@@ -180,35 +180,6 @@ nil means disabled."
                  (const :tag "vertico" vertico)
                  (const :tag "Disable" nil)))
 
-(defcustom dotfairy-prettify-symbols-alist
-  '(("<-" . ?←)
-    ("->" . ?→)
-    ("->>" . ?↠)
-    ("=>" . ?⇒)
-    ("/=" . ?≄)
-    ("!=" . ?≠)
-    ("==" . ?≡)
-    ("<=" . ?≤)
-    (">=" . ?≥)
-    ("=<<" . (?= (Br . Bl) ?≪))
-    (">>=" . (?≫ (Br . Bl) ?=))
-    ("<=<" . ?↢)
-    (">=>" . ?↣)
-    ("&&" . ?∧)
-    ("||" . ?∨)
-    (">>" . ?≫)
-    ("<<" . ?≪)
-    ("return" . ?⟼)
-    ("defun" . ?ƒ)
-    ("bool" . ?𝔹)
-    ("false" . ?𝔽)
-    ("true" . ?𝕋)
-    ("for" . ?∀))
-  "Alist of symbol prettifications.
-Nil to use font supports ligatures."
-  :group 'dotfairy
-  :type '(alist :key-type string :value-type (choice character sexp)))
-
 (defcustom dotfairy-tree-sitter
   (and (fboundp 'treesit-available-p) (treesit-available-p))
   "Enable tree-sitter or not.

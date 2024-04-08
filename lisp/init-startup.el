@@ -58,6 +58,7 @@
 (require 'init-autoinsert)
 
 ;; Tools
+(require 'init-ligatures)
 (require 'init-git)
 (require 'init-make)
 (require 'init-eshell)

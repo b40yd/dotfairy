@@ -48,39 +48,23 @@
   :interpreter (("node" . js2-mode)
                 ("node" . js2-jsx-mode))
   :hook ((js2-mode . js2-imenu-extras-mode)
-         (js2-mode . js2-highlight-unused-variables-mode)
-         (js2-mode . (lambda ()
-                       (dotfairy-set-prettify '(
-                                                ("function" . ?ƒ)
-                                                ("function()" . ?λ)
-                                                ("() =>" . ?λ)
-                                                ("()=>" . ?λ)
-                                                ("null" . ?∅)
-                                                ("===" . ?≡)
-                                                ("!==" . ?≢)
-                                                ("**2" . ?²)
-                                                ("**3" . ?³)
-                                                ("**4" . ?⁴)
-                                                ("**5" . ?⁵)
-                                                ("**6" . ?⁶)
-                                                ("**7" . ?⁷)
-                                                ("**8" . ?⁸)
-                                                ("**9" . ?⁹)
-                                                ("**-1" . (?⁻ (Br . Bl) ?¹))  ; ⁻¹
-                                                ("**-2" . (?⁻ (Br . Bl) ?²))  ; ⁻²
-                                                ("**-3" . (?⁻ (Br . Bl) ?³))  ; ⁻³
-                                                ("**-4" . (?⁻ (Br . Bl) ?⁴))  ; ⁻⁴
-                                                ("**-5" . (?⁻ (Br . Bl) ?⁵))  ; ⁻⁵
-                                                ("**-6" . (?⁻ (Br . Bl) ?⁶))  ; ⁻⁶
-                                                ("**-7" . (?⁻ (Br . Bl) ?⁷))  ; ⁻⁷
-                                                ("**-8" . (?⁻ (Br . Bl) ?⁸))  ; ⁻⁸
-                                                ("**-9" . (?⁻ (Br . Bl) ?⁹))  ; ⁻⁹
-                                                ("all" . ?∀)  ; custom
-                                                ("any" . ?∃)  ; custom
-                                                ("undefined" . ?∅)
-                                                ("String" . ?𝕊)
-                                                ("Infinity" . ?∞))))))
+         (js2-mode . js2-highlight-unused-variables-mode))
   :config
+  (set-ligatures! mode
+    ;; Functional
+    :def "function"
+    :lambda "() =>"
+    :composition "compose"
+    ;; Types
+    :null "null"
+    :true "true" :false "false"
+    ;; Flow
+    :not "!"
+    :and "&&" :or "||"
+    :for "for"
+    :return "return"
+    ;; Other
+    :yield "import")
   ;; Use default keybindings for lsp
   (unbind-key "M-." js2-mode-map))
 

@@ -52,11 +52,21 @@
   :ensure t
   :bind (:map c-mode-base-map
          ("C-c C-c" . compile))
-  :hook (((c-mode c++-mode) . (lambda ()
-                                (dotfairy-set-prettify '(
-                                                         ("NULL" . ?∅))))))
   :init
-  (setq-default c-basic-offset 4))
+  (setq-default c-basic-offset 4)
+  (set-ligatures! '(c-mode c++-mode)
+    ;; Types
+    :null "NULL"
+    :true "true" :false "false"
+    :int "int" :float "float"
+    :str "std::string"
+    :bool "bool"
+    ;; Flow
+    :not "!"
+    :and "&&" :or "||"
+    :for "for"
+    :shr ">>" :shl "<<"
+    :return "return"))
 
 
 ;;
@@ -101,41 +111,11 @@
 (use-package clang-format
   :ensure t
   :hook ((c-mode c++-mode) . (lambda ()
-                               (when dotfairy-lsp-format-on-save
+                               (when (and dotfairy-lsp-format-on-save
+                                          (not (apply #'derived-mode-p dotfairy-lsp-format-on-save-ignore-modes)))
                                  (add-hook 'before-save-hook 'clang-format-buffer))))
   :config
   (setq clang-format-style-option "llvm"))
-
-(defvar dotfairy-preprocessor-regexp "^\\s-*#[a-zA-Z0-9_]"
-  "The regexp used by `dotfairy/next-preproc-directive' and
-`dotfairy/previous-preproc-directive' on ]# and [#, to jump between preprocessor
-directives. By default, this only recognizes C directives.")
-
-;;;###autoload
-(defun dotfairy/next-preproc-directive (count)
-  "Jump to the COUNT-th preprocessor directive after point.
-By default, this only recognizes C preproc directives. To change this see
-`dotfairy-preprocessor-regexp'."
-  (interactive "p")
-  ;; TODO More generalized search, to support directives in other languages?
-  (if (re-search-forward dotfairy-preprocessor-regexp nil t count)
-      (goto-char (match-beginning 0))
-    (user-error "No preprocessor directives %s point"
-                (if (> count 0) "after" "before"))))
-
-;;;###autoload
-(defun dotfairy/previous-preproc-directive (count)
-  "Jump to the COUNT-th preprocessor directive before point.
-See `dotfairy/next-preproc-directive' for details."
-  (interactive "p")
-  (dotfairy/next-preproc-directive (- count)))
-
-(map! :localleader
-      :map (c-mode-map c++-mode-map)
-      (:prefix ("#" . "Jump preprocessor directives")
-       :desc "next preprocessor directive" "]" #'dotfairy/next-preproc-directive
-       :desc "previous preprocessor directive" "[" #'dotfairy/previous-preproc-directive))
-
 
 (when dotfairy-tree-sitter
   (use-package c-ts-mode

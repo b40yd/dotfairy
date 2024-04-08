@@ -7,15 +7,21 @@
 
 (use-package rust-mode
   :mode ("\\.rs$" . rust-mode)
-  :hook ((rustic-mode . (lambda ()
-                          (dotfairy-set-prettify '(("fn" . ?ƒ)
-                                                   ("None" . ?∅)
-                                                   ("<<=" . (?≪ (Br . Bl) ?=))
-                                                   ("||=" . ?⊫)
-                                                   ("|=" . ?⊨)
-                                                   (".." . ?‥)
-                                                   ("..." . ?…)
-                                                   ("::" . ?∷)))))))
+  :config
+  (set-ligatures! 'rust-mode
+    ;; Functional
+    :def "fn"
+    ;; Types
+    :null "None"
+    :true "true" :false "false"
+    :int "int" :str "str"
+    :float "float"
+    :bool "bool"
+    ;; Flow
+    :in "in"
+    :and "&&" :or "||"
+    :for "for"
+    :return "return"))
 ;; Rust
 (when (memq dotfairy-lsp '(lsp-mode eglot))
   (use-package rustic

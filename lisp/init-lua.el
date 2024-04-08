@@ -26,11 +26,18 @@
 ;;; Code:
 
 (use-package lua-mode
-  :hook (lua-mode . (lambda ()
-                      (dotfairy-set-prettify '(("~=" . ?≠)
-                                               ("in" . ?∈)
-                                               ("function" . ?ƒ)
-                                               ("nil" . ?∅))))))
+  :config
+
+  (set-ligatures! 'lua-mode
+    ;; Functional
+    :def "function"
+    ;; Types
+    :null "nil"
+    ;; Flow
+    :and "and" :or "or"
+    :not "not"
+    :for "for"
+    :return "return"))
 (use-package moonscript
   :defer t
   :config

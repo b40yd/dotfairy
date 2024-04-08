@@ -35,12 +35,7 @@
                       (add-hook! 'before-save (lambda ()
                                                 (when dotfairy-lsp-format-on-save
                                                   (gofmt-before-save))))
-                      (dotfairy-set-prettify '(("func()" . ?λ)
-                                               ("func" . ?ƒ)
-                                               ("map" . ?↦)
-                                               (":=" . ?≔)
-                                               ("string" . ?𝕊)
-                                               ("nil" . ?∅))))))
+                      )))
   :init
   (setq godoc-at-point-function #'godoc-gogetdoc)
   ;; Install or update tools
@@ -76,6 +71,23 @@
              (message "Failed to install %s: %d" pkg status)))))))
 
   :config
+
+  (set-ligatures! 'go-mode
+    ;; Types
+    :null "nil"
+    :true "true" :false "false"
+    :int "int" :float "float"
+    :str "string"
+    :map "map"
+    :bool "bool"
+    :shr ">>"
+    :shl "<<"
+    ;; Flow
+    :not "!"
+    :and "&&" :or "||"
+    :for "for"
+    :return "return"
+    :lambda "func()")
   ;; Env vars
   (with-eval-after-load 'exec-path-from-shell
     (exec-path-from-shell-copy-envs '("GOPATH" "GO111MODULE" "GOPROXY"))

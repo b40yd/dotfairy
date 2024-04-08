@@ -85,45 +85,26 @@
   :ensure t
   :hook ((inferior-python-mode . (lambda ()
                                    (process-query-on-exit-flag
-                                    (get-process "Python"))))
-         (python-mode . (lambda ()
-                          (dotfairy-set-prettify '(("**2" . ?²)
-                                                   ("**3" . ?³)
-                                                   ("**4" . ?⁴)
-                                                   ("**5" . ?⁵)
-                                                   ("**6" . ?⁶)
-                                                   ("**7" . ?⁷)
-                                                   ("**8" . ?⁸)
-                                                   ("**9" . ?⁹)
-                                                   ("**-1" . (?⁻ (Br . Bl) ?¹))  ; ⁻¹
-                                                   ("**-2" . (?⁻ (Br . Bl) ?²))  ; ⁻²
-                                                   ("**-3" . (?⁻ (Br . Bl) ?³))  ; ⁻³
-                                                   ("**-4" . (?⁻ (Br . Bl) ?⁴))  ; ⁻⁴
-                                                   ("**-5" . (?⁻ (Br . Bl) ?⁵))  ; ⁻⁵
-                                                   ("**-6" . (?⁻ (Br . Bl) ?⁶))  ; ⁻⁶
-                                                   ("**-7" . (?⁻ (Br . Bl) ?⁷))  ; ⁻⁷
-                                                   ("**-8" . (?⁻ (Br . Bl) ?⁸))  ; ⁻⁸
-                                                   ("**-9" . (?⁻ (Br . Bl) ?⁹))  ; ⁻⁹
-                                                   ("def" . ?ƒ)
-                                                   ("lambda" . ?λ)
-                                                   ("===" . ?≡)
-                                                   ("yield" . ?⟻)
-                                                   ("str" . ?𝕊)
-                                                   ("in" . ?∈)
-                                                   ("not" . ?¬)
-                                                   ("sum" . ?∑)
-                                                   ("prod" . ?∏)  ; numpy.prod; unpythonic.fold.prod  https://github.com/Technologicat/unpythonic
-                                                   ("product" . ?∏)  ; pandas; also alternative name for prod in numpy
-                                                   ("and" . ?∩)
-                                                   ("or" . ?∪)
-                                                   ("not in" . ?∉)  ; "not in" is only used for testing the absence of membership.
-                                                   ("is" . ?≡)
-                                                   ("is not" . ?≢)
-                                                   ("any" . ?∃)
-                                                   ("False" . ?𝔽)
-                                                   ("True" . ?𝕋)
-                                                   ("None" . ?∅))))))
+                                    (get-process "Python")))))
   :init
+  (set-ligatures! 'python-mode
+    ;; Functional
+    :def "def"
+    :lambda "lambda"
+    ;; Types
+    :null "None"
+    :true "True" :false "False"
+    :int "int" :str "str"
+    :float "float"
+    :bool "bool"
+    :tuple "tuple"
+    ;; Flow
+    :not "not"
+    :in "in" :not-in "not in"
+    :and "and" :or "or"
+    :for "for"
+    :return "return" :yield "yield")
+
   ;; Disable readline based native completion
   (setq python-shell-completion-native-enable nil)
 

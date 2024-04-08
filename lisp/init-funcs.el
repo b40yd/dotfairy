@@ -646,6 +646,15 @@ This is a wrapper around `eval-after-load' that:
                (setq body `((after! ,next ,@body))))
              (car body))))))
 
+(defmacro delq! (elt list &optional fetcher)
+  "`delq' ELT from LIST in-place.
+
+If FETCHER is a function, ELT is used as the key in LIST (an alist)."
+  `(setq ,list (delq ,(if fetcher
+                          `(funcall ,fetcher ,elt ,list)
+                        elt)
+                     ,list)))
+
 (defmacro pushnew! (place &rest values)
   "Push VALUES sequentially into PLACE, if they aren't already present.
 This is a variadic `cl-pushnew'."
@@ -657,16 +666,16 @@ This is a variadic `cl-pushnew'."
   "Prepend LISTS to SYM in place."
   `(setq ,sym (append ,@lists ,sym)))
 
-(defun dotfairy-set-prettify (prettify-alist)
-  "Set up symbol prettification."
-  (let ((prettify-setup (lambda (alist)
-                          (dolist (x alist nil)
-                            (push x prettify-symbols-alist)))))
-    (funcall prettify-setup dotfairy-prettify-symbols-alist)
-    (funcall prettify-setup prettify-alist)
-    ;; When you get to the right edge, it goes back to how it normally prints
-    (setq prettify-symbols-unprettify-at-point 'right-edge)
-    (prettify-symbols-mode)))
+;; (defun dotfairy-set-prettify (prettify-alist)
+;;   "Set up symbol prettification."
+;;   (let ((prettify-setup (lambda (alist)
+;;                           (dolist (x alist nil)
+;;                             (push x prettify-symbols-alist)))))
+;;     (funcall prettify-setup dotfairy-prettify-symbols-alist)
+;;     (funcall prettify-setup prettify-alist)
+;;     ;; When you get to the right edge, it goes back to how it normally prints
+;;     (setq prettify-symbols-unprettify-at-point 'right-edge)
+;;     (prettify-symbols-mode)))
 
 ;;;###autoload
 (defun dotfairy-project-browse (dir)
