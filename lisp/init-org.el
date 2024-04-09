@@ -30,46 +30,6 @@
 
 (use-package org
   :hook (((org-babel-after-execute org-mode) . org-redisplay-inline-images) ; display image
-         (org-mode . (lambda ()
-                       "Beautify org symbols."
-                       (setq prettify-symbols-alist '(("#+BEGIN_COMMENT" . ?»)
-                                                      ("#+END_COMMENT"   . ?«)
-                                                      ("#+begin_example" . ?»)
-                                                      ("#+end_example"   . ?«)
-                                                      ("#+begin_export"  . ?»)
-                                                      ("#+end_export"    . ?«)
-                                                      ("#+begin_comment" . ?»)
-                                                      ("#+end_comment"   . ?«)
-                                                      ("#+BEGIN_QUOTE"   . ?»)
-                                                      ("#+END_QUOTE"     . ?«)
-                                                      ("#+begin_quote"   . ?»)
-                                                      ("#+end_quote"     . ?«)
-                                                      ("#+HEADERS"       . ?☰)
-                                                      ("#+ARCHIVE:"      . ?📦)
-                                                      ("#+AUTHOR:"       . ?👤)
-                                                      ("#+CREATOR:"      . ?💁)
-                                                      ("#+DATE:"         . ?📆)
-                                                      ("#+DESCRIPTION:"  . ?⸙)
-                                                      ("#+EMAIL:"        . ?📧)
-                                                      ("#+OPTIONS:"      . ?⛭)
-                                                      ("#+SETUPFILE:"    . ?⛮)
-                                                      ("#+TAGS:"         . ?🏷)
-                                                      ("#+BEGIN_SRC"     . ?✎)
-                                                      ("#+END_SRC"       . ?□)
-                                                      ("#+BEGIN_QUOTE"   . ?«)
-                                                      ("#+END_QUOTE"     . ?»)
-                                                      ("[ ]"             . ?)
-                                                      ("[-]"             . ?)
-                                                      ("[x]"             . ?)
-                                                      ("[X]"             . ?)
-                                                      (":PROPERTIES:"    . ?)
-                                                      (":ID:"            . ?🆔)
-                                                      (":END:"           . ?🔚)
-                                                      ("#+TITLE:"        . ?📓)
-                                                      ("#+RESULTS:"      . ?💻)
-                                                      (">="              . "≥")
-                                                      ("=>"              . "⇨")))
-                       (prettify-symbols-mode 1)))
          (org-indent-mode . (lambda()
                               (diminish 'org-indent-mode)
                               ;; WORKAROUND: Prevent text moving around while using brackets
@@ -118,6 +78,40 @@
                   (if (or (region-active-p) (looking-back "^\s*" 1))
                       (org-hydra/body)
                     (self-insert-command 1)))))
+  :preface
+  (defun +org-init-appearance-h ()
+    "Configures the UI for `org-mode'."
+    (set-ligatures! 'org-mode
+      :name "#+NAME:"
+      :name "#+name:"
+      :id            ":ID:"
+      :title         "#+TITLE:"
+      :headers       "#+HEADERS"
+      :archive       "#+ARCHIVE:"
+      :author        "#+AUTHOR:"
+      :creator       "#+CREATOR:"
+      :date          "#+DATE:"
+      :description   "#+DESCRIPTION:"
+      :end           ":END:"
+      :email         "#+EMAIL:"
+      :properties    ":PROPERTIES:"
+      :options       "#+OPTIONS:"
+      :setupfile     "#+SETUPFILE:"
+      :tags          "#+TAGS:"
+      :result        "#+RESULTS:"
+      :checkbox      "[ ]"
+      :indeterminate "[-]"
+      :checkboxed    "[X]"
+      :checkboxed    "[x]"
+      :src_block "#+BEGIN_SRC"
+      :src_block "#+begin_src"
+      :src_block_end "#+END_SRC"
+      :src_block_end "#+end_src"
+      :quote "#+BEGIN_QUOTE"
+      :quote "#+begin_quote"
+      :quote_end "#+END_QUOTE"
+      :quote_end "#+end_quote"))
+  (add-hook! 'org-load-hook #'+org-init-appearance-h)
   :config
   (defvar org-attach-id-dir nil)
   (defun +org--relative-path (path root)
@@ -538,7 +532,9 @@ prepended to the element after the #+HEADER: tag."
     :hook ((org-mode . org-modern-mode)
            (org-agenda-finalize . org-modern-agenda))
     :init
-    (setq org-modern-table nil))
+    (setq org-modern-table nil
+          org-modern-keyword nil
+          org-modern-block-name nil))
 
   (use-package org-super-agenda
     :hook ((org-agenda-mode org-mode) . org-super-agenda-mode)
