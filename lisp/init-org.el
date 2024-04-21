@@ -103,10 +103,38 @@
       :indeterminate "[-]"
       :checkboxed    "[X]"
       :checkboxed    "[x]"
+
       :src_block "#+BEGIN_SRC"
       :src_block "#+begin_src"
       :src_block_end "#+END_SRC"
       :src_block_end "#+end_src"
+
+      :src_block "#+BEGIN_EXAMPLE"
+      :src_block "#+begin_example"
+      :src_block_end "#+END_EXAMPLE"
+      :src_block_end "#+end_example"
+
+      :src_block "#+BEGIN_EXPORT"
+      :src_block "#+begin_export"
+      :src_block_end "#+END_EXPORT"
+      :src_block_end "#+end_export"
+
+      :src_block "#+BEGIN_CENTER"
+      :src_block "#+begin_center"
+      :src_block_end "#+END_CENTER"
+      :src_block_end "#+end_center"
+
+
+      :src_block "#+BEGIN_COMMENT"
+      :src_block "#+begin_comment"
+      :src_block_end "#+END_COMMENT"
+      :src_block_end "#+end_comment"
+
+      :src_block "#+BEGIN_VERSE"
+      :src_block "#+begin_verse"
+      :src_block_end "#+END_VERSE"
+      :src_block_end "#+end_verse"
+
       :quote "#+BEGIN_QUOTE"
       :quote "#+begin_quote"
       :quote_end "#+END_QUOTE"
@@ -122,6 +150,7 @@
   (defun +org--read-link-path (key dir &optional fn)
     (let ((file (funcall (or fn #'read-file-name) (format "%s: " (capitalize key)) dir)))
       (format "%s:%s" key (file-relative-name file dir))))
+
 
 ;;;###autoload
   (defun +org-read-link-description-at-point (&optional default context)
