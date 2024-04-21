@@ -26,6 +26,11 @@
 (require 'init-const)
 (require 'init-funcs)
 
+
+(global-unset-key (kbd "M-<drag-mouse-1>"))
+(global-unset-key (kbd "M-<down-mouse-1>"))
+(global-unset-key (kbd "M-<mouse-3>"))
+
 ;; On-the-fly spell checker
 (use-package flyspell
   :ensure t
