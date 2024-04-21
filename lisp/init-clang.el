@@ -52,8 +52,7 @@
   :ensure t
   :bind (:map c-mode-base-map
          ("C-c C-c" . compile))
-  :init
-  (setq-default c-basic-offset 4)
+  :config
   (set-ligatures! '(c-mode c++-mode)
     ;; Types
     :null "NULL"
@@ -66,7 +65,13 @@
     :and "&&" :or "||"
     :for "for"
     :shr ">>" :shl "<<"
-    :return "return"))
+    :return "return")
+
+  (add-to-list 'find-sibling-rules '("/\\([^/]+\\)\\.c\\(c\\|pp\\)?\\'" "\\1.h\\(h\\|pp\\)?\\'"))
+  (add-to-list 'find-sibling-rules '("/\\([^/]+\\)\\.h\\(h\\|pp\\)?\\'" "\\1.c\\(c\\|pp\\)?\\'"))
+  ;; Custom style, based off of linux
+  (setq c-basic-offset tab-width
+        c-backspace-function #'delete-backward-char))
 
 
 ;;
@@ -105,21 +110,18 @@
   :mode (("CMakeLists\\.txt\\'" . cmake-mode)
          ("\\.cmake\\'" . cmake-mode)))
 
+
+(when dotfairy-tree-sitter
+  (use-package c-ts-mode
+    :init (setq c-ts-mode-indent-offset 4)))
 ;;
 ;; for c formatting
 ;;
 (use-package clang-format
   :ensure t
   :hook ((c-mode c++-mode) . (lambda ()
-                               (when (and dotfairy-lsp-format-on-save
-                                          (not (apply #'derived-mode-p dotfairy-lsp-format-on-save-ignore-modes)))
-                                 (add-hook 'before-save-hook 'clang-format-buffer))))
-  :config
-  (setq clang-format-style-option "llvm"))
-
-(when dotfairy-tree-sitter
-  (use-package c-ts-mode
-    :init (setq c-ts-mode-indent-offset 4)))
+                               (when dotfairy-lsp-format-on-save
+                                 (add-hook 'before-save-hook 'clang-format-buffer)))))
 
 (provide 'init-clang)
 ;;; init-clang.el ends here
