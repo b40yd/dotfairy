@@ -511,6 +511,8 @@ prepended to the element after the #+HEADER: tag."
       (when text (insert text))))
 
   (setq org-startup-indented t
+        ;;"a_{b} will display as 'a' with a subscript 'b', whereas 'a_b' will not be interpreted as a subscript, and the same goes for 'a^b'."
+        org-use-sub-superscripts "{}"
         org-src-fontify-natively t
         org-src-tab-acts-natively t
         org-confirm-babel-evaluate nil
