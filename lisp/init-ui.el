@@ -289,14 +289,7 @@
 
   ;; Enable indentation+completion using the TAB key.
   ;; `completion-at-point' is often bound to M-TAB.
-  (setq tab-always-indent 'complete)
-  (map! :localleader
-    (:prefix-map ("R" . "remember")
-     (:desc "remember init" "r" #'remember-init)
-     (:desc "remember jump" "g" #'remember-jump))
-    (:prefix-map ("O" . "newline")
-     ("o" #'open-newline-below)
-     ("O" #'open-newline-above))))
+  (setq tab-always-indent 'complete))
 
 ;; Show line numbers
 (use-package display-line-numbers

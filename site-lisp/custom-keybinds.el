@@ -66,8 +66,8 @@
   ;;; <leader> c --- code
   (:prefix-map ("c" . "coding")
    :desc "Compile or Recompile"                "c" #'+default/compile
-   :desc "Remember init"                       "i" #'remember-init
-   :desc "Remember jump"                       "g" #'remember-jump
+   :desc "Remember init"                       "." #'remember-init
+   :desc "Remember jump"                       "," #'remember-jump
    :desc "Open newline below"                  "o" #'open-newline-below
    :desc "Open newline above"                  "O" #'open-newline-above
    :desc "Duplicate line or region below"      "l" #'duplicate-line-or-region-below
