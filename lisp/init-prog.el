@@ -25,7 +25,7 @@
 ;;; Code:
 (require 'init-custom)
 (require 'init-const)
-(require 'init-keybinds)
+
 
 ;; Prettify Symbols
 ;; e.g. display “lambda” as “λ”

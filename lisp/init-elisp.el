@@ -26,7 +26,7 @@
 (require 'init-const)
 (require 'init-custom)
 (require 'init-funcs)
-(require 'init-keybinds)
+
 
 ;; Emacs lisp mode
 (use-package elisp-mode

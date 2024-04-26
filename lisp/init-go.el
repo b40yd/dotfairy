@@ -25,7 +25,7 @@
 ;;; Code:
 (require 'init-basic)
 (require 'init-funcs)
-(require 'init-keybinds)
+
 
 (use-package go-mode
   :ensure t

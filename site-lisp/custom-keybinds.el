@@ -25,10 +25,6 @@
 ;;; Code:
 (require 'init-funcs)
 
-;; Sensible deafult key bindings for non-evil users
-(setq dotfairy-leader-alt-key "C-c"
-      dotfairy-localleader-alt-key "C-c SPC")
-
 ;; persp-mode and projectile in different prefixes
 (setq persp-keymap-prefix (kbd "C-c w"))
 (after! projectile

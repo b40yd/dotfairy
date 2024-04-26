@@ -26,7 +26,7 @@
 (require 'init-const)
 (require 'init-custom)
 (require 'init-funcs)
-(require 'init-keybinds)
+
 
 (use-package org
   :hook (((org-babel-after-execute org-mode) . org-redisplay-inline-images) ; display image

@@ -25,7 +25,7 @@
 (require 'init-const)
 (require 'init-custom)
 (require 'init-funcs)
-(require 'init-keybinds)
+
 
 ;;; Code:
 

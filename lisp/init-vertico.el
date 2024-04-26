@@ -25,7 +25,7 @@
 ;;; Code:
 (require 'init-const)
 (require 'init-funcs)
-(require 'init-keybinds)
+
 
 (use-package vertico
   :commands (+vertico/embark-preview)

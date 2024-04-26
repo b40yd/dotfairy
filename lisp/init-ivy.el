@@ -24,7 +24,7 @@
 
 ;;; Code:
 (require 'init-funcs)
-(require 'init-keybinds)
+
 
 ;; Highlight symbols
 (use-package symbol-overlay

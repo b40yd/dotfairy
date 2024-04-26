@@ -23,7 +23,7 @@
 ;;
 
 ;;; Code:
-(require 'init-keybinds)
+
 
 ;; A multi dictionaries interface
 (when emacs/27

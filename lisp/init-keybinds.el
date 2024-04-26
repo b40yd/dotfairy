@@ -27,17 +27,24 @@
 (require 'init-custom)
 (require 'init-funcs)
 (require 'cl-lib)
-(defvar dotfairy-leader-key "C-c"
+(defvar dotfairy-leader-key "SPC"
   "The leader prefix key for users.")
 
-(defvar dotfairy-leader-alt-key "C-c M-c"
+(defvar dotfairy-leader-alt-key "M-SPC"
   "An alternative leader prefix key,
  used for Insert and Emacs states, and for users.")
 
-(defvar dotfairy-localleader-key "C-c SPC"
+(defvar dotfairy-leader-key-states '(normal visual motion)
+  "which evil modes to activate the leader key for")
+
+(defvar dotfairy-leader-alt-key-states '(emacs insert)
+  "which evil modes to activate the alternative leader key for")
+
+
+(defvar dotfairy-localleader-key "SPC m"
   "The localleader prefix key, for major-mode specific commands.")
 
-(defvar dotfairy-localleader-alt-key "C-c SPC"
+(defvar dotfairy-localleader-alt-key "M-SPC m"
   "The localleader prefix key, for major-mode specific commands.")
 
 (defvar dotfairy-leader-map (make-sparse-keymap)
@@ -71,7 +78,8 @@
   (defalias 'define-key! #'general-def)
   (defalias 'undefine-key! #'general-unbind)
   :config
-  (add-hook 'after-init-hook #'general-auto-unbind-keys))
+  (add-hook 'after-init-hook #'general-auto-unbind-keys)
+  (general-evil-setup t))
 
 ;; HACK `map!' uses this instead of `define-leader-key!' because it consumes
 ;; 20-30% more startup time, so we reimplement it ourselves.
@@ -156,8 +164,8 @@ localleader prefix."
                   ((equal dotfairy-leader-alt-key "C-x")
                    (set-keymap-parent dotfairy-leader-map ctl-x-map)))
             (define-key map (kbd dotfairy-leader-alt-key) 'dotfairy/leader))
-        (evil-define-key* '(normal visual motion) map (kbd dotfairy-leader-key) 'dotfairy/leader)
-        (evil-define-key* '(emacs insert) map (kbd dotfairy-leader-alt-key) 'dotfairy/leader))
+        (evil-define-key* dotfairy-leader-key-states map (kbd dotfairy-leader-key) 'dotfairy/leader)
+        (evil-define-key* dotfairy-leader-alt-key-states map (kbd dotfairy-leader-alt-key) 'dotfairy/leader))
       (general-override-mode +1))))
 ;;
 ;;; Packages

@@ -180,6 +180,16 @@ nil means disabled."
                  (const :tag "vertico" vertico)
                  (const :tag "Disable" nil)))
 
+(defcustom dotfairy-editor-mode 'emacs
+  "Set editor mode.
+`emacs': default keybinds.
+`evil': like vim.
+nil means disabled."
+  :group 'dotfairy
+  :type '(choice (const :tag "ivy" emacs)
+                 (const :tag "vertico" evil)
+                 (const :tag "Disable" nil)))
+
 (defcustom dotfairy-tree-sitter
   (and (fboundp 'treesit-available-p) (treesit-available-p))
   "Enable tree-sitter or not.

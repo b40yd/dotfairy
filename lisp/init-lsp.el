@@ -25,7 +25,7 @@
 ;;; Code:
 (require 'init-const)
 (require 'init-custom)
-(require 'init-keybinds)
+
 
 (pcase dotfairy-lsp
   ('eglot

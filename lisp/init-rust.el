@@ -1,6 +1,6 @@
 ;;; Code:
 (require 'init-funcs)
-(require 'init-keybinds)
+
 
 (after! projectile
   (add-to-list 'projectile-project-root-files "Cargo.toml"))

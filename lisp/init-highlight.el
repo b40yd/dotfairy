@@ -26,7 +26,7 @@
 (require 'init-const)
 (require 'init-custom)
 (require 'init-funcs)
-(require 'init-keybinds)
+
 
 ;; Colorize color names in buffers
 (use-package rainbow-mode

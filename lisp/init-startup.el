@@ -40,6 +40,25 @@
 (require 'init-wordwrap)
 (require 'init-markdown)
 
+(pcase dotfairy-editor-mode
+  ('evil
+   (require 'init-evil)
+
+   (defun +default-disable-delete-selection-mode-h ()
+     (delete-selection-mode -1))
+
+   (add-hook 'evil-insert-state-entry-hook #'delete-selection-mode)
+   (add-hook 'evil-insert-state-exit-hook  #'+default-disable-delete-selection-mode-h)
+
+   ;; Make SPC u SPC u [...]
+   (map! :map universal-argument-map
+         :prefix dotfairy-leader-key     "u" #'universal-argument-more
+         :prefix dotfairy-leader-alt-key "u" #'universal-argument-more))
+  ('emacs
+   ;; Sensible deafult key bindings for non-evil users
+   (setq dotfairy-leader-alt-key "C-c"
+         dotfairy-localleader-alt-key "C-c SPC")))
+
 ;; Project
 (require 'init-projectile)
 (require 'init-persp)
