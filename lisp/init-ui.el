@@ -376,7 +376,7 @@ See `display-line-numbers' for what these values mean."
                                       dashboard-insert-items
                                       dashboard-insert-newline
                                       dashboard-insert-footer)
-          dashboard-projects-backend 'project-el
+          dashboard-projects-backend 'projectile
           dashboard-path-style 'truncate-middle
           dashboard-path-max-length 60
           dashboard-display-icons-p #'icons-displayable-p
