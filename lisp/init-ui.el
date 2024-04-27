@@ -261,15 +261,6 @@
                      (symbol-value 'doom-modeline-gnus-timer)))
       "set gnus interval" :exit t)))))
 
-(use-package hide-mode-line
-  :hook (((eshell-mode
-           completion-list-mode
-           completion-in-region-mode
-           embark-collect-mode
-           shell-mode term-mode
-           lsp-ui-imenu-mode
-           vterm-mode pdf-annot-list-mode) . hide-mode-line-mode)))
-
 (use-package minions
   :hook (doom-modeline-mode . minions-mode))
 

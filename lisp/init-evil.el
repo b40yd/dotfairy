@@ -191,5 +191,7 @@ g   Repeat alignment on all matches in each line"
             '(+multiple-cursors:evil-mc . evil-traces-substitute))
   :hook (after-init . evil-traces-mode))
 
+(use-package evil-anzu
+  :config (global-anzu-mode +1))
 (provide 'init-evil)
 ;;; init-evil.el ends here
