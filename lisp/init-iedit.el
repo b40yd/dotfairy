@@ -323,18 +323,21 @@ The return value is the new value of LIST-VAR."
 
 ;; Jump to things in Emacs tree-style
 (use-package avy
-  :bind (
-         ("C-c e g l" . avy-goto-line)
-         ("C-c e g c 1" . avy-goto-char)
-         ("C-c e g c 2" . avy-goto-char-2)
-         ("C-c e g w 1" . avy-goto-word-1)
-         ("C-c e g w 2" . avy-goto-word-0))
   :hook (after-init . avy-setup-default)
   :config
   (setq avy-all-windows nil
         avy-all-windows-alt t
         avy-background t
-        avy-style 'pre))
+        avy-style 'pre)
+
+  (map! :leader
+    (:prefix-map ("j" . "jump")
+     :desc "goto char" "c" #'avy-goto-char
+     :desc "goto char 2" "C" #'avy-goto-char-2
+     :desc "goto word 0" "w" #'avy-goto-word-0
+     :desc "goto word 1" "W" #'avy-goto-word-1
+     :desc "goto line"   "g" #'avy-goto-line
+     :desc "goto char in line"  "G" #'avy-goto-char-in-line)))
 
 ;; Kill text between the point and the character CHAR
 (use-package avy-zap
