@@ -28,17 +28,6 @@
 ;; Base
 (require 'init-basic)
 (require 'init-keybinds)
-(require 'init-hydra)
-(require 'init-kill-ring)
-
-;; UI
-(require 'init-ui)
-
-;; Editor
-(require 'init-iedit)
-(require 'init-indent-yank)
-(require 'init-wordwrap)
-(require 'init-markdown)
 
 (pcase dotfairy-editor-mode
   ('evil
@@ -58,6 +47,18 @@
    ;; Sensible deafult key bindings for non-evil users
    (setq dotfairy-leader-alt-key "C-c"
          dotfairy-localleader-alt-key "C-c SPC")))
+
+(require 'init-hydra)
+(require 'init-kill-ring)
+
+;; UI
+(require 'init-ui)
+
+;; Editor
+(require 'init-iedit)
+(require 'init-indent-yank)
+(require 'init-wordwrap)
+(require 'init-markdown)
 
 ;; Project
 (require 'init-projectile)

@@ -210,8 +210,8 @@
 
 (use-package consult
   :defer t
-  :bind (("C-s" . consult-line)
-         ("C-c p f" . +vertico/consult-fd-or-find))
+  :bind (("C-s" . consult-line))
+  :commands (+vertico/consult-fd-or-find)
   :preface
   (define-key!
     [remap bookmark-jump]                 #'consult-bookmark

@@ -61,13 +61,18 @@
    )
   ;;; <leader> c --- code
   (:prefix-map ("c" . "coding")
+   :desc "LSP Execute code action"             "a" #'lsp-execute-code-action
+   :desc "LSP Organize imports"                "o" #'lsp-organize-imports
+   :desc "LSP Rename"                          "r" #'lsp-rename
+   :desc "Symbols"                             "S" #'lsp-treemacs-symbols
+   :desc "LSP"                                 "l" #'+default/lsp-command-map
    :desc "Compile or Recompile"                "c" #'+default/compile
    :desc "Remember init"                       "." #'remember-init
    :desc "Remember jump"                       "," #'remember-jump
    :desc "Open newline below"                  "o" #'open-newline-below
    :desc "Open newline above"                  "O" #'open-newline-above
-   :desc "Duplicate line or region below"      "l" #'duplicate-line-or-region-below
-   :desc "Duplicate line or region above"      "L" #'duplicate-line-or-region-above)
+   :desc "Duplicate line or region below"      "D" #'duplicate-line-or-region-below
+   :desc "Duplicate line or region above"      "d" #'duplicate-line-or-region-above)
   (:prefix-map ("e" . "editor")
    :desc "Hungry delete backward"              "b" #'hungry-delete-backward
    :desc "Dired change to wdired-mode"         "e" #'wdired-change-to-wdired-mode
@@ -155,8 +160,26 @@
    :desc "Search project"                  "s" #'+default/search-project
    :desc "Search Other Project"            "S" #'+default/search-other-project
    :desc "List project todos"              "t" #'magit-todos-list
-   (:prefix ("4" . "in other window"))
-   (:prefix ("5" . "in other frame")))
+   (:when (eq dotfairy-complete 'vertico)
+    :desc "Find file in project" "f" #'+vertico/consult-fd-or-find)
+   :desc "Run cmd in project root"      "!" #'projectile-run-shell-command-in-root
+   :desc "Async cmd in project root"    "&" #'projectile-run-async-shell-command-in-root
+   :desc "Add new project"              "A" #'projectile-add-known-project
+   :desc "Switch to project buffer"     "b" #'projectile-switch-to-buffer
+   :desc "Compile in project"           "c" #'projectile-compile-project
+   :desc "Repeat last command"          "C" #'projectile-repeat-last-command
+   :desc "Discover projects in folder"  "D" #'+default/discover-projects
+   :desc "Edit project .dir-locals"     "e" #'projectile-edit-dir-locals
+   :desc "Find file in project"         "l" #'projectile-find-file
+   :desc "Configure project"            "g" #'projectile-configure-project
+   :desc "Invalidate project cache"     "i" #'projectile-invalidate-cache
+   :desc "Kill project buffers"         "k" #'projectile-kill-buffers
+   :desc "Find sibling file"            "o" #'find-sibling-file
+   :desc "Switch project"               "p" #'projectile-switch-project
+   :desc "Find recent project files"    "r" #'projectile-recentf
+   :desc "Run project"                  "R" #'projectile-run-project
+   :desc "Save project files"           "s" #'projectile-save-project-buffers
+   :desc "Test project"                 "T" #'projectile-test-project)
 
   ;;; <leader> q --- quit/restart
   (:prefix-map ("q" . "quit/restart")

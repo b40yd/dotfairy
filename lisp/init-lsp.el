@@ -54,7 +54,7 @@
      :diminish
      :defines (lsp-diagnostics-disabled-modes lsp-clients-python-library-directories)
      :autoload lsp-enable-which-key-integration
-     :commands (lsp-format-buffer lsp-organize-imports)
+     :commands (lsp-format-buffer lsp-organize-imports +default/lsp-command-map)
      :hook ((prog-mode . (lambda ()
                            (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode 'makefile-mode 'snippet-mode)
                              (lsp-deferred))))
@@ -78,40 +78,58 @@
             ("C-c C-d" . lsp-describe-thing-at-point)
             ([remap xref-find-definitions] . lsp-find-definition)
             ([remap xref-find-references] . lsp-find-references))
-     :init (setq lsp-keymap-prefix "C-c l"
-                 lsp-keep-workspace-alive nil
-                 lsp-signature-auto-activate nil
-                 lsp-modeline-code-actions-enable nil
-                 lsp-modeline-diagnostics-enable nil
-                 lsp-modeline-workspace-status-enable nil
+     :init (setq ;;lsp-keymap-prefix "C-c l"
+            lsp-keep-workspace-alive nil
+            lsp-signature-auto-activate nil
+            lsp-modeline-code-actions-enable nil
+            lsp-modeline-diagnostics-enable nil
+            lsp-modeline-workspace-status-enable nil
 
-                 ;; For corfu
-                 lsp-completion-provider :none
+            ;; For corfu
+            lsp-completion-provider :none
 
-                 lsp-semantic-tokens-enable t
-                 lsp-progress-spinner-type 'progress-bar-filled
+            lsp-semantic-tokens-enable t
+            lsp-progress-spinner-type 'progress-bar-filled
 
-                 lsp-enable-file-watchers nil
-                 lsp-enable-folding nil
-                 lsp-enable-symbol-highlighting nil
-                 lsp-enable-text-document-color nil
+            lsp-enable-file-watchers nil
+            lsp-enable-folding nil
+            lsp-enable-symbol-highlighting nil
+            lsp-enable-text-document-color nil
 
-                 lsp-enable-indentation nil
-                 lsp-enable-on-type-formatting nil
+            lsp-enable-indentation nil
+            lsp-enable-on-type-formatting nil
 
-                 lsp-session-file (concat dotfairy-etc-dir "lsp-session")
-                 lsp-server-install-dir (concat dotfairy-etc-dir "lsp/")
+            lsp-session-file (concat dotfairy-etc-dir "lsp-session")
+            lsp-server-install-dir (concat dotfairy-etc-dir "lsp/")
 
-                 ;; For diagnostics
-                 lsp-diagnostics-disabled-modes '(markdown-mode gfm-mode)
+            ;; For diagnostics
+            lsp-diagnostics-disabled-modes '(markdown-mode gfm-mode)
 
-                 ;; For clients
-                 lsp-clients-python-library-directories '("/usr/local/" "/usr/"))
+            ;; For clients
+            lsp-clients-python-library-directories '("/usr/local/" "/usr/"))
      :config
      (if (equal dotfairy-complete 'vertico)
          (use-package consult-lsp
            :bind (:map lsp-mode-map
                   ("C-M-." . consult-lsp-symbols))))
+
+     ;;;###autoload
+     (defun +default/lsp-command-map ()
+       "Lazily invoke `lsp-command-map'."
+       (interactive)
+       (require 'lsp-mode)
+       (map! :leader "c l" lsp-command-map)
+       (dolist (leader-key (list dotfairy-leader-key dotfairy-leader-alt-key))
+         (let ((lsp-keymap-prefix (concat leader-key " c l")))
+           (lsp-enable-which-key-integration)))
+       (setq prefix-arg current-prefix-arg
+             unread-command-events
+             (mapcar (lambda (e) (cons t e))
+                     (vconcat (when (bound-and-true-p evil-this-operator)
+                                (where-is-internal evil-this-operator
+                                                   evil-normal-state-map
+                                                   t))
+                              (this-command-keys)))))
 
      (with-no-warnings
        ;;Select what codelenses should be enabled or not.

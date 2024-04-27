@@ -394,7 +394,8 @@ The return value is the new value of LIST-VAR."
          ("C-M-j" . dumb-jump-hydra/body))
   :init
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
-  (setq dumb-jump-selector 'completing-read))
+  (setq dumb-jump-selector 'completing-read
+        dumb-jump-prefer-searcher 'rg))
 
 (use-package editorconfig
   :diminish

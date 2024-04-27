@@ -26,7 +26,21 @@
 
 (use-package evil
   :commands (evil-set-initial-state evil-ex-define-cmd)
-  :init (evil-mode +1)
+  :init
+  ;; Set these defaults before `evil'; use `defvar' so they can be changed prior
+  ;; to loading.
+  (defvar evil-want-C-g-bindings t)
+  (defvar evil-want-C-i-jump nil)  ; we do this ourselves
+  (defvar evil-want-C-u-scroll t)  ; moved the universal arg to <leader> u
+  (defvar evil-want-C-u-delete t)
+  (defvar evil-want-C-w-delete t)
+  (defvar evil-want-Y-yank-to-eol t)
+  (defvar evil-want-abbrev-expand-on-insert-exit nil)
+  (defvar evil-respect-visual-line-mode nil)
+  (setq evil-want-keybinding nil)
+
+  (setq evil-default-state 'normal)
+  (evil-mode +1)
   :preface
   (setq evil-ex-search-vim-style-regexp t
         evil-ex-visual-char-range t  ; column range for ex commands
@@ -54,7 +68,6 @@
     (if evil-state
         (evil-save-state (apply fn args))
       (apply fn args)))
-
   :config
   (evil-select-search-module 'evil-search-module 'evil-search)
 
@@ -70,23 +83,19 @@
   (defun +evil-default-cursor-fn ()
     (evil-set-cursor-color (get 'cursor 'evil-normal-color)))
   (defun +evil-emacs-cursor-fn ()
-    (evil-set-cursor-color (get 'cursor 'evil-emacs-color)))
-
-  )
+    (evil-set-cursor-color (get 'cursor 'evil-emacs-color))))
 
 ;; add package evil-collection
 (use-package evil-collection
   :defer 2
   ;; :disabled
   :after evil
-  :init
-  (setq evil-want-keybinding nil)
   :custom
   (setq evil-collection-outline-bind-tab-p nil
         evil-collection-setup-minibuffer t)
+  :hook (after-init . evil-collection-init)
   :config
-  (setq evil-collection-mode-list (delete 'company evil-collection-mode-list))
-  (evil-collection-init))
+  (setq evil-collection-mode-list (delete 'company evil-collection-mode-list)))
 
 ;; gcc comments out a line
 ;; gc comments out the target of a motion
@@ -94,20 +103,21 @@
 (use-package evil-commentary
   :after evil
   :diminish evil-commentary-mode
-  :init (evil-commentary-mode))
+  :hook (after-init . evil-commentary-mode))
 
 ;; evil surround
 (use-package evil-surround
+  :after evil
   :commands (global-evil-surround-mode
              evil-surround-edit
              evil-Surround-edit
              evil-surround-region)
-  :config (global-evil-surround-mode 1))
+  :hook (after-init . global-evil-surround-mode))
 
 (use-package evil-matchit
   :after evil
   :diminish evil-matchit-mode
-  :config (global-evil-matchit-mode t))
+  :hook (after-init . global-evil-matchit-mode))
 
 (use-package evil-mc
   :after evil
@@ -117,16 +127,16 @@
              evil-mc-make-cursor-move-prev-line
              evil-mc-mode
              evil-mc-undo-all-cursors
-             global-evil-mc-mode)
-  :init (global-evil-mc-mode 1))
+             global-evil-mc-mode))
 
 (use-package evil-mc-extras
   :after evil-mc
   :commands global-evil-mc-extras-mode
   :diminish evil-mc-extras-mode
-  :init (global-evil-mc-extras-mode 1))
+  :hook (after-init . global-evil-mc-extras-mode))
 
 (use-package evil-escape
+  :after evil
   :commands evil-escape
   :hook (after-init . evil-escape-mode)
   :init
@@ -179,7 +189,7 @@ g   Repeat alignment on all matches in each line"
             '(+evil:align . evil-traces-global)
             '(+evil:align-right . evil-traces-global)
             '(+multiple-cursors:evil-mc . evil-traces-substitute))
-  (evil-traces-mode))
+  :hook (after-init . evil-traces-mode))
 
 (provide 'init-evil)
 ;;; init-evil.el ends here
