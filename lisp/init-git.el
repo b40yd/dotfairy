@@ -39,8 +39,6 @@
   :bind
   (("C-x g" . magit-status))
   :config
-  (define-key magit-mode-map "q" #'+magit/quit)
-  (define-key magit-mode-map "Q" #'+magit/quit-all)
   ;; modeline magit status update, But doing so isn't good for performance
   (setq auto-revert-check-vc-info t)
   (defvar +magit--stale-p nil)
@@ -101,11 +99,13 @@ kill all magit buffers for this repo."
               (kill-process process)
               (kill-buffer buf)))))))
 
-  ;; Unbind M-1, M-2, M-3, and M-4 shortcuts due to conflict with `ace-window'
-  (unbind-key "M-1" magit-mode-map)
-  (unbind-key "M-2" magit-mode-map)
-  (unbind-key "M-3" magit-mode-map)
-  (unbind-key "M-4" magit-mode-map)
+  (after! magit-section
+    ;; These numbered keys mask the numerical prefix keys. Since they've already
+    ;; been replaced with z1, z2, z3, etc (and 0 with g=), there's no need to
+    ;; keep them around:
+    (undefine-key! magit-section-mode-map "M-1" "M-2" "M-3" "M-4" "1" "2" "3" "4" "0")
+    ;; `evil-collection-magit-section' binds these redundant keys.
+    (map! :map magit-section-mode-map :n "1" nil :n "2" nil :n "3" nil :n "4" nil))
 
   ;; Access Git forges from Magit
   ;; see config: https://magit.vc/manual/ghub/Storing-a-Token.html#Storing-a-Token
@@ -183,8 +183,26 @@ ensure it is built when we actually use Forge."
       (after! forge
         (transient-append-suffix 'forge-dispatch "c u"
           '("c r" "Review pull request" +magit/start-code-review))))
-    )
 
+    (after! code-review
+      (map! :map code-review-mode-map
+            :n "r" #'code-review-transient-api
+            :n "RET" #'code-review-comment-add-or-edit))
+
+    ;; Fix these keybinds because they are blacklisted
+    ;; REVIEW There must be a better way to exclude particular evil-collection
+    ;;        modules from the blacklist.
+    (map! (:map magit-mode-map
+           :nv "q" #'+magit/quit
+           :nv "Q" #'+magit/quit-all
+           :nv "]" #'magit-section-forward-sibling
+           :nv "[" #'magit-section-backward-sibling
+           :nv "gr" #'magit-refresh
+           :nv "gR" #'magit-refresh-all)
+          (:map magit-status-mode-map
+           :nv "gz" #'magit-refresh)
+          (:map magit-diff-mode-map
+           :nv "gd" #'magit-jump-to-diffstat-or-diff)))
 
   ;; (use-package magit-todos
   ;;   :defines magit-todos-nice
