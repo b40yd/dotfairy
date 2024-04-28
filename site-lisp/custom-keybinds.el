@@ -65,6 +65,15 @@
    :desc "LSP Organize imports"                "o" #'lsp-organize-imports
    :desc "LSP Rename"                          "r" #'lsp-rename
    :desc "Symbols"                             "S" #'lsp-treemacs-symbols
+   (:when (featurep 'vertico)
+    :desc "Jump to symbol in current workspace" "j"   #'consult-lsp-symbols
+    :desc "Jump to symbol in any workspace"     "J"   (cmd!! #'consult-lsp-symbols 'all-workspaces))
+   (:when (featurep 'treemacs)
+    :desc "Errors list"                         "X"   #'lsp-treemacs-errors-list
+    :desc "Incoming call hierarchy"             "y"   #'lsp-treemacs-call-hierarchy
+    :desc "Outgoing call hierarchy"             "Y"   (cmd!! #'lsp-treemacs-call-hierarchy t)
+    :desc "References tree"                     "R"   (cmd!! #'lsp-treemacs-references t)
+    :desc "Symbols"                             "S"   #'lsp-treemacs-symbols)
    :desc "LSP"                                 "l" #'+default/lsp-command-map
    :desc "Compile or Recompile"                "c" #'+default/compile
    :desc "Remember init"                       "." #'remember-init
@@ -73,17 +82,19 @@
    :desc "Open newline above"                  "O" #'open-newline-above
    :desc "Duplicate line or region below"      "D" #'duplicate-line-or-region-below
    :desc "Duplicate line or region above"      "d" #'duplicate-line-or-region-above)
+
   (:prefix-map ("e" . "editor")
    :desc "Hungry delete backward"              "b" #'hungry-delete-backward
    :desc "Dired change to wdired-mode"         "e" #'wdired-change-to-wdired-mode
    :desc "Hungry delete forward"               "f" #'hungry-delete-forward
    :desc "Delete trailing whitespace"          "w" #'delete-trailing-whitespace)
+
   ;;; <leader> f --- file
   (:prefix-map ("f" . "file")
    :desc "Open project editorconfig"   "." #'editorconfig-find-current-editorconfig
    :desc "Copy this file"              "c" #'dotfairy/copy-this-file
    :desc "Rename this file name"       "C" #'dotfairy/copy-file-name
-   :desc "Find directory"              "d" #'dired
+   :desc "Find directory"              "d" #'+default/dired
    :desc "Delete this file"            "D" #'dotfairy/delete-this-file
    :desc "Find file in emacs.d"        "e" #'dotfairy/find-file-in-emacsd
    :desc "Browse in emacs.d"           "E" #'dotfairy/browse-in-emacsd
@@ -95,6 +106,8 @@
    :desc "Rename this buffer file"     "M" #'dotfairy/rename-this-file
    :desc "Recent files"                "r" #'recentf-open-files
    :desc "Remove recent file"          "R" #'dotfairy/remove-recent-file
+   :desc "Save file"                   "s" #'save-buffer
+   :desc "Save file as..."             "S" #'write-file
    :desc "Sudo this file"              "u" #'dotfairy/sudo-this-file
    :desc "Sudo find file"              "U" #'dotfairy/sudo-find-file
    :desc "Open init file"              "i" #'dotfairy/open-init-file
@@ -103,7 +116,6 @@
    :desc "Yank file path from project" "Y" #'+default/yank-buffer-path-relative-to-project)
 
   (:prefix-map ("g" . "git")
-   :desc "SMerge"                    "m"   #'smerge-mode-hydra/body
    :desc "Magit dispatch"            "/"   #'magit-dispatch
    :desc "Magit file dispatch"       "."   #'magit-file-dispatch
    :desc "Forge dispatch"            "'"   #'forge-dispatch
@@ -117,6 +129,9 @@
    :desc "Magit buffer log"          "L"   #'magit-log-buffer-file
    :desc "Git stage this file"       "S"   #'magit-stage-buffer-file
    :desc "Git unstage this file"     "U"   #'magit-unstage-file
+   :desc "Git time machine"          "t"   #'git-timemachine-toggle
+   :desc "Git messager"              "m"   #'git-messenger:popup-message
+   :desc "SMerge"                    "M"   #'smerge-mode-hydra/body
    (:prefix ("f" . "find")
     :desc "Find file"                 "f"   #'magit-find-file
     :desc "Find gitconfig file"       "g"   #'magit-find-git-config-file
@@ -146,24 +161,15 @@
     :desc "Issue"                     "i"   #'forge-create-issue
     :desc "Pull request"              "p"   #'forge-create-pullreq)
    )
-  ;;; <leader> s --- search
-  (:prefix-map ("s" . "search")
-   :desc "Internet Search Engine"       "/" #'webjump
-   :desc "Search All Opened buffer"     "B" #'swiper-all
-   :desc "Search current directory"     "d" #'+default/search-cwd
-   :desc "Search other directory"       "D" #'+default/search-other-cwd
-   :desc "Counsel grep or swiper"       "g" #'counsel-grep-or-swiper
-   :desc "Counsel grep"                 "G" #'counsel-grep
-   :desc "Counsel git grep"             "j" #'counsel-git-grep
-   :desc "Jump to bookmark"             "m" #'bookmark-jump
-   :desc "Search project"               "p" #'+default/search-project
-   :desc "Search other project"         "P" #'+default/search-other-project
-   :desc "Counsel rg search"            "r" #'counsel-rg
-   :desc "rg menu"                      "R" #'rg-menu
-   :desc "Search buffer"                "s" #'+default/search-buffer)
+
   ;;; <leader> i --- insert
   (:prefix-map ("i" . "insert")
+   :desc "Emoji"                         "e" #'emojify-insert-emoji
    :desc "Snippet"                       "s" #'yas-insert-snippet
+   :desc "Current file name"             "f" #'+default/insert-file-path
+   :desc "Current file path"             "F" (cmd!! #'+default/insert-file-path t)
+   :desc "Snippet"                       "s" #'yas-insert-snippet
+   :desc "Unicode"                       "u" #'insert-char
    :desc "Unicode"                       "u" #'unicode-property-table-internal)
 
   (:prefix-map ("k" . "kill")
@@ -175,11 +181,41 @@
    :desc "kill matching buffers"               "m" #'dotfairy/kill-matching-buffers)
   ;;; <leader> n --- notes
   (:prefix-map ("n" . "notes")
+   :desc "Search notes for symbol"        "*" #'+default/search-notes-for-symbol-at-point
    :desc "Org agenda"                     "a" #'org-agenda
+   :desc "Cancel current org-clock"       "C" #'org-clock-cancel
    :desc "Find file in notes"             "f" #'+default/find-in-notes
    :desc "Browse notes"                   "F" #'+default/browse-notes
    :desc "Org capture"                    "n" #'org-capture
-   :desc "Goto capture"                   "N" #'org-capture-goto-target)
+   :desc "Goto capture"                   "N" #'org-capture-goto-target
+   :desc "Org store link"                 "l" #'org-store-link
+   :desc "Tags search"                    "m" #'org-tags-view
+   :desc "Active org-clock"               "o" #'org-clock-goto
+   :desc "Todo list"                      "t" #'org-todo-list
+   :desc "View search"                    "v" #'org-search-view
+   (:prefix ("r" . "roam")
+    :desc "Open random node"           "a" #'org-roam-node-random
+    :desc "Find node"                  "f" #'org-roam-node-find
+    :desc "Find ref"                   "F" #'org-roam-ref-find
+    :desc "Show graph"                 "g" #'org-roam-graph
+    :desc "Insert node"                "i" #'org-roam-node-insert
+    :desc "Capture to node"            "n" #'org-roam-capture
+    :desc "Toggle roam buffer"         "r" #'org-roam-buffer-toggle
+    :desc "Launch roam buffer"         "R" #'org-roam-buffer-display-dedicated
+    :desc "Sync database"              "s" #'org-roam-db-sync
+    (:prefix ("d" . "by date")
+     :desc "Goto previous note"        "b" #'org-roam-dailies-goto-previous-note
+     :desc "Goto date"                 "d" #'org-roam-dailies-goto-date
+     :desc "Capture date"              "D" #'org-roam-dailies-capture-date
+     :desc "Goto next note"            "f" #'org-roam-dailies-goto-next-note
+     :desc "Goto tomorrow"             "m" #'org-roam-dailies-goto-tomorrow
+     :desc "Capture tomorrow"          "M" #'org-roam-dailies-capture-tomorrow
+     :desc "Capture today"             "n" #'org-roam-dailies-capture-today
+     :desc "Goto today"                "t" #'org-roam-dailies-goto-today
+     :desc "Capture today"             "T" #'org-roam-dailies-capture-today
+     :desc "Goto yesterday"            "y" #'org-roam-dailies-goto-yesterday
+     :desc "Capture yesterday"         "Y" #'org-roam-dailies-capture-yesterday
+     :desc "Find directory"            "-" #'org-roam-dailies-find-directory)))
   ;;; <leader> o --- open
   "o" nil ; we need to unbind it first as Org claims this prefix
   (:prefix-map ("o" . "open")
@@ -187,30 +223,31 @@
    :desc "Open Dired"         "d"  #'+default/dired
    :desc "New frame"          "f"  #'make-frame
    :desc "Dired"              "-"  #'dired-jump
+   :desc "Docker"             "D"  #'docker
    :desc "Find file in project sidebar" "P" #'treemacs-find-file)
 
   ;;; <leader> p --- project
   (:prefix ("p" . "project")
    :desc "Add directory to project"        "a" #'dotfairy/add-directory-as-project
+   :desc "Compile in project"              "c" #'projectile-compile-project
    :desc "Remove known project"            "d" #'projectile-remove-known-project
    :desc "Recent project files"            "r" #'projectile-recentf
    :desc "Restart current workspace"       "R" #'lsp-workspace-restart
    :desc "Find file in other project"      "F" #'dotfairy/find-file-in-other-project
    :desc "Add to workspace"                "i" #'lsp-workspace-folders-add
    :desc "Kill project buffers"            "k" #'dotfairy/kill-project-buffers
-   :desc "Browse project"                  "p" #'+default/browse-project
-   :desc "Browse other project"            "P" #'dotfairy/browse-in-other-project
+   :desc "Browse project"                  "." #'+default/browse-project
+   :desc "Browse other project"            ">" #'dotfairy/browse-in-other-project
    :desc "Search project for symbol at point"  "y" #'+default/search-project-for-symbol-at-point
    :desc "Search project"                  "s" #'+default/search-project
    :desc "Search Other Project"            "S" #'+default/search-other-project
    :desc "List project todos"              "t" #'magit-todos-list
    (:when (eq dotfairy-complete 'vertico)
-    :desc "Find file in project" "f" #'+vertico/consult-fd-or-find)
+    :desc "Find file in project"        "f" #'+vertico/consult-fd-or-find)
    :desc "Run cmd in project root"      "!" #'projectile-run-shell-command-in-root
    :desc "Async cmd in project root"    "&" #'projectile-run-async-shell-command-in-root
    :desc "Add new project"              "A" #'projectile-add-known-project
    :desc "Switch to project buffer"     "b" #'projectile-switch-to-buffer
-   :desc "Compile in project"           "c" #'projectile-compile-project
    :desc "Repeat last command"          "C" #'projectile-repeat-last-command
    :desc "Discover projects in folder"  "D" #'+default/discover-projects
    :desc "Edit project .dir-locals"     "e" #'projectile-edit-dir-locals
@@ -242,6 +279,47 @@
    :desc "Reload snippets"       "r" #'yas-reload-all
    :desc "Read snippets name from minibuffer" "y" #'ivy-yasnippet)
 
+  ;;; <leader> r --- remote
+  (:prefix-map ("r" . "remote")
+   :desc "Browse remote"              "b" #'ssh-deploy-browse-remote-base-handler
+   :desc "Browse relative"            "B" #'ssh-deploy-browse-remote-handler
+   :desc "Download remote"            "d" #'ssh-deploy-download-handler
+   :desc "Delete local & remote"      "D" #'ssh-deploy-delete-handler
+   :desc "Eshell base terminal"       "e" #'ssh-deploy-remote-terminal-eshell-base-handler
+   :desc "Eshell relative terminal"   "E" #'ssh-deploy-remote-terminal-eshell-handler
+   :desc "Move/rename local & remote" "m" #'ssh-deploy-rename-handler
+   :desc "Open this file on remote"   "o" #'ssh-deploy-open-remote-file-handler
+   :desc "Run deploy script"          "s" #'ssh-deploy-run-deploy-script-handler
+   :desc "Upload local"               "u" #'ssh-deploy-upload-handler
+   :desc "Upload local (force)"       "U" #'ssh-deploy-upload-handler-forced
+   :desc "Diff local & remote"        "x" #'ssh-deploy-diff-handler
+   :desc "Browse remote files"        "." #'ssh-deploy-browse-remote-handler
+   :desc "Detect remote changes"      ">" #'ssh-deploy-remote-changes-handler)
+
+  ;;; <leader> s --- search
+  (:prefix-map ("s" . "search")
+   :desc "Internet Search Engine"       "/" #'webjump
+   :desc "Search buffer"                "b"
+   (cond ((featurep 'vertico)   #'consult-line)
+         ((featurep 'ivy)       #'swiper))
+   :desc "Search all open buffers"      "B"
+   (cond ((featurep 'vertico)   (cmd!! #'consult-line-multi 'all-buffers))
+         ((featurep 'ivy)       #'swiper-all))
+   :desc "Search current directory"     "d" #'+default/search-cwd
+   :desc "Search other directory"       "D" #'+default/search-other-cwd
+   :desc "Jump to visible link"         "l" #'link-hint-open-link
+   :desc "Jump to link"                 "L" #'ffap-menu
+   :desc "Jump to bookmark"             "m" #'bookmark-jump
+   :desc "Jump to bookmark"             "m" #'bookmark-jump
+   :desc "rg menu"                      "M" #'rg-menu
+   :desc "Search project"               "p" #'+default/search-project
+   :desc "Search other project"         "P" #'+default/search-other-project
+   :desc "Search buffer"                "s" #'+default/search-buffer
+   :desc "Search buffer for thing at point" "S"
+   (cond ((featurep 'vertico)   #'+vertico/search-symbol-at-point)
+         ((featurep 'ivy)       #'swiper-isearch-thing-at-point))
+   :desc "Undo history"                 "u" #'vundo)
+
   ;;; <leader> t --- toggle
   (:prefix-map ("t" . "toggle")
    :desc "Flymake"                      "f" #'flymake-mode
@@ -250,35 +328,6 @@
    :desc "Read-only mode"               "r" #'read-only-mode
    :desc "Visible mode"                 "v" #'visible-mode
    :desc "Soft line wrapping"           "w" #'+word-wrap-mode)
-
-  ;;; <leader> v --- versioning
-  (:prefix-map ("v" . "versioning")
-   :desc "Git revert file"            "R"   #'vc-revert
-   :desc "Git time machine"           "t"   #'git-timemachine-toggle
-   :desc "Git messager"               "m"   #'git-messenger:popup-message
-   :desc "Magit dispatch"             "/"   #'magit-dispatch
-   :desc "Magit file dispatch"        "."   #'magit-file-dispatch
-   :desc "Forge dispatch"             "'"   #'forge-dispatch
-   :desc "Magit status"               "g"   #'magit-status
-   :desc "Magit status here"          "G"   #'magit-status-here
-   :desc "Magit file restore"         "x"   #'magit-file-checkout
-   :desc "Magit blame"                "B"   #'magit-blame-addition
-   :desc "Magit clone"                "C"   #'magit-clone
-   :desc "Magit fetch"                "F"   #'magit-fetch
-   :desc "Magit buffer log"           "L"   #'magit-log
-   :desc "Git stage file"             "S"   #'magit-stage-file
-   :desc "Git unstage file"           "U"   #'magit-unstage-file
-   (:prefix ("f" . "find")
-    :desc "Find file"                 "f"   #'magit-find-file
-    :desc "Find commit"               "c"   #'magit-show-commit)
-   (:prefix ("l" . "list")
-    :desc "List repositories"         "r"   #'magit-list-repositories
-    :desc "List submodules"           "s"   #'magit-list-submodules)
-   (:prefix ("c" . "create")
-    :desc "Initialize repo"           "r"   #'magit-init
-    :desc "Clone repo"                "R"   #'magit-clone
-    :desc "Commit"                    "c"   #'magit-commit-create
-    :desc "Fixup"                     "f"   #'magit-commit-fixup))
 
   ;;; <leader> w --- workspaces/windows
   (:prefix-map ("w" . "workspaces/windows")
