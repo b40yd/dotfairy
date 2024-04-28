@@ -120,6 +120,8 @@ kill all magit buffers for this repo."
                   ("Title" 60 t nil title  nil)
                   ("State" 6 t nil state nil)
                   ("Updated" 10 t nill updated nil)))
+    :preface
+    (setq forge-add-default-bindings nil)
     :config
     (require 'emacsql-sqlite)
     (setq forge-database-file (concat dotfairy-cache-dir "forge/forge-database.sqlite"))
