@@ -499,6 +499,31 @@ list is returned as-is."
                collect (cadr hook)
                else collect (intern (format "%s-hook" (symbol-name hook)))))))
 
+(defmacro add-transient-hook! (hook-or-function &rest forms)
+  "Attaches a self-removing function to HOOK-OR-FUNCTION.
+
+FORMS are evaluated once, when that function/hook is first invoked, then never
+again.
+
+HOOK-OR-FUNCTION can be a quoted hook or a sharp-quoted function (which will be
+advised)."
+  (declare (indent 1))
+  (let ((append? (if (eq (car forms) :after) (pop forms)))
+        (fn (gensym "dotfairy-transient-hook")))
+    `(let ((sym ,hook-or-function))
+       (defun ,fn (&rest _)
+         ,(format "Transient hook for %S" (dotfairy-unquote hook-or-function))
+         ,@forms
+         (let ((sym ,hook-or-function))
+           (cond ((functionp sym) (advice-remove sym #',fn))
+                 ((symbolp sym)   (remove-hook sym #',fn))))
+         (unintern ',fn nil))
+       (cond ((functionp sym)
+              (advice-add ,hook-or-function ,(if append? :after :before) #',fn))
+             ((symbolp sym)
+              (put ',fn 'permanent-local-hook t)
+              (add-hook sym #',fn ,append?))))))
+
 (defmacro add-hook! (hooks &rest rest)
   "A convenience macro for adding N functions to M hooks.
 This macro accepts, in order:
@@ -1071,6 +1096,24 @@ If mark is activate, duplicate region lines below."
       (setq end (line-end-position)))
     (save-excursion
       (comment-or-uncomment-region beg end))))
+
+(defvar dotfairy-inhibit-log (not (or noninteractive init-file-debug))
+  "If non-nil, suppress `dotfairy-log' output.")
+
+(defun dotfairy--log (text &rest args)
+  (let ((inhibit-message (not init-file-debug)))
+    (apply #'message
+           (concat "* " (format-time-string "%H:%M:%S") ": " text)
+           args)))
+
+(defmacro dotfairy-log (message &rest args)
+  "Log a message in *Messages*.
+
+Does not emit the message in the echo area. This is a macro instead of a
+function to prevent the potentially expensive evaluation of its arguments when
+debug mode is off. Return non-nil."
+  (declare (debug t))
+  `(unless dotfairy-inhibit-log (dotfairy--log ,message ,@args)))
 
 (provide 'init-funcs)
 ;;; init-funcs.el ends here
