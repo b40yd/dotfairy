@@ -65,15 +65,14 @@
    :desc "LSP Organize imports"                "o" #'lsp-organize-imports
    :desc "LSP Rename"                          "r" #'lsp-rename
    :desc "Symbols"                             "S" #'lsp-treemacs-symbols
-   (:when (featurep 'vertico)
+   (:when (eq dotfairy-complete 'vertico)
     :desc "Jump to symbol in current workspace" "j"   #'consult-lsp-symbols
     :desc "Jump to symbol in any workspace"     "J"   (cmd!! #'consult-lsp-symbols 'all-workspaces))
-   (:when (featurep 'treemacs)
-    :desc "Errors list"                         "X"   #'lsp-treemacs-errors-list
-    :desc "Incoming call hierarchy"             "y"   #'lsp-treemacs-call-hierarchy
-    :desc "Outgoing call hierarchy"             "Y"   (cmd!! #'lsp-treemacs-call-hierarchy t)
-    :desc "References tree"                     "R"   (cmd!! #'lsp-treemacs-references t)
-    :desc "Symbols"                             "S"   #'lsp-treemacs-symbols)
+   :desc "Errors list"                         "X"   #'lsp-treemacs-errors-list
+   :desc "Incoming call hierarchy"             "y"   #'lsp-treemacs-call-hierarchy
+   :desc "Outgoing call hierarchy"             "Y"   (cmd!! #'lsp-treemacs-call-hierarchy t)
+   :desc "References tree"                     "R"   (cmd!! #'lsp-treemacs-references t)
+   :desc "Symbols"                             "S"   #'lsp-treemacs-symbols
    :desc "LSP"                                 "l" #'+default/lsp-command-map
    :desc "Compile or Recompile"                "c" #'+default/compile
    :desc "Remember init"                       "." #'remember-init
@@ -231,10 +230,8 @@
    :desc "Add directory to project"        "a" #'dotfairy/add-directory-as-project
    :desc "Compile in project"              "c" #'projectile-compile-project
    :desc "Remove known project"            "d" #'projectile-remove-known-project
-   :desc "Recent project files"            "r" #'projectile-recentf
    :desc "Restart current workspace"       "R" #'lsp-workspace-restart
    :desc "Find file in other project"      "F" #'dotfairy/find-file-in-other-project
-   :desc "Add to workspace"                "i" #'lsp-workspace-folders-add
    :desc "Kill project buffers"            "k" #'dotfairy/kill-project-buffers
    :desc "Browse project"                  "." #'+default/browse-project
    :desc "Browse other project"            ">" #'dotfairy/browse-in-other-project
@@ -254,12 +251,11 @@
    :desc "Find file in project"         "l" #'projectile-find-file
    :desc "Configure project"            "g" #'projectile-configure-project
    :desc "Invalidate project cache"     "i" #'projectile-invalidate-cache
-   :desc "Kill project buffers"         "k" #'projectile-kill-buffers
    :desc "Find sibling file"            "o" #'find-sibling-file
    :desc "Switch project"               "p" #'projectile-switch-project
    :desc "Find recent project files"    "r" #'projectile-recentf
    :desc "Run project"                  "R" #'projectile-run-project
-   :desc "Save project files"           "s" #'projectile-save-project-buffers
+   :desc "Save project files"           "w" #'projectile-save-project-buffers
    :desc "Test project"                 "T" #'projectile-test-project)
 
   ;;; <leader> q --- quit/restart
@@ -299,25 +295,21 @@
   ;;; <leader> s --- search
   (:prefix-map ("s" . "search")
    :desc "Internet Search Engine"       "/" #'webjump
-   :desc "Search buffer"                "b"
-   (cond ((featurep 'vertico)   #'consult-line)
-         ((featurep 'ivy)       #'swiper))
-   :desc "Search all open buffers"      "B"
-   (cond ((featurep 'vertico)   (cmd!! #'consult-line-multi 'all-buffers))
-         ((featurep 'ivy)       #'swiper-all))
+   :desc "Search buffer"                "b" (cond ((eq dotfairy-complete 'vertico)   #'consult-line)
+                                                  ((eq dotfairy-complete 'ivy)       #'swiper))
+   :desc "Search all open buffers"      "B" (cond ((eq dotfairy-complete 'vertico)   (cmd!! #'consult-line-multi 'all-buffers))
+                                                  ((eq dotfairy-complete 'ivy)       #'swiper-all))
    :desc "Search current directory"     "d" #'+default/search-cwd
    :desc "Search other directory"       "D" #'+default/search-other-cwd
    :desc "Jump to visible link"         "l" #'link-hint-open-link
    :desc "Jump to link"                 "L" #'ffap-menu
    :desc "Jump to bookmark"             "m" #'bookmark-jump
-   :desc "Jump to bookmark"             "m" #'bookmark-jump
    :desc "rg menu"                      "M" #'rg-menu
    :desc "Search project"               "p" #'+default/search-project
    :desc "Search other project"         "P" #'+default/search-other-project
    :desc "Search buffer"                "s" #'+default/search-buffer
-   :desc "Search buffer for thing at point" "S"
-   (cond ((featurep 'vertico)   #'+vertico/search-symbol-at-point)
-         ((featurep 'ivy)       #'swiper-isearch-thing-at-point))
+   :desc "Search buffer for thing at point" "S" (cond ((eq dotfairy-complete 'vertico)   #'+vertico/search-symbol-at-point)
+                                                      ((eq dotfairy-complete 'ivy)       #'swiper-isearch-thing-at-point))
    :desc "Undo history"                 "u" #'vundo)
 
   ;;; <leader> t --- toggle
