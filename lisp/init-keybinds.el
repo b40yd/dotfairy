@@ -151,22 +151,6 @@ localleader prefix."
 (define-prefix-command 'dotfairy/leader 'dotfairy-leader-map)
 (define-key dotfairy-leader-map [override-state] 'all)
 
-;; Bind `dotfairy-leader-key' and `dotfairy-leader-alt-key' as late as possible to give
-;; the user a chance to modify them.
-(add-hook! 'after-init-hook
-  (defun dotfairy-init-leader-keys-h ()
-    "Bind `dotfairy-leader-key' and `dotfairy-leader-alt-key'."
-    (let ((map general-override-mode-map))
-      (if (not (featurep 'evil))
-          (progn
-            (cond ((equal dotfairy-leader-alt-key "C-c")
-                   (set-keymap-parent dotfairy-leader-map mode-specific-map))
-                  ((equal dotfairy-leader-alt-key "C-x")
-                   (set-keymap-parent dotfairy-leader-map ctl-x-map)))
-            (define-key map (kbd dotfairy-leader-alt-key) 'dotfairy/leader))
-        (evil-define-key* dotfairy-leader-key-states map (kbd dotfairy-leader-key) 'dotfairy/leader)
-        (evil-define-key* dotfairy-leader-alt-key-states map (kbd dotfairy-leader-alt-key) 'dotfairy/leader))
-      (general-override-mode +1))))
 ;;
 ;;; Packages
 (use-package which-key
