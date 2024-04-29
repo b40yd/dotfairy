@@ -29,7 +29,7 @@
 (require 'init-basic)
 (require 'init-keybinds)
 
-(pcase dotfairy-editor-mode
+(pcase dotfairy-keybind-mode
   ('evil
    (require 'init-evil)
 

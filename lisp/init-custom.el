@@ -180,7 +180,7 @@ nil means disabled."
                  (const :tag "vertico" vertico)
                  (const :tag "Disable" nil)))
 
-(defcustom dotfairy-editor-mode 'emacs
+(defcustom dotfairy-keybind-mode 'emacs
   "Set editor mode.
 `emacs': default keybinds.
 `evil': like vim.

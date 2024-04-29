@@ -31,7 +31,7 @@
 (setq dotfairy-full-name "user name")           ; User full name
 (setq dotfairy-mail-address "user@email.com")   ; Email address
 ;; (setq dotfairy-proxy "127.0.0.1:1080")          ; Network proxy
-(setq dotfairy-editor-mode 'evil)       ; Enable `vim-like' or `emacs'
+(setq dotfairy-keybind-mode 'evil)       ; Enable `vim-like' or `emacs'
 (setq dotfairy-quelpa-upgrade nil) ; Enable `quelpa-upgrade-p' t or nil
 ;; (setq dotfairy-completion-style 'childframe) ; Completion display style default `childframe', or set `minibuffer'.
 ;; (setq dotfairy-server nil)                      ; Enable `server-mode' or not: t or nil
