@@ -98,6 +98,7 @@
 
             lsp-enable-indentation nil
             lsp-enable-on-type-formatting nil
+            lsp-lens-enable nil
 
             lsp-session-file (concat dotfairy-etc-dir "lsp-session")
             lsp-server-install-dir (concat dotfairy-etc-dir "lsp/")
