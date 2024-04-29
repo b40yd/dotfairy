@@ -37,7 +37,6 @@
 (use-package autoinsert
   :ensure t
   :init
-  (setq auto-insert-query nil)
   (setq auto-insert-directory (concat dotfairy-emacs-dir "private/templates"))
   (add-hook 'find-file-hook 'auto-insert)
   (auto-insert-mode t)
@@ -45,6 +44,7 @@
   (define-auto-insert "\\.js$" ["template.js" my/autoinsert-yas-expand])
   (define-auto-insert "\\.ts$" ["template.ts" my/autoinsert-yas-expand])
   (define-auto-insert "\\.el$" ["template.el" my/autoinsert-yas-expand])
+  (define-auto-insert "\\.dir-locals\\.el$" ["template.txt" my/autoinsert-yas-expand])
   (define-auto-insert "\\.html$" ["template.html" my/autoinsert-yas-expand])
   (define-auto-insert "\\.([Hh]|hh|hpp)$" ["template.h" my/autoinsert-yas-expand])
   (define-auto-insert "\\.([Cc]|cc|cpp)$" ["template.cc" my/autoinsert-yas-expand])
@@ -52,6 +52,8 @@
   (define-auto-insert "\\.py$" ["template.py" my/autoinsert-yas-expand])
   (define-auto-insert "[mM]akefile$" ["Makefile" my/autoinsert-yas-expand])
   )
+
+(add-to-list 'auto-mode-alist '("\\.dir-locals\\.el\\'" . emacs-lisp-mode))
 
 (provide 'init-autoinsert)
 ;;; init-autoinsert.el ends here
