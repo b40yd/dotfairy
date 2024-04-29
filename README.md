@@ -4,7 +4,7 @@
 ![Apple](https://img.shields.io/badge/-MacOS-blue?logo=apple&style=flat&logoColor=white)
 ![Windows](https://img.shields.io/badge/-Windows-blue?logo=windows&style=flat&logoColor=white)
 
-`Dotfairy` is a configuration modified by based on `[Doom](https://github.com/doomemacs/doomemacs)` and `[Centaur](https://github.com/seagle0128/.emacs.d)`, It's work on GNU/Linux, MacOS and Windows 7 later(Some component functions may not work properly).
+`Dotfairy` is a configuration modified by based on [`Doom`](https://github.com/doomemacs/doomemacs) and [`Centaur`](https://github.com/seagle0128/.emacs.d), It's work on GNU/Linux, MacOS and Windows 7 later(Some component functions may not work properly).
 
 ## Feature
 
