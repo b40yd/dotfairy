@@ -330,19 +330,24 @@ The return value is the new value of LIST-VAR."
         avy-background t
         avy-style 'pre)
 
+  ;; Kill text between the point and the character CHAR
+  (use-package avy-zap)
+
   (map! :leader
     (:prefix-map ("j" . "jump")
-     :desc "goto char" "c" #'avy-goto-char
-     :desc "goto char 2" "C" #'avy-goto-char-2
-     :desc "goto word 0" "w" #'avy-goto-word-0
-     :desc "goto word 1" "W" #'avy-goto-word-1
-     :desc "goto line"   "g" #'avy-goto-line
-     :desc "goto char in line"  "G" #'avy-goto-char-in-line)))
+     :desc "avy goto char timer"         "/" #'avy-goto-char-timer
+     :desc "goto end of line"            "e" #'avy-goto-end-of-line
+     :desc "goto line"                   "g" #'avy-goto-line
+     :desc "goto char in line"           "G" #'avy-goto-char-in-line
+     :desc "goto char"                   "j" #'avy-goto-char
+     :desc "goto char 2"                 "J" #'avy-goto-char-2
+     :desc "kill char dwin"              "k" #'avy-zap-to-char-dwim
+     :desc "kill up to char dwin"        "K" #'avy-zap-up-to-char-dwim
+     :desc "goto goto symbol"            "s" #'avy-goto-symbol-1
+     :desc "current goto char timer"     "SPC" (cmd! (let ((current-prefix-arg t)) (avy-goto-char-timer)))
+     :desc "goto word 0"                 "w" #'avy-goto-word-0
+     :desc "goto word 1"                 "W" #'avy-goto-word-1)))
 
-;; Kill text between the point and the character CHAR
-(use-package avy-zap
-  :bind (("M-z" . avy-zap-to-char-dwim)
-         ("M-Z" . avy-zap-up-to-char-dwim)))
 
 ;; Quickly follow links
 (use-package link-hint
