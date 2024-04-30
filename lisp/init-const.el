@@ -30,7 +30,7 @@
 ;; Doom has its own features that its modules, CLI, and user extensions can
 ;; announce, and don't belong in `features', so they are stored here, which can
 ;; include information about the external system environment.
-(defconst doom-features
+(defconst dotfairy-features
   (pcase system-type
     ('darwin                           '(macos bsd))
     ((or 'cygwin 'windows-nt 'ms-dos)  '(windows))
@@ -39,22 +39,22 @@
   "A list of symbols denoting available features in the active Doom profile.")
 
 ;; Convenience aliases for internal use only (may be removed later).
-(defconst doom-system            (car doom-features))
-(defconst doom--system-windows-p (eq 'windows doom-system))
-(defconst doom--system-macos-p   (eq 'macos doom-system))
-(defconst doom--system-linux-p   (eq 'linux doom-system))
+(defconst dotfairy-system            (car dotfairy-features))
+(defconst dotfairy--system-windows-p (eq 'windows dotfairy-system))
+(defconst dotfairy--system-macos-p   (eq 'macos dotfairy-system))
+(defconst dotfairy--system-linux-p   (eq 'linux dotfairy-system))
 
 ;; `system-type' is esoteric, so I create a pseudo feature as a stable and
 ;; consistent alternative, and all while using the same `featurep' interface
 ;; we're already familiar with.
 (push :system features)
-(put :system 'subfeatures doom-features)
+(put :system 'subfeatures dotfairy-features)
 
 (with-no-warnings
-  (defconst IS-MAC      doom--system-macos-p)
-  (defconst IS-LINUX    doom--system-linux-p)
-  (defconst IS-WINDOWS  doom--system-windows-p)
-  (defconst IS-BSD      (memq 'bsd doom-features))
+  (defconst IS-MAC      dotfairy--system-macos-p)
+  (defconst IS-LINUX    dotfairy--system-linux-p)
+  (defconst IS-WINDOWS  dotfairy--system-windows-p)
+  (defconst IS-BSD      (memq 'bsd dotfairy-features))
   (defconst emacs/26 (>= emacs-major-version 26))
   (defconst emacs/27 (>= emacs-major-version 27))
   (defconst emacs/28 (>= emacs-major-version 28))
@@ -69,6 +69,22 @@
 
 (defconst dotfairy-lisp-dir (concat dotfairy-emacs-dir "lisp/")
   "The root directory of DotFairy's core files. Must end with a slash.")
+
+(defvar dotfairy-user-dir
+  (expand-file-name
+   (if-let (dotfairydir (getenv-internal "DOTFAIRYMDIR"))
+       (file-name-as-directory dotfairydir)
+     (or (let ((xdgdir
+                (file-name-concat
+                 (or (getenv-internal "XDG_CONFIG_HOME")
+                     "~/.config")
+                 "dotfairy/")))
+           (if (file-directory-p xdgdir) xdgdir))
+         "~/.dotfairy.d/")))
+  "Where your private configuration is placed.
+
+Defaults to ~/.config/dotfairy, ~/.dotfairy.d or the value of the DOTFAIRYMDIR envvar;
+whichever is found first. Must end in a slash.")
 
 (defconst dotfairy-local-dir
   (if-let (localdir (getenv "DOTFAIRYLOCALDIR"))
