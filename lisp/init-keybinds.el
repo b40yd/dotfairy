@@ -71,6 +71,33 @@
           w32-apps-modifier 'hyper)
     (w32-register-hot-key [s-t]))))
 
+
+(defvar dotfairy-escape-hook nil
+  "A hook run when C-g is pressed (or ESC in normal mode, for evil users).
+
+More specifically, when `dotfairy/escape' is pressed. If any hook returns non-nil,
+all hooks after it are ignored.")
+
+(defun dotfairy/escape (&optional interactive)
+  "Run `dotfairy-escape-hook'."
+  (interactive (list 'interactive))
+  (let ((inhibit-quit t))
+    (cond ((minibuffer-window-active-p (minibuffer-window))
+           ;; quit the minibuffer if open.
+           (when interactive
+             (setq this-command 'abort-recursive-edit))
+           (abort-recursive-edit))
+          ;; Run all escape hooks. If any returns non-nil, then stop there.
+          ((run-hook-with-args-until-success 'dotfairy-escape-hook))
+          ;; don't abort macros
+          ((or defining-kbd-macro executing-kbd-macro) nil)
+          ;; Back to the default
+          ((unwind-protect (keyboard-quit)
+             (when interactive
+               (setq this-command 'keyboard-quit)))))))
+
+(global-set-key [remap keyboard-quit] #'dotfairy/escape)
+
 (use-package general
   :init
   (require 'general)

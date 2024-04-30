@@ -24,6 +24,11 @@
 
 ;;; Code:
 
+(defvar +evil-preprocessor-regexp "^\\s-*#[a-zA-Z0-9_]"
+  "The regexp used by `+evil/next-preproc-directive' and
+`+evil/previous-preproc-directive' on ]# and [#, to jump between preprocessor
+directives. By default, this only recognizes C directives.")
+
 ;;;###autoload
 (defun +evil/next-beginning-of-method (count)
   "Jump to the beginning of the COUNT-th method/function after point."

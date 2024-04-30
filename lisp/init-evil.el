@@ -47,9 +47,9 @@
         evil-symbol-word-search t
         ;; if the current state is obvious from the cursor's color/shape, then
         ;; we won't need superfluous indicators to do it instead.
-        ;; evil-default-cursor '+evil-default-cursor-fn
+        evil-default-cursor '+evil-default-cursor-fn
         evil-normal-state-cursor 'box
-        ;; evil-emacs-state-cursor  '(box +evil-emacs-cursor-fn)
+        evil-emacs-state-cursor  '(bar +evil-emacs-cursor-fn)
         evil-insert-state-cursor 'bar
         evil-visual-state-cursor 'hollow
         ;; Only do highlighting in selected window so that Emacs has less work
@@ -84,6 +84,14 @@
     (evil-set-cursor-color (get 'cursor 'evil-normal-color)))
   (defun +evil-emacs-cursor-fn ()
     (evil-set-cursor-color (get 'cursor 'evil-emacs-color)))
+
+  (add-hook! 'dotfairy-escape-hook
+    (defun +evil-disable-ex-highlights-h ()
+      "Disable ex search buffer highlights."
+      (when (evil-ex-hl-active-p 'evil-ex-search)
+        (evil-ex-nohighlight)
+        t)))
+
   (unless noninteractive
     (setq save-silently t)
     (add-hook! 'after-save-hook
@@ -96,10 +104,51 @@
                  (count-lines (point-min) (point-max))
                  (buffer-size)))))
 
-  (defvar +evil-preprocessor-regexp "^\\s-*#[a-zA-Z0-9_]"
-    "The regexp used by `+evil/next-preproc-directive' and
-`+evil/previous-preproc-directive' on ]# and [#, to jump between preprocessor
-directives. By default, this only recognizes C directives.")
+  ;; HACK '=' moves the cursor to the beginning of selection. Disable this,
+  ;;      since it's more disruptive than helpful.
+  (defadvice! +evil--dont-move-cursor-a (fn &rest args)
+    :around #'evil-indent
+    (save-excursion (apply fn args)))
+
+  ;; REVIEW In evil, registers 2-9 are buffer-local. In vim, they're global,
+  ;;        so... Perhaps this should be PRed upstream?
+  (defadvice! +evil--make-numbered-markers-global-a (char)
+    :after-until #'evil-global-marker-p
+    (and (>= char ?2) (<= char ?9)))
+
+  ;; REVIEW Fix #2493: dir-locals cannot target fundamental-mode when evil-mode
+  ;;        is active. See hlissner/doom-emacs#2493. Revert this if
+  ;;        emacs-evil/evil#1268 is resolved upstream.
+  (defadvice! +evil--fix-local-vars-a (&rest _)
+    :before #'turn-on-evil-mode
+    (when (eq major-mode 'fundamental-mode)
+      (hack-local-variables)))
+
+  ;; HACK Invoking helpful from evil-ex throws a "No recursive edit is in
+  ;;      progress" error because, between evil-ex and helpful,
+  ;;      `abort-recursive-edit' gets called one time too many.
+  (defadvice! +evil--fix-helpful-key-in-evil-ex-a (key-sequence)
+    :before #'helpful-key
+    (when (evil-ex-p)
+      (run-at-time 0.1 nil #'helpful-key key-sequence)
+      (abort-recursive-edit)))
+
+  ;;;###autoload
+  (defun +evil-escape-a (&rest _)
+    "Call `dotfairy/escape' if `evil-force-normal-state' is called interactively."
+    (when (called-interactively-p 'any)
+      (call-interactively #'dotfairy/escape)))
+
+  ;; Prevent gw (`evil-fill') and gq (`evil-fill-and-move') from squeezing
+  ;; spaces. It doesn't in vim, so it shouldn't in evil.
+  (defadvice! +evil--no-squeeze-on-fill-a (fn &rest args)
+    :around '(evil-fill evil-fill-and-move)
+    (letf! (defun fill-region (from to &optional justify nosqueeze to-eop)
+             (funcall fill-region from to justify t to-eop))
+      (apply fn args)))
+
+  ;; Make ESC (from normal mode) the universal escaper. See `dotfairy-escape-hook'.
+  (advice-add #'evil-force-normal-state :after #'+evil-escape-a)
 
   (after! evil-ex
   ;;;###autoload (autoload '+evil:delete-this-file "editor/evil/autoload/files" nil t)
@@ -521,11 +570,169 @@ and complains if a module is loaded too early (during startup)."
   :after evil
   :diminish evil-mc-mode
   :hook (after-init . global-evil-mc-mode)
-  :commands (evil-mc-make-cursor-move-next-line
-             evil-mc-make-cursor-move-prev-line
-             evil-mc-mode
+  :commands (evil-mc-make-cursor-here
+             evil-mc-make-all-cursors
              evil-mc-undo-all-cursors
-             global-evil-mc-mode))
+             evil-mc-pause-cursors
+             evil-mc-resume-cursors
+             evil-mc-make-and-goto-first-cursor
+             evil-mc-make-and-goto-last-cursor
+             evil-mc-make-cursor-in-visual-selection-beg
+             evil-mc-make-cursor-in-visual-selection-end
+             evil-mc-make-cursor-move-next-line
+             evil-mc-make-cursor-move-prev-line
+             evil-mc-make-cursor-at-pos
+             evil-mc-has-cursors-p
+             evil-mc-make-and-goto-next-cursor
+             evil-mc-skip-and-goto-next-cursor
+             evil-mc-make-and-goto-prev-cursor
+             evil-mc-skip-and-goto-prev-cursor
+             evil-mc-make-and-goto-next-match
+             evil-mc-skip-and-goto-next-match
+             evil-mc-skip-and-goto-next-match
+             evil-mc-make-and-goto-prev-match
+             evil-mc-skip-and-goto-prev-match)
+  :init
+  (defvar evil-mc-key-map (make-sparse-keymap))
+
+  :config
+  ;; HACK evil-mc's design is bizarre. Its variables and hooks are lazy loaded
+  ;;   rather than declared at top-level, some hooks aren't defined or
+  ;;   documented, it's a bit initializer-function drunk, and its minor modes
+  ;;   are intended to be perpetually active -- even when no cursors are active
+  ;;   (causing #6021). I undo all of that here.
+  (evil-mc-define-vars)
+  (evil-mc-initialize-vars)
+  (add-hook 'evil-mc-before-cursors-created #'evil-mc-pause-incompatible-modes)
+  (add-hook 'evil-mc-before-cursors-created #'evil-mc-initialize-active-state)
+  (add-hook 'evil-mc-after-cursors-deleted  #'evil-mc-teardown-active-state)
+  (add-hook 'evil-mc-after-cursors-deleted  #'evil-mc-resume-incompatible-modes)
+  (advice-add #'evil-mc-initialize-hooks :override #'ignore)
+  (advice-add #'evil-mc-teardown-hooks :override #'evil-mc-initialize-vars)
+  (advice-add #'evil-mc-initialize-active-state :before #'turn-on-evil-mc-mode)
+  (advice-add #'evil-mc-teardown-active-state :after #'turn-off-evil-mc-mode)
+  (defadvice! +multiple-cursors--dont-reinit-vars-a (fn &rest args)
+    :around #'evil-mc-mode
+    (letf! ((#'evil-mc-initialize-vars #'ignore))
+      (apply fn args)))
+
+  ;; REVIEW This is tremendously slow on macos and windows for some reason.
+  (setq evil-mc-enable-bar-cursor (featurep :system 'linux))
+
+  (after! smartparens
+    ;; Make evil-mc cooperate with smartparens better
+    (let ((vars (cdr (assq :default evil-mc-cursor-variables))))
+      (unless (memq (car sp--mc/cursor-specific-vars) vars)
+        (setcdr (assq :default evil-mc-cursor-variables)
+                (append vars sp--mc/cursor-specific-vars)))))
+
+  ;; Whitelist more commands
+  (dolist (fn '((backward-kill-word)
+                (company-complete-common . evil-mc-execute-default-complete)
+                ;; :emacs undo
+                (undo-fu-only-undo . evil-mc-execute-default-undo)
+                (undo-fu-only-redo . evil-mc-execute-default-redo)
+                ;; :editor evil
+                (evil-delete-back-to-indentation . evil-mc-execute-default-call)
+                (evil-escape . evil-mc-execute-default-evil-normal-state)  ; C-g
+                (evil-numbers/inc-at-pt-incremental)
+                (evil-numbers/dec-at-pt-incremental)
+                (evil-digit-argument-or-evil-beginning-of-visual-line
+                 (:default . evil-mc-execute-default-call)
+                 (visual . evil-mc-execute-visual-call))
+                ;; :lang org
+                (evil-org-delete . evil-mc-execute-default-evil-delete)))
+    (setf (alist-get (car fn) evil-mc-custom-known-commands)
+          (if (and (cdr fn) (listp (cdr fn)))
+              (cdr fn)
+            (list (cons :default
+                    (or (cdr fn)
+                        #'evil-mc-execute-default-call-with-count))))))
+
+  ;; HACK Allow these commands to be repeated by prefixing them with a numerical
+  ;;      argument. See gabesoft/evil-mc#110
+  (defadvice! +multiple-cursors--make-repeatable-a (fn)
+    :around '(evil-mc-make-and-goto-first-cursor
+              evil-mc-make-and-goto-last-cursor
+              evil-mc-make-and-goto-prev-cursor
+              evil-mc-make-and-goto-next-cursor
+              evil-mc-skip-and-goto-prev-cursor
+              evil-mc-skip-and-goto-next-cursor
+              evil-mc-make-and-goto-prev-match
+              evil-mc-make-and-goto-next-match
+              evil-mc-skip-and-goto-prev-match
+              evil-mc-skip-and-goto-next-match)
+    (dotimes (i (if (integerp current-prefix-arg) current-prefix-arg 1))
+      (funcall fn)))
+
+  ;; If we're entering insert mode, it's a good bet that we want to start using
+  ;; our multiple cursors
+  (add-hook 'evil-insert-state-entry-hook #'evil-mc-resume-cursors)
+
+  (pushnew! evil-mc-incompatible-minor-modes
+            ;; evil-escape's escape key leaves behind extraneous characters
+            'evil-escape-mode
+            ;; Lispy commands don't register on more than 1 cursor. Lispyville
+            ;; is fine though.
+            'lispy-mode)
+
+  (add-hook! 'dotfairy-escape-hook
+    (defun +multiple-cursors-escape-multiple-cursors-h ()
+      "Clear evil-mc cursors and restore state."
+      (when (evil-mc-has-cursors-p)
+        (evil-mc-undo-all-cursors)
+        (evil-mc-resume-cursors)
+        t)))
+  (evil-define-key* '(normal emacs) mc/keymap [escape] #'mc/keyboard-quit)
+  (defvar-local +mc--compat-evil-prev-state nil)
+  (defvar-local +mc--compat-mark-was-active nil)
+
+  (add-hook! 'multiple-cursors-mode-enabled-hook
+    (defun +multiple-cursors-compat-switch-to-emacs-state-h ()
+      (when (and (bound-and-true-p evil-local-mode)
+                 (not (memq evil-state '(insert emacs))))
+        (setq +mc--compat-evil-prev-state evil-state)
+        (when (region-active-p)
+          (setq +mc--compat-mark-was-active t))
+        (let ((mark-before (mark))
+              (point-before (point)))
+          (evil-emacs-state 1)
+          (when (or +mc--compat-mark-was-active (region-active-p))
+            (goto-char point-before)
+            (set-mark mark-before))))))
+
+  (add-hook! 'multiple-cursors-mode-disabled-hook
+    (defun +multiple-cursors-compat-back-to-previous-state-h ()
+      (when +mc--compat-evil-prev-state
+        (unwind-protect
+            (cl-case +mc--compat-evil-prev-state
+              ;; For `evil-multiedit', marked occurrences aren't saved after
+              ;; exiting mc, so we should return to normal state anyway
+              ((normal visual multiedit multiedit-insert)
+               (evil-force-normal-state))
+              (t (message "Don't know how to handle previous state: %S"
+                          +mc--compat-evil-prev-state)))
+          (setq +mc--compat-evil-prev-state nil)
+          (setq +mc--compat-mark-was-active nil)))))
+  ;; When running edit-lines, point will return (position + 1) as a result of
+  ;; how evil deals with regions
+  (defadvice! +multiple--cursors-adjust-mark-for-evil-a (&rest _)
+    :before #'mc/edit-lines
+    (when (and (bound-and-true-p evil-local-mode)
+               (not (memq evil-state '(insert emacs))))
+      (if (> (point) (mark))
+          (goto-char (1- (point)))
+        (push-mark (1- (mark))))))
+
+  (add-hook! 'rectangular-region-mode-hook
+    (defun +multiple-cursors-evil-compat-rect-switch-state-h ()
+      (if rectangular-region-mode
+          (+multiple-cursors-compat-switch-to-emacs-state-h)
+        (setq +mc--compat-evil-prev-state nil))))
+
+  (defvar mc--default-cmds-to-run-once nil)
+  )
+
 
 (use-package evil-mc-extras
   :after evil-mc

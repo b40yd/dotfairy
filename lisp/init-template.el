@@ -272,6 +272,8 @@ must be non-read-only, empty, and there must be a rule in
 ;;; Bootstrap
 (after! yasnippet
   (add-to-list 'yas-snippet-dirs '+file-templates-dir 'append #'eq)
+  ;; Exit snippets on ESC from normal mode
+  (add-hook 'dotfairy-escape-hook #'yas-abort-snippet)
   ;; Ensure file templates in `+file-templates-dir' are visible
   (yas-reload-all))
 

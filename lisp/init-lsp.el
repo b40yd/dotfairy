@@ -110,6 +110,40 @@
             lsp-clients-python-library-directories '("/usr/local/" "/usr/"))
      :config
      (add-to-list 'auto-mode-alist '("\\.dir-locals\\.el\\'" . emacs-lisp-mode))
+     (add-hook! 'dotfairy-escape-hook
+       (defun +lsp-signature-stop-maybe-h ()
+         "Close the displayed `lsp-signature'."
+         (when lsp-signature-mode
+           (lsp-signature-stop)
+           t)))
+
+     (defvar +lsp--default-read-process-output-max nil)
+     (defvar +lsp--default-gcmh-high-cons-threshold nil)
+     (defvar +lsp--optimization-init-p nil)
+
+     (define-minor-mode +lsp-optimization-mode
+       "Deploys universal GC and IPC optimizations for `lsp-mode' and `eglot'."
+       :global t
+       :init-value nil
+       (if (not +lsp-optimization-mode)
+           (setq-default read-process-output-max +lsp--default-read-process-output-max
+                         gcmh-high-cons-threshold +lsp--default-gcmh-high-cons-threshold
+                         +lsp--optimization-init-p nil)
+         ;; Only apply these settings once!
+         (unless +lsp--optimization-init-p
+           (setq +lsp--default-read-process-output-max (default-value 'read-process-output-max)
+                 +lsp--default-gcmh-high-cons-threshold (default-value 'gcmh-high-cons-threshold))
+           (setq-default read-process-output-max (* 1024 1024))
+           ;; REVIEW LSP causes a lot of allocations, with or without the native JSON
+           ;;        library, so we up the GC threshold to stave off GC-induced
+           ;;        slowdowns/freezes. Doom uses `gcmh' to enforce its GC strategy,
+           ;;        so we modify its variables rather than `gc-cons-threshold'
+           ;;        directly.
+           (setq-default gcmh-high-cons-threshold (* 2 +lsp--default-gcmh-high-cons-threshold))
+           (gcmh-set-high-threshold)
+           (setq +lsp--optimization-init-p t))))
+
+     (add-hook! 'lsp-mode-hook #'+lsp-optimization-mode)
 
      (if (equal dotfairy-complete 'vertico)
          (use-package consult-lsp
