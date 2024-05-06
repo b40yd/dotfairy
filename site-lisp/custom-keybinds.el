@@ -66,13 +66,14 @@
    :desc "LSP Rename"                          "r" #'lsp-rename
    :desc "Symbols"                             "S" #'lsp-treemacs-symbols
    (:when (eq dotfairy-complete 'vertico)
-    :desc "Jump to symbol in current workspace" "j"   #'consult-lsp-symbols
-    :desc "Jump to symbol in any workspace"     "J"   (cmd!! #'consult-lsp-symbols 'all-workspaces))
-   :desc "Errors list"                         "X"   #'lsp-treemacs-errors-list
-   :desc "Incoming call hierarchy"             "y"   #'lsp-treemacs-call-hierarchy
-   :desc "Outgoing call hierarchy"             "Y"   (cmd!! #'lsp-treemacs-call-hierarchy t)
-   :desc "References tree"                     "R"   (cmd!! #'lsp-treemacs-references t)
-   :desc "Symbols"                             "S"   #'lsp-treemacs-symbols
+    :desc "Jump to symbol in current workspace" "j" #'consult-lsp-symbols
+    :desc "Jump to symbol in any workspace"     "J" (cmd!! #'consult-lsp-symbols 'all-workspaces))
+   :desc "Lsp ui imenu"                        "u" #'lsp-ui-imenu
+   :desc "Errors list"                         "X" #'lsp-treemacs-errors-list
+   :desc "Incoming call hierarchy"             "y" #'lsp-treemacs-call-hierarchy
+   :desc "Outgoing call hierarchy"             "Y" (cmd!! #'lsp-treemacs-call-hierarchy t)
+   :desc "References tree"                     "R" (cmd!! #'lsp-treemacs-references t)
+   :desc "Symbols"                             "S" #'lsp-treemacs-symbols
    :desc "LSP"                                 "l" #'+default/lsp-command-map
    :desc "Compile or Recompile"                "c" #'+default/compile
    :desc "Remember init"                       "." #'remember-init

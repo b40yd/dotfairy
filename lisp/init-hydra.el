@@ -25,13 +25,13 @@
 
 (use-package pretty-hydra
   :custom (pretty-hydra-default-title-body-format-spec " %s%s")
-  :bind (("C-c c v" . toggles-hydra/body))
   :hook (emacs-lisp-mode . (lambda ()
                              (add-to-list
                               'imenu-generic-expression
                               '("Hydras"
                                 "^.*(\\(pretty-hydra-define\\) \\([a-zA-Z-]+\\)"
                                 2))))
+  :bind ("C-c <f2>" . toggles-hydra/body)
   :init
   (with-no-warnings
     (cl-defun pretty-hydra-title (title &optional icon-type icon-name

@@ -88,9 +88,9 @@
     (unless (require 'rg nil t)
       (error "`rg' is not installed"))
     (rg-project (replace-regexp-in-string "\\\\[<>]*" "" (hl-todo--regexp)) "everything"))
-  (map! :localleader
-        :map hl-todo-mode-map
-        (:prefix ("t" . "TODO")
+  (map! :map hl-todo-mode-map
+        :localleader
+        (:prefix-map ("t" . "TODO")
          "C-o" #'hl-todo-occur
          "C-p" #'hl-todo-previous
          "C-n" #'hl-todo-next

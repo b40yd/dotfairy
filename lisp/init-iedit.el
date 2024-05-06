@@ -172,8 +172,10 @@
 
 ;; Increase selected region by semantic units
 (use-package expand-region
-  :bind (("C-c +" . er/expand-region)
-         ("C-c -" . er/contract-region)))
+  :config
+  (map! :leader
+        :m "=" #'er/expand-region
+        :m "-" #'er/contract-region))
 
 ;; Multiple cursors
 (use-package multiple-cursors
@@ -351,9 +353,8 @@ The return value is the new value of LIST-VAR."
 
 ;; Quickly follow links
 (use-package link-hint
-  :bind (("M-o" . link-hint-open-link)
-         ("C-c l o" . link-hint-open-link)
-         ("C-c l c" . link-hint-copy-link)))
+  :bind (("M-s M-o" . link-hint-open-link)
+         ("M-s M-c" . link-hint-copy-link)))
 
 ;; Jump to Chinese characters
 (use-package ace-pinyin

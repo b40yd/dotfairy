@@ -423,8 +423,10 @@ ensure it is built when we actually use Forge."
              (save-buffer)
              (bury-buffer))
       "Save and bury buffer" :exit t))))
-  :bind (:map smerge-mode-map
-         ("C-c v v" . smerge-mode-hydra/body))
+  :config (map! :map smerge-mode-map
+                :localleader
+                :m "v" #'smerge-mode-hydra/body)
+
   :hook ((find-file . (lambda ()
                         (save-excursion
                           (goto-char (point-min))
