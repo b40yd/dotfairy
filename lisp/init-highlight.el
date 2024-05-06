@@ -72,31 +72,87 @@
 
 ;; Highlight TODO
 (use-package hl-todo
-  :hook (after-init . global-hl-todo-mode)
-  :init (setq hl-todo-require-punctuation t
-              hl-todo-highlight-punctuation ":")
+  :defer t
+  :hook (prog-mode . hl-todo-mode)
+  :hook (yaml-mode . hl-todo-mode)
+  :commands (hl-todo-rg-project hl-todo-rg)
+  :init
+  (map! :after hl-todo
+        :map hl-todo-mode-map
+        :leader
+        :prefix "c"
+        (:prefix-map ("k" . "keywords")
+         :desc "Previous" "p" #'hl-todo-previous
+         :desc "Next" "n" #'hl-todo-next
+         :desc "Occur" "o" #'hl-todo-occur
+         :desc "Insert" "i" #'hl-todo-insert
+         :desc "Search" "s" #'hl-todo-rg
+         :desc "Search project" "p" #'hl-todo-rg-project))
   :config
-  (dolist (keyword '("BUG" "DEFECT" "ISSUE"))
-    (add-to-list 'hl-todo-keyword-faces `(,keyword . "#e45649")))
-  (dolist (keyword '("HACK" "TRICK" "WORKAROUND"))
-    (add-to-list 'hl-todo-keyword-faces `(,keyword . "#d0bf8f")))
-  (dolist (keyword '("DEBUG" "STUB"))
-    (add-to-list 'hl-todo-keyword-faces `(,keyword . "#7cb8bb")))
+  (setq hl-todo-highlight-punctuation ":"
+        hl-todo-keyword-faces
+        '(;; For reminders to change or add something at a later date.
+          ("TODO" warning bold)
+          ;; For code (or code paths) that are broken, unimplemented, or slow,
+          ;; and may become bigger problems later.
+          ("FIXME" error bold)
+          ;; For code that needs to be revisited later, either to upstream it,
+          ;; improve it, or address non-critical issues.
+          ("REVIEW" font-lock-keyword-face bold)
+          ;; For code smells where questionable practices are used
+          ;; intentionally, and/or is likely to break in a future update.
+          ("HACK" font-lock-constant-face bold)
+          ;; For sections of code that just gotta go, and will be gone soon.
+          ;; Specifically, this means the code is deprecated, not necessarily
+          ;; the feature it enables.
+          ("DEPRECATED" font-lock-doc-face bold)
+          ;; Extra keywords commonly found in the wild, whose meaning may vary
+          ;; from project to project.
+          ("NOTE" success bold)
+          ("BUG" error bold)
+          ("ISSUE" font-lock-constant-face bold)))
+
+
+  (defadvice! +hl-todo-clamp-font-lock-fontify-region-a (fn &rest args)
+    "Fix an `args-out-of-range' error in some modes."
+    :around #'hl-todo-mode
+    (letf! (defun font-lock-fontify-region (beg end &optional loudly)
+             (funcall font-lock-fontify-region (max beg 1) end loudly))
+      (apply fn args)))
+
+  ;; Use a more primitive todo-keyword detection method in major modes that
+  ;; don't use/have a valid syntax table entry for comments.
+  (add-hook! '(pug-mode-hook haml-mode-hook)
+    (defun +hl-todo--use-face-detection-h ()
+      "Use a different, more primitive method of locating todo keywords."
+      (set (make-local-variable 'hl-todo-keywords)
+           '(((lambda (limit)
+                (let (case-fold-search)
+                  (and (re-search-forward hl-todo-regexp limit t)
+                       (memq 'font-lock-comment-face (ensure-list (get-text-property (point) 'face))))))
+              (1 (hl-todo-get-face) t t))))
+      (when hl-todo-mode
+        (hl-todo-mode -1)
+        (hl-todo-mode +1))))
+  (defun hl-todo-rg (regexp &optional files dir)
+    "Use `rg' to find all TODO or similar keywords."
+    (interactive
+     (progn
+       (unless (require 'rg nil t)
+         (error "`rg' is not installed"))
+       (let ((regexp (replace-regexp-in-string "\\\\[<>]*" "" (hl-todo--regexp))))
+         (list regexp
+               (rg-read-files)
+               (read-directory-name "Base directory: " nil default-directory t)))))
+    (rg regexp files dir))
+
   (defun hl-todo-rg-project ()
     "Use `rg' to find all TODO or similar keywords in current project."
     (interactive)
     (unless (require 'rg nil t)
       (error "`rg' is not installed"))
     (rg-project (replace-regexp-in-string "\\\\[<>]*" "" (hl-todo--regexp)) "everything"))
-  (map! :map hl-todo-mode-map
-        :localleader
-        (:prefix-map ("t" . "TODO")
-         "C-o" #'hl-todo-occur
-         "C-p" #'hl-todo-previous
-         "C-n" #'hl-todo-next
-         "C-o" #'hl-todo-occur
-         "C-r" #'hl-todo-rg-project
-         "C-i" #'hl-todo-insert)))
+  )
 
 ;; Highlight uncommitted changes using VC
 (use-package diff-hl
