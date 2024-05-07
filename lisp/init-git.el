@@ -99,13 +99,9 @@ kill all magit buffers for this repo."
               (kill-process process)
               (kill-buffer buf)))))))
 
-  (after! magit-section
-    ;; These numbered keys mask the numerical prefix keys. Since they've already
-    ;; been replaced with z1, z2, z3, etc (and 0 with g=), there's no need to
-    ;; keep them around:
-    (undefine-key! magit-section-mode-map "M-1" "M-2" "M-3" "M-4" "1" "2" "3" "4" "0")
-    ;; `evil-collection-magit-section' binds these redundant keys.
-    (map! :map magit-section-mode-map :n "1" nil :n "2" nil :n "3" nil :n "4" nil))
+  (after! vc-annotate
+    ;; Clean up after itself
+    (define-key vc-annotate-mode-map [remap quit-window] #'kill-current-buffer))
 
   ;; Access Git forges from Magit
   ;; see config: https://magit.vc/manual/ghub/Storing-a-Token.html#Storing-a-Token
@@ -299,7 +295,67 @@ ensure it is built when we actually use Forge."
                                         (display-line-numbers-mode t))))
          (before-revert . (lambda ()
                             (when (bound-and-true-p git-timemachine-mode)
-                              (user-error "Cannot revert the timemachine buffer"))))))
+                              (user-error "Cannot revert the timemachine buffer")))))
+  :config
+  (after! git-timemachine
+    ;; Sometimes I forget `git-timemachine' is enabled in a buffer, so instead of
+    ;; showing revision details in the minibuffer, show them in
+    ;; `header-line-format', which has better visibility.
+    (setq git-timemachine-show-minibuffer-details t)
+
+    ;; TODO PR this to `git-timemachine'
+    (defadvice! +vc-support-git-timemachine-a (fn)
+      "Allow `browse-at-remote' commands in git-timemachine buffers to open that
+file in your browser at the visited revision."
+      :around #'browse-at-remote-get-url
+      (if git-timemachine-mode
+          (let* ((start-line (line-number-at-pos (min (region-beginning) (region-end))))
+                 (end-line (line-number-at-pos (max (region-beginning) (region-end))))
+                 (remote-ref (browse-at-remote--remote-ref buffer-file-name))
+                 (remote (car remote-ref))
+                 (ref (car git-timemachine-revision))
+                 (relname
+                  (file-relative-name
+                   buffer-file-name (expand-file-name (vc-git-root buffer-file-name))))
+                 (target-repo (browse-at-remote--get-url-from-remote remote))
+                 (remote-type (browse-at-remote--get-remote-type target-repo))
+                 (repo-url (cdr target-repo))
+                 (url-formatter (browse-at-remote--get-formatter 'region-url remote-type)))
+            (unless url-formatter
+              (error (format "Origin repo parsing failed: %s" repo-url)))
+            (funcall url-formatter repo-url ref relname
+                     (if start-line start-line)
+                     (if (and end-line (not (equal start-line end-line))) end-line)))
+        (funcall fn)))
+
+    (defadvice! +vc-update-header-line-a (revision)
+      "Show revision details in the header-line, instead of the minibuffer.
+
+Sometimes I forget `git-timemachine' is enabled in a buffer. Putting revision
+info in the `header-line-format' is a more visible indicator."
+      :override #'git-timemachine--show-minibuffer-details
+      (let* ((date-relative (nth 3 revision))
+             (date-full (nth 4 revision))
+             (author (if git-timemachine-show-author (concat (nth 6 revision) ": ") ""))
+             (sha-or-subject (if (eq git-timemachine-minibuffer-detail 'commit) (car revision) (nth 5 revision))))
+        (setq header-line-format
+              (format "%s%s [%s (%s)]"
+                      (propertize author 'face 'git-timemachine-minibuffer-author-face)
+                      (propertize sha-or-subject 'face 'git-timemachine-minibuffer-detail-face)
+                      date-full date-relative))))
+
+    (after! evil
+      ;; Rehash evil keybindings so they are recognized
+      (add-hook 'git-timemachine-mode-hook #'evil-normalize-keymaps))
+
+    (when (featurep 'magit-mode)
+      (add-transient-hook! #'git-timemachine-blame (require 'magit-blame)))
+
+    (map! :map git-timemachine-mode-map
+          :n "C-p" #'git-timemachine-show-previous-revision
+          :n "C-n" #'git-timemachine-show-next-revision
+          :n "gb"  #'git-timemachine-blame
+          :n "gtc" #'git-timemachine-show-commit)))
 
 ;; Pop up last commit information of current line
 (use-package git-messenger
@@ -411,7 +467,7 @@ ensure it is built when we actually use Forge."
     "Diff"
     (("<" smerge-diff-base-upper "upper/base")
      ("=" smerge-diff-upper-lower "upper/lower")
-     (">" smerge-diff-base-lower "upper/lower")
+     (">" smerge-diff-base-lower "base/lower")
      ("R" smerge-refine "refine")
      ("E" smerge-ediff "ediff"))
     "Other"
@@ -443,6 +499,7 @@ ensure it is built when we actually use Forge."
 
 ;; Git related modes
 (use-package git-modes)
+
 
 (provide 'init-git)
 ;;; init-git.el ends here
