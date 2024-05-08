@@ -297,6 +297,17 @@ If `evil-vsplit-window-right' is non-nil, the new window isn't focused."
   (let ((evil-vsplit-window-right (not evil-vsplit-window-right)))
     (call-interactively #'evil-window-vsplit)))
 (map!
+ ;; ported from vim-unimpaired
+ :n  "] SPC" #'+evil/insert-newline-below
+ :n  "[ SPC" #'+evil/insert-newline-above
+ :n  "]b"    #'next-buffer
+ :n  "[b"    #'previous-buffer
+ :n  "]f"    #'+evil/next-file
+ :n  "[f"    #'+evil/previous-file
+ :m  "]u"    #'+evil:url-encode
+ :m  "[u"    #'+evil:url-decode
+ :m  "]y"    #'+evil:c-string-encode
+ :m  "[y"    #'+evil:c-string-decode
  ;; custom vim-unmpaired-esque keys
  :m  "]#"    #'+evil/next-preproc-directive
  :m  "[#"    #'+evil/previous-preproc-directive
@@ -314,6 +325,15 @@ If `evil-vsplit-window-right' is non-nil, the new window isn't focused."
  :n  "]o"    #'+evil/insert-newline-below
  :n  "gp"    #'+evil/reselect-paste
  :v  "gp"    #'+evil/alt-paste
+ :nv "gO"    #'imenu
+ :n  "g="    #'evil-numbers/inc-at-pt
+ :n  "g-"    #'evil-numbers/dec-at-pt
+ :v  "g="    #'evil-numbers/inc-at-pt-incremental
+ :v  "g-"    #'evil-numbers/dec-at-pt-incremental
+ :v  "g+"    #'evil-numbers/inc-at-pt
+ ;; custom evil keybinds
+ :n  "zx"    #'kill-current-buffer
+ :n  "ZX"    #'dotfairy/save-and-kill-buffer
  ;; don't leave visual mode after shifting
  :v  "<"     #'+evil/shift-left  ; vnoremap < <gv
  :v  ">"     #'+evil/shift-right  ; vnoremap > >gv
@@ -333,7 +353,16 @@ If `evil-vsplit-window-right' is non-nil, the new window isn't focused."
   "J"       #'+evil/window-move-down
   "K"       #'+evil/window-move-up
   "L"       #'+evil/window-move-right
-  "C-S-w"   #'ace-swap-window))
+  "C-S-w"   #'ace-swap-window)
+ ;; Window undo/redo
+ "C-u"     #'winner-undo
+ "C-r"     #'winner-redo
+
+ ;; evil-surround
+ :v "S" #'evil-surround-region
+ :o "s" #'evil-surround-edit
+ :o "S" #'evil-Surround-edit
+ )
 
 (provide 'init-evil-ex)
 ;;; init-evil-ex.el ends here
