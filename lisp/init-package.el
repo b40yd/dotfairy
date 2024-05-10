@@ -177,6 +177,7 @@
       (dotfairy/try-get-org-remote-repository))))
 (defalias 'dotfairy/update-org #'update-org)
 
+(use-package pcre2el)
 
 (provide 'init-package)
 ;;; init-package.el ends here
