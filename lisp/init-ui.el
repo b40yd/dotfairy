@@ -90,7 +90,7 @@
 
 ;; Mode-line
 (use-package doom-modeline
-  :autoload (+modeline-update-env-in-all-windows-h +modeline-clear-env-in-all-windows-h)
+  :autoload (+modeline-update-env-in-all-windows-h)
   :bind (:map doom-modeline-mode-map
          ("<f6>" . doom-modeline-hydra/body))
   :hook (after-init . doom-modeline-mode)
