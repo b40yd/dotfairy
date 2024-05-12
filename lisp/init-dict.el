@@ -35,13 +35,116 @@
        "d" #'fanyi-dwim2
        "h" #'fanyi-from-history))
     :custom (fanyi-providers '(fanyi-haici-provider
-                               fanyi-longman-provider)))
-  (use-package go-translate
+                               fanyi-longman-provider))))
+(use-package go-translate
+  :init
+  (map! :leader
+    (:prefix ("d" . "dictionaries")
+     "g" #'gt-do-translate
+     "s" #'gt-do-setup))
+
+  :config
+  (setq gt-langs '(en zh)
+        gt-buffer-render-window-config
+        '((display-buffer-reuse-window display-buffer-in-side-window)
+          (side . bottom)
+          (slot . 1)
+          (window-height . 0.4)))
+
+  ;; Same behavior with `popper'
+  (add-hook 'gt-buffer-render-output-hook
+            (lambda ()
+              "Focus in the dict result window."
+              (when-let ((win (get-buffer-window gt-buffer-render-buffer-name)))
+                (and (window-live-p win) (select-window win)))))
+  (advice-add #'keyboard-quit :before
+              (lambda (&rest _)
+                "Close dict result window via `C-g'."
+                (when-let ((win (get-buffer-window gt-buffer-render-buffer-name)))
+                  (and (window-live-p win) (delete-window win)))))
+
+  (defclass gt-posframe-pos-render (gt-posframe-pop-render)
+    ((width       :initarg :width        :initform 70)
+     (height      :initarg :height       :initform 20)
+     (padding     :initarg :padding      :initform 16)
+     (bd-width    :initarg :bd-width     :initform 1)
+     (bd-color    :initarg :bd-color     :initform nil)
+     (backcolor   :initarg :backcolor    :initform nil))
+    "Pop up a childframe to show the result at point.
+The frame will disappear when do do anything but focus in it.
+Manually close the frame with `q'.")
+
+  (cl-defmethod gt-init :before ((_ gt-posframe-pos-render) _)
+    (unless (require 'posframe nil t)
+      (user-error "To use `gt-posframe-render', you should install and load package `posframe' first")))
+
+  (cl-defmethod gt-init ((render gt-posframe-pos-render) translator)
+    (with-slots (width height min-width min-height bd-width forecolor backcolor bd-color padding position) render
+      (let ((inhibit-read-only t)
+            (buf gt-posframe-pop-render-buffer))
+        ;; create
+        (unless (buffer-live-p (get-buffer buf))
+          (posframe-show buf
+                         :string "Loading..."
+                         :timeout gt-posframe-pop-render-timeout
+                         :width width
+                         :height height
+                         :min-width width
+                         :min-height height
+                         :foreground-color (or forecolor (face-foreground 'tooltip nil t))
+                         :background-color (or backcolor (face-background 'tooltip nil t))
+                         :internal-border-width bd-width
+                         :left-fringe padding
+                         :right-fringe padding
+                         :position (point)
+                         :poshandler gt-posframe-pop-render-poshandler))
+
+        ;; render
+        (gt-buffer-render-init buf render translator)
+        (posframe-refresh buf)
+        ;; setup
+        (with-current-buffer buf
+          (gt-buffer-render-key ("q" "Close") (posframe-delete buf))))))
+
+  (cl-defmethod gt-output ((render gt-posframe-pos-render) translator)
+    (when-let (buf (get-buffer gt-posframe-pop-render-buffer))
+      (gt-buffer-render-output buf render translator)
+      (posframe-refresh buf)
+      (add-hook 'post-command-hook #'gt-posframe-render-auto-close-handler)))
+
+  (setq gt-default-translator
+        (if (childframe-workable-p)
+            (gt-translator :engines (gt-youdao-dict-engine)
+                           :render (gt-posframe-pos-render))
+          (gt-translator :engines (list (gt-bing-engine)
+                                        (gt-youdao-dict-engine)
+                                        (gt-youdao-suggest-engine))
+                         :render (gt-buffer-render))))
+
+  (setq gt-preset-translators
+        (lambda ()
+          `((default . ,(gt-translator :taker   (cdar (gt-ensure-plain gt-preset-takers))
+                                       :engines (cdar (gt-ensure-plain gt-preset-engines))
+                                       :render  (cdar (gt-ensure-plain gt-preset-renders))))
+            (simple . ,(gt-translator :engines (gt-youdao-dict-engine)
+                                      :render (gt-posframe-pos-render)))
+            (detailed . ,(gt-translator :engines (list (gt-bing-engine)
+                                                       (gt-youdao-dict-engine)
+                                                       (gt-youdao-suggest-engine))
+                                        :render (gt-buffer-render)))
+            (Text-Utility . ,(gt-text-utility
+                              :taker (gt-taker :pick nil)
+                              :render (gt-buffer-render)))))))
+
+
+;; OSX dictionary
+(when IS-MAC
+  (use-package osx-dictionary
     :init
     (map! :leader
       (:prefix ("d" . "dictionaries")
-       "g" #'gts-do-translate))
-    (setq gts-translate-list '(("en" "zh") ("zh" "en")))))
+       "i" #'osx-dictionary-search-input
+       "x" #'osx-dictionary-search-pointer))))
 
 (provide 'init-dict)
 ;;; init-dict.el ends here
