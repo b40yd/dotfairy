@@ -241,7 +241,7 @@
   (use-package emacsql-sqlite-builtin))
 
 ;; Child frame
-(when (childframe-completion-workable-p)
+(when (childframe-workable-p)
   (use-package posframe
     :hook (after-load-theme . posframe-delete-all)
     :init

@@ -122,6 +122,8 @@ debian, and derivatives). On most it's 'fd'.")
              treemacs-filewatch-mode
              treemacs-fringe-indicator-mode
              treemacs-git-mode)
+  :custom-face
+  (cfrs-border-color ((t (:inherit posframe-border))))
   :bind (([f8]        . treemacs)
          ("M-0"       . treemacs-select-window)
          ("C-x t 1"   . treemacs-delete-other-windows)
