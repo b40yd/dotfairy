@@ -54,6 +54,8 @@
           (side . bottom)
           (slot . 1)
           (window-height . 0.4)))
+  (when (facep 'posframe-border)
+    (setq gt-pin-posframe-bdcolor (face-background 'posframe-border nil t)))
   (map! :leader
     (:prefix ("d" . "dictionaries")
      "g" #'gt-do-translate
