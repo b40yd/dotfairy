@@ -139,7 +139,8 @@ Manually close the frame with `q'.")
                                                   :engines (gt-youdao-dict-engine)
                                                   :render (if (display-graphic-p)
                                                               (gt-posframe-pop-render
-                                                               :frame-params (list :width 70
+                                                               :frame-params (list :accept-focus nil
+                                                                                   :width 70
                                                                                    :height 15
                                                                                    :left-fringe 16
                                                                                    :right-fringe 16
@@ -153,7 +154,8 @@ Manually close the frame with `q'.")
                                                   :engines (gt-bing-engine)
                                                   :render (if (display-graphic-p)
                                                               (gt-posframe-pop-render
-                                                               :frame-params (list :width 70
+                                                               :frame-params (list :accept-focus nil
+                                                                                   :width 70
                                                                                    :height 15
                                                                                    :left-fringe 16
                                                                                    :right-fringe 16
