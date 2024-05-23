@@ -296,6 +296,10 @@ If `evil-vsplit-window-right' is non-nil, the new window isn't focused."
   (interactive)
   (let ((evil-vsplit-window-right (not evil-vsplit-window-right)))
     (call-interactively #'evil-window-vsplit)))
+
+(after! evil
+  (evil-set-initial-state 'bongo-library-mode 'emacs))
+
 (map!
  ;; ported from vim-unimpaired
  :n  "] SPC" #'+evil/insert-newline-below
