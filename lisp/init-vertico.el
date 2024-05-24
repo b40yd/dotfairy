@@ -209,7 +209,14 @@
 
 (use-package consult
   :defer t
-  :bind (("C-s" . consult-line)
+  :bind (
+         ;; C-x bindings in `ctl-x-map'
+         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+         ("C-x b"   . consult-buffer)              ;; orig. switch-to-buffer
+         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+         ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
          ;; Custom M-# bindings for fast register access
          ("M-#"     . consult-register-load)
          ("M-'"     . consult-register-store)        ;; orig. abbrev-prefix-mark (unrelated)
@@ -243,13 +250,17 @@
          ("M-s e"   . consult-isearch-history)       ;; orig. isearch-edit-string
          ("M-s l"   . consult-line)                  ;; needed by consult-line to detect isearch
          ("M-s L"   . consult-line-multi)            ;; needed by consult-line to detect isearch
-         )
+         ;; Minibuffer history
+         :map minibuffer-local-map
+         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+         ("M-r" . consult-history))
   :commands (+vertico/consult-fd-or-find)
   :preface
   (define-key!
     [remap bookmark-jump]                 #'consult-bookmark
     [remap goto-line]                     #'consult-goto-line
     [remap Info-search]                   #'consult-info
+    [remap isearch-forward]               #'consult-line
     [remap locate]                        #'consult-locate
     [remap load-theme]                    #'consult-theme
     [remap man]                           #'consult-man
