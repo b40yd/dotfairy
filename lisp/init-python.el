@@ -77,6 +77,8 @@
 
   (when (executable-find "pyenv")
     (pyenv-mode +1)
+    (with-eval-after-load 'exec-path-from-shell
+      (exec-path-from-shell-copy-env "PYENV_ROOT"))
     (add-to-list 'exec-path (expand-file-name "shims" (or (getenv "PYENV_ROOT") "~/.pyenv"))))
   (add-hook 'python-mode-local-vars-hook #'+python-pyenv-mode-set-auto-h))
 
