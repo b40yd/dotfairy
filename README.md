@@ -157,7 +157,7 @@ Add or change the configurations in `~/dotfairy.d/custom.el`, then restart Emacs
 If you are using `Poetry` and `PyVenv` to manage your project, you might like this setting:
 
 ``` shell
-cd your-project
+cd your-project && poetry init # poetry new your-project
 python -m venv .venv
 poetry config virtualenvs.in-project true
 ```
@@ -166,7 +166,7 @@ If you are using `Poetry` and `PyEnv` to manage your project, you might like thi
 
 ``` shell
 pyenv install 3.12.0
-cd your-project && poetry init # if project is existed else poetry new your-project
+cd your-project && poetry init # poetry new your-project
 pyenv virtualenv 3.12.0 your-venv
 pyenv activate your-venv # there must activete your venv
 poetry env use $(pyenv which python)
