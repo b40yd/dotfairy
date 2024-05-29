@@ -31,10 +31,7 @@
 
 (use-package poetry
   :defer t
-  :ensure t
-  :init
-  (setq poetry-tracking-strategy 'switch-buffer)
-  (add-hook 'python-mode-hook #'poetry-tracking-mode))
+  :ensure t)
 
 (use-package pyvenv
   :after python
@@ -43,7 +40,6 @@
   (add-to-list 'global-mode-string
                '(pyvenv-virtual-env-name (" venv:" pyvenv-virtual-env-name " "))
                'append))
-
 
 (use-package pyenv-mode
   :defer t
@@ -123,6 +119,9 @@
   (when (and (executable-find "python3")
              (string= python-shell-interpreter "python"))
     (setq python-shell-interpreter "python3"))
+
+  (advice-add #'pythonic-activate :after-while #'+modeline-update-env-in-all-windows-h)
+  (advice-add #'pythonic-deactivate :after #'+modeline-clear-env-in-all-windows-h)
 
   (use-package python-black
     :demand t

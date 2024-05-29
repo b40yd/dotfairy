@@ -90,13 +90,25 @@
 
 ;; Mode-line
 (use-package doom-modeline
-  :autoload (+modeline-update-env-in-all-windows-h)
+  :autoload (+modeline-update-env-in-all-windows-h +modeline-clear-env-in-all-windows-h)
   :bind (:map doom-modeline-mode-map
          ("<f6>" . doom-modeline-hydra/body))
   :hook (after-init . doom-modeline-mode)
   :init
+  ;; We display project info in the modeline ourselves
+  (setq projectile-dynamic-mode-line nil)
+
   (setq doom-modeline-icon display-icon
-        doom-modeline-minor-modes t)
+        doom-modeline-bar-width 3
+        doom-modeline-github nil
+        doom-modeline-mu4e nil
+        doom-modeline-persp-name nil
+        doom-modeline-minor-modes nil
+        doom-modeline-major-mode-icon nil
+        doom-modeline-buffer-file-name-style 'relative-from-project
+        ;; Only show file encoding if it's non-UTF-8 and different line endings
+        ;; than the current OSes preference
+        doom-modeline-buffer-encoding 'nondefault)
   :config
 ;;;###autoload
   (defun +modeline-update-env-in-all-windows-h (&rest _)
@@ -106,6 +118,15 @@
         (when (fboundp 'doom-modeline-update-env)
           (doom-modeline-update-env))
         (force-mode-line-update))))
+
+;;;###autoload
+  (defun +modeline-clear-env-in-all-windows-h (&rest _)
+    "Blank out version strings in all buffers."
+    (dolist (buffer (buffer-list))
+      (with-current-buffer buffer
+        (setq doom-modeline-env--version
+              (bound-and-true-p doom-modeline-load-string))))
+    (force-mode-line-update t))
 
   :pretty-hydra
   ((:title (pretty-hydra-title "Mode Line" 'sucicon "nf-custom-emacs" :face 'nerd-icons-purple)
