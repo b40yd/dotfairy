@@ -34,7 +34,11 @@
   :ensure t
   :init
   (setq poetry-tracking-strategy 'switch-buffer)
-  (add-hook 'python-mode-hook #'poetry-tracking-mode))
+  (add-hook 'python-mode-hook #'poetry-tracking-mode)
+  (map! :after python
+        :localleader
+        :map python-mode-map
+        :desc "poetry" "p" #'poetry))
 
 (use-package pyvenv
   :after python
