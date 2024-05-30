@@ -313,12 +313,11 @@
 
   ;;; <leader> t --- toggle
   (:prefix-map ("t" . "toggle")
-   :desc "Flymake"                      "f" #'flymake-mode
-   :desc "Indent style"                 "I" #'dotfairy/toggle-indent-style
-   :desc "Line numbers"                 "l" #'dotfairy/toggle-line-numbers
-   :desc "Read-only mode"               "r" #'read-only-mode
-   :desc "Visible mode"                 "v" #'visible-mode
-   :desc "Soft line wrapping"           "w" #'+word-wrap-mode)
+   :desc "Toggle indent style"                 "I" #'dotfairy/toggle-indent-style
+   :desc "Toggle line numbers"                 "l" #'dotfairy/toggle-line-numbers
+   :desc "Toggle read only mode"               "r" #'read-only-mode
+   :desc "Toggle visible mode"                 "v" #'visible-mode
+   :desc "Toggle word wrap"           "w" #'+word-wrap-mode)
 
   ;;; <leader> w --- workspaces/windows
   (:prefix-map ("w" . "workspaces/windows")
