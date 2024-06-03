@@ -59,6 +59,11 @@ If Non-nil, use dashboard, otherwise will restore previous session."
   :group 'dotfairy
   :type 'string)
 
+(defcustom dotfairy-socks-proxy "127.0.0.1:1086"
+  "Set SOCKS proxy."
+  :group 'dotfairy
+  :type 'string)
+
 (defcustom dotfairy-theme-alist
   '((default . solarized-zenburn)
     (doom-solarized-dark . doom-solarized-dark)

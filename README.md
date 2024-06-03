@@ -145,8 +145,8 @@ Add or change the configurations in `~/dotfairy.d/custom.el`, then restart Emacs
   )
 
 ;; setting proxy
-;; (dotfairy/proxy-http-toggle)
-;; (dotfairy/proxy-socks-toggle)
+;; (dotfairy/toggle-http-proxy)
+;; (dotfairy/toggle-socks-proxy)
 
 ;; (byte-recompile-directory package-user-dir 0 0) ;
 
