@@ -182,25 +182,40 @@ ensure it is built when we actually use Forge."
         (transient-append-suffix 'forge-dispatch "c u"
           '("c r" "Review pull request" +magit/start-code-review))))
 
-    (after! code-review
-      (map! :map code-review-mode-map
-            :n "r" #'code-review-transient-api
-            :n "RET" #'code-review-comment-add-or-edit))
+    (with-eval-after-load 'evil-collection-magit
+      (defvar evil-collection-magit-use-z-for-folds t)
+      ;; q is enough; ESC is way too easy for a vimmer to accidentally press,
+      ;; especially when traversing modes in magit buffers.
+      (evil-define-key* 'normal magit-status-mode-map [escape] nil)
+      (after! code-review
+        (map! :map code-review-mode-map
+              :n "r" #'code-review-transient-api
+              :n "RET" #'code-review-comment-add-or-edit))
 
-    ;; Fix these keybinds because they are blacklisted
-    ;; REVIEW There must be a better way to exclude particular evil-collection
-    ;;        modules from the blacklist.
-    (map! (:map magit-mode-map
-           :nv "q" #'+magit/quit
-           :nv "Q" #'+magit/quit-all
-           :nv "]" #'magit-section-forward-sibling
-           :nv "[" #'magit-section-backward-sibling
-           :nv "gr" #'magit-refresh
-           :nv "gR" #'magit-refresh-all)
-          (:map magit-status-mode-map
-           :nv "gz" #'magit-refresh)
-          (:map magit-diff-mode-map
-           :nv "gd" #'magit-jump-to-diffstat-or-diff)))
+      ;; Some extra vim-isms I thought were missing from upstream
+      (evil-define-key* '(normal visual) magit-mode-map
+                        "*"  #'magit-worktree
+                        "zt" #'evil-scroll-line-to-top
+                        "zz" #'evil-scroll-line-to-center
+                        "zb" #'evil-scroll-line-to-bottom
+                        "g=" #'magit-diff-default-context
+                        "gi" #'forge-jump-to-issues
+                        "gm" #'forge-jump-to-pullreqs)
+
+      ;; Fix these keybinds because they are blacklisted
+      ;; REVIEW There must be a better way to exclude particular evil-collection
+      ;;        modules from the blacklist.
+      (map! (:map magit-mode-map
+             :nv "q" #'+magit/quit
+             :nv "Q" #'+magit/quit-all
+             :nv "]" #'magit-section-forward-sibling
+             :nv "[" #'magit-section-backward-sibling
+             :nv "gr" #'magit-refresh
+             :nv "gR" #'magit-refresh-all)
+            (:map magit-status-mode-map
+             :nv "gz" #'magit-refresh)
+            (:map magit-diff-mode-map
+             :nv "gd" #'magit-jump-to-diffstat-or-diff))))
 
   ;; (use-package magit-todos
   ;;   :defines magit-todos-nice
