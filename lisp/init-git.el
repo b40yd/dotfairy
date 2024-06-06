@@ -124,7 +124,7 @@ kill all magit buffers for this repo."
     ;; All forge list modes are derived from `forge-topic-list-mode'
     (map! :map forge-topic-list-mode-map :n "q" #'kill-current-buffer)
     (when (not forge-add-default-bindings)
-      (map! :map magit-mode-map [remap magit-browse-thing] #'forge-browse-dwim
+      (map! :map magit-mode-map [remap magit-browse-thing] #'forge-browse
             :map magit-remote-section-map [remap magit-browse-thing] #'forge-browse-remote
             :map magit-branch-section-map [remap magit-browse-thing] #'forge-browse-branch))
 
@@ -194,13 +194,13 @@ ensure it is built when we actually use Forge."
 
       ;; Some extra vim-isms I thought were missing from upstream
       (evil-define-key* '(normal visual) magit-mode-map
-                        "*"  #'magit-worktree
-                        "zt" #'evil-scroll-line-to-top
-                        "zz" #'evil-scroll-line-to-center
-                        "zb" #'evil-scroll-line-to-bottom
-                        "g=" #'magit-diff-default-context
-                        "gi" #'forge-jump-to-issues
-                        "gm" #'forge-jump-to-pullreqs)
+        "*"  #'magit-worktree
+        "zt" #'evil-scroll-line-to-top
+        "zz" #'evil-scroll-line-to-center
+        "zb" #'evil-scroll-line-to-bottom
+        "g=" #'magit-diff-default-context
+        "gi" #'forge-jump-to-issues
+        "gm" #'forge-jump-to-pullreqs)
 
       ;; Fix these keybinds because they are blacklisted
       ;; REVIEW There must be a better way to exclude particular evil-collection
