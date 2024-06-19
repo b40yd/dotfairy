@@ -64,9 +64,12 @@
   :hook (after-init . global-auto-revert-mode))
 
 ;; Hungry deletion
-(use-package hungry-delete
-  :diminish
-  :hook (after-init . global-hungry-delete-mode))
+(use-package smart-hungry-delete
+  :ensure t
+  :bind (([remap backward-delete-char-untabify] . smart-hungry-delete-backward-char)
+	     ([remap delete-backward-char] . smart-hungry-delete-backward-char)
+	     ([remap delete-char] . smart-hungry-delete-forward-char))
+  :init (smart-hungry-delete-add-default-hooks))
 
 ;; Drag stuff (lines, words, region, etc...) around
 (use-package drag-stuff
