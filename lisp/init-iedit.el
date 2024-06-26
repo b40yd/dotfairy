@@ -360,7 +360,17 @@ The return value is the new value of LIST-VAR."
 ;; Quickly follow links
 (use-package link-hint
   :bind (("M-s M-o" . link-hint-open-link)
-         ("M-s M-c" . link-hint-copy-link)))
+         ("M-s M-c" . link-hint-copy-link))
+  :init
+  (with-eval-after-load 'embark
+    (setq link-hint-action-fallback-commands
+          (list :open (lambda ()
+                        (condition-case _
+                            (progn
+                              (embark-dwim)
+                              t)
+                          (error
+                           nil)))))))
 
 ;; Jump to Chinese characters
 (use-package ace-pinyin

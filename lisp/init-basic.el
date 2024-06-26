@@ -134,8 +134,7 @@
 (when (or IS-MAC IS-LINUX (daemonp))
   (use-package exec-path-from-shell
     :init
-    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "PYTHONPATH" "JAVA_HOME" "MAVEN_HOME")
-          exec-path-from-shell-arguments '("-l"))
+    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "PYTHONPATH" "JAVA_HOME" "MAVEN_HOME"))
     (exec-path-from-shell-initialize)))
 
 ;; Start server

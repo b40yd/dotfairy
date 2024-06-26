@@ -41,13 +41,17 @@
      :config
      (use-package consult-eglot
        :bind (:map eglot-mode-map
-              ("C-M-." . consult-eglot-symbols)))))
+              ("C-M-." . consult-eglot-symbols)))
+     ;; Emacs LSP booster
+     (when (executable-find "emacs-lsp-booster")
+       (unless (package-installed-p 'eglot-booster)
+         (and (fboundp #'package-vc-install)
+              (package-vc-install "https://github.com/jdtsmith/eglot-booster")))
+       (use-package eglot-booster
+         :ensure nil
+         :autoload eglot-booster-mode
+         :init (eglot-booster-mode 1)))))
   ('lsp-mode
-   ;; Performace tuning
-   ;; @see https://emacs-lsp.github.io/lsp-mode/page/performance/
-   (setq read-process-output-max (* 1024 1024)) ;; 1MB
-   (setenv "LSP_USE_PLISTS" "true")
-
    ;; Emacs client for the Language Server Protocol
    ;; https://github.com/emacs-lsp/lsp-mode#supported-languages
    (use-package lsp-mode
@@ -55,6 +59,11 @@
      :defines (lsp-diagnostics-disabled-modes lsp-clients-python-library-directories)
      :autoload lsp-enable-which-key-integration
      :commands (lsp-format-buffer lsp-organize-imports +default/lsp-command-map)
+     :preface
+     ;; Performace tuning
+     ;; @see https://emacs-lsp.github.io/lsp-mode/page/performance/
+     (setq read-process-output-max (* 1024 1024)) ; 1MB
+     (setenv "LSP_USE_PLISTS" "true")
      :hook ((prog-mode . (lambda ()
                            (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode 'makefile-mode 'snippet-mode)
                              (lsp-deferred))))
