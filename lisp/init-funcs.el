@@ -648,8 +648,8 @@ functions or variables. It can be:
 - An unquoted package symbol (the name of a package)
     (after! helm BODY...)
 - An unquoted list of package symbols (i.e. BODY is evaluated once both magit
-  and git-gutter have loaded)
-    (after! (magit git-gutter) BODY...)
+  and diff-hl have loaded)
+    (after! (magit diff-hl) BODY...)
 - An unquoted, nested list of compound package lists, using any combination of
   :or/:any and :and/:all
     (after! (:or package-a package-b ...)  BODY...)
@@ -1151,6 +1151,18 @@ debug mode is off. Return non-nil."
          sym sym-value))
       read-expression-map t
       'read-expression-history))))
+
+;;;###autoload
+(defun dotfairy-pcre-quote (str)
+  "Like `reqexp-quote', but for PCREs."
+  (let ((special '(?. ?^ ?$ ?* ?+ ?? ?{ ?\\ ?\[ ?\| ?\())
+        (quoted nil))
+    (mapc (lambda (c)
+            (when (memq c special)
+              (push ?\\ quoted))
+            (push c quoted))
+          str)
+    (concat (nreverse quoted))))
 
 (provide 'init-funcs)
 ;;; init-funcs.el ends here
