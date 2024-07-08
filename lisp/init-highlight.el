@@ -32,7 +32,7 @@
 (if emacs/28
     (use-package colorful-mode
       :diminish
-      :hook (after-init . global-colorful-mode)
+      ;; :hook (after-init . global-colorful-mode)
       :init
       (setq colorful-use-prefix t
             colorful-prefix-string "⬤")
