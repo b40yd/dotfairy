@@ -53,9 +53,10 @@
 ;;;###autoload
 (defun dotfairy-plist-merge (from-plist to-plist)
   "Non-destructively merge FROM-PLIST onto TO-PLIST"
-  (let ((plist (copy-sequence from-plist)))
-    (while plist
-      (plist-put! to-plist (pop plist) (pop plist)))
+  (let ((from-plist (copy-sequence from-plist))
+        (to-plist (copy-sequence to-plist)))
+    (while from-plist
+      (cl-callf plist-put to-plist (pop from-plist) (pop from-plist)))
     to-plist))
 
 ;;;###autoload
