@@ -166,15 +166,19 @@
 ;; Highlight uncommitted changes using VC
 (use-package diff-hl
   :custom (diff-hl-draw-borders nil)
+  :commands diff-hl-stage-current-hunk diff-hl-revert-hunk diff-hl-next-hunk diff-hl-previous-hunk
   :custom-face
   (diff-hl-change ((t (:inherit custom-changed :foreground unspecified :background unspecified))))
   (diff-hl-insert ((t (:inherit diff-added :background unspecified))))
   (diff-hl-delete ((t (:inherit diff-removed :background unspecified))))
   :bind (:map diff-hl-command-map
          ("SPC" . diff-hl-mark-hunk))
-  :hook ((after-init . global-diff-hl-mode)
-         (after-init . global-diff-hl-show-hunk-mouse-mode)
-         (dired-mode . diff-hl-dired-mode))
+  :hook ((after-init   . global-diff-hl-mode)
+         (after-init   . global-diff-hl-show-hunk-mouse-mode)
+         (vc-dir-mode  . diff-hl-dir-mode)
+         (find-file    . diff-hl-mode)
+         (diff-hl-mode . diff-hl-flydiff-mode)
+         (dired-mode   . diff-hl-dired-mode))
   :config
   ;; Highlight on-the-fly
   (diff-hl-flydiff-mode 1)
