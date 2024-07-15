@@ -67,7 +67,7 @@ use the minibuffer such as `query-replace'.")
   :config
 
   ;;;###autoload
-  (defun +corfu-move-to-minibuffer ()
+  (defun +corfu/move-to-minibuffer ()
     "Move the current list of candidates to your choice of minibuffer completion UI."
     (interactive)
     (pcase completion-in-region--data
@@ -88,7 +88,7 @@ use the minibuffer such as `query-replace'.")
                (t (error "No minibuffer completion UI available for moving to!")))))))
 
 ;;;###autoload
-  (defun +corfu-smart-sep-toggle-escape ()
+  (defun +corfu/smart-sep-toggle-escape ()
     "Insert `corfu-separator' or toggle escape if it's already there."
     (interactive)
     (cond ((and (char-equal (char-before) corfu-separator)
@@ -121,8 +121,8 @@ use the minibuffer such as `query-replace'.")
         tab-always-indent 'complete)
   (add-to-list 'completion-category-overrides `(lsp-capf (styles ,@completion-styles)))
   (add-to-list 'corfu-auto-commands #'lispy-colon)
-  (add-to-list 'corfu-continue-commands #'+corfu-move-to-minibuffer)
-  (add-to-list 'corfu-continue-commands #'+corfu-smart-sep-toggle-escape)
+  (add-to-list 'corfu-continue-commands #'+corfu/move-to-minibuffer)
+  (add-to-list 'corfu-continue-commands #'+corfu/smart-sep-toggle-escape)
   (add-hook 'evil-insert-state-exit-hook #'corfu-quit)
 
   ;; If you want to update the visual hints after completing minibuffer commands
