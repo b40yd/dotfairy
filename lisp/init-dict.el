@@ -42,12 +42,8 @@
 
 (when emacs/28
   (use-package go-translate
-    :commands (gt-bing-translate
-               gt-bing-translate-dwim
-               gt-youdao-dict-translate-dwim
-               gt-youdao-dict-translate
-               gt-multi-dict-translate-dwim
-               gt-multi-dict-translate
+    :commands (gt-do-translate
+               gt-do-translate-prompt
                gt-do-setup
                gt-do-text-utility)
     :init
@@ -66,103 +62,55 @@
     (map! :leader
       (:prefix ("d" . "dictionaries")
        "g" #'gt-do-translate
+       "G" #'gt-do-translate-prompt
        "s" #'gt-do-setup
-       "b" #'gt-bing-translate-dwim
-       "B" #'gt-bing-translate
-       "m" #'gt-multi-dict-translate-dwim
-       "M" #'gt-multi-dict-translate
-       "y" #'gt-youdao-dict-translate-dwim
-       "Y" #'gt-youdao-dict-translate
        "u" #'gt-do-text-utility))
-
     :config
     ;; Tweak child frame
     (with-no-warnings
-
       ;; Translators
       (setq gt-preset-translators
-            `((default          . ,(gt-translator :taker   (cdar (gt-ensure-plain gt-preset-takers))
-                                                  :engines (cdar (gt-ensure-plain gt-preset-engines))
-                                                  :render  (cdar (gt-ensure-plain gt-preset-renders))))
-              (youdao-dict      . ,(gt-translator :taker (gt-taker :langs '(en zh) :text 'word :prompt t)
-                                                  :engines (gt-youdao-dict-engine)
-                                                  :render (gt-buffer-render)))
-              (youdao-dict-dwim . ,(gt-translator :taker (gt-taker :langs '(en zh) :text 'word)
-                                                  :engines (gt-youdao-dict-engine)
-                                                  :render (if (display-graphic-p)
-                                                              (gt-posframe-pop-render
-                                                               :frame-params (list :accept-focus nil
-                                                                                   :width 70
-                                                                                   :height 15
-                                                                                   :left-fringe 16
-                                                                                   :right-fringe 16
-                                                                                   :border-width 1
-                                                                                   :border-color gt-pin-posframe-bdcolor))
-                                                            (gt-buffer-render))))
-              (bing             . ,(gt-translator :taker (gt-taker :langs '(en zh) :text 'word :prompt t)
-                                                  :engines (gt-bing-engine)
-                                                  :render (gt-buffer-render)))
-              (bing-dwim        . ,(gt-translator :taker (gt-taker :langs '(en zh) :text 'word)
-                                                  :engines (gt-bing-engine)
-                                                  :render (if (display-graphic-p)
-                                                              (gt-posframe-pop-render
-                                                               :frame-params (list :accept-focus nil
-                                                                                   :width 70
-                                                                                   :height 15
-                                                                                   :left-fringe 16
-                                                                                   :right-fringe 16
-                                                                                   :border-width 1
-                                                                                   :border-color gt-pin-posframe-bdcolor))
-                                                            (gt-buffer-render))))
-              (multi-dict       . ,(gt-translator :taker (gt-taker :langs '(en zh) :prompt t)
-                                                  :engines (list (gt-bing-engine)
-                                                                 (gt-youdao-dict-engine)
-                                                                 (gt-youdao-suggest-engine)
-                                                                 (gt-google-engine))
-                                                  :render (gt-buffer-render)))
-              (multi-dict-dwim  . ,(gt-translator :taker (gt-taker :langs '(en zh))
-                                                  :engines (list (gt-bing-engine)
-                                                                 (gt-youdao-dict-engine)
-                                                                 (gt-youdao-suggest-engine)
-                                                                 (gt-google-engine))
-                                                  :render (gt-buffer-render)))
-              (Text-Utility     . ,(gt-text-utility :taker (gt-taker :pick nil)
-                                                    :render (gt-buffer-render)))))
-      (setq gt-default-translator (alist-get 'multi-dict-dwim gt-preset-translators))
+            `((default . ,(gt-translator
+                           :taker   (list (gt-taker :pick nil :if 'selection)
+                                          (gt-taker :text 'paragraph :if (lambda (&rest _) (derived-mode-p 'Info-mode)))
+                                          (gt-taker :text 'buffer :pick 'fresh-word :if 'read-only)
+                                          (gt-taker :langs '(en zh)))
+                           :engines (if (display-graphic-p)
+                                        (list (gt-bing-engine :if 'not-word)
+                                              (gt-youdao-dict-engine :if 'word))
+                                      (list (gt-bing-engine :if 'not-word)
+                                            (gt-youdao-dict-engine :if 'word)
+                                            (gt-youdao-suggest-engine :if 'word)
+                                            (gt-google-engine :if 'word)))
+                           :render  (list  (gt-overlay-render :if 'read-only)
+                                           (gt-insert-render :if (lambda (&rest _) (member (buffer-name) '("COMMIT_EDITMSG"))))
+                                           (gt-posframe-pop-render :if (lambda (&rest _) (and (display-graphic-p)
+                                                                                         (not (derived-mode-p 'Info-mode))))
+                                                                   :frame-params (list :accept-focus nil
+                                                                                       :width 70
+                                                                                       :height 15
+                                                                                       :left-fringe 16
+                                                                                       :right-fringe 16
+                                                                                       :border-width 1
+                                                                                       :border-color gt-pin-posframe-bdcolor))
+                                           (gt-buffer-render))))
+              (multi-dict . ,(gt-translator :taker (gt-taker :langs '(en zh) :prompt t)
+                                            :engines (list (gt-bing-engine)
+                                                           (gt-youdao-dict-engine)
+                                                           (gt-youdao-suggest-engine)
+                                                           (gt-google-engine))
+                                            :render (gt-buffer-render)))
+              (Text-Utility . ,(gt-text-utility :taker (gt-taker :pick nil)
+                                                :render (gt-buffer-render)))))
 
       (defun gt--do-translate (dict)
-        "Translate using DICT from preset tranlators."
+        "Translate using DICT from the preset tranlators."
         (gt-start (alist-get dict gt-preset-translators)))
 
-      (defun gt-youdao-dict-translate ()
-        "Translate using Youdao dictionary."
-        (interactive)
-        (gt--do-translate 'youdao-dict))
-
-      (defun gt-youdao-dict-translate-dwim ()
-        "Translate using Youdao dictionary without any prompt."
-        (interactive)
-        (gt--do-translate 'youdao-dict-dwim))
-
-      (defun gt-bing-translate ()
-        "Translate using Bing."
-        (interactive)
-        (gt--do-translate 'bing))
-
-      (defun gt-bing-translate-dwim ()
-        "Translate using Bing without any prompt."
-        (interactive)
-        (gt--do-translate 'bing-dwim))
-
-      (defun gt-multi-dict-translate ()
-        "Translate using multiple dictionaries."
+      (defun gt-do-translate-prompt ()
+        "Translate with prompt using the multiple dictionaries."
         (interactive)
         (gt--do-translate 'multi-dict))
-
-      (defun gt-multi-dict-translate-dwim ()
-        "Translate using multiple dictionaries without any prompt."
-        (interactive)
-        (gt--do-translate 'multi-dict-dwim))
 
       (defun gt-do-text-utility ()
         "Handle the texts with the utilities."

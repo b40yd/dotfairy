@@ -31,7 +31,7 @@
 
 \\{rust-mode-map}")
 
-  (when (centaur-treesit-available-p)
+  (when (treesit-available-p)
     (setq auto-mode-alist (delete '("\\.rs\\'" . rust-mode) auto-mode-alist))
     (setq auto-mode-alist (delete '("\\.rs\\'" . rust-ts-mode) auto-mode-alist))))
 

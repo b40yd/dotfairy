@@ -133,6 +133,7 @@
 
 (when (or IS-MAC IS-LINUX (daemonp))
   (use-package exec-path-from-shell
+    :custom (exec-path-from-shell-arguments '("-l"))
     :init
     (setq exec-path-from-shell-variables '("PATH" "MANPATH" "PYTHONPATH" "JAVA_HOME" "MAVEN_HOME"))
     (exec-path-from-shell-initialize)))
