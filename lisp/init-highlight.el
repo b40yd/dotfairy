@@ -33,11 +33,10 @@
     (use-package colorful-mode
       :diminish
       ;; :hook (after-init . global-colorful-mode)
-      :init
-      (setq colorful-use-prefix t
-            colorful-prefix-string "⬤")
-      (dolist (mode '(html-mode php-mode help-mode helpful-mode))
-        (add-to-list 'global-colorful-modes mode)))
+      :init (setq colorful-use-prefix t
+                  colorful-prefix-string "⬤")
+      :config (dolist (mode '(html-mode php-mode help-mode helpful-mode))
+                (add-to-list 'global-colorful-modes mode)))
   (use-package rainbow-mode
     :diminish
     :defines helpful-mode-map

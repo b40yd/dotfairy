@@ -93,11 +93,6 @@
   (advice-add #'pythonic-activate :after-while #'+modeline-update-env-in-all-windows-h)
   (advice-add #'pythonic-deactivate :after #'+modeline-clear-env-in-all-windows-h)
 
-  (use-package python-black
-    :demand t
-    :after python
-    :hook (python-mode . python-black-on-save-mode))
-
   (use-package pyimport
     :defer t
     :init
