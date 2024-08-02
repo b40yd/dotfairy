@@ -212,8 +212,12 @@
 
   ;;; <leader> p --- project
   (:prefix ("p" . "project")
-   :desc "Restart current workspace"       "R" #'lsp-workspace-restart
-   :desc "List project todos"              "t" #'magit-todos-list
+   :desc "Compile in project"               "c" #'project-compile
+   :desc "Search project"                   "s" #'+vertico/project-search
+   :desc "Search symbol point from project" "S" #'+vertico/search-symbol-at-point
+   :desc "Restart current workspace"        "R" #'lsp-workspace-restart
+   :desc "Find file in project"             "f" #'project-find-file
+   :desc "List project todos"               "t" #'magit-todos-list
    (:when (eq dotfairy-complete 'vertico)
     :desc "Find file in project"        "f" #'+vertico/consult-fd-or-find)
    :desc "Find sibling file"            "o" #'find-sibling-file)
@@ -253,12 +257,13 @@
 
   ;;; <leader> s --- search
   (:prefix-map ("s" . "search")
-   :desc "Internet Search Engine"       "/" #'webjump
-   :desc "Jump to visible link"         "l" #'link-hint-open-link
-   :desc "Jump to link"                 "L" #'ffap-menu
-   :desc "Jump to bookmark"             "m" #'bookmark-jump
-   :desc "rg menu"                      "M" #'rg-menu
-   :desc "Undo history"                 "u" #'vundo)
+   :desc "Search symbol point from project" "d" #'+vertico/search-symbol-at-point
+   :desc "Internet Search Engine"           "/" #'webjump
+   :desc "Jump to visible link"             "l" #'link-hint-open-link
+   :desc "Jump to link"                     "L" #'ffap-menu
+   :desc "Jump to bookmark"                 "m" #'bookmark-jump
+   :desc "rg menu"                          "M" #'rg-menu
+   :desc "Undo history" "u" #'vundo)
 
   ;;; <leader> t --- toggle
   (:prefix-map ("t" . "toggle")
