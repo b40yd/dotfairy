@@ -257,8 +257,9 @@
 
   ;;; <leader> s --- search
   (:prefix-map ("s" . "search")
-   :desc "Search symbol point from project" "d" #'+vertico/search-symbol-at-point
    :desc "Internet Search Engine"           "/" #'webjump
+   :desc "Search symbol point from project" "d" #'+vertico/search-symbol-at-point
+   :desc "Search project"                   "s" #'+vertico/project-search
    :desc "Jump to visible link"             "l" #'link-hint-open-link
    :desc "Jump to link"                     "L" #'ffap-menu
    :desc "Jump to bookmark"                 "m" #'bookmark-jump
