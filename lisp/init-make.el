@@ -32,7 +32,7 @@
   "Run a make task in the current project. If multiple makefiles are available,
 you'll be prompted to select one."
   (interactive)
-  (if (dotfairy-project-p)
+  (if (project-current)
       (makefile-executor-execute-project-target)
     (let ((makefile (cl-loop with buffer-file = (or buffer-file-name default-directory)
                              for file in (list "Makefile" "makefile")

@@ -98,9 +98,8 @@
       (defun +evil-display-vimlike-save-message-h ()
         "Shorter, vim-esque save messages."
         (message "\"%s\" %dL, %dC written"
-                 (if buffer-file-name
-                     (file-relative-name (file-truename buffer-file-name) (dotfairy-project-root))
-                   (buffer-name))
+                 (file-relative-name (file-truename buffer-file-name)
+                                     (buffer-name))
                  (count-lines (point-min) (point-max))
                  (buffer-size)))))
 

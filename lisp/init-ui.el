@@ -95,8 +95,6 @@
          ("<f6>" . doom-modeline-hydra/body))
   :hook (after-init . doom-modeline-mode)
   :init
-  ;; We display project info in the modeline ourselves
-  (setq projectile-dynamic-mode-line nil)
 
   (setq doom-modeline-icon display-icon
         doom-modeline-bar-width 3
@@ -225,9 +223,6 @@
     (("p f" (setq doom-modeline-project-detection 'ffip)
       "ffip"
       :toggle (eq doom-modeline-project-detection 'ffip))
-     ("p t" (setq doom-modeline-project-detection 'projectile)
-      "projectile"
-      :toggle (eq doom-modeline-project-detection 'projectile))
      ("p p" (setq doom-modeline-project-detection 'project)
       "project"
       :toggle (eq doom-modeline-project-detection 'project))
@@ -374,7 +369,6 @@ See `display-line-numbers' for what these values mean."
                                       dashboard-insert-items
                                       dashboard-insert-newline
                                       dashboard-insert-footer)
-          dashboard-projects-backend 'projectile
           dashboard-path-style 'truncate-middle
           dashboard-path-max-length 60
           dashboard-display-icons-p #'icons-displayable-p

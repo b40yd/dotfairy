@@ -31,13 +31,8 @@
 ;; C/C++ Mode
 ;; C/C++/Objective-C support
 (use-package ccls
-  :defines projectile-project-root-files-top-down-recurring
   :hook ((c-mode c++-mode objc-mode cuda-mode) . (lambda () (require 'ccls)))
   :config
-  (with-eval-after-load 'projectile
-    (setq projectile-project-root-files-top-down-recurring
-          (append '("compile_commands.json" ".ccls")
-                  projectile-project-root-files-top-down-recurring)))
   (with-no-warnings
     ;; FIXME: fail to call ccls.xref
     ;; @see https://github.com/emacs-lsp/emacs-ccls/issues/109

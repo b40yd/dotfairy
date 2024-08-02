@@ -107,7 +107,6 @@
 
 ;; Fast search tool `ripgrep'
 (use-package rg
-  :defines projectile-command-map
   :hook (after-init . rg-enable-default-bindings)
   :bind (:map rg-global-map
          ("c" . rg-dwim-current-dir)

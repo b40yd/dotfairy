@@ -48,7 +48,6 @@
 ;;   (doom-tomorrow-day    . doom-tomorrow-day)
 ;;   (doom-tomorrow-night   . doom-tomorrow-night))
 (setq dotfairy-theme 'default)
-(setq dotfairy-complete 'vertico) ;; Vertico or Ivy achieves full compatibility with built-in completion commands
 (setq dotfairy-lsp 'lsp-mode)   ;; Use lsp-mode, eglot or nil code complete
 ;; (setq dotfairy-dashboard nil)                   ; Use dashboard at startup or not: t or nil
 (setq dotfairy-lsp-format-on-save-ignore-modes '(c-mode c++-mode python-mode go-mode)) ; Ignore format on save for some languages

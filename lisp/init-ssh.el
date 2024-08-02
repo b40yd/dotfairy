@@ -74,8 +74,6 @@
     (defun +upload-init-find-file-h ()
       (when (bound-and-true-p ssh-deploy-root-remote)
         (require 'ssh-deploy)
-        (unless ssh-deploy-root-local
-          (setq ssh-deploy-root-local (dotfairy-project-root)))
         (when ssh-deploy-automatically-detect-remote-changes
           (ssh-deploy-remote-changes-handler))))))
 

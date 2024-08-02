@@ -1,9 +1,6 @@
 ;;; Code:
 (require 'init-funcs)
 
-(after! projectile
-  (add-to-list 'projectile-project-root-files "Cargo.toml"))
-
 (use-package rust-mode
   :mode ("\\.rs\\'" . rustic-mode)
   :init (setq rust-format-on-save t

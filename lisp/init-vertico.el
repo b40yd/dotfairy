@@ -196,16 +196,8 @@
   (map! :map minibuffer-local-map
         :desc "Cycle marginalia views" "M-A" #'marginalia-cycle)
   :config
-  (advice-add #'marginalia--project-root :override #'dotfairy-project-root)
   (pushnew! marginalia-command-categories
-            '(+default/find-file-under-here . file)
-            '(dotfairy/find-file-in-emacsd . project-file)
-            '(dotfairy/find-file-in-other-project . project-file)
-            '(persp-switch-to-buffer . buffer)
-            '(projectile-find-file . project-file)
-            '(projectile-recentf . project-file)
-            '(projectile-switch-to-buffer . buffer)
-            '(projectile-switch-project . project-file)))
+            '(persp-switch-to-buffer . buffer)))
 
 (use-package consult
   :defer t
@@ -292,10 +284,8 @@ See URL `https://github.com/minad/consult/issues/770'."
     (interactive "P")
     ;; TODO this condition was adapted from a similar one in lisp/doom-projects.el, to be replaced with a more robust check post v3
     (if (when-let*
-            ((bin (if (ignore-errors (file-remote-p default-directory nil t))
-                      (cl-find-if (dotfairy-rpartial #'executable-find t)
-                                  (list "fdfind" "fd"))
-                    dotfairy-projectile-fd-binary))
+            ((bin (cl-find-if (dotfairy-rpartial #'executable-find t)
+                              (list "fdfind" "fd")))
              (version (with-memoization dotfairy-projects--fd-version
                         (cadr (split-string (cdr (dotfairy-call-process bin "--version"))
                                             " " t))))
@@ -310,8 +300,7 @@ See URL `https://github.com/minad/consult/issues/770'."
     :before (list #'consult-recent-file #'consult-buffer)
     (recentf-mode +1))
 
-  (setq consult-project-function #'dotfairy-project-root
-        consult-narrow-key "<"
+  (setq consult-narrow-key "<"
         consult-line-numbers-widen t
         consult-async-min-input 2
         consult-async-refresh-delay  0.15
@@ -328,10 +317,6 @@ See URL `https://github.com/minad/consult/issues/770'."
   (consult-customize
    consult-ripgrep consult-git-grep consult-grep
    consult-bookmark consult-recent-file
-   +default/search-project +default/search-other-project
-   +default/search-project-for-symbol-at-point
-   +default/search-cwd +default/search-other-cwd
-   +default/search-notes-for-symbol-at-point
    consult--source-recent-file consult--source-project-recent-file consult--source-bookmark
    :preview-key "C-SPC")
   (consult-customize
@@ -369,9 +354,6 @@ See URL `https://github.com/minad/consult/issues/770'."
          ("C-x C-d" . consult-dir)
          ("C-x C-j" . consult-dir-jump-file))
   :config
-  ;; DEPRECATED: Remove when Doom core replaces projectile with project.el
-  (setq consult-dir-project-list-function #'consult-dir-projectile-dirs)
-
   ;; TODO: Replace with `tramp-container--completion-function' when we drop
   ;;   support for <29
   (defun +vertico--consult-dir-container-hosts (host)
@@ -538,7 +520,7 @@ Supports exporting consult-grep to wgrep, file to wdeired, and consult-location 
     (user-error "Couldn't find ripgrep in your PATH"))
   (require 'consult)
   (setq deactivate-mark t)
-  (let* ((project-root (or (dotfairy-project-root) default-directory))
+  (let* ((project-root (or default-directory))
          (directory (or in project-root))
          (consult-ripgrep-args
           (concat "rg "

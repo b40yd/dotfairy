@@ -175,16 +175,6 @@ nil means disabled."
   :group 'dotfairy
   :type 'boolean)
 
-(defcustom dotfairy-complete 'ivy
-  "Set complete.
-`ivy': See https://github.com/abo-abo/swiper.
-`vertico': See https://github.com/minad/vertico.
-nil means disabled."
-  :group 'dotfairy
-  :type '(choice (const :tag "ivy" ivy)
-                 (const :tag "vertico" vertico)
-                 (const :tag "Disable" nil)))
-
 (defcustom dotfairy-keybind-mode 'emacs
   "Set editor mode.
 `emacs': default keybinds.

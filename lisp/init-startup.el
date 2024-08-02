@@ -61,18 +61,13 @@
 (require 'init-markdown)
 
 ;; Project
-(require 'init-projectile)
-(require 'init-persp)
 (require 'init-ibuffer)
+(require 'init-buffers)
 (require 'init-windows)
 
 ;; Complete
 (require 'init-yasnippet)
-(pcase dotfairy-complete
-  ('ivy
-   (require 'init-ivy))
-  ('vertico
-   (require 'init-vertico)))
+(require 'init-vertico)
 (require 'init-completion)
 
 (require 'init-template)

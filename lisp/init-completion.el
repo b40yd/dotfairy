@@ -36,34 +36,11 @@ Possible values are:
 (defvar +corfu-buffer-scanning-size-limit (* 1 1024 1024) ; 1 MB
   "Size limit for a buffer to be scanned by `cape-dabbrev'.")
 
-(defvar +corfu-want-minibuffer-completion t
-  "Whether to enable Corfu in the minibuffer.
-Setting this to `aggressive' will enable Corfu in more commands which
-use the minibuffer such as `query-replace'.")
-
 ;; Auto completion
 (use-package corfu
   :bind ("<backtab>" . completion-at-point)
   :hook ((after-init . global-corfu-mode)
          (global-corfu-mode . corfu-popupinfo-mode))
-  :init
-  (add-hook! 'minibuffer-setup-hook
-    (defun +corfu-enable-in-minibuffer ()
-      "Enable Corfu in the minibuffer."
-      (when (pcase +corfu-want-minibuffer-completion
-              ('aggressive
-               (not (or (bound-and-true-p mct--active)
-                        (bound-and-true-p vertico--input)
-                        (eq (current-local-map) read-passwd-map)
-                        (and (featurep 'ido) (ido-active))
-                        (where-is-internal 'minibuffer-complete
-                                           (list (current-local-map)))
-                        (memq #'ivy--queue-exhibit post-command-hook))))
-              ('nil nil)
-              (_ (where-is-internal #'completion-at-point
-                                    (list (current-local-map)))))
-        (setq-local corfu-echo-delay nil)
-        (corfu-mode +1))))
   :config
 
   ;;;###autoload
@@ -181,7 +158,7 @@ use the minibuffer such as `query-replace'.")
   ;; Set up `cape-dabbrev' options.
   (defun +dabbrev-friend-buffer-p (other-buffer)
     (< (buffer-size other-buffer) +corfu-buffer-scanning-size-limit))
-  (add-hook! (prog-mode text-mode conf-mode comint-mode minibuffer-setup
+  (add-hook! (prog-mode text-mode conf-mode comint-mode
                         eshell-mode)
     (defun +corfu-add-cape-dabbrev-h ()
       (add-hook 'completion-at-point-functions #'cape-dabbrev 20 t)))
