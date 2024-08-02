@@ -249,6 +249,103 @@ If FORCE-P, overwrite the destination file if it exists, without confirmation."
     (message "File moved to %S" (abbreviate-file-name new-path))))
 
 ;;;###autoload
+(defun +default/search-cwd (&optional arg)
+  "Conduct a text search in files under the current folder.
+If prefix ARG is set, prompt for a directory to search from."
+  (interactive "P")
+  (let ((default-directory
+          (if arg
+              (read-directory-name "Search directory: ")
+            default-directory)))
+    (call-interactively
+     (cond ((bound-and-true-p vertico-mode)
+            #'+vertico/project-search-from-cwd)
+           (#'rgrep)))))
+
+;;;###autoload
+(defun +default/search-other-cwd ()
+  "Conduct a text search in another directory."
+  (interactive)
+  (+default/search-cwd 'other))
+
+;;;###autoload
+(defun +default/search-buffer ()
+  "Conduct a text search on the current buffer.
+If a selection is active and multi-line, perform a search restricted to that
+region.
+If a selection is active and not multi-line, use the selection as the initial
+input and search the whole buffer for it."
+  (interactive)
+  (let (start end multiline-p)
+    (save-restriction
+      (when (region-active-p)
+        (setq start (region-beginning)
+              end   (region-end)
+              multiline-p (/= (line-number-at-pos start)
+                              (line-number-at-pos end)))
+        (deactivate-mark)
+        (when multiline-p
+          (narrow-to-region start end)))
+      (cond ((bound-and-true-p vertico-mode)
+             (if (and start end (not multiline-p))
+                 (consult-line
+                  (replace-regexp-in-string
+                   " " "\\\\ "
+                   (dotfairy-pcre-quote
+                    (buffer-substring-no-properties start end))))
+               (call-interactively #'consult-line)))))))
+
+;;;###autoload
+(defun +default/search-project (&optional arg)
+  "Conduct a text search in the current project root.
+If prefix ARG is set, include ignored/hidden files."
+  (interactive "P")
+  (let* ((disabled-command-function nil)
+         (current-prefix-arg (unless (eq arg 'other) arg))
+         (default-directory
+           (if (eq arg 'other)
+               (if-let (projects (project-known-project-roots))
+                   (completing-read "Search project: " projects nil t)
+                 (user-error "There are no known projects"))
+             default-directory)))
+    (call-interactively
+     (cond ((bound-and-true-p vertico-mode)
+            #'+vertico/project-search)
+           (#'project-search)))))
+
+;;;###autoload
+(defun +default/search-other-project ()
+  "Conduct a text search in a known project."
+  (interactive)
+  (+default/search-project 'other))
+
+;;;###autoload
+(defun +default/search-project-for-symbol-at-point (symbol dir)
+  "Search current project for symbol at point.
+If prefix ARG is set, prompt for a known project to search from."
+  (interactive
+   (list (dotfairy-pcre-quote (or (dotfairy-thing-at-point-or-region) ""))
+         (if current-prefix-arg
+             (if-let (projects (project-known-project-roots))
+                 (completing-read "Search project: " projects nil t)
+               (user-error "There are no known projects"))
+           (project-root (project-current)))))
+  (cond ((bound-and-true-p vertico-mode)
+         (+vertico/project-search nil symbol dir))
+        (regexp-quote symbol)))
+
+;;;###autoload
+(defun +default/search-notes-for-symbol-at-point (symbol)
+  "Conduct a text search in the current project for symbol at point. If prefix
+ARG is set, prompt for a known project to search from."
+  (interactive
+   (list (dotfairy-pcre-quote (or (dotfairy-thing-at-point-or-region) ""))))
+  (require 'org)
+  (+default/search-project-for-symbol-at-point
+   symbol org-directory))
+
+
+;;;###autoload
 (defun +default/yank-buffer-path (&optional root)
   "Copy the current buffer's path to the kill ring."
   (interactive)
@@ -264,6 +361,15 @@ If FORCE-P, overwrite the destination file if it exists, without confirmation."
           (user-error "Couldn't copy filename in current buffer")))
     (error "Couldn't find filename in current buffer")))
 
+;;;###autoload
+(defun +default/yank-buffer-path-relative-to-project (&optional include-root)
+  "Copy the current buffer's path to the kill ring.
+With non-nil prefix INCLUDE-ROOT, also include the project's root."
+  (interactive "P")
+  (+default/yank-buffer-path
+   (if include-root
+       (file-name-directory (directory-file-name (project-root (project-current))))
+     (project-root (project-current)))))
 
 ;;;###autoload
 (defun +default/insert-file-path (arg)

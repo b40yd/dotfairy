@@ -91,6 +91,7 @@
    :desc "Rename this file name"       "C" #'dotfairy/copy-file-name
    :desc "Delete this file"            "D" #'dotfairy/delete-this-file
    :desc "Find file"                   "f" #'find-file
+   :desc "Find file in project"           "F" #'project-find-file
    :desc "Locate file"                 "l" #'locate
    :desc "Reload init file"            "L" #'dotfairy/reload-init-file
    :desc "Rename/move this file"       "m" #'dotfairy/move-this-file
@@ -178,6 +179,7 @@
    :desc "Active org-clock"               "o" #'org-clock-goto
    :desc "Todo list"                      "t" #'org-todo-list
    :desc "View search"                    "v" #'org-search-view
+   :desc "Search notes"                   "s" #'+default/search-notes-for-symbol-at-point
    (:prefix ("r" . "roam")
     :desc "Open random node"           "a" #'org-roam-node-random
     :desc "Find node"                  "f" #'org-roam-node-find
@@ -213,8 +215,9 @@
   ;;; <leader> p --- project
   (:prefix ("p" . "project")
    :desc "Compile in project"               "c" #'project-compile
-   :desc "Search project"                   "s" #'+vertico/project-search
-   :desc "Search symbol point from project" "S" #'+vertico/search-symbol-at-point
+   :desc "Search project"                   "s" #'+default/search-project
+   :desc "Search other project"             "o" #'+default/search-other-project
+   :desc "Search symbol point from project" "S" #'+default/search-project-for-symbol-at-point
    :desc "Restart current workspace"        "R" #'lsp-workspace-restart
    :desc "Find file in project"             "f" #'project-find-file
    :desc "List project todos"               "t" #'magit-todos-list
@@ -258,8 +261,8 @@
   ;;; <leader> s --- search
   (:prefix-map ("s" . "search")
    :desc "Internet Search Engine"           "/" #'webjump
-   :desc "Search symbol point from project" "d" #'+vertico/search-symbol-at-point
-   :desc "Search project"                   "s" #'+vertico/project-search
+   :desc "Search symbol point from project" "d" #'+default/search-project-for-symbol-at-point
+   :desc "Search project"                   "s" #'+default/search-project
    :desc "Jump to visible link"             "l" #'link-hint-open-link
    :desc "Jump to link"                     "L" #'ffap-menu
    :desc "Jump to bookmark"                 "m" #'bookmark-jump
