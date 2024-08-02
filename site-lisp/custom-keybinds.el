@@ -91,7 +91,7 @@
    :desc "Rename this file name"       "C" #'dotfairy/copy-file-name
    :desc "Delete this file"            "D" #'dotfairy/delete-this-file
    :desc "Find file"                   "f" #'find-file
-   :desc "Find file in project"           "F" #'project-find-file
+   :desc "Find file in project"        "F" #'project-find-file
    :desc "Locate file"                 "l" #'locate
    :desc "Reload init file"            "L" #'dotfairy/reload-init-file
    :desc "Rename/move this file"       "m" #'dotfairy/move-this-file
@@ -219,7 +219,7 @@
    :desc "Search other project"             "o" #'+default/search-other-project
    :desc "Search symbol point from project" "S" #'+default/search-project-for-symbol-at-point
    :desc "Restart current workspace"        "R" #'lsp-workspace-restart
-   :desc "Find file in project"             "f" #'project-find-file
+   :desc "Find file in project"             "F" #'project-find-file
    :desc "List project todos"               "t" #'magit-todos-list
    (:when (eq dotfairy-complete 'vertico)
     :desc "Find file in project"        "f" #'+vertico/consult-fd-or-find)
