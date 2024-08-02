@@ -520,8 +520,8 @@ Supports exporting consult-grep to wgrep, file to wdeired, and consult-location 
     (user-error "Couldn't find ripgrep in your PATH"))
   (require 'consult)
   (setq deactivate-mark t)
-  (let* ((project-root (or default-directory))
-         (directory (or in project-root))
+  (let* ((proj-root (or (project-root (project-current)) default-directory))
+         (directory (or in proj-root))
          (consult-ripgrep-args
           (concat "rg "
                   (if all-files "-uu ")
