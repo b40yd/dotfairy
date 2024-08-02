@@ -52,6 +52,7 @@
   :ensure t
   :bind (:map c-mode-base-map
          ("C-c C-c" . compile))
+  :init (setq-default c-basic-offset 4)
   :config
   (set-ligatures! '(c-mode c++-mode)
     ;; Types

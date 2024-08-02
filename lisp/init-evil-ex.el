@@ -29,6 +29,9 @@
 `+evil/previous-preproc-directive' on ]# and [#, to jump between preprocessor
 directives. By default, this only recognizes C directives.")
 
+(defvar +evil-want-move-window-to-wrap-around nil
+  "If non-nil, `+evil/window-move-*' commands will wrap around.")
+
 ;;;###autoload
 (defun +evil/next-beginning-of-method (count)
   "Jump to the beginning of the COUNT-th method/function after point."
@@ -231,11 +234,14 @@ replacing its contents."
      (save-excursion (goto-char beg) (point-marker))
      end)))
   ;;;###autoload
-(defun +evil--window-swap (direction)
+(defun +evil--window-swap (direction &optional invert-wrap?)
   "Move current window to the next window in DIRECTION.
 If there are no windows there and there is only one window, split in that
 direction and place this window there. If there are no windows and this isn't
-the only window, use evil-window-move-* (e.g. `evil-window-move-far-left')."
+the only window, uses evil-window-move-* (e.g. `evil-window-move-far-left').
+If already at the edge of the frame and `+evil-want-move-window-to-wrap-around'
+is non-nil, move the window to the other end of the frame. Inverts
+`+evil-want-move-window-to-wrap-around' if INVERT-WRAP? is non-nil."
   (unless (memq direction '(left right up down))
     (user-error "Invalid direction: %s" direction))
   (when (window-dedicated-p)
@@ -253,7 +259,14 @@ the only window, use evil-window-move-* (e.g. `evil-window-move-far-left')."
                                               '(up down) '(left right))
                                if (window-in-direction dir nil this-window)
                                return t)))
-            (user-error "Window is already at the edge")
+            (if (funcall (if invert-wrap? #'not #'identity) +evil-want-move-window-to-wrap-around)
+                (call-interactively
+                 (pcase direction
+                   ('left  #'evil-window-move-far-right)
+                   ('right #'evil-window-move-far-left)
+                   ('up    #'evil-window-move-very-bottom)
+                   ('down  #'evil-window-move-very-top)))
+              (user-error "Window is already at the edge"))
           (call-interactively
            (pcase direction
              ('left  #'evil-window-move-far-left)
@@ -269,26 +282,30 @@ the only window, use evil-window-move-* (e.g. `evil-window-move-far-left')."
       (select-window that-window))))
 
 ;;;###autoload
-(defun +evil/window-move-left ()
+(defun +evil/window-move-left (&optional arg)
   "Swap windows to the left."
-  (interactive) (+evil--window-swap 'left))
+  (interactive "P")
+  (+evil--window-swap 'left (or arg +evil-want-move-window-to-wrap-around)))
 ;;;###autoload
-(defun +evil/window-move-right ()
+(defun +evil/window-move-right (&optional arg)
   "Swap windows to the right"
-  (interactive) (+evil--window-swap 'right))
+  (interactive "P")
+  (+evil--window-swap 'right (or arg +evil-want-move-window-to-wrap-around)))
 ;;;###autoload
-(defun +evil/window-move-up ()
+(defun +evil/window-move-up (&optional arg)
   "Swap windows upward."
-  (interactive) (+evil--window-swap 'up))
+  (interactive "P")
+  (+evil--window-swap 'up (or arg +evil-want-move-window-to-wrap-around)))
 ;;;###autoload
-(defun +evil/window-move-down ()
+(defun +evil/window-move-down (&optional arg)
   "Swap windows downward."
-  (interactive) (+evil--window-swap 'down))
+  (interactive "P")
+  (+evil--window-swap 'down (or arg +evil-want-move-window-to-wrap-around)))
 
 ;;;###autoload
 (defun +evil/window-split-and-follow ()
   "Split current window horizontally, then focus new window.
-If `evil-split-window-below' is non-nil, the new window isn't focused."
+  If `evil-split-window-below' is non-nil, the new window isn't focused."
   (interactive)
   (let ((evil-split-window-below (not evil-split-window-below)))
     (call-interactively #'evil-window-split)))
@@ -296,7 +313,7 @@ If `evil-split-window-below' is non-nil, the new window isn't focused."
 ;;;###autoload
 (defun +evil/window-vsplit-and-follow ()
   "Split current window vertically, then focus new window.
-If `evil-vsplit-window-right' is non-nil, the new window isn't focused."
+  If `evil-vsplit-window-right' is non-nil, the new window isn't focused."
   (interactive)
   (let ((evil-vsplit-window-right (not evil-vsplit-window-right)))
     (call-interactively #'evil-window-vsplit)))
