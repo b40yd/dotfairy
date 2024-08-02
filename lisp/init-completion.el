@@ -54,9 +54,6 @@ Possible values are:
          (cond ((and (bound-and-true-p vertico-mode)
                      (fboundp #'consult-completion-in-region))
                 (consult-completion-in-region beg end table pred))
-               ((and (bound-and-true-p ivy-mode)
-                     (fboundp #'ivy-completion-in-region))
-                (ivy-completion-in-region (marker-position beg) (marker-position end) table pred))
                ;; Important: `completion-in-region-function' is set to corfu at
                ;; this moment, so `completion-in-region' (single -) doesn't work
                ;; below.

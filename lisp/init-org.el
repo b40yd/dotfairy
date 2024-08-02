@@ -769,9 +769,6 @@ when exporting org-mode to '(html hugo md odt)."
         "+" #'org-ctrl-c-minus
         "," #'org-switchb
         "." #'org-goto
-        (:when (featurep 'ivy)
-         "." #'counsel-org-goto
-         "/" #'counsel-org-goto-all)
         (:when (featurep 'vertico)
          "." #'consult-org-heading
          "/" #'consult-org-agenda)

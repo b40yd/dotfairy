@@ -170,13 +170,6 @@ we have to clean it up ourselves."
     (interactive)
     (let ((prompt "Travel: "))
       (cond
-       ((bound-and-true-p ivy-mode)
-        (ivy-read prompt 'read-file-name-internal
-                  :matcher #'counsel--find-file-matcher
-                  :action
-                  (lambda (x)
-                    (with-ivy-window
-                     (ranger-find-file (expand-file-name x default-directory))))))
        ((bound-and-true-p ido-mode)
         (ranger-find-file (ido-read-file-name prompt)))
        (t

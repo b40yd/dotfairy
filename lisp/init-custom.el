@@ -181,8 +181,8 @@ nil means disabled."
 `evil': like vim.
 nil means disabled."
   :group 'dotfairy
-  :type '(choice (const :tag "ivy" emacs)
-                 (const :tag "vertico" evil)
+  :type '(choice (const :tag "emacs" emacs)
+                 (const :tag "evil" evil)
                  (const :tag "Disable" nil)))
 
 (defcustom dotfairy-tree-sitter
