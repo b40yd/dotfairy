@@ -76,7 +76,6 @@ Add or change the configurations in `~/dotfairy.d/custom.el`, then restart Emacs
 ;;   (doom-tomorrow-day    . doom-tomorrow-day)
 ;;   (doom-tomorrow-night   . doom-tomorrow-night))
 (setq dotfairy-theme 'default)
-(setq dotfairy-complete 'vertico) ;; Vertico or Ivy achieves full compatibility with built-in completion commands
 (setq dotfairy-lsp 'lsp-bridge)   ;; Use lsp-mode, eglot or lsp-bridge code complete
 ;; (setq dotfairy-dashboard nil)                   ; Use dashboard at startup or not: t or nil
 (setq dotfairy-lsp-format-on-save-ignore-modes '(c-mode c++-mode python-mode go-mode)) ; Ignore format on save for some languages
