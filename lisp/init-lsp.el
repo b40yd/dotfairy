@@ -41,13 +41,17 @@
      :config
      (use-package consult-eglot
        :bind (:map eglot-mode-map
-              ("C-M-." . consult-eglot-symbols)))))
+              ("C-M-." . consult-eglot-symbols)))
+     ;; Emacs LSP booster
+     (when (executable-find "emacs-lsp-booster")
+       (unless (package-installed-p 'eglot-booster)
+         (and (fboundp #'package-vc-install)
+              (package-vc-install "https://github.com/jdtsmith/eglot-booster")))
+       (use-package eglot-booster
+         :ensure nil
+         :autoload eglot-booster-mode
+         :init (eglot-booster-mode 1)))))
   ('lsp-mode
-   ;; Performace tuning
-   ;; @see https://emacs-lsp.github.io/lsp-mode/page/performance/
-   (setq read-process-output-max (* 1024 1024)) ;; 1MB
-   (setenv "LSP_USE_PLISTS" "true")
-
    ;; Emacs client for the Language Server Protocol
    ;; https://github.com/emacs-lsp/lsp-mode#supported-languages
    (use-package lsp-mode
@@ -55,6 +59,11 @@
      :defines (lsp-diagnostics-disabled-modes lsp-clients-python-library-directories)
      :autoload lsp-enable-which-key-integration
      :commands (lsp-format-buffer lsp-organize-imports +default/lsp-command-map)
+     :preface
+     ;; Performace tuning
+     ;; @see https://emacs-lsp.github.io/lsp-mode/page/performance/
+     (setq read-process-output-max (* 1024 1024)) ; 1MB
+     (setenv "LSP_USE_PLISTS" "true")
      :hook ((prog-mode . (lambda ()
                            (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode 'makefile-mode 'snippet-mode)
                              (lsp-deferred))))
@@ -109,6 +118,42 @@
             ;; For clients
             lsp-clients-python-library-directories '("/usr/local/" "/usr/"))
      :config
+     (add-to-list 'auto-mode-alist '("\\.dir-locals\\.el\\'" . emacs-lisp-mode))
+     (add-hook! 'dotfairy-escape-hook
+       (defun +lsp-signature-stop-maybe-h ()
+         "Close the displayed `lsp-signature'."
+         (when lsp-signature-mode
+           (lsp-signature-stop)
+           t)))
+
+     (defvar +lsp--default-read-process-output-max nil)
+     (defvar +lsp--default-gcmh-high-cons-threshold nil)
+     (defvar +lsp--optimization-init-p nil)
+
+     (define-minor-mode +lsp-optimization-mode
+       "Deploys universal GC and IPC optimizations for `lsp-mode' and `eglot'."
+       :global t
+       :init-value nil
+       (if (not +lsp-optimization-mode)
+           (setq-default read-process-output-max +lsp--default-read-process-output-max
+                         gcmh-high-cons-threshold +lsp--default-gcmh-high-cons-threshold
+                         +lsp--optimization-init-p nil)
+         ;; Only apply these settings once!
+         (unless +lsp--optimization-init-p
+           (setq +lsp--default-read-process-output-max (default-value 'read-process-output-max)
+                 +lsp--default-gcmh-high-cons-threshold (default-value 'gcmh-high-cons-threshold))
+           (setq-default read-process-output-max (* 1024 1024))
+           ;; REVIEW LSP causes a lot of allocations, with or without the native JSON
+           ;;        library, so we up the GC threshold to stave off GC-induced
+           ;;        slowdowns/freezes. Doom uses `gcmh' to enforce its GC strategy,
+           ;;        so we modify its variables rather than `gc-cons-threshold'
+           ;;        directly.
+           (setq-default gcmh-high-cons-threshold (* 2 +lsp--default-gcmh-high-cons-threshold))
+           (gcmh-set-high-threshold)
+           (setq +lsp--optimization-init-p t))))
+
+     (add-hook! 'lsp-mode-hook #'+lsp-optimization-mode)
+
      (if (equal dotfairy-complete 'vertico)
          (use-package consult-lsp
            :bind (:map lsp-mode-map
@@ -256,8 +301,7 @@
         ("M-b" backward-word nil)
         ("M-f" forward-word nil)
         ("c" lsp-ui-sideline-apply-code-actions "apply code actions"))))
-     :bind (("C-c u" . lsp-ui-imenu)
-            :map lsp-ui-mode-map
+     :bind (:map lsp-ui-mode-map
             ("M-<f6>" . lsp-ui-hydra/body)
             ("s-<return>" . lsp-ui-sideline-apply-code-actions)
             ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
@@ -299,6 +343,7 @@
                (posframe-show lsp-ui-peek--buffer
                               :string (mapconcat 'identity string "")
                               :min-width (frame-width)
+                              :internal-border-color (face-background 'posframe-border nil t)
                               :internal-border-width 1
                               :poshandler #'posframe-poshandler-frame-center))
            (funcall fn src1 src2)))
@@ -534,27 +579,7 @@
                                               (require 'lsp-pyright)
                                               (add-hook 'after-save-hook #'lsp-pyright-format-buffer t t))))
      :init (when (executable-find "python3")
-             (setq lsp-pyright-python-executable-cmd "python3"))
-
-     (let ((python-type-stubs (expand-file-name "python-type-stubs" dotfairy-etc-dir)))
-       (if (not (file-exists-p python-type-stubs))
-           (dotfairy-exec-process "git" "clone" "https://github.com/microsoft/python-type-stubs" python-type-stubs))
-       (setq lsp-pyright-use-library-code-for-types t) ;; set this to nil if getting too many false positive type errors
-       (setq lsp-pyright-stub-path python-type-stubs)))
-
-   ;; C/C++/Objective-C
-   (use-package ccls
-     :hook ((c-mode c++-mode objc-mode cuda-mode) . (lambda () (require 'ccls)))
-     :config
-     (with-no-warnings
-       ;; FIXME: fail to call ccls.xref
-       ;; @see https://github.com/emacs-lsp/emacs-ccls/issues/109
-       (cl-defmethod my-lsp-execute-command
-         ((_server (eql ccls)) (command (eql ccls.xref)) arguments)
-         (when-let ((xrefs (lsp--locations-to-xref-items
-                            (lsp--send-execute-command (symbol-name command) arguments))))
-           (xref--show-xrefs xrefs nil)))
-       (advice-add #'lsp-execute-command :override #'my-lsp-execute-command)))
+             (setq lsp-pyright-python-executable-cmd "python3")))
 
    ;; Swift
    (use-package lsp-sourcekit)

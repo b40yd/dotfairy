@@ -64,9 +64,12 @@
   :hook (after-init . global-auto-revert-mode))
 
 ;; Hungry deletion
-(use-package hungry-delete
-  :diminish
-  :hook (after-init . global-hungry-delete-mode))
+(use-package smart-hungry-delete
+  :ensure t
+  :bind (([remap backward-delete-char-untabify] . smart-hungry-delete-backward-char)
+	     ([remap delete-backward-char] . smart-hungry-delete-backward-char)
+	     ([remap delete-char] . smart-hungry-delete-forward-char))
+  :init (smart-hungry-delete-add-default-hooks))
 
 ;; Drag stuff (lines, words, region, etc...) around
 (use-package drag-stuff
@@ -172,8 +175,10 @@
 
 ;; Increase selected region by semantic units
 (use-package expand-region
-  :bind (("C-c +" . er/expand-region)
-         ("C-c -" . er/contract-region)))
+  :config
+  (map! :leader
+        :m "=" #'er/expand-region
+        :m "-" #'er/contract-region))
 
 ;; Multiple cursors
 (use-package multiple-cursors
@@ -286,8 +291,11 @@ The return value is the new value of LIST-VAR."
   :config
   ;; Disable in some modes
   (dolist (mode '(gitconfig-mode
-                  asm-mode web-mode html-mode css-mode
-                  go-mode scala-mode
+                  asm-mode web-mode html-mode
+                  css-mode css-ts-mode
+                  go-mode go-ts-mode
+                  python-ts-mode yaml-ts-mode
+                  scala-mode
                   shell-mode term-mode vterm-mode
                   prolog-inferior-mode))
     (add-to-list 'aggressive-indent-excluded-modes mode))
@@ -330,25 +338,39 @@ The return value is the new value of LIST-VAR."
         avy-background t
         avy-style 'pre)
 
+  ;; Kill text between the point and the character CHAR
+  (use-package avy-zap)
+
   (map! :leader
     (:prefix-map ("j" . "jump")
-     :desc "goto char" "c" #'avy-goto-char
-     :desc "goto char 2" "C" #'avy-goto-char-2
-     :desc "goto word 0" "w" #'avy-goto-word-0
-     :desc "goto word 1" "W" #'avy-goto-word-1
-     :desc "goto line"   "g" #'avy-goto-line
-     :desc "goto char in line"  "G" #'avy-goto-char-in-line)))
+     :desc "avy goto char timer"         "/" #'avy-goto-char-timer
+     :desc "goto end of line"            "e" #'avy-goto-end-of-line
+     :desc "goto line"                   "g" #'avy-goto-line
+     :desc "goto char in line"           "G" #'avy-goto-char-in-line
+     :desc "goto char"                   "j" #'avy-goto-char
+     :desc "goto char 2"                 "J" #'avy-goto-char-2
+     :desc "kill char dwin"              "k" #'avy-zap-to-char-dwim
+     :desc "kill up to char dwin"        "K" #'avy-zap-up-to-char-dwim
+     :desc "goto goto symbol"            "s" #'avy-goto-symbol-1
+     :desc "current goto char timer"     "SPC" (cmd! (let ((current-prefix-arg t)) (avy-goto-char-timer)))
+     :desc "goto word 0"                 "w" #'avy-goto-word-0
+     :desc "goto word 1"                 "W" #'avy-goto-word-1)))
 
-;; Kill text between the point and the character CHAR
-(use-package avy-zap
-  :bind (("M-z" . avy-zap-to-char-dwim)
-         ("M-Z" . avy-zap-up-to-char-dwim)))
 
 ;; Quickly follow links
 (use-package link-hint
-  :bind (("M-o" . link-hint-open-link)
-         ("C-c l o" . link-hint-open-link)
-         ("C-c l c" . link-hint-copy-link)))
+  :bind (("M-s M-o" . link-hint-open-link)
+         ("M-s M-c" . link-hint-copy-link))
+  :init
+  (with-eval-after-load 'embark
+    (setq link-hint-action-fallback-commands
+          (list :open (lambda ()
+                        (condition-case _
+                            (progn
+                              (embark-dwim)
+                              t)
+                          (error
+                           nil)))))))
 
 ;; Jump to Chinese characters
 (use-package ace-pinyin

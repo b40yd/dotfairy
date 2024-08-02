@@ -133,9 +133,9 @@
 
 (when (or IS-MAC IS-LINUX (daemonp))
   (use-package exec-path-from-shell
+    :custom (exec-path-from-shell-arguments '("-l"))
     :init
-    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "PYTHONPATH" "JAVA_HOME" "MAVEN_HOME")
-          exec-path-from-shell-arguments '("-l"))
+    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "PYTHONPATH" "JAVA_HOME" "MAVEN_HOME"))
     (exec-path-from-shell-initialize)))
 
 ;; Start server
@@ -241,7 +241,7 @@
   (use-package emacsql-sqlite-builtin))
 
 ;; Child frame
-(when (childframe-completion-workable-p)
+(when (childframe-workable-p)
   (use-package posframe
     :hook (after-load-theme . posframe-delete-all)
     :init

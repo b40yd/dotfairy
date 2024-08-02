@@ -75,7 +75,7 @@
    (require 'init-vertico)))
 (require 'init-completion)
 
-(require 'init-autoinsert)
+(require 'init-template)
 
 ;; Tools
 (require 'init-ligatures)

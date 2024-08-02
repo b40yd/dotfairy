@@ -50,7 +50,7 @@
   :hook ((js2-mode . js2-imenu-extras-mode)
          (js2-mode . js2-highlight-unused-variables-mode))
   :config
-  (set-ligatures! mode
+  (set-ligatures! '(js2-mode js-mode js-ts-mode js2-jsx-mode)
     ;; Functional
     :def "function"
     :lambda "() =>"
@@ -92,7 +92,13 @@
     (diminish 'skewer-html-mode)))
 
 (use-package typescript-mode
-  :mode ("\\.ts[x]\\'" . typescript-mode))
+  :mode ("\\.ts[x]\\'" . typescript-mode)
+  :config
+  (use-package tide
+    :ensure t
+    :hook ((typescript-mode . tide-setup)
+           (typescript-mode . tide-hl-identifier-mode)
+           (before-save . tide-format-before-save))))
 
 ;; Run Mocha or Jasmine tests
 (use-package mocha

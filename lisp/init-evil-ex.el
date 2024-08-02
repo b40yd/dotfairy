@@ -24,6 +24,14 @@
 
 ;;; Code:
 
+(defvar +evil-preprocessor-regexp "^\\s-*#[a-zA-Z0-9_]"
+  "The regexp used by `+evil/next-preproc-directive' and
+`+evil/previous-preproc-directive' on ]# and [#, to jump between preprocessor
+directives. By default, this only recognizes C directives.")
+
+(defvar +evil-want-move-window-to-wrap-around nil
+  "If non-nil, `+evil/window-move-*' commands will wrap around.")
+
 ;;;###autoload
 (defun +evil/next-beginning-of-method (count)
   "Jump to the beginning of the COUNT-th method/function after point."
@@ -226,33 +234,47 @@ replacing its contents."
      (save-excursion (goto-char beg) (point-marker))
      end)))
   ;;;###autoload
-(defun +evil--window-swap (direction)
+(defun +evil--window-swap (direction &optional invert-wrap?)
   "Move current window to the next window in DIRECTION.
 If there are no windows there and there is only one window, split in that
 direction and place this window there. If there are no windows and this isn't
-the only window, use evil-window-move-* (e.g. `evil-window-move-far-left')."
+the only window, uses evil-window-move-* (e.g. `evil-window-move-far-left').
+If already at the edge of the frame and `+evil-want-move-window-to-wrap-around'
+is non-nil, move the window to the other end of the frame. Inverts
+`+evil-want-move-window-to-wrap-around' if INVERT-WRAP? is non-nil."
+  (unless (memq direction '(left right up down))
+    (user-error "Invalid direction: %s" direction))
   (when (window-dedicated-p)
     (user-error "Cannot swap a dedicated window"))
   (let* ((this-window (selected-window))
-         (this-buffer (current-buffer))
          (that-window (window-in-direction direction nil this-window))
          (that-buffer (window-buffer that-window)))
     (when (or (minibufferp that-buffer)
               (window-dedicated-p this-window))
       (setq that-buffer nil that-window nil))
     (if (not (or that-window (one-window-p t)))
-        (funcall (pcase direction
-                   ('left  #'evil-window-move-far-left)
-                   ('right #'evil-window-move-far-right)
-                   ('up    #'evil-window-move-very-top)
-                   ('down  #'evil-window-move-very-bottom)))
+        (if (and (window-at-side-p
+                  this-window (pcase direction ('up 'top) ('down 'bottom) (_ direction)))
+                 (not (cl-loop for dir in (if (memq direction '(left right))
+                                              '(up down) '(left right))
+                               if (window-in-direction dir nil this-window)
+                               return t)))
+            (if (funcall (if invert-wrap? #'not #'identity) +evil-want-move-window-to-wrap-around)
+                (call-interactively
+                 (pcase direction
+                   ('left  #'evil-window-move-far-right)
+                   ('right #'evil-window-move-far-left)
+                   ('up    #'evil-window-move-very-bottom)
+                   ('down  #'evil-window-move-very-top)))
+              (user-error "Window is already at the edge"))
+          (call-interactively
+           (pcase direction
+             ('left  #'evil-window-move-far-left)
+             ('right #'evil-window-move-far-right)
+             ('up    #'evil-window-move-very-top)
+             ('down  #'evil-window-move-very-bottom))))
       (unless that-window
-        (setq that-window
-              (split-window this-window nil
-                            (pcase direction
-                              ('up 'above)
-                              ('down 'below)
-                              (_ direction))))
+        (setq that-window (split-window this-window nil direction))
         (with-selected-window that-window
           (switch-to-buffer (dotfairy-fallback-buffer)))
         (setq that-buffer (window-buffer that-window)))
@@ -260,26 +282,30 @@ the only window, use evil-window-move-* (e.g. `evil-window-move-far-left')."
       (select-window that-window))))
 
 ;;;###autoload
-(defun +evil/window-move-left ()
+(defun +evil/window-move-left (&optional arg)
   "Swap windows to the left."
-  (interactive) (+evil--window-swap 'left))
+  (interactive "P")
+  (+evil--window-swap 'left (or arg +evil-want-move-window-to-wrap-around)))
 ;;;###autoload
-(defun +evil/window-move-right ()
+(defun +evil/window-move-right (&optional arg)
   "Swap windows to the right"
-  (interactive) (+evil--window-swap 'right))
+  (interactive "P")
+  (+evil--window-swap 'right (or arg +evil-want-move-window-to-wrap-around)))
 ;;;###autoload
-(defun +evil/window-move-up ()
+(defun +evil/window-move-up (&optional arg)
   "Swap windows upward."
-  (interactive) (+evil--window-swap 'up))
+  (interactive "P")
+  (+evil--window-swap 'up (or arg +evil-want-move-window-to-wrap-around)))
 ;;;###autoload
-(defun +evil/window-move-down ()
+(defun +evil/window-move-down (&optional arg)
   "Swap windows downward."
-  (interactive) (+evil--window-swap 'down))
+  (interactive "P")
+  (+evil--window-swap 'down (or arg +evil-want-move-window-to-wrap-around)))
 
 ;;;###autoload
 (defun +evil/window-split-and-follow ()
   "Split current window horizontally, then focus new window.
-If `evil-split-window-below' is non-nil, the new window isn't focused."
+  If `evil-split-window-below' is non-nil, the new window isn't focused."
   (interactive)
   (let ((evil-split-window-below (not evil-split-window-below)))
     (call-interactively #'evil-window-split)))
@@ -287,11 +313,26 @@ If `evil-split-window-below' is non-nil, the new window isn't focused."
 ;;;###autoload
 (defun +evil/window-vsplit-and-follow ()
   "Split current window vertically, then focus new window.
-If `evil-vsplit-window-right' is non-nil, the new window isn't focused."
+  If `evil-vsplit-window-right' is non-nil, the new window isn't focused."
   (interactive)
   (let ((evil-vsplit-window-right (not evil-vsplit-window-right)))
     (call-interactively #'evil-window-vsplit)))
+
+(after! evil
+  (evil-set-initial-state 'bongo-library-mode 'emacs))
+
 (map!
+ ;; ported from vim-unimpaired
+ :n  "] SPC" #'+evil/insert-newline-below
+ :n  "[ SPC" #'+evil/insert-newline-above
+ :n  "]b"    #'next-buffer
+ :n  "[b"    #'previous-buffer
+ :n  "]f"    #'+evil/next-file
+ :n  "[f"    #'+evil/previous-file
+ :m  "]u"    #'+evil:url-encode
+ :m  "[u"    #'+evil:url-decode
+ :m  "]y"    #'+evil:c-string-encode
+ :m  "[y"    #'+evil:c-string-decode
  ;; custom vim-unmpaired-esque keys
  :m  "]#"    #'+evil/next-preproc-directive
  :m  "[#"    #'+evil/previous-preproc-directive
@@ -309,6 +350,15 @@ If `evil-vsplit-window-right' is non-nil, the new window isn't focused."
  :n  "]o"    #'+evil/insert-newline-below
  :n  "gp"    #'+evil/reselect-paste
  :v  "gp"    #'+evil/alt-paste
+ :nv "gO"    #'imenu
+ :n  "g="    #'evil-numbers/inc-at-pt
+ :n  "g-"    #'evil-numbers/dec-at-pt
+ :v  "g="    #'evil-numbers/inc-at-pt-incremental
+ :v  "g-"    #'evil-numbers/dec-at-pt-incremental
+ :v  "g+"    #'evil-numbers/inc-at-pt
+ ;; custom evil keybinds
+ :n  "zx"    #'kill-current-buffer
+ :n  "ZX"    #'dotfairy/save-and-kill-buffer
  ;; don't leave visual mode after shifting
  :v  "<"     #'+evil/shift-left  ; vnoremap < <gv
  :v  ">"     #'+evil/shift-right  ; vnoremap > >gv
@@ -328,7 +378,16 @@ If `evil-vsplit-window-right' is non-nil, the new window isn't focused."
   "J"       #'+evil/window-move-down
   "K"       #'+evil/window-move-up
   "L"       #'+evil/window-move-right
-  "C-S-w"   #'ace-swap-window))
+  "C-S-w"   #'ace-swap-window)
+ ;; Window undo/redo
+ "C-u"     #'winner-undo
+ "C-r"     #'winner-redo
+
+ ;; evil-surround
+ :v "S" #'evil-surround-region
+ :o "s" #'evil-surround-edit
+ :o "S" #'evil-Surround-edit
+ )
 
 (provide 'init-evil-ex)
 ;;; init-evil-ex.el ends here

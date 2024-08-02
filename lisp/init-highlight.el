@@ -29,31 +29,39 @@
 
 
 ;; Colorize color names in buffers
-(use-package rainbow-mode
-  :diminish
-  :defines helpful-mode-map
-  :hook ((html-mode css-mode php-mode helpful-mode) . rainbow-mode)
-  :bind (:map special-mode-map
-         ("w" . rainbow-mode))
-  :init (with-eval-after-load 'helpful
-          (bind-key "w" #'rainbow-mode helpful-mode-map))
-  :config
-  (with-no-warnings
-    ;; HACK: Use overlay instead of text properties to override `hl-line' faces.
-    ;; @see https://emacs.stackexchange.com/questions/36420
-    (defun my-rainbow-colorize-match (color &optional match)
-      (let* ((match (or match 0))
-             (ov (make-overlay (match-beginning match) (match-end match))))
-        (overlay-put ov 'ovrainbow t)
-        (overlay-put ov 'face `((:foreground ,(if (> 0.5 (rainbow-x-color-luminance color))
-                                                  "white" "black"))
-                                (:background ,color)))))
-    (advice-add #'rainbow-colorize-match :override #'my-rainbow-colorize-match)
+(if emacs/28
+    (use-package colorful-mode
+      :diminish
+      ;; :hook (after-init . global-colorful-mode)
+      :init (setq colorful-use-prefix t
+                  colorful-prefix-string "⬤")
+      :config (dolist (mode '(html-mode php-mode help-mode helpful-mode))
+                (add-to-list 'global-colorful-modes mode)))
+  (use-package rainbow-mode
+    :diminish
+    :defines helpful-mode-map
+    :hook ((html-mode css-mode php-mode helpful-mode) . rainbow-mode)
+    :bind (:map special-mode-map
+           ("w" . rainbow-mode))
+    :init (with-eval-after-load 'helpful
+            (bind-key "w" #'rainbow-mode helpful-mode-map))
+    :config
+    (with-no-warnings
+      ;; HACK: Use overlay instead of text properties to override `hl-line' faces.
+      ;; @see https://emacs.stackexchange.com/questions/36420
+      (defun my-rainbow-colorize-match (color &optional match)
+        (let* ((match (or match 0))
+               (ov (make-overlay (match-beginning match) (match-end match))))
+          (overlay-put ov 'ovrainbow t)
+          (overlay-put ov 'face `((:foreground ,(if (> 0.5 (rainbow-x-color-luminance color))
+                                                    "white" "black"))
+                                  (:background ,color)))))
+      (advice-add #'rainbow-colorize-match :override #'my-rainbow-colorize-match)
 
-    (defun my-rainbow-clear-overlays ()
-      "Clear all rainbow overlays."
-      (remove-overlays (point-min) (point-max) 'ovrainbow t))
-    (advice-add #'rainbow-turn-off :after #'my-rainbow-clear-overlays)))
+      (defun my-rainbow-clear-overlays ()
+        "Clear all rainbow overlays."
+        (remove-overlays (point-min) (point-max) 'ovrainbow t))
+      (advice-add #'rainbow-turn-off :after #'my-rainbow-clear-overlays))))
 
 ;; Color picker https://github.com/ncruces/zenity/releases
 ;; Emacs not support xwidgets use zenity.
@@ -72,44 +80,104 @@
 
 ;; Highlight TODO
 (use-package hl-todo
-  :hook (after-init . global-hl-todo-mode)
-  :init (setq hl-todo-require-punctuation t
-              hl-todo-highlight-punctuation ":")
+  :defer t
+  :hook (prog-mode . hl-todo-mode)
+  :hook (yaml-mode . hl-todo-mode)
+  :commands (hl-todo-rg-project hl-todo-rg)
+  :init
+  (map! :after hl-todo
+        :map hl-todo-mode-map
+        :leader
+        :prefix "c"
+        (:prefix-map ("k" . "keywords")
+         :desc "Previous" "p" #'hl-todo-previous
+         :desc "Next" "n" #'hl-todo-next
+         :desc "Occur" "o" #'hl-todo-occur
+         :desc "Insert" "i" #'hl-todo-insert
+         :desc "Search" "s" #'hl-todo-rg
+         :desc "Search project" "p" #'hl-todo-rg-project))
   :config
-  (dolist (keyword '("BUG" "DEFECT" "ISSUE"))
-    (add-to-list 'hl-todo-keyword-faces `(,keyword . "#e45649")))
-  (dolist (keyword '("HACK" "TRICK" "WORKAROUND"))
-    (add-to-list 'hl-todo-keyword-faces `(,keyword . "#d0bf8f")))
-  (dolist (keyword '("DEBUG" "STUB"))
-    (add-to-list 'hl-todo-keyword-faces `(,keyword . "#7cb8bb")))
+  (setq hl-todo-highlight-punctuation ":"
+        hl-todo-keyword-faces
+        '(;; For reminders to change or add something at a later date.
+          ("TODO" warning bold)
+          ;; For code (or code paths) that are broken, unimplemented, or slow,
+          ;; and may become bigger problems later.
+          ("FIXME" error bold)
+          ;; For code that needs to be revisited later, either to upstream it,
+          ;; improve it, or address non-critical issues.
+          ("REVIEW" font-lock-keyword-face bold)
+          ;; For code smells where questionable practices are used
+          ;; intentionally, and/or is likely to break in a future update.
+          ("HACK" font-lock-constant-face bold)
+          ;; For sections of code that just gotta go, and will be gone soon.
+          ;; Specifically, this means the code is deprecated, not necessarily
+          ;; the feature it enables.
+          ("DEPRECATED" font-lock-doc-face bold)
+          ;; Extra keywords commonly found in the wild, whose meaning may vary
+          ;; from project to project.
+          ("NOTE" success bold)
+          ("BUG" error bold)
+          ("ISSUE" font-lock-constant-face bold)))
+
+
+  (defadvice! +hl-todo-clamp-font-lock-fontify-region-a (fn &rest args)
+    "Fix an `args-out-of-range' error in some modes."
+    :around #'hl-todo-mode
+    (letf! (defun font-lock-fontify-region (beg end &optional loudly)
+             (funcall font-lock-fontify-region (max beg 1) end loudly))
+      (apply fn args)))
+
+  ;; Use a more primitive todo-keyword detection method in major modes that
+  ;; don't use/have a valid syntax table entry for comments.
+  (add-hook! '(pug-mode-hook haml-mode-hook)
+    (defun +hl-todo--use-face-detection-h ()
+      "Use a different, more primitive method of locating todo keywords."
+      (set (make-local-variable 'hl-todo-keywords)
+           '(((lambda (limit)
+                (let (case-fold-search)
+                  (and (re-search-forward hl-todo-regexp limit t)
+                       (memq 'font-lock-comment-face (ensure-list (get-text-property (point) 'face))))))
+              (1 (hl-todo-get-face) t t))))
+      (when hl-todo-mode
+        (hl-todo-mode -1)
+        (hl-todo-mode +1))))
+  (defun hl-todo-rg (regexp &optional files dir)
+    "Use `rg' to find all TODO or similar keywords."
+    (interactive
+     (progn
+       (unless (require 'rg nil t)
+         (error "`rg' is not installed"))
+       (let ((regexp (replace-regexp-in-string "\\\\[<>]*" "" (hl-todo--regexp))))
+         (list regexp
+               (rg-read-files)
+               (read-directory-name "Base directory: " nil default-directory t)))))
+    (rg regexp files dir))
+
   (defun hl-todo-rg-project ()
     "Use `rg' to find all TODO or similar keywords in current project."
     (interactive)
     (unless (require 'rg nil t)
       (error "`rg' is not installed"))
     (rg-project (replace-regexp-in-string "\\\\[<>]*" "" (hl-todo--regexp)) "everything"))
-  (map! :localleader
-        :map hl-todo-mode-map
-        (:prefix ("t" . "TODO")
-         "C-o" #'hl-todo-occur
-         "C-p" #'hl-todo-previous
-         "C-n" #'hl-todo-next
-         "C-o" #'hl-todo-occur
-         "C-r" #'hl-todo-rg-project
-         "C-i" #'hl-todo-insert)))
+  )
 
 ;; Highlight uncommitted changes using VC
 (use-package diff-hl
   :custom (diff-hl-draw-borders nil)
+  :commands diff-hl-stage-current-hunk diff-hl-revert-hunk diff-hl-next-hunk diff-hl-previous-hunk
   :custom-face
   (diff-hl-change ((t (:inherit custom-changed :foreground unspecified :background unspecified))))
   (diff-hl-insert ((t (:inherit diff-added :background unspecified))))
   (diff-hl-delete ((t (:inherit diff-removed :background unspecified))))
   :bind (:map diff-hl-command-map
          ("SPC" . diff-hl-mark-hunk))
-  :hook ((after-init . global-diff-hl-mode)
-         (after-init . global-diff-hl-show-hunk-mouse-mode)
-         (dired-mode . diff-hl-dired-mode))
+  :hook ((after-init   . global-diff-hl-mode)
+         (after-init   . global-diff-hl-show-hunk-mouse-mode)
+         (vc-dir-mode  . diff-hl-dir-mode)
+         (find-file    . diff-hl-mode)
+         (diff-hl-mode . diff-hl-flydiff-mode)
+         (dired-mode   . diff-hl-dired-mode))
   :config
   ;; Highlight on-the-fly
   (diff-hl-flydiff-mode 1)
@@ -170,8 +238,7 @@
                    aw-select toggle-window-split
                    windmove-do-window-select
                    pager-page-down pager-page-up
-                   treemacs-select-window
-                   symbol-overlay-basic-jump))
+                   treemacs-select-window))
       (advice-add cmd :after #'my-pulse-momentary-line))
 
     (dolist (cmd '(pop-to-mark-command

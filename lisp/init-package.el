@@ -115,42 +115,6 @@
           auto-package-update-hide-results t)
     (defalias 'package-upgrade-all #'auto-package-update-now)))
 
-;; Update
-(defun update-config ()
-  "Update Dotfairy Emacs configurations to the latest version."
-  (interactive)
-  (let ((dir (expand-file-name user-emacs-directory)))
-    (unless (file-exists-p dir)
-      (user-error "\"%s\" doesn't exist" dir))
-
-    (message "Updating configurations...")
-    (cd dir)
-    (shell-command "git pull")
-    (message "Updating configurations...done")))
-(defalias 'dotfairy/update-config #'update-config)
-
-(defun update-packages ()
-  "Refresh package contents and update all packages."
-  (interactive)
-  (message "Updating packages...")
-  (package-update-all)
-  (message "Updating packages...done"))
-(defalias 'dotfairy/update-packages #'update-packages)
-
-(defun update-config-and-packages()
-  "Update confgiurations and packages."
-  (interactive)
-  (update-config)
-  (update-packages))
-(defalias 'dotfairy/update #'update-config-and-packages)
-
-(defun update-all()
-  "Update dotfiles, org files, configurations and packages to the latest."
-  (interactive)
-  (update-org)
-  (update-config-and-packages))
-(defalias 'dotfairy/update-all #'update-all)
-
 (defun dotfairy/try-get-org-remote-repository ()
   "Download org remote repository."
   (interactive)
@@ -176,7 +140,6 @@
           (message "Updating Org files...done"))
       (dotfairy/try-get-org-remote-repository))))
 (defalias 'dotfairy/update-org #'update-org)
-
 
 (provide 'init-package)
 ;;; init-package.el ends here

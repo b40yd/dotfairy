@@ -262,6 +262,7 @@
             gnus-article-mode devdocs-mode
             grep-mode occur-mode rg-mode deadgrep-mode ag-mode pt-mode
             youdao-dictionary-mode osx-dictionary-mode fanyi-mode
+            "^\\*gt-result\\*$" "^\\*gt-log\\*$"
 
             "^\\*Process List\\*$" process-menu-mode
             list-environment-mode cargo-process-mode
@@ -315,11 +316,17 @@
       (defun popper-close-window-hack (&rest _)
         "Close popper window via `C-g'."
         ;; `C-g' can deactivate region
-        (when (and (called-interactively-p 'interactive)
-                   (not (region-active-p))
-                   popper-open-popup-alist)
-          (let ((window (caar popper-open-popup-alist)))
-            (when (window-live-p window)
+        (when (and ;(called-interactively-p 'interactive)
+               (not (region-active-p))
+               popper-open-popup-alist)
+          (when-let ((window (caar popper-open-popup-alist))
+                     (buffer (cdar popper-open-popup-alist)))
+            (when (and (with-current-buffer buffer
+                         (not (derived-mode-p 'ehell-mode
+                                              'shell-mode
+                                              'term-mode
+                                              'vterm-mode)))
+                       (window-live-p window))
               (delete-window window)))))
       (advice-add #'keyboard-quit :before #'popper-close-window-hack))))
 

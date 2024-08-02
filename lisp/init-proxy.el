@@ -28,36 +28,36 @@
 (defvar socks-server)
 
 ;; Network Proxy
-(defun dotfairy/proxy-http-show ()
+(defun dotfairy/show-http-proxy ()
   "Show HTTP/HTTPS proxy."
   (interactive)
   (if url-proxy-services
       (message "Current HTTP proxy is `%s'" dotfairy-proxy)
     (message "No HTTP proxy")))
 
-(defun dotfairy/proxy-http-enable ()
+(defun dotfairy/enable-http-proxy ()
   "Enable HTTP/HTTPS proxy."
   (interactive)
   (setq url-proxy-services
         `(("http" . ,dotfairy-proxy)
           ("https" . ,dotfairy-proxy)
           ("no_proxy" . "^\\(localhost\\|192.168.*\\|10.*\\)")))
-  (dotfairy/proxy-http-show))
+  (dotfairy/show-http-proxy))
 
-(defun dotfairy/proxy-http-disable ()
+(defun dotfairy/disable-http-proxy ()
   "Disable HTTP/HTTPS proxy."
   (interactive)
   (setq url-proxy-services nil)
-  (dotfairy/proxy-http-show))
+  (dotfairy/show-http-proxy))
 
-(defun dotfairy/proxy-http-toggle ()
+(defun dotfairy/toggle-http-proxy ()
   "Toggle HTTP/HTTPS proxy."
   (interactive)
   (if (bound-and-true-p url-proxy-services)
-      (dotfairy/proxy-http-disable)
-    (dotfairy/proxy-http-enable)))
+      (dotfairy/disable-http-proxy)
+    (dotfairy/enable-http-proxy)))
 
-(defun dotfairy/proxy-socks-show ()
+(defun dotfairy/show-socks-proxy ()
   "Show SOCKS proxy."
   (interactive)
   (if (bound-and-true-p socks-noproxy)
@@ -65,33 +65,52 @@
                (cadddr socks-server) (cadr socks-server) (caddr socks-server))
     (message "No SOCKS proxy")))
 
-(defun dotfairy/proxy-socks-enable ()
+(defun dotfairy/enable-socks-proxy ()
   "Enable SOCKS proxy."
   (interactive)
   (require 'socks)
-  (let* ((proxy (split-string dotfairy-proxy "\\s-*:\\s-*"))
-         (addr (car proxy))
+  (setq url-gateway-method 'socks
+        socks-noproxy '("localhost"))
+  (let* ((proxy (split-string dotfairy-socks-proxy ":"))
+         (host (car proxy))
          (port (string-to-number (cadr proxy))))
-    (setq url-gateway-method 'socks
-          socks-noproxy '("localhost")
-          socks-server `("Default server" ,addr ,port 5)))
-  (setenv "all_proxy" (concat "socks5://" dotfairy-proxy))
-  (dotfairy/proxy-socks-show))
+    (setq socks-server `("Default server" ,host ,port 5)))
+  (setenv "all_proxy" (concat "socks5://" dotfairy-socks-proxy))
+  (dotfairy/show-socks-proxy))
 
-(defun dotfairy/proxy-socks-disable ()
+(defun dotfairy/disable-socks-proxy ()
   "Disable SOCKS proxy."
   (interactive)
   (setq url-gateway-method 'native
-        socks-noproxy nil)
+        socks-noproxy nil
+        socks-server nil)
   (setenv "all_proxy" "")
-  (dotfairy/proxy-socks-show))
+  (dotfairy/show-socks-proxy))
 
-(defun dotfairy/proxy-socks-toggle ()
+(defun dotfairy/toggle-socks-proxy ()
   "Toggle SOCKS proxy."
   (interactive)
-  (if (bound-and-true-p socks-noproxy)
-      (dotfairy/proxy-socks-disable)
-    (dotfairy/proxy-socks-enable)))
+  (if (bound-and-true-p socks-server)
+      (dotfairy/disable-socks-proxy)
+    (dotfairy/enable-socks-proxy)))
+
+(defun dotfairy/enable-proxy ()
+  "Enbale proxy."
+  (interactive)
+  (dotfairy/enable-http-proxy)
+  (dotfairy/enable-socks-proxy))
+
+(defun dotfairy/disable-proxy ()
+  "Disable proxy."
+  (interactive)
+  (dotfairy/disable-http-proxy)
+  (dotfairy/disable-socks-proxy))
+
+(defun dotfairy/toggle-proxy ()
+  "Toggle proxy."
+  (interactive)
+  (dotfairy/toggle-http-proxy)
+  (dotfairy/toggle-socks-proxy))
 
 (provide 'init-proxy)
 ;;; init-proxy.el ends here

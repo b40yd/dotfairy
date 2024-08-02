@@ -122,8 +122,8 @@
 
 
 ;; setting proxy
-;; (dotfairy/proxy-http-toggle)
-;; (dotfairy/proxy-socks-toggle)
+;; (dotfairy/toggle-http-proxy)
+;; (dotfairy/toggle-socks-proxy)
 
 ;; (byte-recompile-directory package-user-dir 0 0) ;
 ;;; config.el ends here

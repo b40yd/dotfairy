@@ -66,13 +66,14 @@
    :desc "LSP Rename"                          "r" #'lsp-rename
    :desc "Symbols"                             "S" #'lsp-treemacs-symbols
    (:when (eq dotfairy-complete 'vertico)
-    :desc "Jump to symbol in current workspace" "j"   #'consult-lsp-symbols
-    :desc "Jump to symbol in any workspace"     "J"   (cmd!! #'consult-lsp-symbols 'all-workspaces))
-   :desc "Errors list"                         "X"   #'lsp-treemacs-errors-list
-   :desc "Incoming call hierarchy"             "y"   #'lsp-treemacs-call-hierarchy
-   :desc "Outgoing call hierarchy"             "Y"   (cmd!! #'lsp-treemacs-call-hierarchy t)
-   :desc "References tree"                     "R"   (cmd!! #'lsp-treemacs-references t)
-   :desc "Symbols"                             "S"   #'lsp-treemacs-symbols
+    :desc "Jump to symbol in current workspace" "j" #'consult-lsp-symbols
+    :desc "Jump to symbol in any workspace"     "J" (cmd!! #'consult-lsp-symbols 'all-workspaces))
+   :desc "Lsp ui imenu"                        "u" #'lsp-ui-imenu
+   :desc "Errors list"                         "X" #'lsp-treemacs-errors-list
+   :desc "Incoming call hierarchy"             "y" #'lsp-treemacs-call-hierarchy
+   :desc "Outgoing call hierarchy"             "Y" (cmd!! #'lsp-treemacs-call-hierarchy t)
+   :desc "References tree"                     "R" (cmd!! #'lsp-treemacs-references t)
+   :desc "Symbols"                             "S" #'lsp-treemacs-symbols
    :desc "LSP"                                 "l" #'+default/lsp-command-map
    :desc "Compile or Recompile"                "c" #'+default/compile
    :desc "Remember init"                       "." #'remember-init
@@ -127,10 +128,8 @@
    :desc "Magit fetch"               "F"   #'magit-fetch
    :desc "Magit buffer log"          "L"   #'magit-log-buffer-file
    :desc "Git stage this file"       "S"   #'magit-stage-buffer-file
-   :desc "Git unstage this file"     "U"   #'magit-unstage-file
+   :desc "Git unstage this file"     "U"   #'magit-unstage-buffer-file
    :desc "Git time machine"          "t"   #'git-timemachine-toggle
-   :desc "Git messager"              "m"   #'git-messenger:popup-message
-   :desc "SMerge"                    "M"   #'smerge-mode-hydra/body
    (:prefix ("f" . "find")
     :desc "Find file"                 "f"   #'magit-find-file
     :desc "Find gitconfig file"       "g"   #'magit-find-git-config-file
@@ -314,12 +313,11 @@
 
   ;;; <leader> t --- toggle
   (:prefix-map ("t" . "toggle")
-   :desc "Flymake"                      "f" #'flymake-mode
-   :desc "Indent style"                 "I" #'dotfairy/toggle-indent-style
-   :desc "Line numbers"                 "l" #'dotfairy/toggle-line-numbers
-   :desc "Read-only mode"               "r" #'read-only-mode
-   :desc "Visible mode"                 "v" #'visible-mode
-   :desc "Soft line wrapping"           "w" #'+word-wrap-mode)
+   :desc "Toggle indent style"                 "I" #'dotfairy/toggle-indent-style
+   :desc "Toggle line numbers"                 "l" #'dotfairy/toggle-line-numbers
+   :desc "Toggle read only mode"               "r" #'read-only-mode
+   :desc "Toggle visible mode"                 "v" #'visible-mode
+   :desc "Toggle word wrap"           "w" #'+word-wrap-mode)
 
   ;;; <leader> w --- workspaces/windows
   (:prefix-map ("w" . "workspaces/windows")

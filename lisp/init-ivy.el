@@ -245,7 +245,7 @@ If ARG (universal argument), open selection in other-window."
                               ((string= substr "|")
                                "\\\\\\\\|")
                               ((concat "\\\\" substr))))
-              (rxt-quote-pcre (dotfairy-thing-at-point-or-region)))
+              (dotfairy-pcre-quote (dotfairy-thing-at-point-or-region)))
              (ivy-thing-at-point)))
        directory args
        (or prompt

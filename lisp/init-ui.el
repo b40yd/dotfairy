@@ -95,8 +95,20 @@
          ("<f6>" . doom-modeline-hydra/body))
   :hook (after-init . doom-modeline-mode)
   :init
+  ;; We display project info in the modeline ourselves
+  (setq projectile-dynamic-mode-line nil)
+
   (setq doom-modeline-icon display-icon
-        doom-modeline-minor-modes t)
+        doom-modeline-bar-width 3
+        doom-modeline-github nil
+        doom-modeline-mu4e nil
+        doom-modeline-persp-name nil
+        doom-modeline-minor-modes nil
+        doom-modeline-major-mode-icon nil
+        doom-modeline-buffer-file-name-style 'relative-from-project
+        ;; Only show file encoding if it's non-UTF-8 and different line endings
+        ;; than the current OSes preference
+        doom-modeline-buffer-encoding 'nondefault)
   :config
 ;;;###autoload
   (defun +modeline-update-env-in-all-windows-h (&rest _)
@@ -223,7 +235,7 @@
       "disable"
       :toggle (eq doom-modeline-project-detection nil)))
     "Misc"
-    (("g" (progn
+    (("n" (progn
             (message "Fetching GitHub notifications...")
             (run-with-timer 300 nil #'doom-modeline--github-fetch-notifications)
             (browse-url "https://github.com/notifications"))
@@ -232,34 +244,29 @@
               (flycheck-list-errors)
             (flymake-show-diagnostics-buffer))
       "list errors" :exit t)
-     ("O" (if (bound-and-true-p grip-mode)
+     ("w" (if (bound-and-true-p grip-mode)
               (grip-browse-preview)
             (message "Not in preview"))
       "browse preview" :exit t)
-     ("z h" (read-from-minibuffer
-             "Eval: "
-             (format "(setq %s %s)"
-                     'doom-modeline-height
-                     (symbol-value 'doom-modeline-height)))
+     ("z h" (set-from-minibuffer 'doom-modeline-height)
       "set height" :exit t)
-     ("z w" (read-from-minibuffer
-             "Eval: "
-             (format "(setq %s %s)"
-                     'doom-modeline-bar-width
-                     (symbol-value 'doom-modeline-bar-width)))
+     ("z w" (set-from-minibuffer 'doom-modeline-bar-width)
       "set bar width" :exit t)
-     ("z g" (read-from-minibuffer
-             "Eval: "
-             (format "(setq %s %s)"
-                     'doom-modeline-github-interval
-                     (symbol-value 'doom-modeline-github-interval)))
+     ("z g" (set-from-minibuffer 'doom-modeline-github-interval)
       "set github interval" :exit t)
-     ("z n" (read-from-minibuffer
-             "Eval: "
-             (format "(setq %s %s)"
-                     'doom-modeline-gnus-timer
-                     (symbol-value 'doom-modeline-gnus-timer)))
+     ("z n" (set-from-minibuffer 'doom-modeline-gnus-timer)
       "set gnus interval" :exit t)))))
+
+(use-package hide-mode-line
+  :hook (((treemacs-mode
+           eshell-mode shell-mode
+           term-mode vterm-mode
+           embark-collect-mode
+           lsp-ui-imenu-mode
+           pdf-annot-list-mode) . turn-on-hide-mode-line-mode)
+         (dired-mode . (lambda()
+                         (and (bound-and-true-p hide-mode-line-mode)
+                              (turn-off-hide-mode-line-mode))))))
 
 (use-package minions
   :hook (doom-modeline-mode . minions-mode))
@@ -415,7 +422,9 @@ See `display-line-numbers' for what these values mean."
 ;; Display ugly ^L page breaks as tidy horizontal lines
 (use-package page-break-lines
   :diminish
-  :hook (after-init . global-page-break-lines-mode))
+  :hook (after-init . global-page-break-lines-mode)
+  :config (dolist (mode '(dashboard-mode emacs-news-mode))
+            (add-to-list 'page-break-lines-modes mode)))
 
 (use-package whitespace :defer t
   :config

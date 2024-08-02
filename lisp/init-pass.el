@@ -28,5 +28,45 @@
   :config
   (setq pass-username-fallback-on-filename t))
 
+(pcase dotfairy-complete
+  ('ivy
+  ;;;###autoload
+   (defun +pass/ivy (arg)
+     "Complete and act on password store entries."
+     (interactive "P")
+     (ivy-read "Pass: " (password-store-list)
+               :action (if arg
+                           #'password-store-url
+                         #'password-store-copy)
+               :caller '+pass/ivy))
+
+   (after! ivy
+     (ivy-add-actions
+      '+pass/ivy
+      '(("o" password-store-copy "copy password")
+        ("e" password-store-edit "edit entry")
+        ("u" +pass/copy-user "copy username")
+        ("b" password-store-url "open url in browser")
+        ("f" password-store-copy-field "get field")))))
+  ('vertico
+
+  ;;;###autoload
+   (defun +pass/consult (arg pass)
+     "TODO"
+     (interactive
+      (list current-prefix-arg
+            (progn
+              (require 'consult)
+              (consult--read (password-store-list)
+                             :prompt "Pass: "
+                             :sort nil
+                             :require-match t
+                             :category 'pass))))
+     (funcall (if arg
+                  #'password-store-url
+                #'password-store-copy)
+              pass))))
+
+
 (provide 'init-pass)
 ;;; init-pass.el ends here

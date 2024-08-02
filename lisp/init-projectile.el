@@ -45,7 +45,6 @@ debian, and derivatives). On most it's 'fd'.")
         ;; when you need to (`projectile-discover-projects-in-search-path').
         projectile-auto-discover nil
         projectile-enable-caching t
-        projectile-project-search-path '("~/")
         projectile-globally-ignored-files '(".DS_Store" "TAGS")
         projectile-globally-ignored-file-suffixes '(".elc" ".pyc" ".o" ".class")
         projectile-kill-buffers-filter 'kill-only-files
@@ -122,6 +121,8 @@ debian, and derivatives). On most it's 'fd'.")
              treemacs-filewatch-mode
              treemacs-fringe-indicator-mode
              treemacs-git-mode)
+  :custom-face
+  (cfrs-border-color ((t (:inherit posframe-border))))
   :bind (([f8]        . treemacs)
          ("M-0"       . treemacs-select-window)
          ("C-x t 1"   . treemacs-delete-other-windows)
@@ -511,8 +512,14 @@ If DIR is not a project, it will be indexed (but not cached)."
           ((and (bound-and-true-p ivy-mode)
                 (fboundp 'counsel-file-jump))
            (call-interactively #'counsel-file-jump))
-          ((when-let ((pr (project-current nil dir)))
-             (project-find-file-in nil nil pr)))
+          ((when-let* ((project-current-directory-override t)
+                       (pr (project-current t dir)))
+             (condition-case _
+                 (project-find-file-in nil nil pr)
+               ;; FIX: project.el throws errors if DIR is an empty directory,
+               ;;   which is poor UX.
+               (wrong-type-argument
+                (call-interactively #'find-file)))))
           ((call-interactively #'find-file)))))
 
 ;;;###autoload
@@ -635,7 +642,7 @@ input and search the whole buffer for it."
                  (consult-line
                   (replace-regexp-in-string
                    " " "\\\\ "
-                   (rxt-quote-pcre
+                   (dotfairy-pcre-quote
                     (buffer-substring-no-properties start end))))
                (call-interactively #'consult-line)))))))
 
@@ -671,7 +678,7 @@ If prefix ARG is set, include ignored/hidden files."
   "Search current project for symbol at point.
 If prefix ARG is set, prompt for a known project to search from."
   (interactive
-   (list (rxt-quote-pcre (or (dotfairy-thing-at-point-or-region) ""))
+   (list (dotfairy-pcre-quote (or (dotfairy-thing-at-point-or-region) ""))
          (let ((projectile-project-root nil))
            (if current-prefix-arg
                (if-let (projects (projectile-relevant-known-projects))
@@ -689,7 +696,7 @@ If prefix ARG is set, prompt for a known project to search from."
   "Conduct a text search in the current project for symbol at point. If prefix
 ARG is set, prompt for a known project to search from."
   (interactive
-   (list (rxt-quote-pcre (or (dotfairy-thing-at-point-or-region) ""))))
+   (list (dotfairy-pcre-quote (or (dotfairy-thing-at-point-or-region) ""))))
   (require 'org)
   (+default/search-project-for-symbol-at-point
    symbol org-directory))

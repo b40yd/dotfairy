@@ -53,9 +53,10 @@
 ;;;###autoload
 (defun dotfairy-plist-merge (from-plist to-plist)
   "Non-destructively merge FROM-PLIST onto TO-PLIST"
-  (let ((plist (copy-sequence from-plist)))
-    (while plist
-      (plist-put! to-plist (pop plist) (pop plist)))
+  (let ((from-plist (copy-sequence from-plist))
+        (to-plist (copy-sequence to-plist)))
+    (while from-plist
+      (cl-callf plist-put to-plist (pop from-plist) (pop from-plist)))
     to-plist))
 
 ;;;###autoload
@@ -648,8 +649,8 @@ functions or variables. It can be:
 - An unquoted package symbol (the name of a package)
     (after! helm BODY...)
 - An unquoted list of package symbols (i.e. BODY is evaluated once both magit
-  and git-gutter have loaded)
-    (after! (magit git-gutter) BODY...)
+  and diff-hl have loaded)
+    (after! (magit diff-hl) BODY...)
 - An unquoted, nested list of compound package lists, using any combination of
   :or/:any and :and/:all
     (after! (:or package-a package-b ...)  BODY...)
@@ -704,16 +705,6 @@ This is a variadic `cl-pushnew'."
   "Prepend LISTS to SYM in place."
   `(setq ,sym (append ,@lists ,sym)))
 
-;; (defun dotfairy-set-prettify (prettify-alist)
-;;   "Set up symbol prettification."
-;;   (let ((prettify-setup (lambda (alist)
-;;                           (dolist (x alist nil)
-;;                             (push x prettify-symbols-alist)))))
-;;     (funcall prettify-setup dotfairy-prettify-symbols-alist)
-;;     (funcall prettify-setup prettify-alist)
-;;     ;; When you get to the right edge, it goes back to how it normally prints
-;;     (setq prettify-symbols-unprettify-at-point 'right-edge)
-;;     (prettify-symbols-mode)))
 
 ;;;###autoload
 (defun dotfairy-project-browse (dir)
@@ -1127,6 +1118,42 @@ function to prevent the potentially expensive evaluation of its arguments when
 debug mode is off. Return non-nil."
   (declare (debug t))
   `(unless dotfairy-inhibit-log (dotfairy--log ,message ,@args)))
+
+(defun set-from-minibuffer (sym)
+  "Set SYM value from minibuffer."
+  (eval-expression
+   (minibuffer-with-setup-hook
+       (lambda ()
+         (add-function :before-until (local 'eldoc-documentation-function)
+           #'elisp-eldoc-documentation-function)
+         (run-hooks 'eval-expression-minibuffer-setup-hook)
+         (goto-char (minibuffer-prompt-end))
+         (forward-char (length (format "(setq %S " sym))))
+     (read-from-minibuffer
+      "Eval: "
+      (let ((sym-value (symbol-value sym)))
+        (format
+         (if (or (consp sym-value)
+                 (and (symbolp sym-value)
+                      (not (null sym-value))
+                      (not (keywordp sym-value))))
+             "(setq %s '%S)"
+           "(setq %s %S)")
+         sym sym-value))
+      read-expression-map t
+      'read-expression-history))))
+
+;;;###autoload
+(defun dotfairy-pcre-quote (str)
+  "Like `reqexp-quote', but for PCREs."
+  (let ((special '(?. ?^ ?$ ?* ?+ ?? ?{ ?\\ ?\[ ?\| ?\())
+        (quoted nil))
+    (mapc (lambda (c)
+            (when (memq c special)
+              (push ?\\ quoted))
+            (push c quoted))
+          str)
+    (concat (nreverse quoted))))
 
 (provide 'init-funcs)
 ;;; init-funcs.el ends here

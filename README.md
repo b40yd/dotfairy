@@ -4,7 +4,7 @@
 ![Apple](https://img.shields.io/badge/-MacOS-blue?logo=apple&style=flat&logoColor=white)
 ![Windows](https://img.shields.io/badge/-Windows-blue?logo=windows&style=flat&logoColor=white)
 
-Dotfairy is simple configure emacs.d, It's work on GNU/Linux, MacOS and Windows 7 later(Some component functions may not work properly).
+`Dotfairy` is a configuration modified based on [`Doom`](https://github.com/doomemacs/doomemacs) and [`Centaur`](https://github.com/seagle0128/.emacs.d), It's work on GNU/Linux, MacOS and Windows 7 later(Some component functions may not work properly).
 
 ## Feature
 
@@ -62,6 +62,7 @@ Add or change the configurations in `~/dotfairy.d/custom.el`, then restart Emacs
 (setq dotfairy-quelpa-upgrade nil) ; Enable `quelpa-upgrade-p' t or nil
 ;; (setq dotfairy-completion-style 'childframe) ; Completion display style default `childframe', or set `minibuffer'.
 ;; (setq dotfairy-server nil)                      ; Enable `server-mode' or not: t or nil
+(setq dotfairy-keybind-mode 'emacs) ; Enable `vim-like' or `emacs'.
 (setq dotfairy-package-archives 'netease)   ; Package repo: melpa, emacs-china, netease, bfsu, ustc or tuna
 ;; Color theme:
 ;; dotfairy-theme-list
@@ -144,11 +145,31 @@ Add or change the configurations in `~/dotfairy.d/custom.el`, then restart Emacs
   )
 
 ;; setting proxy
-;; (dotfairy/proxy-http-toggle)
-;; (dotfairy/proxy-socks-toggle)
+;; (dotfairy/toggle-http-proxy)
+;; (dotfairy/toggle-socks-proxy)
 
 ;; (byte-recompile-directory package-user-dir 0 0) ;
 
+```
+
+## Python Dev environment.
+
+If you are using `Poetry` and `PyVenv` to manage your project, you might like this setting:
+
+``` shell
+cd your-project && poetry init # poetry new your-project
+python -m venv .venv
+poetry config virtualenvs.in-project true
+```
+
+If you are using `Poetry` and `PyEnv` to manage your project, you might like this setting:
+
+``` shell
+pyenv install 3.12.0
+cd your-project && poetry init # poetry new your-project
+pyenv virtualenv 3.12.0 your-venv
+pyenv activate your-venv # there must activete your venv
+poetry env use $(pyenv which python)
 ```
 
 ## Screenshot
