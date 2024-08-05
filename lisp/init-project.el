@@ -1,4 +1,4 @@
-;;; init-buffers.el ---                           -*- lexical-binding: t; -*-
+;;; init-project.el ---                           -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020-2024 b40yd
 
@@ -382,5 +382,5 @@ If `buffer-file-name' isn't set, uses `default-directory'."
          (abbreviate-file-name path)
        (file-name-nondirectory path)))))
 
-(provide 'init-buffers)
-;;; init-buffers.el ends here
+(provide 'init-project)
+;;; init-project.el ends here

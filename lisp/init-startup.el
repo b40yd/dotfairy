@@ -62,7 +62,7 @@
 
 ;; Project
 (require 'init-ibuffer)
-(require 'init-buffers)
+(require 'init-project)
 (require 'init-windows)
 
 ;; Complete

@@ -261,8 +261,11 @@
   ;;; <leader> s --- search
   (:prefix-map ("s" . "search")
    :desc "Internet Search Engine"           "/" #'webjump
-   :desc "Search symbol point from project" "d" #'+default/search-project-for-symbol-at-point
+   :desc "Search buffer"                    "SPC" #'+default/search-buffer
+   :desc "Search current folder"            "d" #'+default/search-cwd
+   :desc "Search in another directory"      "D" #'+default/search-other-cwd
    :desc "Search project"                   "s" #'+default/search-project
+   :desc "Search symbol point from project" "S" #'+default/search-project-for-symbol-at-point
    :desc "Jump to visible link"             "l" #'link-hint-open-link
    :desc "Jump to link"                     "L" #'ffap-menu
    :desc "Jump to bookmark"                 "m" #'bookmark-jump
