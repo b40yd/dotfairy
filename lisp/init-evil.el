@@ -67,6 +67,7 @@
         (evil-save-state (apply fn args))
       (apply fn args)))
   :config
+  (undefine-key! evil-insert-state-map "C-a" "C-e")
   (after! evil
     (setq evil-default-state 'normal))
   (evil-select-search-module 'evil-search-module 'evil-search)
