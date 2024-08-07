@@ -154,10 +154,11 @@
 
      (add-hook! 'lsp-mode-hook #'+lsp-optimization-mode)
 
-     (if (equal dotfairy-complete 'vertico)
-         (use-package consult-lsp
-           :bind (:map lsp-mode-map
-                  ("C-M-." . consult-lsp-symbols))))
+     (use-package consult-lsp
+       :init
+       (map! :map lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols)
+       :bind (:map lsp-mode-map
+              ("C-M-." . consult-lsp-symbols)))
 
      ;;;###autoload
      (defun +default/lsp-command-map ()
