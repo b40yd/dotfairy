@@ -315,13 +315,15 @@ See URL `https://github.com/minad/consult/issues/770'."
           (if (featurep :system 'windows) "--path-separator=/")))
 
   (consult-customize
+   consult-line consult-line-multi :preview-key 'any
+   consult-buffer consult-recent-file consult-theme :preview-key '(:debounce 1.0 any)
    consult-ripgrep consult-git-grep consult-grep
    consult-bookmark consult-recent-file
    consult--source-recent-file consult--source-project-recent-file consult--source-bookmark
-   :preview-key "C-SPC")
-  (consult-customize
    consult-theme
+   :initial (thing-at-point 'symbol t)
    :preview-key (list "C-SPC" :debounce 0.5 'any))
+
   (when (featurep 'org)
     (defvar +vertico--consult-org-source
       (list :name     "Org Buffer"
