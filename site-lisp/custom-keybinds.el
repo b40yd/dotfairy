@@ -63,7 +63,7 @@
    :desc "LSP Organize imports"                "o" #'lsp-organize-imports
    :desc "LSP Rename"                          "r" #'lsp-rename
    :desc "Symbols"                             "S" #'lsp-treemacs-symbols
-   (:when (eq dotfairy-complete 'vertico)
+   (:when (featurep 'vertico)
     :desc "Jump to symbol in current workspace" "j" #'consult-lsp-symbols
     :desc "Jump to symbol in any workspace"     "J" (cmd!! #'consult-lsp-symbols 'all-workspaces))
    :desc "Lsp ui imenu"                        "u" #'lsp-ui-imenu
@@ -221,7 +221,7 @@
    :desc "Restart current workspace"        "R" #'lsp-workspace-restart
    :desc "Find file in project"             "F" #'project-find-file
    :desc "List project todos"               "t" #'magit-todos-list
-   (:when (eq dotfairy-complete 'vertico)
+   (:when (featurep 'vertico)
     :desc "Find file in project"        "f" #'+vertico/consult-fd-or-find)
    :desc "Find sibling file"            "o" #'find-sibling-file)
 
