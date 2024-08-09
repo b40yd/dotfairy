@@ -966,12 +966,11 @@ code of the process and OUTPUT is its stdout output."
   "Browse URL with xwidget-webkit' and switch or pop to the buffer.
 
    POP-BUFFER specifies whether to pop to the buffer.
-   NEW-SESSION specifies whether to create a new xwidget-webkit session."
+   NEW-SESSION specifies whether to create a new xwidget-webkit session.
+  Interactively, URL defaults to the string looking like a url around point."
   (interactive (progn
                  (require 'browse-url)
-                 (browse-url-interactive-arg "xwidget-webkit URL: ")))
-  (or (featurep 'xwidget-internal)
-      (user-error "Your Emacs was not compiled with xwidgets support"))
+                 (browse-url-interactive-arg "URL: ")))
   (xwidget-webkit-browse-url url new-session)
   (let ((buf (xwidget-buffer (and (fboundp 'xwidget-webkit-current-session)
                                   (xwidget-webkit-current-session)))))
@@ -1154,6 +1153,17 @@ debug mode is off. Return non-nil."
             (push c quoted))
           str)
     (concat (nreverse quoted))))
+
+;; Browse URL
+(defun dotfairy-browse-url (url)
+  "Open URL using a configurable method.
+See `browse-url' for more details."
+  (interactive (progn
+                 (require 'browse-url)
+                 (browse-url-interactive-arg "URL: ")))
+  (if (and (featurep 'xwidget-internal) (display-graphic-p))
+      (dotfairy-webkit-browse-url url t)
+    (browse-url url)))
 
 (provide 'init-funcs)
 ;;; init-funcs.el ends here
