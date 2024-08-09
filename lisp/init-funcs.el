@@ -245,15 +245,6 @@ Return the fastest package archive."
   (interactive)
   (set-buffer-file-coding-system 'undecided-dos nil))
 
-(defun browse-this-file ()
-  "Open the current file as a URL using `browse-url'."
-  (interactive)
-  (let ((file-name (buffer-file-name)))
-    (if (and (fboundp 'tramp-tramp-file-p)
-             (tramp-tramp-file-p file-name))
-        (error "Cannot open tramp file")
-      (browse-url (concat "file://" file-name)))))
-
 ;;;###autoload
 (defun dotfairy/toggle-indent-style ()
   "Switch between tabs and spaces indentation style in the current buffer."
