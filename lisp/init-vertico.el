@@ -560,7 +560,7 @@ Supports exporting consult-grep to wgrep, file to wdeired, and consult-location 
     ;; Change the split style if the initial query contains the separator.
     (when query
       (cl-destructuring-bind (&key type separator initial _function)
-          (consult--async-split-style)
+          (alist-get consult-async-split-style consult-async-split-styles-alist)
         (pcase type
           (`separator
            (replace-regexp-in-string (regexp-quote (char-to-string separator))
