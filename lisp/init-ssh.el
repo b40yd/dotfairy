@@ -32,8 +32,7 @@
 (require 'init-funcs)
 
 (use-package ssh-manager
-  :ensure nil
-  :quelpa (ssh-manager :fetcher github :repo "b40yd/dotfairy-ssh-manager")
+  :vc (:url "https://github.com/7ym0n/dotfairy-ssh-manager")
   :init
   (setq ssh-manager-sshpass-path (expand-file-name "sshpass" dotfairy-local-dir)
         ssh-manager-sshpass-bin (concat ssh-manager-sshpass-path "/bin/sshpass")))

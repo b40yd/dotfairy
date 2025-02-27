@@ -90,17 +90,6 @@
 (eval-when-compile
   (require 'use-package))
 
-;; Use quelpa install packages
-(use-package quelpa
-  :init
-  (setq quelpa-upgrade-p dotfairy-quelpa-upgrade
-        quelpa-update-melpa-p nil
-        quelpa-checkout-melpa-p nil))
-
-(use-package quelpa-use-package)
-(eval-when-compile
-  (require 'quelpa-use-package))
-
 ;; Don't display minor modes
 (use-package diminish)
 
