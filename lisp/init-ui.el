@@ -403,15 +403,11 @@ See `display-line-numbers' for what these values mean."
 (use-package mixed-pitch
   :diminish)
 
-;; Good pixel line scrolling
-(if (fboundp 'pixel-scroll-precision-mode)
-    (pixel-scroll-precision-mode t)
-  (unless (not (eq system-type 'darwin))
-    (use-package good-scroll
-      :diminish
-      :hook (after-init . good-scroll-mode)
-      :bind (([remap next] . good-scroll-up-full-screen)
-             ([remap prior] . good-scroll-down-full-screen)))))
+;; Smooth scrolling
+(when emacs/29
+  (use-package ultra-scroll
+    :vc (:url "https://github.com/jdtsmith/ultra-scroll")
+    :hook (after-init . ultra-scroll-mode)))
 
 ;; Smooth scrolling over images
 (when emacs/26
