@@ -59,6 +59,8 @@
   (defconst emacs/27 (>= emacs-major-version 27))
   (defconst emacs/28 (>= emacs-major-version 28))
   (defconst emacs/29 (>= emacs-major-version 29))
+  (defconst emacs/30 (>= emacs-major-version 30))
+  (defconst emacs/31 (>= emacs-major-version 31))
   (defconst MODULES     (featurep 'dynamic-modules))
   (defconst NATIVECOMP  (featurep 'native-compile)))
 

@@ -672,30 +672,30 @@ prepended to the element after the #+HEADER: tag."
     :config
     (org-tree-slide-simple-profile)
     (setq org-tree-slide-skip-outline-level 4))
-
-  (use-package org-roam
-    :functions dotfairy-browse-url
-    :custom (org-roam-directory (concat dotfairy-org-dir "roam/"))
-    :hook (after-init . org-roam-mode)
-    :init
-    (setq org-roam-v2-ack t
-          org-roam-graph-viewer #'dotfairy-browse-url)
-    :config
-    (setq org-roam-db-location (concat dotfairy-org-dir "org-roam.db"))
-    (org-roam-db-autosync-mode)
-    (require 'org-roam-protocol)
-    (unless (file-exists-p org-roam-directory)
-      (make-directory org-roam-directory))
-    (add-to-list 'org-agenda-files org-roam-directory)
-    (use-package websocket
-      :after org-roam)
-    (use-package org-roam-ui
-      :init (setq org-roam-ui-browser-function #'dotfairy-browse-url)
+  (when (and (fboundp 'sqlite-available-p) (sqlite-available-p))
+    (use-package org-roam
+      :functions dotfairy-browse-url
+      :custom (org-roam-directory (concat dotfairy-org-dir "roam/"))
+      :hook (after-init . org-roam-mode)
+      :init
+      (setq org-roam-v2-ack t
+            org-roam-graph-viewer #'dotfairy-browse-url)
       :config
-      (setq org-roam-ui-sync-theme t
-            org-roam-ui-follow t
-            org-roam-ui-update-on-save t
-            org-roam-ui-open-on-start t)))
+      (setq org-roam-db-location (concat dotfairy-org-dir "org-roam.db"))
+      (org-roam-db-autosync-mode)
+      (require 'org-roam-protocol)
+      (unless (file-exists-p org-roam-directory)
+        (make-directory org-roam-directory))
+      (add-to-list 'org-agenda-files org-roam-directory)
+      (use-package websocket
+        :after org-roam)
+      (use-package org-roam-ui
+        :init (setq org-roam-ui-browser-function #'dotfairy-browse-url)
+        :config
+        (setq org-roam-ui-sync-theme t
+              org-roam-ui-follow t
+              org-roam-ui-update-on-save t
+              org-roam-ui-open-on-start t))))
 
   ;; Auto-toggle Org LaTeX fragments
   (use-package org-fragtog

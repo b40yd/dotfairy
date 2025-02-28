@@ -404,10 +404,12 @@ See `display-line-numbers' for what these values mean."
   :diminish)
 
 ;; Smooth scrolling
-(when emacs/29
-  (use-package ultra-scroll
-    :vc (:url "https://github.com/jdtsmith/ultra-scroll")
-    :hook (after-init . ultra-scroll-mode)))
+(use-package ultra-scroll
+  :when emacs/29
+  :ensure nil
+  :init (unless (package-installed-p 'ultra-scroll)
+          (package-vc-install "https://github.com/jdtsmith/ultra-scroll"))
+  :hook (after-init . ultra-scroll-mode))
 
 ;; Smooth scrolling over images
 (when emacs/26
