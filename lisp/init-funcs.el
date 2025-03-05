@@ -978,9 +978,9 @@ code of the process and OUTPUT is its stdout output."
 (defun dotfairy-webkit-browse-url (url &optional pop-buffer new-session)
   "Browse URL with xwidget-webkit' and switch or pop to the buffer.
 
-   POP-BUFFER specifies whether to pop to the buffer.
-   NEW-SESSION specifies whether to create a new xwidget-webkit session.
-  Interactively, URL defaults to the string looking like a url around point."
+POP-BUFFER specifies whether to pop to the buffer.
+NEW-SESSION specifies whether to create a new xwidget-webkit session.
+Interactively, URL defaults to the string looking like a url around point."
   (interactive (progn
                  (require 'browse-url)
                  (browse-url-interactive-arg "URL: ")))

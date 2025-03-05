@@ -73,14 +73,14 @@
 (when (executable-find "prettier")
   (use-package prettier
     :diminish
-    :hook ((js-mode js2-mode css-mode sgml-mode web-mode) . prettier-mode)
+    :hook ((js-base-mode js2-mode css-mode sgml-mode web-mode) . prettier-mode)
     :init (setq prettier-pre-warm 'none)))
 
 ;; Live browser JavaScript, CSS, and HTML interaction
 (use-package skewer-mode
   :diminish
   :functions diminish
-  :hook (((js-mode js2-mode). skewer-mode)
+  :hook (((js-base-mode js2-mode). skewer-mode)
          (css-mode . skewer-css-mode)
          (web-mode . skewer-html-mode)
          (html-mode . skewer-html-mode))
@@ -114,7 +114,7 @@
 
 ;; Adds node_modules/.bin directory to `exec_path'
 (use-package add-node-modules-path
-  :hook ((web-mode js-mode js2-mode) . add-node-modules-path))
+  :hook ((web-mode js-base-mode js2-mode) . add-node-modules-path))
 
 (use-package haml-mode)
 (use-package php-mode)

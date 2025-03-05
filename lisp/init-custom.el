@@ -188,6 +188,7 @@ nil means disabled."
 (defcustom dotfairy-tree-sitter
   (and (fboundp 'treesit-available-p) (treesit-available-p))
   "Enable tree-sitter or not.
+
 Native tree-sitter is introduced in 29."
   :group 'dotfairy
   :type 'boolean)
