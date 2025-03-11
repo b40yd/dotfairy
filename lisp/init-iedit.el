@@ -413,7 +413,7 @@ The return value is the new value of LIST-VAR."
      ("M->" end-of-buffer "⭸"))))
   :bind (:map hs-minor-mode-map
          ("M-`" . hideshow-hydra/body))
-  :hook (prog-mode . hs-minor-mode)
+  :hook ((python-mode go-mode c-mode java-mode lisp-mode js-mode) . hs-minor-mode)
   :config
   ;; More functions
   ;; @see https://karthinks.com/software/simple-folding-with-hideshow/
