@@ -493,6 +493,7 @@ targets."
         (nthcdr pos embark-target-finders)))
   ;; export write
   (use-package embark-consult
+    :after embark consult
     :ensure t
     :after (embark consult)
     :demand
