@@ -563,6 +563,9 @@ prepended to the element after the #+HEADER: tag."
     :hook ((org-mode . org-modern-mode)
            (org-agenda-finalize . org-modern-agenda))
     :init
+    (after! org
+      (setq org-hide-emphasis-markers t
+            org-pretty-entities t))
     (setq org-modern-table nil
           org-modern-keyword nil
           org-modern-block-name nil))
@@ -676,7 +679,7 @@ prepended to the element after the #+HEADER: tag."
     (setq org-tree-slide-skip-outline-level 4))
   (when (and (fboundp 'sqlite-available-p) (sqlite-available-p))
     (use-package org-roam
-      :functions dotfairy-browse-url
+      :functions dotfairy-browse-url org-roam-db-autosync-enable
       :custom (org-roam-directory (concat dotfairy-org-dir "roam/"))
       :hook (after-init . org-roam-mode)
       :init
