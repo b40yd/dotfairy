@@ -233,8 +233,8 @@ exist, and `org-link' otherwise."
     (after! org
       ;; A shorter link to attachments
       (+org-define-basic-link "download" (lambda () (or org-download-image-dir org-attach-id-dir "."))
-                              :image-data-fun #'+org-image-file-data-fn
-                              :requires 'org-download))
+        :image-data-fun #'+org-image-file-data-fn
+        :requires 'org-download))
     :config
     (unless org-download-image-dir
       (setq org-download-image-dir org-attach-id-dir))
@@ -452,7 +452,7 @@ If prefix ARG, copy instead of move."
                                     buffer)))
              (heading
               (org-with-point-at marker
-                                 (org-get-heading 'no-tags 'no-todo)))
+                (org-get-heading 'no-tags 'no-todo)))
              ;; Won't work with target buffers whose filename is nil
              (rfloc (list heading filename nil marker))
              (org-after-refile-insert-hook (cons #'org-reveal org-after-refile-insert-hook)))
@@ -568,7 +568,12 @@ prepended to the element after the #+HEADER: tag."
             org-pretty-entities t))
     (setq org-modern-table nil
           org-modern-keyword nil
-          org-modern-block-name nil))
+          org-modern-block-name nil)
+    :config
+    ;; HACK: The default unicode symbol for checked boxes often turn out much
+    ;;   larger than the others, so I swap it out with one that's more likely to
+    ;;   be consistent.
+    (setf (alist-get ?X org-modern-checkbox) #("□x" 0 2 (composition ((2))))))
 
   (use-package org-super-agenda
     :hook ((org-agenda-mode org-mode) . org-super-agenda-mode)
