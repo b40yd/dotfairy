@@ -224,7 +224,8 @@ and enables `+popup-buffer-mode'."
         (when-let (popup (cl-loop for func in actions
                                   if (funcall func buffer alist)
                                   return it))
-          (+popup--init popup alist)
+          (with-current-buffer buffer
+            (+popup--init popup alist))
           (+popup--maybe-select-window popup origin)
           popup))))
 
@@ -1012,11 +1013,11 @@ prevent the popup(s) from messing up the UI (or vice versa)."
 
 (add-hook 'after-init-hook #'+popup-mode 'append)
 
-(add-hook! '+popup-buffer-mode-hook
-           #'+popup-adjust-fringes-h
-           #'+popup-adjust-margins-h
-           #'+popup-set-modeline-on-enable-h
-           #'+popup-unset-modeline-on-disable-h)
+(add-hook '+popup-buffer-mode-hook #'+popup-set-modeline-on-enable-h)
+(add-hook '+popup-buffer-mode-hook #'+popup-unset-modeline-on-disable-h)
+
+(add-hook '+popup-create-window-hook #'+popup-adjust-fringes-h)
+(add-hook '+popup-create-window-hook #'+popup-adjust-margins-h)
 
 
 (defadvice! +popup--make-case-sensitive-a (fn &rest args)

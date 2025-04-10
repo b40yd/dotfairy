@@ -116,11 +116,16 @@ kill all magit buffers for this repo."
     :demand t
     :defines forge-topic-list-columns
     :commands forge-create-pullreq forge-create-issue
-    :init (setq forge-topic-list-columns
-                '(("#" 5 t (:right-align t) number nil)
-                  ("Title" 60 t nil title  nil)
-                  ("State" 6 t nil state nil)
-                  ("Updated" 10 t nill updated nil)))
+    :init
+    (setq forge-topic-list-columns
+          '(("#" 5 t (:right-align t) number nil)
+            ("Title" 60 t nil title  nil)
+            ("State" 6 t nil state nil)
+            ("Updated" 10 t nill updated nil)))
+    (after! ghub-graphql
+      ;; Killing recreating the status buffer prevents progress updates from being
+      ;; relayed through the modeline. Use `message' instead.
+      (setq ghub-graphql-message-progress t))
     :preface
     (setq forge-add-default-bindings (not (fboundp 'evil-mode)))
     :config
