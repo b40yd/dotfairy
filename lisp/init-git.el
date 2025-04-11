@@ -42,6 +42,38 @@
   ;; modeline magit status update, But doing so isn't good for performance
   (setq auto-revert-check-vc-info t)
   (defvar +magit--stale-p nil)
+  (defvar +magit-auto-revert 'local
+    "If non-nil, revert associated buffers after Git operations with side-effects.
+
+These buffers are auto-reverted immediately if they're visible or reverted next
+time they're switched to. This is intended to be a much more efficient
+replacement for `magit-auto-revert-mode' and `global-auto-revert-mode', and
+should not be used together with them! Set this to `nil' if you plan to use the
+above.
+
+Accepts one of three values OR a predicate function:
+
+t
+  Revert any associated buffers.
+local
+  Same as `t', except remote (TRAMP) buffers are ignored.
+nil
+  Don't do any auto-reverting at all.
+FUNCTION
+  If given a function, it will be passed a buffer associated with the current
+  Magit session and must return non-nil to signal this is buffer is safe to
+  revert (now or later, when switched to).")
+
+  (defun +magit--revertable-buffer-p (buffer)
+    (when (buffer-live-p buffer)
+      (pcase +magit-auto-revert
+        (`t t)
+        (`local
+         (not (file-remote-p
+               (or (buffer-file-name buffer)
+                   (buffer-local-value 'default-directory buffer)))))
+        ((pred functionp)
+         (funcall +magit-auto-revert buffer)))))
 
   (defun +magit--revert-buffer (buffer)
     (with-current-buffer buffer
@@ -61,7 +93,7 @@ Stale buffers are reverted when they are switched to, assuming they haven't been
 modified."
     (let ((visible-buffers (dotfairy-visible-buffers nil t)))
       (dolist (buffer (buffer-list))
-        (when (buffer-live-p buffer)
+        (when (+magit--revertable-buffer-p buffer)
           (if (memq buffer visible-buffers)
               (progn
                 (+magit--revert-buffer buffer)
