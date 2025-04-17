@@ -96,7 +96,8 @@
     (exec-path-from-shell-initialize))
 
   ;; Try to install go tools if `gopls' is not found
-  (unless (executable-find "gopls")
+  (when (and (executable-find "go")
+             (not (executable-find "gopls")))
     (go-install-tools))
 
 
