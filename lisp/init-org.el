@@ -233,8 +233,8 @@ exist, and `org-link' otherwise."
     (after! org
       ;; A shorter link to attachments
       (+org-define-basic-link "download" (lambda () (or org-download-image-dir org-attach-id-dir "."))
-        :image-data-fun #'+org-image-file-data-fn
-        :requires 'org-download))
+                              :image-data-fun #'+org-image-file-data-fn
+                              :requires 'org-download))
     :config
     (unless org-download-image-dir
       (setq org-download-image-dir org-attach-id-dir))
@@ -440,6 +440,13 @@ If prefix ARG, copy instead of move."
       (org-refile)))
 
   (defvar org-after-refile-insert-hook)
+  ;; Fix #462: when refiling from org-capture, Emacs prompts to kill the
+  ;; underlying, modified buffer. This fixes that.
+  (add-hook! 'org-after-refile-insert-hook
+    (defun +org-save-buffer-after-capture-h ()
+      (when (bound-and-true-p org-capture-is-refiling)
+        (save-buffer))))
+
   ;; Inspired by org-teleport and alphapapa/alpha-org
 ;;;###autoload
   (defun +org/refile-to-visible ()
@@ -452,7 +459,7 @@ If prefix ARG, copy instead of move."
                                     buffer)))
              (heading
               (org-with-point-at marker
-                (org-get-heading 'no-tags 'no-todo)))
+                                 (org-get-heading 'no-tags 'no-todo)))
              ;; Won't work with target buffers whose filename is nil
              (rfloc (list heading filename nil marker))
              (org-after-refile-insert-hook (cons #'org-reveal org-after-refile-insert-hook)))
