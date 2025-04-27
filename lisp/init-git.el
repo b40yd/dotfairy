@@ -79,11 +79,12 @@ FUNCTION
     (with-current-buffer buffer
       (kill-local-variable '+magit--stale-p)
       (when (magit-auto-revert-repository-buffer-p buffer)
-        (when (bound-and-true-p vc-mode)
-          (vc-refresh-state))
-        (when (and buffer-file-name (not (buffer-modified-p buffer)))
-          (revert-buffer t t t))
-        (force-mode-line-update))))
+        (save-restriction
+          (when (bound-and-true-p vc-mode)
+            (vc-refresh-state))
+          (when (and buffer-file-name (not (buffer-modified-p buffer)))
+            (revert-buffer t t t))
+          (force-mode-line-update)))))
 
   ;;;###autoload
   (defun +magit-mark-stale-buffers-h ()
@@ -92,7 +93,7 @@ FUNCTION
 Stale buffers are reverted when they are switched to, assuming they haven't been
 modified."
     (when +magit-auto-revert
-      (let ((visible-buffers (doom-visible-buffers nil t)))
+      (let ((visible-buffers (dotfairy-visible-buffers nil t)))
         (dolist (buffer (buffer-list))
           (when (+magit--revertable-buffer-p buffer)
             (if (memq buffer visible-buffers)
@@ -275,8 +276,10 @@ kill all magit buffers for this repo."
 file in your browser at the visited revision."
       :around #'browse-at-remote-get-url
       (if git-timemachine-mode
-          (let* ((start-line (line-number-at-pos (min (region-beginning) (region-end))))
-                 (end-line (line-number-at-pos (max (region-beginning) (region-end))))
+          (let* ((start-line (and (use-region-p) (line-number-at-pos
+                                                  (min (region-beginning) (region-end)))))
+                 (point-end (and (use-region-p) (max (region-beginning) (region-end))))
+                 (end-line (and (use-region-p) (line-number-at-pos point-end)))
                  (remote-ref (browse-at-remote--remote-ref buffer-file-name))
                  (remote (car remote-ref))
                  (ref (car git-timemachine-revision))
@@ -284,14 +287,15 @@ file in your browser at the visited revision."
                   (file-relative-name
                    buffer-file-name (expand-file-name (vc-git-root buffer-file-name))))
                  (target-repo (browse-at-remote--get-url-from-remote remote))
-                 (remote-type (browse-at-remote--get-remote-type target-repo))
-                 (repo-url (cdr target-repo))
+                 (remote-type (browse-at-remote--get-remote-type (plist-get target-repo :unresolved-host)))
+                 (repo-url (plist-get target-repo :url))
                  (url-formatter (browse-at-remote--get-formatter 'region-url remote-type)))
             (unless url-formatter
               (error (format "Origin repo parsing failed: %s" repo-url)))
             (funcall url-formatter repo-url ref relname
                      (if start-line start-line)
-                     (if (and end-line (not (equal start-line end-line))) end-line)))
+                     (when (and end-line (not (equal start-line end-line)))
+                       (if (eq (char-before point-end) ?\n) (- end-line 1) end-line))))
         (funcall fn)))
 
     (defadvice! +vc-update-header-line-a (revision)
