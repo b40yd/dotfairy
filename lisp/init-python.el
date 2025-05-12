@@ -32,9 +32,8 @@
 (use-package poetry
   :defer t
   :ensure t
-  :init
-  (setq poetry-tracking-strategy 'switch-buffer)
-  (add-hook 'python-mode-hook #'poetry-tracking-mode)
+  :hook (after-init . poetry-tracking-mode)
+  :init (setq poetry-tracking-strategy 'switch-buffer)
   (map! :after python
         :localleader
         :map python-mode-map
@@ -136,7 +135,7 @@
           "p" #'python-pytest-dispatch)))
 
 (use-package cython-mode
-  :mode "\\.p\\(yx\\|x[di]\\)\\'"
+  :defer t
   :config
   (setq cython-default-compile-format "cython -a %s")
   (map! :map cython-mode-map
