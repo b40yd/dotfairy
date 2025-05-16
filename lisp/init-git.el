@@ -80,9 +80,14 @@ FUNCTION
       (kill-local-variable '+magit--stale-p)
       (when (magit-auto-revert-repository-buffer-p buffer)
         (save-restriction
+          (cl-incf magit-auto-revert-counter)
           (when (bound-and-true-p vc-mode)
-            (vc-refresh-state))
-          (when (and buffer-file-name (not (buffer-modified-p buffer)))
+            (let ((vc-follow-symlinks t))
+              (vc-refresh-state))
+            (when (fboundp '+vc-gutter-update-h)
+              (+vc-gutter-update-h)))
+          (when (and (not (get-buffer-process buffer))
+                     (funcall buffer-stale-function t))
             (revert-buffer t t t))
           (force-mode-line-update)))))
 

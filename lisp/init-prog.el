@@ -173,7 +173,6 @@
               process-environment))
     (advice-add #'list-environment-entries :override #'my-list-environment-entries)))
 (use-package memory-usage)
-(use-package tldr)
 (use-package command-log-mode)
 (use-package mermaid-mode)
 (use-package plantuml-mode
