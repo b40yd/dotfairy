@@ -174,6 +174,15 @@
         (add-to-list 'desktop-minor-mode-table
                      '(diff-hl-margin-mode nil))))
 
+    ;; UX: Refresh gutter in the selected buffer on ESC, switching windows, or
+    ;;   refocusing the frame.
+    (add-hook! '(dotfairy-escape-hook) :append
+      (defun +vc-gutter-update-h (&rest _)
+        "Return nil to prevent shadowing other `doom-escape-hook' hooks."
+        (ignore (and (or (bound-and-true-p diff-hl-mode)
+                         (bound-and-true-p diff-hl-dir-mode))
+                     (diff-hl-update-once)))))
+
     ;; Integration with magit
     (with-eval-after-load 'magit
       (add-hook 'magit-pre-refresh-hook #'diff-hl-magit-pre-refresh)
