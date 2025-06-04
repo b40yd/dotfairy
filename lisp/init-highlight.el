@@ -359,9 +359,9 @@ be enabled. If any function returns non-nil, the mode will not be activated."
   :ensure nil
   :custom-face
   (show-paren-match ((((class color) (background light))
-                      (:box (:line-width (-1 . -1) :color "gray70")))
+                      (:box (:line-width (-1 . -1) :color "gray73")))
                      (((class color) (background dark))
-                      (:box (:line-width (-1 . -1) :color "gray50")))))
+                      (:box (:line-width (-1 . -1) :color "gray56")))))
   :hook (after-init . show-paren-mode)
   :init (setq show-paren-when-point-inside-paren t
               show-paren-when-point-in-periphery t)
