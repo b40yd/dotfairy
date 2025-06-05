@@ -411,11 +411,6 @@ See `display-line-numbers' for what these values mean."
             (package-vc-install "https://github.com/jdtsmith/ultra-scroll"))
     :hook (after-init . ultra-scroll-mode)))
 
-;; Smooth scrolling over images
-(when emacs/26
-  (use-package iscroll
-    :diminish
-    :hook (image-mode . iscroll-mode)))
 
 ;; Display ugly ^L page breaks as tidy horizontal lines
 (use-package page-break-lines
