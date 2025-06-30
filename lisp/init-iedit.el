@@ -267,6 +267,8 @@ The return value is the new value of LIST-VAR."
 ;; Minor mode to aggressively keep your code always indented
 (use-package aggressive-indent
   :diminish
+  :autoload aggressive-indent-mode
+  :functions too-long-file-p
   :hook ((after-init . global-aggressive-indent-mode)
          ;; NOTE: Disable in large files due to the performance issues
          ;; https://github.com/Malabarba/aggressive-indent-mode/issues/73
@@ -308,6 +310,7 @@ The return value is the new value of LIST-VAR."
 ;; Redefine M-< and M-> for some modes
 (use-package beginend
   :diminish (beginend-mode beginend-global-mode)
+  :functions diminish
   :hook (after-init . beginend-global-mode)
   :config
   (mapc (lambda (pair)
@@ -344,6 +347,7 @@ The return value is the new value of LIST-VAR."
 
 ;; Quickly follow links
 (use-package link-hint
+  :functions embark-dwim
   :bind (("M-s M-o" . link-hint-open-link)
          ("M-s M-c" . link-hint-copy-link))
   :init

@@ -69,8 +69,6 @@
        "Highlight"
        (("l" global-hl-line-mode "line" :toggle t)
         ("P" show-paren-mode "paren" :toggle t)
-        ("s" symbol-overlay-mode "symbol" :toggle t)
-        ("r" rainbow-mode "rainbow" :toggle t)
         ("w" (setq-default show-trailing-whitespace (not show-trailing-whitespace))
          "whitespace" :toggle show-trailing-whitespace)
         ("d" rainbow-delimiters-mode "delimiter" :toggle t)

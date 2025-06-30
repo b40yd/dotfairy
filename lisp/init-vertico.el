@@ -191,6 +191,7 @@
 
 (when (childframe-completion-workable-p)
   (use-package vertico-posframe
+    :functions posframe-poshandler-frame-center-near-bottom
     :hook (vertico-mode . vertico-posframe-mode)
     :init (setq vertico-posframe-poshandler
                 #'posframe-poshandler-frame-center-near-bottom
@@ -199,6 +200,7 @@
                   (right-fringe . 8)))))
 
 (use-package nerd-icons-completion
+  :functions icons-displayable-p
   :when (icons-displayable-p)
   :hook (vertico-mode . nerd-icons-completion-mode))
 

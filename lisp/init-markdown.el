@@ -113,6 +113,10 @@
   (with-eval-after-load 'org
     (bind-key "C-c C-g" #'grip-mode org-mode-map))
   (setq grip-update-after-change nil)
+  (unless (or (executable-find "mdopen")
+              (executable-find "go-grip")
+              (executable-find "grip"))
+    (dotfairy-log "Couldn't find the mdopen, go-grip or grip binaries. grip-mode will not work"))
   ;; mdopen doesn't need credentials, and only support external browsers
   (if (executable-find "mdopen")
       (setq grip-use-mdopen t)

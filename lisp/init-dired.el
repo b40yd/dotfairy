@@ -93,6 +93,7 @@
   ;; Shows icons
   (use-package nerd-icons-dired
     :diminish
+    :functions icons-displayable-p
     :when (icons-displayable-p)
     :custom-face
     (nerd-icons-dired-dir-face ((t (:inherit nerd-icons-dsilver :foreground unspecified))))
