@@ -115,9 +115,15 @@
 
 ;; Fish shell
 (use-package fish-mode
+  :commands fish_indent-before-save
+  :defines eglot-server-programs
   :hook (fish-mode . (lambda ()
                        (add-hook 'before-save-hook
-                                 #'fish_indent-before-save))))
+                                 #'fish_indent-before-save)))
+  :config
+  (with-eval-after-load 'eglot
+    (add-to-list 'eglot-server-programs
+                 '(fish-mode . ("fish-lsp" "start")))))
 
 (provide 'init-eshell)
 ;;; init-eshell.el ends here
