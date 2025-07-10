@@ -175,72 +175,7 @@ kill all magit buffers for this repo."
     (when (not forge-add-default-bindings)
       (map! :map magit-mode-map [remap magit-browse-thing] #'forge-browse
             :map magit-remote-section-map [remap magit-browse-thing] #'forge-browse-remote
-            :map magit-branch-section-map [remap magit-browse-thing] #'forge-browse-branch))
-
-    (use-package code-review
-      :after magit
-      :init
-      (setq code-review-db-database-file (concat dotfairy-cache-dir "code-review/code-review-db-file.sqlite")
-            code-review-log-file (concat dotfairy-cache-dir "code-review/code-review-error.log")
-            code-review-auth-login-marker 'forge
-            code-review-log-raw-request-responses t
-            code-review-download-dir (expand-file-name "code-review/" dotfairy-cache-dir))
-
-      (defun +magit/start-code-review (arg)
-        (interactive "P")
-        (call-interactively
-         (let* ((pullreq (or (forge-pullreq-at-point) (forge-current-topic)))
-                (repo    (forge-get-repository pullreq))
-                (githost (concat (oref repo githost) "/api")))
-           (when (forge-gitlab-repository-p repo)
-             (setq-default code-review-gitlab-host githost
-                           code-review-gitlab-graphql-host githost))
-           (if (or arg (not (featurep 'forge)))
-               #'code-review-start
-             #'code-review-forge-pr-at-point))))
-      (transient-append-suffix 'magit-merge "i"
-        '("y" "Review pull request" +magit/start-code-review))
-      (after! forge
-        (transient-append-suffix 'forge-dispatch "c u"
-          '("c r" "Review pull request" +magit/start-code-review))))
-
-    (with-eval-after-load 'evil-collection-magit
-      (defvar evil-collection-magit-use-z-for-folds t)
-      ;; q is enough; ESC is way too easy for a vimmer to accidentally press,
-      ;; especially when traversing modes in magit buffers.
-      (evil-define-key* 'normal magit-status-mode-map [escape] nil)
-      (after! code-review
-        (map! :map code-review-mode-map
-              :n "r" #'code-review-transient-api
-              :n "RET" #'code-review-comment-add-or-edit))
-
-      ;; Some extra vim-isms I thought were missing from upstream
-      (evil-define-key* '(normal visual) magit-mode-map
-        "*"  #'magit-worktree
-        "zt" #'evil-scroll-line-to-top
-        "zz" #'evil-scroll-line-to-center
-        "zb" #'evil-scroll-line-to-bottom
-        "g=" #'magit-diff-default-context
-        "gi" #'forge-jump-to-issues
-        "gm" #'forge-jump-to-pullreqs)
-
-      ;; Fix these keybinds because they are blacklisted
-      ;; REVIEW There must be a better way to exclude particular evil-collection
-      ;;        modules from the blacklist.
-      (map! (:map magit-mode-map
-             :nv "q" #'+magit/quit
-             :nv "Q" #'+magit/quit-all
-             :nv "]" #'magit-section-forward-sibling
-             :nv "[" #'magit-section-backward-sibling
-             :nv "gr" #'magit-refresh
-             :nv "gR" #'magit-refresh-all)
-            (:map magit-status-mode-map
-             :nv "gz" #'magit-refresh)
-            (:map magit-diff-mode-map
-             :nv "gd" #'magit-jump-to-diffstat-or-diff)
-            ;; Don't open recursive process buffers
-            (:map magit-process-mode-map
-             :nv "`" #'ignore)))))
+            :map magit-branch-section-map [remap magit-browse-thing] #'forge-browse-branch))))
 
 ;; Walk through git revisions of a file
 (use-package git-timemachine
