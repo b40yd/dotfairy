@@ -54,6 +54,8 @@
 ;; Highlight TODO
 (use-package hl-todo
   :defer t
+  :autoload hl-todo-flymake hl-todo-search-and-highlight
+  :functions rg-read-files rg-project
   :hook (prog-mode . hl-todo-mode)
   :hook (yaml-mode . hl-todo-mode)
   :commands (hl-todo-rg-project hl-todo-rg)
@@ -115,6 +117,13 @@
       (when hl-todo-mode
         (hl-todo-mode -1)
         (hl-todo-mode +1))))
+
+  (with-eval-after-load 'magit
+    (add-hook 'magit-log-wash-summary-hook
+              #'hl-todo-search-and-highlight t)
+    (add-hook 'magit-revision-wash-message-hook
+              #'hl-todo-search-and-highlight t))
+
   (defun hl-todo-rg (regexp &optional files dir)
     "Use `rg' to find all TODO or similar keywords."
     (interactive
