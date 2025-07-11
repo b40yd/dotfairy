@@ -36,9 +36,14 @@
 (use-package magit
   :ensure t
   :commands (+magit/quit +magit/quit-all)
+  :init (setq magit-diff-refine-hunk t
+              git-commit-major-mode 'git-commit-elisp-text-mode)
   :bind
   (("C-x g" . magit-status))
   :config
+  (when IS-WINDOWS
+    (setenv "GIT_ASKPASS" "git-gui--askpass"))
+
   ;; modeline magit status update, But doing so isn't good for performance
   (setq auto-revert-check-vc-info t)
   (defvar +magit--stale-p nil)
