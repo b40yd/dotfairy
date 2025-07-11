@@ -147,6 +147,15 @@ kill all magit buffers for this repo."
     ;; Clean up after itself
     (define-key vc-annotate-mode-map [remap quit-window] #'kill-current-buffer))
 
+
+  ;; Show TODOs in magit
+  (use-package magit-todos
+    :after magit-status
+    :commands magit-todos-mode
+    :init
+    (setq magit-todos-nice (if (executable-find "nice") t nil))
+    (magit-todos-mode 1))
+
   ;; Access Git forges from Magit
   ;; see config: https://magit.vc/manual/ghub/Storing-a-Token.html#Storing-a-Token
   ;; writting like as gitlib.com:

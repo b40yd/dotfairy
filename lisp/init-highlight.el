@@ -55,16 +55,16 @@
 (use-package hl-todo
   :defer t
   :autoload hl-todo-flymake hl-todo-search-and-highlight
-  :functions rg-read-files rg-project
-  :hook (prog-mode . hl-todo-mode)
-  :hook (yaml-mode . hl-todo-mode)
+  :functions rg rg-read-files rg-project
+  :hook ((yaml-mode prog-mode) . hl-todo-mode)
   :commands (hl-todo-rg-project hl-todo-rg)
+  :custom-face
+  (hl-todo ((t (:inherit default :height 0.9 :width condensed :weight bold :underline nil :inverse-video t))))
   :init
   (map! :after hl-todo
         :map hl-todo-mode-map
         :leader
-        :prefix "c"
-        (:prefix-map ("k" . "keywords")
+        (:prefix-map ("K" . "keywords")
          :desc "Previous" "p" #'hl-todo-previous
          :desc "Next" "n" #'hl-todo-next
          :desc "Occur" "o" #'hl-todo-occur
@@ -117,6 +117,10 @@
       (when hl-todo-mode
         (hl-todo-mode -1)
         (hl-todo-mode +1))))
+
+  ;; Integrate into flymake
+  (with-eval-after-load 'flymake
+    (add-hook 'flymake-diagnostic-functions #'hl-todo-flymake))
 
   (with-eval-after-load 'magit
     (add-hook 'magit-log-wash-summary-hook
