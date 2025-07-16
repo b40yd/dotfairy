@@ -27,9 +27,6 @@
 ;; Defer garbage collection further back in the startup process
 (setq gc-cons-threshold most-positive-fixnum)
 
-;; Prevent flashing of unstyled modeline at startup
-(setq-default mode-line-format nil)
-
 ;; Speed up startup
 (setq auto-mode-case-fold nil)
 

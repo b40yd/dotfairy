@@ -234,6 +234,7 @@ Install the doc if it's not installed."
 ;; Cross-referencing commands
 (use-package xref
   :ensure nil
+  :autoload xref-show-definitions-completing-read
   :init
   ;; Use faster search tool
   (when (executable-find "rg")

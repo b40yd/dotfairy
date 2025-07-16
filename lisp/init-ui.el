@@ -268,7 +268,7 @@
                               (turn-off-hide-mode-line-mode))))))
 
 (use-package minions
-  :hook (doom-modeline-mode . minions-mode))
+  :hook (after-init . minions-mode))
 
 ;; Settings for delete multi line spaces
 (use-package emacs
@@ -407,8 +407,6 @@ See `display-line-numbers' for what these values mean."
 (when emacs/29
   (use-package ultra-scroll
     :ensure nil
-    :init (unless (package-installed-p 'ultra-scroll)
-            (package-vc-install "https://github.com/jdtsmith/ultra-scroll"))
     :hook (after-init . ultra-scroll-mode)))
 
 

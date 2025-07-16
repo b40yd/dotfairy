@@ -145,10 +145,6 @@
                   "\\|^.vscode$\\|^.emacs.*\\'"))))
 
 
-;; `find-dired' alternative using `fd'
-(when (executable-find "fd")
-  (use-package fd-dired))
-
 (use-package ranger
   :after dired
   :init (setq ranger-override-dired t)

@@ -236,9 +236,5 @@ Lisp function does not specify a special indentation."
          (lambda (button)
            (helpful-variable (button-get button 'apropos-symbol))))))))
 
-  ;; For ERT
-(use-package overseer
-  :diminish
-  :hook (emacs-lisp-mode . overseer-mode))
 (provide 'init-elisp)
 ;;; init-elisp.el ends here
