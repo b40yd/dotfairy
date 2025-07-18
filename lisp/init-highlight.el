@@ -427,11 +427,6 @@ FACE defaults to inheriting from default and highlight."
             (blink-matching-open))))
       (advice-add #'show-paren-function :after #'show-paren-off-screen))))
 
-;; Pulse modified region
-(use-package goggles
-  :diminish
-  :hook ((prog-mode text-mode) . goggles-mode))
-
 ;; Mark occurrences of current region (selection)
 (use-package region-occurrences-highlighter
   :diminish

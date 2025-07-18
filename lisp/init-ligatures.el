@@ -279,8 +279,7 @@ effect, as `emacs-lisp-mode' is derived from `prog-mode'."
         (setf (alist-get t +ligatures-alist) +ligatures-all-modes-list)))
     (dolist (lig +ligatures-alist)
       (ligature-set-ligatures (car lig) (cdr lig))))
-
-  (add-hook 'after-init-hook #'global-ligature-mode 'append)))
+  ))
 
 (provide 'init-ligatures)
 ;;; init-ligatures.el ends here

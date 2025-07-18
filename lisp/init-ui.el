@@ -257,15 +257,11 @@
       "set gnus interval" :exit t)))))
 
 (use-package hide-mode-line
-  :hook (((treemacs-mode
+  :hook (((eat-mode
            eshell-mode shell-mode
            term-mode vterm-mode
-           embark-collect-mode
-           lsp-ui-imenu-mode
-           pdf-annot-list-mode) . turn-on-hide-mode-line-mode)
-         (dired-mode . (lambda()
-                         (and (bound-and-true-p hide-mode-line-mode)
-                              (turn-off-hide-mode-line-mode))))))
+           embark-collect-mode lsp-ui-imenu-mode
+           pdf-annot-list-mode) . turn-on-hide-mode-line-mode)))
 
 (use-package minions
   :hook (after-init . minions-mode))
