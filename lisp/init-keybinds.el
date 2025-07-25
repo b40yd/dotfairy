@@ -197,6 +197,16 @@ localleader prefix."
   ;; general improvements to which-key readability
   (which-key-setup-side-window-bottom)
 
+  (which-key-add-key-based-replacements "C-x 8" "unicode")
+  (which-key-add-key-based-replacements "C-x 8 e" "emoji")
+  (which-key-add-key-based-replacements "C-x a" "abbrev")
+  (which-key-add-key-based-replacements "C-x c" "colorful")
+  (which-key-add-key-based-replacements "C-x n" "narrow")
+  (which-key-add-key-based-replacements "C-x p" "project")
+  (which-key-add-key-based-replacements "C-x r" "rect & bookmark")
+  (which-key-add-key-based-replacements "C-x t" "tab & treemacs")
+  (which-key-add-key-based-replacements "C-x x" "buffer")
+
   (which-key-add-key-based-replacements dotfairy-leader-key "<leader>")
   (which-key-add-key-based-replacements dotfairy-localleader-key "<localleader>")
 

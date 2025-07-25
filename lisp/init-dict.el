@@ -36,15 +36,14 @@
 
 
 (use-package go-translate
-  :bind (("C-c g"   . gt-do-translate)
-         ("C-c G"   . gt-do-translate-prompt)
-         ("C-c u"   . gt-do-text-utility)
-         ("C-c d g" . gt-do-translate)
-         ("C-c d G" . gt-do-translate-prompt)
-         ("C-c d p" . gt-do-speak)
-         ("C-c d s" . gt-do-setup)
-         ("C-c d u" . gt-do-text-utility))
   :init
+  (map! :leader
+    (:prefix ("d" . "dictionaries")
+     "g" #'gt-translate
+     "G" #'gt-translate-prompt
+     "u" #'gt-use-text-utility
+     "p" #'gt-speak
+     "s" #'gt-setup))
   (setq gt-langs '(en zh)
         gt-buffer-render-follow-p t
         gt-buffer-render-window-config
@@ -99,19 +98,19 @@
             (Text-Utility . ,(gt-text-utility :taker (gt-taker :pick nil)
                                               :render (gt-buffer-render)))))
 
-    (defun gt--do-translate (dict)
+    (defun gt--translate (dict)
       "Translate using DICT from the preset tranlators."
       (gt-start (alist-get dict gt-preset-translators)))
 
-    (defun gt-do-translate-prompt ()
+    (defun gt-translate-prompt ()
       "Translate with prompt using the multiple dictionaries."
       (interactive)
-      (gt--do-translate 'multi-dict))
+      (gt--translate 'multi-dict))
 
-    (defun gt-do-text-utility ()
+    (defun gt-use-text-utility ()
       "Handle the texts with the utilities."
       (interactive)
-      (gt--do-translate 'Text-Utility))))
+      (gt--translate 'Text-Utility))))
 
 ;; OSX dictionary
 (when IS-MAC

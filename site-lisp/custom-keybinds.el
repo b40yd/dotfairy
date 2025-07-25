@@ -25,9 +25,6 @@
 ;;; Code:
 (require 'init-funcs)
 
-;; persp-mode and projectile in different prefixes
-(setq persp-keymap-prefix (kbd "C-c w"))
-
 (autoload 'org-capture-goto-target "org-capture" nil t)
 (map! :leader
   (:prefix-map ("a" . "appliction")

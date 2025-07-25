@@ -65,10 +65,7 @@
 
   (use-package treemacs-nerd-icons
     :demand t
-    :when (icons-displayable-p)
-    :custom-face
-    (treemacs-nerd-icons-root-face ((t (:inherit nerd-icons-green :height 1.3))))
-    (treemacs-nerd-icons-file-face ((t (:inherit nerd-icons-dsilver))))
+    :functions treemacs-load-theme
     :config (treemacs-load-theme "nerd-icons"))
 
   (use-package treemacs-magit

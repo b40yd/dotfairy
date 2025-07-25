@@ -200,8 +200,6 @@
                   (right-fringe . 8)))))
 
 (use-package nerd-icons-completion
-  :functions icons-displayable-p
-  :when (icons-displayable-p)
   :hook (vertico-mode . nerd-icons-completion-mode))
 
 (use-package marginalia
