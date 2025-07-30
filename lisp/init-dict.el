@@ -35,7 +35,7 @@
      "h" #'fanyi-from-history)))
 
 
-(use-package go-translate
+(use-package gt
   :init
   (map! :leader
     (:prefix ("d" . "dictionaries")
