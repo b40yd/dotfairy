@@ -209,7 +209,7 @@
             '(persp-switch-to-buffer . buffer)))
 
 (use-package nerd-icons-completion
-  :hook (vertico-mode . nerd-icons-completion-mode))
+  :hook (marginalia-mode . nerd-icons-completion-mode))
 
 (use-package consult
   :defer t
