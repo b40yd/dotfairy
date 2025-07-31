@@ -199,9 +199,6 @@
                 '((left-fringe  . 8)
                   (right-fringe . 8)))))
 
-(use-package nerd-icons-completion
-  :hook (vertico-mode . nerd-icons-completion-mode))
-
 (use-package marginalia
   :hook (after-init . marginalia-mode)
   :init
@@ -210,6 +207,9 @@
   :config
   (pushnew! marginalia-command-categories
             '(persp-switch-to-buffer . buffer)))
+
+(use-package nerd-icons-completion
+  :hook (vertico-mode . nerd-icons-completion-mode))
 
 (use-package consult
   :defer t
