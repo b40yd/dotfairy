@@ -277,7 +277,10 @@
 ;; need install nerd-icons fonts
 (use-package nerd-icons
   :config
-  (unless (font-installed-p nerd-icons-font-family)
+  ;; Install nerd fonts automatically only in GUI
+  ;; For macOS, may install via "brew install font-symbols-only-nerd-font"
+  (when (and (display-graphic-p)
+             (not (font-installed-p nerd-icons-font-family)))
     (nerd-icons-install-fonts t)))
 
 (provide 'init-basic)

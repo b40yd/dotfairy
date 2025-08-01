@@ -25,7 +25,7 @@
 ;;; Code:
 (require 'init-const)
 (require 'init-funcs)
-
+(require 'init-keybinds)
 
 (use-package vertico
   :commands (+vertico/embark-preview)
@@ -212,6 +212,12 @@
   :hook (marginalia-mode . nerd-icons-completion-mode))
 
 (use-package consult
+  :defines (xref-show-xrefs-function xref-show-definitions-function)
+  :defines shr-color-html-colors-alist
+  :autoload (consult-register-format consult-register-window consult-xref)
+  :autoload (consult--read consult--customize-put)
+  :commands (consult-narrow-help)
+  :functions (list-colors-duplicates consult-colors--web-list)
   :defer t
   :bind (
          ;; C-x bindings in `ctl-x-map'
@@ -427,7 +433,7 @@ See URL `https://github.com/minad/consult/issues/770'."
 
 (use-package embark
   :defer t
-  :commands (+vertico/embark-export-write)
+  :commands (+vertico/embark-export-write embark-prefix-help-command)
   :init
   (setq which-key-use-C-h-commands nil
         prefix-help-command 'embark-prefix-help-command)

@@ -144,6 +144,9 @@ Possible values are:
 
 ;; Add extensions
 (use-package cape
+  :commands (cape-file cape-elisp-block cape-keyword)
+  :autoload (cape-wrap-noninterruptible cape-wrap-nonexclusive cape-wrap-buster)
+  :autoload (cape-wrap-silent cape-wrap-purify)
   :init
   (add-hook! prog-mode
     (defun +corfu-add-cape-file-h ()
