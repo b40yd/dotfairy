@@ -76,6 +76,7 @@
               display-time-format "%H:%M"))
 
 (use-package solarized-theme)
+(use-package nimbus-theme)
 
 ;; Settings for UI theme
 ;; theme:
