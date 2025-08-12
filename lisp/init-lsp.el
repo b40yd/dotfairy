@@ -131,10 +131,13 @@
        :global t
        :init-value nil
        (if (not +lsp-optimization-mode)
-           (setq-default read-process-output-max +lsp--default-read-process-output-max
-                         gcmh-high-cons-threshold +lsp--default-gcmh-high-cons-threshold
-                         +lsp--optimization-init-p nil)
-         ;; Only apply these settings once!
+           ;; Only apply these settings once! A minor mode's body is triggered each
+           ;; time it is called, even if it's already in the desired state.
+           (when +lsp--optimization-init-p
+             (setq-default read-process-output-max +lsp--default-read-process-output-max
+                           gcmh-high-cons-threshold +lsp--default-gcmh-high-cons-threshold
+                           +lsp--optimization-init-p nil))
+         ;; See above.
          (unless +lsp--optimization-init-p
            (setq +lsp--default-read-process-output-max (default-value 'read-process-output-max)
                  +lsp--default-gcmh-high-cons-threshold (default-value 'gcmh-high-cons-threshold))
@@ -145,10 +148,15 @@
            ;;        so we modify its variables rather than `gc-cons-threshold'
            ;;        directly.
            (setq-default gcmh-high-cons-threshold (* 2 +lsp--default-gcmh-high-cons-threshold))
-           (gcmh-set-high-threshold)
+           (when (bound-and-true-p gcmh-mode)
+             (gcmh-set-high-threshold))
            (setq +lsp--optimization-init-p t))))
 
-     (add-hook! 'lsp-mode-hook #'+lsp-optimization-mode)
+     (add-hook 'lsp-before-initialize-hook #'+lsp-optimization-mode)
+     (add-hook! 'lsp-after-uninitialized-functions
+       (defun +lsp--disable-optimization-mode-if-no-workspaces-h (_workspace)
+         (unless (lsp--session-workspaces lsp--session)
+           (+lsp-optimization-mode -1))))
 
      (use-package consult-lsp
        :init

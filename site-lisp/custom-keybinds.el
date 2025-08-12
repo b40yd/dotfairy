@@ -47,9 +47,11 @@
    :desc "Kill all buffers"                    "a" #'dotfairy/kill-all-buffers
    :desc "Kill this buffer in all windows"     "A" #'dotfairy/kill-this-buffer-in-all-windows
    :desc "Switch to buffer"                    "b" #'switch-to-buffer
-   :desc "Kill buffer"                         "k" #'kill-buffer
+   :desc "Kill buffer"                         "k" #'kill-current-buffer
+   :desc "ibuffer"                             "i" #'ibuffer
    :desc "Kill buried buffers"                 "K" #'dotfairy/kill-buried-buffers
    :desc "New buffer"                          "n" #'+default/new-buffer
+   :desc "New empty buffer"                    "N" #'evil-buffer-new
    :desc "Save and kill buffer"                "s" #'dotfairy/save-and-kill-buffer
    :desc "Kill other buffers"                  "o" #'dotfairy/kill-other-buffers
    :desc "kill matching buffers"               "m" #'dotfairy/kill-matching-buffers
@@ -92,7 +94,7 @@
    :desc "Rename this buffer file"     "M" #'dotfairy/rename-this-file
    :desc "Recent files"                "r" #'recentf-open-files
    :desc "Remove recent file"          "R" #'dotfairy/remove-recent-file
-   :desc "Save file"                   "s" #'save-buffer
+   :desc "Save file"                   "s" #'basic-save-buffer
    :desc "Save file as..."             "S" #'write-file
    :desc "Sudo this file"              "u" #'dotfairy/sudo-this-file
    :desc "Sudo find file"              "U" #'dotfairy/sudo-find-file
