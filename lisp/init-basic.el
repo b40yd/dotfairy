@@ -128,7 +128,7 @@
       sentence-end-double-space nil
       word-wrap-by-category t)
 
-(when (or IS-MAC IS-LINUX (daemonp))
+(when (or (memq window-system '(mac ns x)) (daemonp))
   (use-package exec-path-from-shell
     :commands exec-path-from-shell-initialize
     :custom (exec-path-from-shell-arguments '("-l"))
