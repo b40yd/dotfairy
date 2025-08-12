@@ -35,6 +35,7 @@
 (use-package flyspell
   :ensure t
   :diminish
+  :if (executable-find "aspell")
   :hook (((text-mode outline-mode) . flyspell-mode)
          (prog-mode . flyspell-prog-mode)
          (flyspell-mode . (lambda ()
