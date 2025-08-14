@@ -65,5 +65,9 @@
 
 (setq-default mode-line-format nil)
 
+;; For LSP performance
+;; @see https://emacs-lsp.github.io/lsp-mode/page/performance/
+(setenv "LSP_USE_PLISTS" "true")
+
 (provide 'early-init)
 ;;; early-init.el ends here

@@ -54,11 +54,6 @@
      :defines (lsp-diagnostics-disabled-modes lsp-clients-python-library-directories)
      :autoload lsp-enable-which-key-integration
      :commands (lsp-format-buffer lsp-organize-imports +default/lsp-command-map)
-     :preface
-     ;; Performace tuning
-     ;; @see https://emacs-lsp.github.io/lsp-mode/page/performance/
-     (setq read-process-output-max (* 1024 1024)) ; 1MB
-     (setenv "LSP_USE_PLISTS" "true")
      :hook ((prog-mode . (lambda ()
                            (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode 'makefile-mode 'snippet-mode)
                              (lsp-deferred))))
@@ -82,37 +77,40 @@
             ("C-c C-d" . lsp-describe-thing-at-point)
             ([remap xref-find-definitions] . lsp-find-definition)
             ([remap xref-find-references] . lsp-find-references))
-     :init (setq ;;lsp-keymap-prefix "C-c l"
-            lsp-keep-workspace-alive nil
-            lsp-signature-auto-activate nil
-            lsp-modeline-code-actions-enable nil
-            lsp-modeline-diagnostics-enable nil
-            lsp-modeline-workspace-status-enable nil
-            lsp-inlay-hint-enable t
+     :init (setq lsp-use-plists t
+                 lsp-log-io nil
 
-            ;; For corfu
-            lsp-completion-provider :none
+                 lsp-keymap-prefix "C-c l"
+                 lsp-keep-workspace-alive nil
+                 lsp-signature-auto-activate nil
+                 lsp-modeline-code-actions-enable nil
+                 lsp-modeline-diagnostics-enable nil
+                 lsp-modeline-workspace-status-enable nil
+                 lsp-inlay-hint-enable t
 
-            lsp-semantic-tokens-enable t
-            lsp-progress-spinner-type 'progress-bar-filled
+                 ;; For corfu
+                 lsp-completion-provider :none
 
-            lsp-enable-file-watchers nil
-            lsp-enable-folding nil
-            lsp-enable-symbol-highlighting nil
-            lsp-enable-text-document-color nil
+                 lsp-semantic-tokens-enable t
+                 lsp-progress-spinner-type 'progress-bar-filled
 
-            lsp-enable-indentation nil
-            lsp-enable-on-type-formatting nil
-            lsp-lens-enable nil
+                 lsp-enable-file-watchers nil
+                 lsp-enable-folding nil
+                 lsp-enable-symbol-highlighting nil
+                 lsp-enable-text-document-color nil
 
-            lsp-session-file (concat dotfairy-etc-dir "lsp-session")
-            lsp-server-install-dir (concat dotfairy-etc-dir "lsp/")
+                 lsp-enable-indentation nil
+                 lsp-enable-on-type-formatting nil
+                 lsp-lens-enable nil
 
-            ;; For diagnostics
-            lsp-diagnostics-disabled-modes '(markdown-mode gfm-mode)
+                 lsp-session-file (concat dotfairy-etc-dir "lsp-session")
+                 lsp-server-install-dir (concat dotfairy-etc-dir "lsp/")
 
-            ;; For clients
-            lsp-clients-python-library-directories '("/usr/local/" "/usr/"))
+                 ;; For diagnostics
+                 lsp-diagnostics-disabled-modes '(markdown-mode gfm-mode)
+
+                 ;; For clients
+                 lsp-clients-python-library-directories '("/usr/local/" "/usr/"))
      :config
      (add-to-list 'auto-mode-alist '("\\.dir-locals\\.el\\'" . emacs-lisp-mode))
      (add-hook! 'dotfairy-escape-hook
@@ -392,6 +390,22 @@
        (when (boundp 'aw-ignored-buffers)
          (push 'lsp-treemacs-symbols-mode aw-ignored-buffers)
          (push 'lsp-treemacs-java-deps-mode aw-ignored-buffers))))
+
+   ;; Python
+   (use-package lsp-pyright
+     :functions lsp-pyright-format-buffer
+     :hook (((python-mode python-ts-mode) . (lambda ()
+                                              (require 'lsp-pyright)
+                                              (add-hook 'after-save-hook #'lsp-pyright-format-buffer t t))))
+     :init
+     (when (executable-find "python3")
+       (setq lsp-pyright-python-executable-cmd "python3"))
+
+     (defun lsp-pyright-format-buffer ()
+       "Use `yapf' to format the buffer."
+       (interactive)
+       (when (and (executable-find "yapf") buffer-file-name)
+         (call-process "yapf" nil nil nil "-i" buffer-file-name))))
 
    ;; Swift
    (use-package lsp-sourcekit)

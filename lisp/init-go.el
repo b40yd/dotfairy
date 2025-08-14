@@ -113,6 +113,8 @@
     :init (setq go-tag-args (list "-transform" "camelcase")))
 
   (when dotfairy-tree-sitter
+    (setq treesit-load-name-override-list
+          '((gomod "libtree-sitter-go" "tree_sitter_go")))
     (use-package go-ts-mode
       :init (setq go-ts-mode-indent-offset 4)))
 
@@ -181,41 +183,40 @@
       (error "Must be in a _test.go file")))
 
 
-  (after! go-mode
-    (map! :localleader
-          :map go-mode-map
-          :desc "add tag"                           "a" #'go-tag-add
-          :desc "remove tag"                        "d" #'go-tag-remove
-          :desc "doc at point"                      "p" #'godoc
-          (:prefix ("h" . "help")
-           "." #'godoc-at-point)     ; Lookup in godoc
-          (:prefix ("i" . "imports")
-           :desc "import add"                       "a" #'go-import-add
-           :desc "expr completion"                  "e" #'go-expr-completion
-           :desc "goto imports"                     "i" #'go-goto-imports)      ; Go to imports
-          (:prefix ("b" . "build")
-           :desc "go run ."                         "r" (cmd! (compile "go run ."))
-           :desc "go build"                         "b" (cmd! (compile "go build"))
-           :desc "go clean"                         "c" (cmd! (compile "go clean")))
-          (:prefix ("t" . "test")
-           "t" #'+go/test-rerun
-           "a" #'+go/test-all
-           "A" #'go-test-current-project
-           "c" #'go-test-current-coverage
-           "s" #'+go/test-single
-           "S" #'go-test-current-test
-           "n" #'+go/test-nested
-           "f" #'+go/test-file
-           "t" #'go-test-current-file
-           "g" #'go-gen-test-dwim
-           "G" #'go-gen-test-all
-           "e" #'go-gen-test-exported
-           (:prefix ("b" . "bench")
-            "a" #'+go/bench-all
-            "A" #'go-test-current-project-benchmarks
-            "s" #'+go/bench-single
-            "S" #'go-test-current-benchmark
-            "t" #'go-test-current-file-benchmarks)))))
+  (map! :localleader
+        :map go-ts-mode-map
+        :desc "add tag"                           "a" #'go-tag-add
+        :desc "remove tag"                        "d" #'go-tag-remove
+        :desc "doc at point"                      "p" #'godoc
+        (:prefix ("h" . "help")
+         "." #'godoc-at-point)     ; Lookup in godoc
+        (:prefix ("i" . "imports")
+         :desc "import add"                       "a" #'go-import-add
+         :desc "expr completion"                  "e" #'go-expr-completion
+         :desc "goto imports"                     "i" #'go-goto-imports)      ; Go to imports
+        (:prefix ("b" . "build")
+         :desc "go run ."                         "r" (cmd! (compile "go run ."))
+         :desc "go build"                         "b" (cmd! (compile "go build"))
+         :desc "go clean"                         "c" (cmd! (compile "go clean")))
+        (:prefix ("t" . "test")
+         "t" #'+go/test-rerun
+         "a" #'+go/test-all
+         "A" #'go-test-current-project
+         "c" #'go-test-current-coverage
+         "s" #'+go/test-single
+         "S" #'go-test-current-test
+         "n" #'+go/test-nested
+         "f" #'+go/test-file
+         "t" #'go-test-current-file
+         "g" #'go-gen-test-dwim
+         "G" #'go-gen-test-all
+         "e" #'go-gen-test-exported
+         (:prefix ("b" . "bench")
+          "a" #'+go/bench-all
+          "A" #'go-test-current-project-benchmarks
+          "s" #'+go/bench-single
+          "S" #'go-test-current-benchmark
+          "t" #'go-test-current-file-benchmarks))))
 
 (provide 'init-go)
 ;;; init-go.el ends here

@@ -72,7 +72,7 @@
   (setq command-line-x-option-alist nil))
 
 ;; Increase how much is read from processes in a single chunk (default is 4kb)
-(setq read-process-output-max #x10000)  ; 64kb
+(setq read-process-output-max #x100000)  ; 1MB
 
 ;; Garbage Collector Magic Hack
 (use-package gcmh

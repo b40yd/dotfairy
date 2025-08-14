@@ -213,6 +213,7 @@ localleader prefix."
   (when (childframe-completion-workable-p)
     (use-package which-key-posframe
       :diminish
+      :autoload which-key-posframe-mode
       :functions posframe-poshandler-frame-center-near-bottom
       :custom-face
       (which-key-posframe ((t (:inherit tooltip))))
