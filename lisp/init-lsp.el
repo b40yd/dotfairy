@@ -394,6 +394,7 @@
    ;; Python
    (use-package lsp-pyright
      :functions lsp-pyright-format-buffer
+     :custom (lsp-pyright-langserver-command "basedpyright")
      :hook (((python-mode python-ts-mode) . (lambda ()
                                               (require 'lsp-pyright)
                                               (add-hook 'after-save-hook #'lsp-pyright-format-buffer t t))))
