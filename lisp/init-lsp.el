@@ -394,11 +394,12 @@
    ;; Python
    (use-package lsp-pyright
      :functions lsp-pyright-format-buffer
-     :custom (lsp-pyright-langserver-command "basedpyright")
      :hook (((python-mode python-ts-mode) . (lambda ()
                                               (require 'lsp-pyright)
                                               (add-hook 'after-save-hook #'lsp-pyright-format-buffer t t))))
      :init
+     (when (executable-find "basedpyright")
+       (setq lsp-pyright-langserver-command "basedpyright"))
      (when (executable-find "python3")
        (setq lsp-pyright-python-executable-cmd "python3"))
 
