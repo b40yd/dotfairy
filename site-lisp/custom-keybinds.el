@@ -160,6 +160,7 @@
   (:prefix-map ("j" . "jump")
    :desc "Remember init"               "." #'remember-init
    :desc "Remember jump"               "," #'remember-jump
+   :desc "Goto line"                   "g" #'consult-goto-line
    )
 
   (:prefix-map ("k" . "kill")

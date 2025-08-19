@@ -334,8 +334,8 @@ The return value is the new value of LIST-VAR."
     (:prefix-map ("j" . "jump")
      :desc "avy goto char timer"         "/" #'avy-goto-char-timer
      :desc "goto end of line"            "e" #'avy-goto-end-of-line
-     :desc "goto line"                   "g" #'avy-goto-line
-     :desc "goto char in line"           "G" #'avy-goto-char-in-line
+     :desc "goto page line"              "l" #'avy-goto-line
+     :desc "goto char in line"           "L" #'avy-goto-char-in-line
      :desc "goto char"                   "j" #'avy-goto-char
      :desc "goto char 2"                 "J" #'avy-goto-char-2
      :desc "kill char dwin"              "k" #'avy-zap-to-char-dwim
