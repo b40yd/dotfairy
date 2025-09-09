@@ -181,7 +181,7 @@
   (setq plantuml-jar-path (expand-file-name "plantuml.jar" dotfairy-local-dir)))
 
 (use-package devdocs
-  :autoload (devdocs--installed-docs devdocs--available-docs)
+  :autoload devdocs--available-docs
   :bind (:map prog-mode-map
          ("M-<f1>" . devdocs-dwim)
          ("C-h D"  . devdocs-dwim))

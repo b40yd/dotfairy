@@ -38,8 +38,8 @@ Possible values are:
 
 ;; Auto completion
 (use-package corfu
-  :autoload corfu-quit consult-completion-in-region
-  :functions persistent-scratch-save corfu-move-to-minibuffer
+  :autoload (corfu-quit consult-completion-in-region)
+  :functions (persistent-scratch-save corfu-move-to-minibuffer)
   :bind ("<backtab>" . completion-at-point)
   :hook ((after-init . global-corfu-mode)
          (global-corfu-mode . corfu-popupinfo-mode))

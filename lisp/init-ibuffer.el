@@ -38,6 +38,7 @@
 
 ;; Group ibuffer's list by project root
 (use-package ibuffer-project
+  :autoload (ibuffer-project-generate-filter-groups ibuffer-do-sort-by-project-file-relative)
   :hook (ibuffer . (lambda ()
                      (setq ibuffer-filter-groups (ibuffer-project-generate-filter-groups))
                      (unless (eq ibuffer-sorting-mode 'project-file-relative)
