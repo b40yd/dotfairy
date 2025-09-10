@@ -714,11 +714,6 @@ prepended to the element after the #+HEADER: tag."
               org-roam-ui-update-on-save t
               org-roam-ui-open-on-start t))))
 
-  ;; Auto-toggle Org LaTeX fragments
-  (use-package org-fragtog
-    :diminish
-    :hook (org-mode . org-fragtog-mode))
-
   ;; Preview
   (use-package org-preview-html
     :diminish
@@ -777,6 +772,21 @@ when exporting org-mode to '(html hugo md odt)."
                "\\1\\2"
                contents)))
         (list paragraph fixed-contents info))))
+
+  ;; Pomodoro
+  (use-package org-pomodoro
+    :after org
+    :custom-face
+    (org-pomodoro-mode-line ((t (:inherit warning))))
+    (org-pomodoro-mode-line-overtime ((t (:inherit error))))
+    (org-pomodoro-mode-line-break ((t (:inherit success))))
+    :bind (:map org-mode-map
+           ("C-c C-x m" . org-pomodoro))
+    :init (with-eval-after-load 'org-agenda
+            (bind-keys :map org-agenda-mode-map
+              ("K" . org-pomodoro)
+              ("C-c C-x m" . org-pomodoro))))
+
   (map! :map org-mode-map
         :ie [tab]    #'org-cycle
         [C-return]   #'+org/insert-item-below
