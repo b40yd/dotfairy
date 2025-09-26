@@ -548,7 +548,7 @@ Supports exporting consult-grep to wgrep, file to wdeired, and consult-location 
 :recursive BOOL
   Whether or not to search files recursively from the base directory."
   (declare (indent defun))
-  (unless (executable-find "rg")
+  (unless (executable-find "rg" t)
     (user-error "Couldn't find ripgrep in your PATH"))
   (require 'consult)
   (setq deactivate-mark t)

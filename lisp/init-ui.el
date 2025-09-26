@@ -61,14 +61,18 @@
                   (menu-bar-mode 1)
                 (menu-bar-mode -1))))
   (defun refresh-ns-appearance ()
-    "Refresh frame parameter ns-appearance."
+    "Safely refresh frame parameter `ns-appearance' to match background mode."
+    (interactive)
     (let ((bg (frame-parameter nil 'background-mode)))
       (set-frame-parameter nil 'ns-appearance bg)
-      (setcdr (assq 'ns-appearance default-frame-alist) bg)))
+      (setf (alist-get 'ns-appearance default-frame-alist) bg)))
+
+  ;; Hook up appearance refresh to theme changes
   (add-hook 'after-load-theme-hook #'refresh-ns-appearance)
-  (with-eval-after-load'auto-dark
-   (add-hook 'auto-dark-dark-mode-hook #'refresh-ns-appearance)
-   (add-hook 'auto-dark-light-mode-hook #'refresh-ns-appearance)))
+
+  (with-eval-after-load 'auto-dark
+    (dolist (hook '(auto-dark-dark-mode-hook auto-dark-light-mode-hook))
+      (add-hook hook #'refresh-ns-appearance))))
 
 (use-package time
   :hook (after-init . display-time-mode)
@@ -396,15 +400,18 @@ See `display-line-numbers' for what these values mean."
          ("C--" . default-text-scale-decrease)
          ("C-0" . default-text-scale-reset)))
 
-;; Use fixed pitch where it's sensible
-(use-package mixed-pitch
-  :diminish)
-
 ;; Smooth scrolling
-(when emacs/29
+(when (fboundp 'pixel-scroll-precision-mode) ;; 29+
   (use-package ultra-scroll
-    :ensure nil
-    :hook (after-init . ultra-scroll-mode)))
+    :functions (hl-todo-mode diff-hl-flydiff-mode)
+    :hook (after-init . ultra-scroll-mode)
+    :config
+    (add-hook 'ultra-scroll-hide-functions #'diff-hl-flydiff-mode)
+    (add-hook 'ultra-scroll-hide-functions #'hl-todo-mode)
+    (add-hook 'ultra-scroll-hide-functions #'jit-lock-mode)))
+
+;; Use fixed pitch where it's sensible
+(use-package mixed-pitch  :diminish)
 
 
 ;; Display ugly ^L page breaks as tidy horizontal lines

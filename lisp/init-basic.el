@@ -92,17 +92,21 @@
 ;; undo limit
 (setq undo-outer-limit 5000000)
 
-;; Mouse & Smooth Scroll
+;; Scrolling
 ;; Scroll one line at a time (less "jumpy" than defaults)
-(when (display-graphic-p)
-  (setq mouse-wheel-scroll-amount '(1 ((shift) . hscroll))
-        mouse-wheel-scroll-amount-horizontal 1
-        mouse-wheel-progressive-speed nil))
-(setq scroll-step 1
+(setq hscroll-step 1
+      hscroll-margin 2
+      scroll-step 1
+
+
       scroll-margin 0
       scroll-conservatively 100000
+      scroll-preserve-screen-position t
       auto-window-vscroll nil
-      scroll-preserve-screen-position t)
+      ;; mouse
+      mouse-wheel-scroll-amount-horizontal 1
+      mouse-wheel-progressive-speed nil)
+
 ;; Misc
 (set-default 'cursor-type 'bar)
 ;; Misc
