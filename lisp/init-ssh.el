@@ -63,6 +63,7 @@
   (add-hook! 'after-save-hook
     (defun +upload-init-after-save-h ()
       (when (and (bound-and-true-p ssh-deploy-root-remote)
+                 (require 'ssh-deploy nil t)
                  (integerp ssh-deploy-on-explicit-save)
                  (> ssh-deploy-on-explicit-save 0))
         (ssh-deploy-upload-handler ssh-deploy-force-on-explicit-save))))
@@ -71,10 +72,13 @@
   ;; (if possible)
   (add-hook! 'find-file-hook
     (defun +upload-init-find-file-h ()
-      (when (bound-and-true-p ssh-deploy-root-remote)
-        (require 'ssh-deploy)
+      (when (and (bound-and-true-p ssh-deploy-root-remote)
+                 (require 'ssh-deploy nil t))
         (when ssh-deploy-automatically-detect-remote-changes
-          (ssh-deploy-remote-changes-handler))))))
+          (ssh-deploy-remote-changes-handler))
+        (when (or ssh-deploy-root-remote
+                  ssh-deploy-root-local)
+          (ssh-deploy-line-mode +1))))))
 
 (provide 'init-ssh)
 ;;; ssh-manager.el ends here
