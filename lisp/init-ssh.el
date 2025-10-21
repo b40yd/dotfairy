@@ -49,7 +49,8 @@
         ssh-deploy-on-explicit-save 1
         ssh-deploy-automatically-detect-remote-changes nil)
 
-  ;; Make these safe as file-local variables
+  ;; Forward-declare these as safe file/dir-local variables in case files set
+  ;; them before ssh-deploy is loaded.
   (dolist (sym '((ssh-deploy-root-local . stringp)
                  (ssh-deploy-root-remote . stringp)
                  (ssh-deploy-script . functionp)
@@ -59,21 +60,25 @@
                  (ssh-deploy-exclude-list . listp)))
     (put (car sym) 'safe-local-variable (cdr sym)))
 
-  ;; Maybe auto-upload on save
+  ;; Respect `ssh-deploy-on-explicit-save' if `ssh-deploy-root-remote' has
+  ;; changed since the buffer was opened.
   (add-hook! 'after-save-hook
     (defun +upload-init-after-save-h ()
       (when (and (bound-and-true-p ssh-deploy-root-remote)
                  (require 'ssh-deploy nil t)
                  (integerp ssh-deploy-on-explicit-save)
                  (> ssh-deploy-on-explicit-save 0))
-        (ssh-deploy-upload-handler ssh-deploy-force-on-explicit-save))))
+        (ssh-deploy-upload-handler ssh-deploy-force-on-explicit-save)
+        (when (or ssh-deploy-root-remote
+                  ssh-deploy-root-local)
+          (ssh-deploy-line-mode +1)))))
 
   ;; Enable ssh-deploy if variables are set, and check for changes on open file
   ;; (if possible)
   (add-hook! 'find-file-hook
     (defun +upload-init-find-file-h ()
-      (when (and (bound-and-true-p ssh-deploy-root-remote)
-                 (require 'ssh-deploy nil t))
+      (when (bound-and-true-p ssh-deploy-root-remote)
+        (require 'ssh-deploy)
         (when ssh-deploy-automatically-detect-remote-changes
           (ssh-deploy-remote-changes-handler))
         (when (or ssh-deploy-root-remote
