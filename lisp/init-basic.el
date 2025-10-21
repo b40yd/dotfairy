@@ -235,9 +235,6 @@
     (revert-buffer t t)
     (message "Reverted this buffer")))
 
-(use-package compat
-  :demand t)
-
 ;; Child frame
 (when (childframe-workable-p)
   (use-package posframe
