@@ -257,5 +257,14 @@ Install the doc if it's not installed."
          ("M--" . transwin-dec)
          ("M-0" . transwin-toggle)))
 
+(use-package beacon
+  :ensure t
+  :demand t
+  :config
+  (setq beacon-blink-when-point-moves-vertically 1
+        beacon-blink-when-point-moves-horizontally 1
+        beacon-dont-blink-commands '(forward-char backward-char))
+  (beacon-mode 1))
+
 (provide 'init-prog)
 ;;; init-prog.el ends here
