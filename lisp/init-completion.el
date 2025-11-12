@@ -138,7 +138,7 @@ Possible values are:
        (remove-hook 'completion-at-point-functions #'ispell-completion-at-point t))))
   )
 
-(unless (display-graphic-p)
+(unless (or (display-graphic-p) (featurep 'tty-child-frames))
   (use-package corfu-terminal
     :hook (global-corfu-mode . corfu-terminal-mode)))
 
