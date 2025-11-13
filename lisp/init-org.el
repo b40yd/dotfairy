@@ -233,8 +233,8 @@ exist, and `org-link' otherwise."
     (after! org
       ;; A shorter link to attachments
       (+org-define-basic-link "download" (lambda () (or org-download-image-dir org-attach-id-dir "."))
-        :image-data-fun #'+org-image-file-data-fn
-        :requires 'org-download))
+                              :image-data-fun #'+org-image-file-data-fn
+                              :requires 'org-download))
     :config
     (unless org-download-image-dir
       (setq org-download-image-dir org-attach-id-dir))
@@ -459,7 +459,7 @@ If prefix ARG, copy instead of move."
                                     buffer)))
              (heading
               (org-with-point-at marker
-                (org-get-heading 'no-tags 'no-todo)))
+                                 (org-get-heading 'no-tags 'no-todo)))
              ;; Won't work with target buffers whose filename is nil
              (rfloc (list heading filename nil marker))
              (org-after-refile-insert-hook (cons #'org-reveal org-after-refile-insert-hook)))
@@ -669,26 +669,23 @@ prepended to the element after the #+HEADER: tag."
                                load-language-list)
 
   ;; Presentation
-  (use-package org-tree-slide
-    :diminish
-    :functions (org-display-inline-images
-                org-remove-inline-images)
-    :bind (:map org-tree-slide-mode-map
-           ("<left>" . org-tree-slide-move-previous-tree)
-           ("<right>" . org-tree-slide-move-next-tree)
-           ("C-<tab>" . org-tree-slide-move-previous-tree)
-           ("SPC" . org-tree-slide-move-next-tree))
-    :hook ((org-tree-slide-play . (lambda ()
-                                    (text-scale-increase 4)
-                                    (org-display-inline-images)
-                                    (read-only-mode 1)))
-           (org-tree-slide-stop . (lambda ()
-                                    (text-scale-increase 0)
-                                    (org-remove-inline-images)
-                                    (read-only-mode -1))))
-    :config
-    (org-tree-slide-simple-profile)
-    (setq org-tree-slide-skip-outline-level 4))
+  (if emacs/29
+      (use-package dslide
+        :after org
+        :bind (:map org-mode-map
+               ("s-<f7>" . dslide-deck-start)))
+    (use-package org-tree-slide
+      :after org
+      :diminish
+      :bind (:map org-mode-map
+             ("s-<f7>" . org-tree-slide-mode)
+             :map org-tree-slide-mode-map
+             ("<left>" . org-tree-slide-move-previous-tree)
+             ("<right>" . org-tree-slide-move-next-tree)
+             ("S-SPC" . org-tree-slide-move-previous-tree)
+             ("SPC" . org-tree-slide-move-next-tree))
+      :init (setq org-tree-slide-skip-outline-level 3)))
+
   (when (and (fboundp 'sqlite-available-p) (sqlite-available-p))
     (use-package org-roam
       :functions dotfairy-browse-url org-roam-db-autosync-enable
