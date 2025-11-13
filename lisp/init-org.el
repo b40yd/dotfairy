@@ -576,6 +576,7 @@ prepended to the element after the #+HEADER: tag."
     (setq org-modern-table nil
           org-modern-keyword nil
           org-modern-block-name nil)
+    :diminish
     :config
     ;; HACK: The default unicode symbol for checked boxes often turn out much
     ;;   larger than the others, so I swap it out with one that's more likely to
@@ -672,6 +673,7 @@ prepended to the element after the #+HEADER: tag."
   (if emacs/29
       (use-package dslide
         :after org
+        :diminish
         :bind (:map org-mode-map
                ("s-<f7>" . dslide-deck-start)))
     (use-package org-tree-slide
@@ -724,8 +726,22 @@ prepended to the element after the #+HEADER: tag."
     :config
     (setq org-re-reveal-revealjs-version "4"))
 
+  ;; Auto-toggle Org elements
+  (use-package org-appear
+    :diminish
+    :hook (org-mode . org-appear-mode)
+    :custom
+    (org-appear-autoentities t)
+    (org-appear-autokeywords t)
+    (org-appear-autolinks t)
+    (org-appear-autosubmarkers t)
+    (org-appear-inside-latex t)
+    (org-appear-manual-linger t)
+    (org-appear-delay 0.5))
+
   ;; Table of contents
   (use-package toc-org
+    :diminish
     :hook (org-mode . toc-org-mode))
 
   (use-package org-journal
@@ -773,6 +789,7 @@ when exporting org-mode to '(html hugo md odt)."
   ;; Pomodoro
   (use-package org-pomodoro
     :after org
+    :diminish
     :custom-face
     (org-pomodoro-mode-line ((t (:inherit warning))))
     (org-pomodoro-mode-line-overtime ((t (:inherit error))))
