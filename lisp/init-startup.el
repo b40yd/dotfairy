@@ -87,6 +87,7 @@
 (require 'init-calendar)
 (require 'init-player)
 (require 'init-ansible)
+(require 'init-ai)
 
 ;; Language
 (require 'init-elisp)

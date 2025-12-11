@@ -134,7 +134,7 @@
      (progn
        (unless (require 'rg nil t)
          (error "`rg' is not installed"))
-       (let ((regexp (replace-regexp-in-string "\\\\[<>]*" "" (hl-todo--regexp))))
+       (let ((regexp (replace-regexp-in-string "\\\\[_<>]*" "" (hl-todo--regexp))))
          (list regexp
                (rg-read-files)
                (read-directory-name "Base directory: " nil default-directory t)))))
@@ -145,7 +145,7 @@
     (interactive)
     (unless (require 'rg nil t)
       (error "`rg' is not installed"))
-    (rg-project (replace-regexp-in-string "\\\\[<>]*" "" (hl-todo--regexp)) "everything"))
+    (rg-project (replace-regexp-in-string "\\\\[_<>]*" "" (hl-todo--regexp)) "everything"))
   )
 
 ;; Highlight uncommitted changes using VC

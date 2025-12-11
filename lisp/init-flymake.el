@@ -32,9 +32,10 @@
   :diminish
   :functions my-elisp-flymake-byte-compile
   :hook (prog-mode . flymake-mode)
-  :init (setq flymake-no-changes-timeout nil
-              flymake-fringe-indicator-position 'right-fringe
-              flymake-margin-indicator-position 'right-margin)
+  :custom
+  (setq flymake-no-changes-timeout nil
+        flymake-fringe-indicator-position 'right-fringe
+        flymake-margin-indicator-position 'right-margin)
 
   :config
   ;; Check elisp with ``load-path''
@@ -46,13 +47,11 @@
       (apply fn args)))
   (advice-add 'elisp-flymake-byte-compile :around #'my-elisp-flymake-byte-compile))
 
-(use-package flymake-popon
+
+(use-package flyover
   :diminish
-  :custom-face
-  (flymake-popon ((t :inherit default :height 0.85)))
-  (flymake-popon-posframe-border ((t :foreground ,(face-background 'posframe-border nil t))))
-  :hook (flymake-mode . flymake-popon-mode)
-  :init (setq flymake-popon-width 80))
+  :hook flymake-mode
+  :custom (flyover-checkers '(flymake)))
 
 (provide 'init-flymake)
 ;;; init-flymake.el ends here

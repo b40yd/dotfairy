@@ -150,7 +150,7 @@ Possible values are:
 (use-package cape
   :commands (cape-file cape-elisp-block cape-keyword)
   :autoload (cape-wrap-noninterruptible cape-wrap-nonexclusive cape-wrap-buster)
-  :autoload (cape-wrap-silent cape-wrap-purify)
+  :autoload (cape-wrap-silent)
   :init
   (add-hook! prog-mode
     (defun +corfu-add-cape-file-h ()
@@ -187,8 +187,7 @@ Possible values are:
   ;; From the `cape' readme. Without this, Eshell autocompletion is broken on
   ;; Emacs28.
   (when (< emacs-major-version 29)
-    (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
-    (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify)))
+    (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)))
 
 
 (use-package yasnippet-capf

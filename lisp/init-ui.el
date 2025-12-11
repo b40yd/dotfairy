@@ -180,9 +180,7 @@
       "irc" :toggle doom-modeline-irc)
      ("F" (setq doom-modeline-irc-buffers (not doom-modeline-irc-buffers))
       "irc buffers" :toggle doom-modeline-irc-buffers)
-     ("S" (progn
-            (setq doom-modeline-check-simple-format (not doom-modeline-check-simple-format))
-            (and (bound-and-true-p flycheck-mode) (flycheck-buffer)))
+     ("S" (setq doom-modeline-check-simple-format (not doom-modeline-check-simple-format))
       "simple checker" :toggle doom-modeline-check-simple-format)
      ("T" (setq doom-modeline-time (not doom-modeline-time))
       "time" :toggle doom-modeline-time)
@@ -244,9 +242,8 @@
             (run-with-timer 300 nil #'doom-modeline--github-fetch-notifications)
             (browse-url "https://github.com/notifications"))
       "github notifications" :exit t)
-     ("e" (if (bound-and-true-p flycheck-mode)
-              (flycheck-list-errors)
-            (flymake-show-diagnostics-buffer))
+     ("e" (and (bound-and-true-p flycheck-mode)
+               (flymake-show-diagnostics-buffer))
       "list errors" :exit t)
      ("w" (if (bound-and-true-p grip-mode)
               (grip-browse-preview)
@@ -399,16 +396,6 @@ See `display-line-numbers' for what these values mean."
          ("C-=" . default-text-scale-increase)
          ("C--" . default-text-scale-decrease)
          ("C-0" . default-text-scale-reset)))
-
-;; Smooth scrolling
-(when (fboundp 'pixel-scroll-precision-mode) ;; 29+
-  (use-package ultra-scroll
-    :functions (hl-todo-mode diff-hl-flydiff-mode)
-    :hook (after-init . ultra-scroll-mode)
-    :config
-    (add-hook 'ultra-scroll-hide-functions #'diff-hl-flydiff-mode)
-    (add-hook 'ultra-scroll-hide-functions #'hl-todo-mode)
-    (add-hook 'ultra-scroll-hide-functions #'jit-lock-mode)))
 
 ;; Use fixed pitch where it's sensible
 (use-package mixed-pitch  :diminish)

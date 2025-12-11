@@ -183,6 +183,7 @@
               savehist-autosave-interval 300))
 
 (use-package simple
+  :diminish visual-line-mode
   :ensure nil
   :commands (enable-trailing-whitespace)
   :hook ((after-init . size-indication-mode)
@@ -235,7 +236,9 @@
     (revert-buffer t t)
     (message "Reverted this buffer")))
 
+;; Asynchronous processing
 (use-package async
+  :diminish (async-bytecomp-package-mode dired-async-mode)
   :functions (async-bytecomp-package-mode dired-async-mode)
   :init
   (unless IS-WINDOWS
