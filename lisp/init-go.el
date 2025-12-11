@@ -23,100 +23,116 @@
 ;;
 
 ;;; Code:
-(require 'init-basic)
-(require 'init-funcs)
 
+(eval-when-compile
+  (require 'init-basic)
+  (require 'init-funcs)
+  (require 'init-custom))
 
-(use-package go-mode
-  :ensure t
-  :functions go-install-tools
-  :autoload godoc-gogetdoc
-  :hook ((go-mode . (lambda ()
-                      (add-hook! 'before-save (lambda ()
-                                                (when dotfairy-lsp-format-on-save
-                                                  (gofmt-before-save))))
-                      )))
-  :init
-  (setq godoc-at-point-function #'godoc-gogetdoc)
-  ;; Install or update tools
-  (defconst go--tools '("golang.org/x/tools/gopls"
-                        "golang.org/x/tools/cmd/goimports"
-                        "github.com/go-delve/delve/cmd/dlv"
-                        "github.com/josharian/impl"
-                        "github.com/cweill/gotests/gotests"
-                        "github.com/fatih/gomodifytags"
-                        "github.com/110y/go-expr-completion"
-                        "golang.org/x/tools/cmd/gorename"
-                        "golang.org/x/tools/cmd/godoc"
-                        "github.com/josharian/impl"
-                        "github.com/golangci/golangci-lint/cmd/golangci-lint")
-    "All necessary go tools.")
+(declare-function exec-path-from-shell-copy-envs "ext: exec-path-from-shell")
 
-  (defun go-install-tools ()
-    "Install go tools."
-    (interactive)
-    (unless (executable-find "go")
-      (user-error "Unable to find `go' in `exec-path'!"))
+;; Install tools
+(defvar go-tools
+  '("golang.org/x/tools/gopls"
+    "golang.org/x/tools/cmd/goimports"
+    "honnef.co/go/tools/cmd/staticcheck"
+    "github.com/go-delve/delve/cmd/dlv"
+    "github.com/zmb3/gogetdoc"
+    "github.com/josharian/impl"
+    "github.com/cweill/gotests/..."
+    "github.com/fatih/gomodifytags"
+    "github.com/davidrjenni/reftools/cmd/fillstruct")
+  "All necessary go tools.")
 
-    (message "Installing go tools...")
+(defun go-install-tools ()
+  "Install or update go tools."
+  (interactive)
+  (unless (executable-find "go")
+    (user-error "Unable to find `go' in `exec-path'!"))
 
-    (dolist (pkg go--tools)
-      (set-process-sentinel
-       (start-process "go-tools" "*Go Tools*" "go" "install" "-v" (concat pkg "@latest"))
-       (lambda (proc _)
-         (let ((status (process-exit-status proc)))
-           (if (= 0 status)
-               (message "Installed %s" pkg)
-             (message "Failed to install %s: %d" pkg status)))))))
+  (message "Installing go tools...")
+  (dolist (pkg go-tools)
+    (set-process-sentinel
+     (start-process "go-tools" "*Go Tools*" "go" "install" "-v" "-x" (concat pkg "@latest"))
+     (lambda (proc _)
+       (let ((status (process-exit-status proc)))
+         (if (= 0 status)
+             (message "Installed %s" pkg)
+           (message "Failed to install %s: %d" pkg status)))))))
 
-  :config
+;; Configure Golang automatically
+(defvar go-keymap (if dotfairy-tree-sitter
+                      'go-ts-mode-map
+                    'go-mode-map)
+  "The keymap for Golang.")
 
-  (set-ligatures! 'go-mode
-    ;; Types
-    :null "nil"
-    :true "true" :false "false"
-    :int "int" :float "float"
-    :str "string"
-    :map "map"
-    :bool "bool"
-    :shr ">>"
-    :shl "<<"
-    ;; Flow
-    :not "!"
-    :and "&&" :or "||"
-    :for "for"
-    :def "func"
-    :return "return"
-    :lambda "func()")
+(defun go-auto-config ()
+  "Configure Golang automatically."
   ;; Env vars
   (with-eval-after-load 'exec-path-from-shell
-    (exec-path-from-shell-copy-envs '("GOPATH" "GO111MODULE" "GOPROXY"))
-    (if (not (executable-find "go"))
-        (exec-path-from-shell-setenv "PATH" (format "%s/bin" (cdr (dotfairy-call-process "go" "env" "GOPATH")))))
-    (exec-path-from-shell-initialize))
+    (exec-path-from-shell-copy-envs '("GOPATH" "GO111MODULE" "GOPROXY")))
 
   ;; Try to install go tools if `gopls' is not found
   (when (and (executable-find "go")
              (not (executable-find "gopls")))
     (go-install-tools))
 
+  ;; Misc. tools
+  (use-package go-fill-struct)
 
-  ;; Misc
-  (use-package go-dlv)
-  (use-package go-impl)
-  (use-package go-gen-test)
+  (use-package go-gen-test
+    :bind (:map go-keymap
+           ("C-c t g" . go-gen-test-dwim)))
+
   (use-package gotest)
-  (use-package go-expr-completion)
-  (use-package go-rename)
 
-  (use-package go-tag
-    :init (setq go-tag-args (list "-transform" "camelcase")))
+  ;; Golang
+  (if dotfairy-tree-sitter
+      (use-package go-ts-mode
+        :mode (("\\.go\\'" . go-ts-mode)
+               ("/go\\.mod\\'" . go-mod-ts-mode))
+        :init (setq go-ts-mode-indent-offset 4)
+        :config (go-auto-config))
+    (use-package go-mode
+      :autoload godoc-gogetdoc
+      :bind (:map go-mode-map
+             ("<f1>" . godoc))
+      :init (setq godoc-at-point-function #'godoc-gogetdoc)
+      :hook ((go-mode . (lambda ()
+                          (add-hook! 'before-save (lambda ()
+                                                    (when dotfairy-lsp-format-on-save
+                                                      (gofmt-before-save))))
+                          )))
+      :config
+      (set-ligatures! 'go-mode
+        ;; Types
+        :null "nil"
+        :true "true" :false "false"
+        :int "int" :float "float"
+        :str "string"
+        :map "map"
+        :bool "bool"
+        :shr ">>"
+        :shl "<<"
+        ;; Flow
+        :not "!"
+        :and "&&" :or "||"
+        :for "for"
+        :def "func"
+        :return "return"
+        :lambda "func()")
+      (go-auto-config)
 
-  (when dotfairy-tree-sitter
-    (setq treesit-load-name-override-list
-          '((gomod "libtree-sitter-go" "tree_sitter_go")))
-    (use-package go-ts-mode
-      :init (setq go-ts-mode-indent-offset 4)))
+      ;; Misc.
+      (use-package go-dlv)
+      (use-package go-impl)
+
+      (use-package go-tag
+        :bind (:map go-mode-map
+               ("C-c t a" . go-tag-add)
+               ("C-c t r" . go-tag-remove))
+        :init (setq go-tag-args (list "-transform" "camelcase")))))
+
 
   (defvar +go-test-last nil
     "The last test run.")
