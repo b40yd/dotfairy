@@ -28,9 +28,6 @@
 (autoload 'org-capture-goto-target "org-capture" nil t)
 (map! :leader
   (:prefix-map ("a" . "appliction")
-   (:prefix ("C" . "Calendar")
-    :desc "Open calendar"              "o" #'+calendar/open-calendar
-    :desc "Open git calendar"          "g" #'cfw:git-open-calendar)
    (:prefix ("c" . "Command log")
     :desc "Enable command log mode"    "e" #'command-log-mode
     :desc "Toggle command log buffer"  "g" #'clm/toggle-command-log-buffer)
