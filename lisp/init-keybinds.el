@@ -216,7 +216,6 @@ localleader prefix."
       :autoload which-key-posframe-mode
       :functions posframe-poshandler-frame-center-near-bottom
       :custom-face
-      (which-key-posframe ((t (:inherit tooltip))))
       (which-key-posframe-border ((t (:inherit posframe-border :background unspecified))))
       :init
       (setq which-key-posframe-border-width posframe-border-width

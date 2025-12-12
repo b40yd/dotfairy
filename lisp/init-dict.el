@@ -36,6 +36,7 @@
 
 
 (use-package gt
+  :functions set-gt-pop-posframe
   :init
   (map! :leader
     (:prefix ("d" . "dictionaries")
@@ -51,10 +52,13 @@
           (direction . bottom)
           (window-height . 0.4)))
 
-
-  (setq gt-pop-posframe-forecolor (face-foreground 'tooltip nil t)
-        gt-pop-posframe-backcolor (face-background 'tooltip nil t)
-        gt-pin-posframe-bdcolor (face-background 'posframe-border nil t))
+  (defun set-gt-pop-posframe ()
+    "Set appearance of gt pop posframe."
+    (setq gt-pop-posframe-forecolor (face-foreground 'tooltip nil t)
+          gt-pop-posframe-backcolor (face-background 'tooltip nil t)
+          gt-pin-posframe-bdcolor (face-background 'posframe-border nil t)))
+  (set-gt-pop-posframe)
+  (add-hook 'after-load-theme-hook #'set-gt-pop-posframe)
   :config
   (with-no-warnings
     (setq gt-preset-translators
