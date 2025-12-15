@@ -5,24 +5,23 @@
 (use-package hydra
   :defines posframe-border-width
   :functions childframe-completion-workable-p hydra-set-posframe-show-params
-  :hook (emacs-lisp-mode . hydra-add-imenu)
+  :hook ((emacs-lisp-mode . hydra-add-imenu)
+         (after-load-theme . set-hydra-appearance))
   :init
-  (when (childframe-completion-workable-p)
-    (setq hydra-hint-display-type 'posframe)
-
-    (defun hydra-set-posframe-show-params ()
-      "Set hydra-posframe style."
+  (defun set-hydra-appearance ()
+    "Set appearance of hydra."
+    (when (childframe-completion-workable-p)
+      (setq hydra-hint-display-type 'posframe)
       (setq hydra-posframe-show-params
             `(:left-fringe 8
               :right-fringe 8
-              :internal-border-width 2
+              :internal-border-width ,posframe-border-width
               :internal-border-color ,(face-background 'posframe-border nil t)
               :background-color ,(face-background 'tooltip nil t)
               :foreground-color ,(face-foreground 'tooltip nil t)
               :lines-truncate t
-              :poshandler posframe-poshandler-frame-center-near-bottom)))
-    (hydra-set-posframe-show-params)
-    (add-hook 'after-load-theme-hook #'hydra-set-posframe-show-params)))
+              :poshandler posframe-poshandler-frame-center-near-bottom))))
+  (set-hydra-appearance))
 
 (use-package pretty-hydra
   :functions icons-displayable-p

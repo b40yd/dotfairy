@@ -91,13 +91,14 @@
       (use-package go-ts-mode
         :mode (("\\.go\\'" . go-ts-mode)
                ("/go\\.mod\\'" . go-mod-ts-mode))
-        :init (setq go-ts-mode-indent-offset 4)
+        :custom (go-ts-mode-indent-offset 4)
         :config (go-auto-config))
     (use-package go-mode
+      :defines go-mode-map
       :autoload godoc-gogetdoc
       :bind (:map go-mode-map
              ("<f1>" . godoc))
-      :init (setq godoc-at-point-function #'godoc-gogetdoc)
+      :custom (godoc-at-point-function #'godoc-gogetdoc)
       :hook ((go-mode . (lambda ()
                           (add-hook! 'before-save (lambda ()
                                                     (when dotfairy-lsp-format-on-save
@@ -131,7 +132,7 @@
         :bind (:map go-mode-map
                ("C-c t a" . go-tag-add)
                ("C-c t r" . go-tag-remove))
-        :init (setq go-tag-args (list "-transform" "camelcase")))))
+        :custom (go-tag-args (list "-transform" "camelcase")))))
 
 
   (defvar +go-test-last nil

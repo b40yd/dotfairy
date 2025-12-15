@@ -300,7 +300,8 @@
             ("s-<return>" . lsp-ui-sideline-apply-code-actions)
             ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
             ([remap xref-find-references] . lsp-ui-peek-find-references))
-     :hook (lsp-mode . lsp-ui-mode)
+     :hook ((lsp-mode . lsp-ui-mode)
+            (after-load-theme . lsp-ui-set-doc-border))
      :init
      (setq lsp-ui-sideline-show-diagnostics nil
            lsp-ui-sideline-ignore-duplicate t
@@ -312,14 +313,14 @@
                                  ,(face-foreground 'font-lock-constant-face)
                                  ,(face-foreground 'font-lock-variable-name-face)))
      ;; Set correct color to borders
-     (defun my-lsp-ui-doc-set-border ()
+     (defun lsp-ui-set-doc-border ()
        "Set the border color of lsp doc."
        (setq lsp-ui-doc-border
              (if (facep 'posframe-border)
                  (face-background 'posframe-border nil t)
                (face-background 'region nil t))))
-     (my-lsp-ui-doc-set-border)
-     (add-hook 'after-load-theme-hook #'my-lsp-ui-doc-set-border t)
+     (lsp-ui-set-doc-border)
+     (add-hook 'after-load-theme-hook #'lsp-ui-set-doc-border t)
      :config
      (with-no-warnings
        ;; Display peek in child frame if possible
