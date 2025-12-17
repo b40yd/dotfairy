@@ -166,7 +166,7 @@
     (cond ((fboundp 'vterm) (vterm arg))
           ((or (executable-find "pwsh") (executable-find "powershell"))
            (powershell arg))
-          (sys/win32p (eshell arg))
+          (IS-WINDOWS (eshell arg))
           (t (shell))))
 
   (defun shell-pop--hide-frame ()
