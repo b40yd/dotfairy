@@ -123,8 +123,13 @@
       inhibit-compacting-font-caches t  ; Don’t compact font caches during GC.
       delete-by-moving-to-trash t       ; Deleting files go to OS's trash folder
       make-backup-files nil             ; Forbide to make backup files
-      auto-save-default nil             ; Disable auto save
+      auto-save-default t             ; Disable auto save
 
+      auto-save-list-file-prefix (concat dotfairy-cache-dir "autosave/")
+      auto-save-file-name-transforms
+      `(("\\`/[^/]*:\\([^/]*/\\)*\\([^/]*\\)\\'"
+         ,(concat auto-save-list-file-prefix "tramp/") sha1)
+        (".*" ,auto-save-list-file-prefix sha1))
       uniquify-buffer-name-style 'post-forward-angle-brackets ; Show path if names are same
       adaptive-fill-regexp "[ t]+|[ t]*([0-9]+.|*+)[ t]*"
       adaptive-fill-first-line-regexp "^* *$"
