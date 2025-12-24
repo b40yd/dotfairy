@@ -50,6 +50,7 @@
 (use-package python
   :after poetry
   :ensure t
+  :defines eglot-server-programs
   :hook ((inferior-python-mode . (lambda ()
                                    (process-query-on-exit-flag
                                     (get-process "Python")))))
@@ -76,6 +77,17 @@
   (setq python-shell-completion-native-enable nil)
 
   :config
+  ;; Type checker & language server: `ty'
+  (with-eval-after-load 'eglot
+    (add-to-list 'eglot-server-programs
+                 '((python-ts-mode python-mode)
+                   . ("ty" "server"))))
+
+  ;; Linter & formatter: `ruff'
+  (when (executable-find "ruff")
+    (use-package flymake-ruff
+      :hook (python-base-mode . flymake-ruff-load)))
+
   ;; Env vars
   (with-eval-after-load 'exec-path-from-shell
     (exec-path-from-shell-copy-env "PYTHONPATH"))

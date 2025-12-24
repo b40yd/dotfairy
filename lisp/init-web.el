@@ -68,14 +68,6 @@
   ;; Use default keybindings for lsp
   (unbind-key "M-." js2-mode-map))
 
-;; Format HTML, CSS and JavaScript/JSON
-;; Install: npm -g install prettier
-(when (executable-find "prettier")
-  (use-package prettier
-    :diminish
-    :hook ((js-base-mode js2-mode css-mode sgml-mode web-mode) . prettier-mode)
-    :init (setq prettier-pre-warm 'none)))
-
 ;; Live browser JavaScript, CSS, and HTML interaction
 (use-package skewer-mode
   :diminish

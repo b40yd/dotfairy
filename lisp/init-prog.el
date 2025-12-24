@@ -266,5 +266,10 @@ Install the doc if it's not installed."
         beacon-dont-blink-commands '(forward-char backward-char))
   (beacon-mode 1))
 
+;; Reformat buffer stably
+(use-package apheleia
+  :diminish
+  :hook (after-init . apheleia-global-mode))
+
 (provide 'init-prog)
 ;;; init-prog.el ends here
