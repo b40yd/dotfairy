@@ -36,8 +36,15 @@
 
 
 (use-package gt
-  :hook (after-load-theme . gt-configure)
+  :hook (after-init . gt-configure)
   :init
+  (setq gt-langs '(en zh)
+        gt-buffer-render-follow-p t
+        gt-buffer-render-window-config
+        '((display-buffer-reuse-window display-buffer-in-direction)
+          (direction . bottom)
+          (window-height . 0.4)))
+
   (map! :leader
     (:prefix ("d" . "dictionaries")
      "g" #'gt-translate
@@ -45,12 +52,6 @@
      "u" #'gt-use-text-utility
      "p" #'gt-speak
      "s" #'gt-setup))
-  (setq gt-langs '(en zh)
-        gt-buffer-render-follow-p t
-        gt-buffer-render-window-config
-        '((display-buffer-reuse-window display-buffer-in-direction)
-          (direction . bottom)
-          (window-height . 0.4)))
 
   :config
   (with-no-warnings
