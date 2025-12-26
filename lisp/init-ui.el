@@ -79,6 +79,11 @@
   :init (setq display-time-default-load-average nil
               display-time-format "%H:%M"))
 
+(use-package solaire-mode
+  :functions (dotfairy-compatible-theme-p refresh-ns-appearance)
+  :commands solaire-global-mode
+  :init (solaire-global-mode 1))
+
 (use-package solarized-theme)
 (use-package nimbus-theme)
 

@@ -100,6 +100,13 @@
   "Return internal THEME name."
   (or (alist-get theme dotfairy-theme-alist) theme 'doom-one))
 
+
+(defun dotfairy-compatible-theme-p (theme)
+  "Check if the THEME is compatible. THEME is a symbol."
+  (or (memq theme '(auto random system))
+      (string-prefix-p "doom" (symbol-name (dotfairy--theme-name theme)))))
+
+
 (defun dotfairy--load-theme (theme)
   "Disable others and enable new one."
   (when theme
