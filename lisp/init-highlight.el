@@ -257,7 +257,12 @@ be enabled. If any function returns non-nil, the mode will not be activated."
     (unless (run-hook-with-args-until-success '+indent-guides-inhibit-functions)
       (indent-bars-mode +1)))
   :custom
-  (indent-bars-color '(highlight :face-bg t :blend 0.225))
+  (indent-bars-color '(font-lock-comment-face :face-bg nil :blend 0.4))
+  (indent-bars-highlight-current-depth '(:face default :blend 0.4))
+  (indent-bars-pattern ".")
+  (indent-bars-width-frac 0.1)
+  (indent-bars-pad-frac 0.1)
+  (indent-bars-color-by-depth nil)
   (indent-bars-treesit-support t)
   (indent-bars-no-descend-string t)
   (indent-bars-treesit-ignore-blank-lines-types '("module"))
@@ -274,14 +279,7 @@ be enabled. If any function returns non-nil, the mode will not be activated."
               (< emacs-major-version 30)))
 
         ;; Show indent guides starting from the first column.
-        indent-bars-starting-column 0
-        ;; Make indent guides subtle; the default is too distractingly colorful.
-        indent-bars-width-frac 0.15  ; make bitmaps thinner
-        indent-bars-color-by-depth nil
-        indent-bars-color '(font-lock-comment-face :face-bg nil :blend 0.425)
-        ;; Don't highlight current level indentation; it's distracting and is
-        ;; unnecessary overhead for little benefit.
-        indent-bars-highlight-current-depth nil)
+        indent-bars-starting-column 0)
 
   (add-hook! '+indent-guides-inhibit-functions
              ;; Org's virtual indentation messes up indent-guides.
