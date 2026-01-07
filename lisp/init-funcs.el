@@ -1000,7 +1000,7 @@ Interactively, URL defaults to the string looking like a url around point."
           (pop-to-buffer buf)
         (switch-to-buffer buf)))))
 
-(defun too-long-file-p ()
+(defun file-too-long-p ()
   "Check whether the file is too long."
   (or (> (buffer-size) 500000)
       (and (fboundp 'buffer-line-statistics)

@@ -37,7 +37,7 @@
   :diminish
   :if (executable-find "aspell")
   :hook (((text-mode outline-mode) . flyspell-mode)
-         (prog-mode . flyspell-prog-mode)
+         ((prog-mode yaml-mode) . flyspell-prog-mode)
          (flyspell-mode . (lambda ()
                             (dolist (key '("C-;" "C-," "C-."))
                               (unbind-key key flyspell-mode-map)))))
@@ -271,12 +271,12 @@ The return value is the new value of LIST-VAR."
 (use-package aggressive-indent
   :diminish
   :autoload aggressive-indent-mode
-  :functions too-long-file-p
+  :functions file-too-long-p
   :hook ((after-init . global-aggressive-indent-mode)
          ;; NOTE: Disable in large files due to the performance issues
          ;; https://github.com/Malabarba/aggressive-indent-mode/issues/73
          (find-file . (lambda ()
-                        (when (too-long-file-p)
+                        (when (file-too-long-p)
                           (aggressive-indent-mode -1)))))
   :config
   ;; Disable in some modes

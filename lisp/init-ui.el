@@ -150,7 +150,7 @@
       "unicode fallback" :toggle doom-modeline-unicode-fallback)
      ("m" (setq doom-modeline-major-mode-icon (not doom-modeline-major-mode-icon))
       "major mode" :toggle doom-modeline-major-mode-icon)
-     ("c" (setq doom-modeline-major-mode-color-icon (not doom-modeline-major-mode-color-icon))
+     ("l" (setq doom-modeline-major-mode-color-icon (not doom-modeline-major-mode-color-icon))
       "colorful major mode" :toggle doom-modeline-major-mode-color-icon)
      ("s" (setq doom-modeline-buffer-state-icon (not doom-modeline-buffer-state-icon))
       "buffer state" :toggle doom-modeline-buffer-state-icon)
@@ -185,8 +185,6 @@
       "irc" :toggle doom-modeline-irc)
      ("F" (setq doom-modeline-irc-buffers (not doom-modeline-irc-buffers))
       "irc buffers" :toggle doom-modeline-irc-buffers)
-     ("S" (setq doom-modeline-check-simple-format (not doom-modeline-check-simple-format))
-      "simple checker" :toggle doom-modeline-check-simple-format)
      ("T" (setq doom-modeline-time (not doom-modeline-time))
       "time" :toggle doom-modeline-time)
      ("V" (setq doom-modeline-env-version (not doom-modeline-env-version))
@@ -231,14 +229,26 @@
      ("r t" (setq doom-modeline-buffer-file-name-style 'relative-to-project)
       "relative to project"
       :toggle (eq doom-modeline-buffer-file-name-style 'relative-to-project)))
-    "Project Detection"
-    (("p f" (setq doom-modeline-project-detection 'ffip)
+    "Check"
+    (("c a" (setq doom-modeline-check 'auto)
+      "auto" :toggle (eq doom-modeline-check 'auto))
+     ("c f" (setq doom-modeline-check 'full)
+      "full" :toggle (eq doom-modeline-check 'full))
+     ("c s" (setq doom-modeline-check 'simple)
+      "simple" :toggle (eq doom-modeline-check 'simple))
+     ("c d" (setq doom-modeline-check nil)
+      "disable" :toggle (eq doom-modeline-check nil)))
+    "Project"
+    (("p a" (setq doom-modeline-project-detection 'auto)
+      "auto"
+      :toggle (eq doom-modeline-project-detection 'auto))
+     ("p f" (setq doom-modeline-project-detection 'ffip)
       "ffip"
       :toggle (eq doom-modeline-project-detection 'ffip))
      ("p p" (setq doom-modeline-project-detection 'project)
       "project"
       :toggle (eq doom-modeline-project-detection 'project))
-     ("p n" (setq doom-modeline-project-detection nil)
+     ("p d" (setq doom-modeline-project-detection nil)
       "disable"
       :toggle (eq doom-modeline-project-detection nil)))
     "Misc"

@@ -265,7 +265,6 @@ be enabled. If any function returns non-nil, the mode will not be activated."
   (indent-bars-color-by-depth nil)
   (indent-bars-treesit-support t)
   (indent-bars-no-descend-string t)
-  (indent-bars-treesit-ignore-blank-lines-types '("module"))
   :config
   (setq indent-bars-prefer-character
         (or

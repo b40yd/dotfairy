@@ -40,11 +40,10 @@
     :hook (after-init . global-treesit-auto-mode)
     :init (setq treesit-auto-install 'prompt))
 
-  ;; Code folding
-  (use-package treesit-fold-indicators
-    :ensure treesit-fold
-    :hook (after-init . global-treesit-fold-indicators-mode)
-    :init (setq treesit-fold-indicators-priority -1)))
+  ;; Code folding using Tree-sitter
+  (use-package treesit-fold
+    :custom (treesit-fold-line-count-show t)
+    :hook (after-init . global-treesit-fold-mode)))
 
 (use-package protobuf-mode
   :hook (protobuf-mode . (lambda ()
