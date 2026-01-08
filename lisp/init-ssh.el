@@ -2,7 +2,7 @@
 
 ;; Copyright © 2020-2026 b40yd
 
-;; Author: b40yd <bb.qnyd@gmail.com>
+;; Author: b40yd <b40yd@scanbuf.com>
 ;; Keywords: ssh, tools
 ;; URL: https://github.com/7ym0n/dotfairy-ssh-manager
 ;; Version: 0.1.0

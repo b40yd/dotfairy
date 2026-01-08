@@ -2,8 +2,8 @@
 ;;
 ;; Copyright (C) 2025 b40yd
 ;;
-;; Author: b40yd <bb.qnyd@gmail.com>
-;; Maintainer: b40yd <bb.qnyd@gmail.com>
+;; Author: b40yd <b40yd@scanbuf.com>
+;; Maintainer: b40yd <b40yd@scanbuf.com>
 ;; Created: July 24, 2025
 ;; Modified: July 24, 2025
 ;; Version: 0.0.1

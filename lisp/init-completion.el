@@ -2,7 +2,7 @@
 
 ;; Copyright © 2024, b40yd all rights reserved.
 
-;; Author: b40yd <bb.qnyd@gmail.com>
+;; Author: b40yd <b40yd@scanbuf.com>
 ;; Keywords:
 
 ;; This program is free software; you can redistribute it and/or modify
