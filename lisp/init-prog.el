@@ -38,12 +38,7 @@
 (when dotfairy-tree-sitter
   (use-package treesit-auto
     :hook (after-init . global-treesit-auto-mode)
-    :init (setq treesit-auto-install 'prompt))
-
-  ;; Code folding using Tree-sitter
-  (use-package treesit-fold
-    :custom (treesit-fold-line-count-show t)
-    :hook (after-init . global-treesit-fold-mode)))
+    :init (setq treesit-auto-install 'prompt)))
 
 (use-package protobuf-mode
   :hook (protobuf-mode . (lambda ()

@@ -5,8 +5,8 @@
 (use-package hydra
   :defines (consult-imenu-config posframe-border-width)
   :functions childframe-completion-workable-p hydra-set-posframe-show-params
-  :hook ((emacs-lisp-mode . hydra-add-imenu)
-         (after-load-theme . set-hydra-appearance))
+  :hook
+  (after-load-theme . set-hydra-appearance)
   :init
   (with-eval-after-load 'consult-imenu
     (setq consult-imenu-config
@@ -35,14 +35,7 @@
 (use-package pretty-hydra
   :functions icons-displayable-p
   :bind ("C-c <f2>" . toggles-hydra/body)
-  :hook (emacs-lisp-mode . pretty-hydra-add-imenu)
   :init
-  ;; Add to imenu
-  (defun pretty-hydra-add-imenu ()
-    "Have hydras in `imenu'."
-    (add-to-list 'lisp-imenu-generic-expression
-                 '("Hydras" "^.*(\\(pretty-hydra-define\\) \\([a-zA-Z-]+\\)" 2)))
-
   (with-no-warnings
     (cl-defun pretty-hydra-title (title &optional icon-type icon-name
                                         &key face height v-adjust)
@@ -64,35 +57,37 @@
       (:title (pretty-hydra-title "Toggles" 'faicon "nf-fa-toggle_on")
        :color amaranth :quit-key "q")
       ("Basic"
-       (("n" (cond ((fboundp 'display-line-numbers-mode)
-                    (display-line-numbers-mode (if display-line-numbers-mode -1 1)))
-                   ((fboundp 'gblobal-linum-mode)
-                    (global-linum-mode (if global-linum-mode -1 1))))
-         "line number"
-         :toggle (or (bound-and-true-p display-line-numbers-mode)
-                     (bound-and-true-p global-linum-mode)))
-        ("a" global-aggressive-indent-mode "aggressive indent" :toggle t)
-        ("h" global-hungry-delete-mode "hungry delete" :toggle t)
-        ("e" electric-pair-mode "electric pair" :toggle t)
+       (("n" display-line-numbers-mode "line number" :toggle t)
+        ("a" global-aggressive-indent-mode "aggressive indent *" :toggle t)
+        ("d" global-hungry-delete-mode "hungry delete *" :toggle t)
+        ("e" electric-pair-mode "electric pair *" :toggle t)
         ("c" flyspell-mode "spell check" :toggle t)
-        ("S" prettify-symbols-mode "pretty symbol" :toggle t)
-        ("L" global-page-break-lines-mode "page break lines" :toggle t)
-        ("M" doom-modeline-mode "modern mode-line" :toggle t))
+        ("s" prettify-symbols-mode "pretty symbol" :toggle t)
+        ("l" global-page-break-lines-mode "page break lines *" :toggle t)
+        ("b" display-battery-mode "battery *" :toggle t)
+        ("i" display-time-mode "time *" :toggle t)
+        ("m" doom-modeline-mode "modern mode-line *" :toggle t))
        "Highlight"
-       (("l" global-hl-line-mode "line" :toggle t)
-        ("P" show-paren-mode "paren" :toggle t)
-        ("w" (setq-default show-trailing-whitespace (not show-trailing-whitespace))
+       (("h l" global-hl-line-mode "line *" :toggle t)
+        ("h p" show-paren-mode "parenthesis *" :toggle t)
+        ("h s" symbol-overlay-mode "symbol" :toggle t)
+        ("h r" global-colorful-mode "color *" :toggle t)
+        ("h w" (setq-default show-trailing-whitespace (not show-trailing-whitespace))
          "whitespace" :toggle show-trailing-whitespace)
-        ("d" rainbow-delimiters-mode "delimiter" :toggle t)
-        ("i" indent-bars-mode "indent" :toggle t)
-        ("T" global-hl-todo-mode "todo" :toggle t))
+        ("h d" rainbow-delimiters-mode "delimiter" :toggle t)
+        ("h i" indent-bars-mode "indent" :toggle t)
+        ("h t" global-hl-todo-mode "todo *" :toggle t))
        "Coding"
        (("f" flymake-mode "flymake" :toggle t)
         ("O" hs-minor-mode "hideshow" :toggle t)
         ("u" subword-mode "subword" :toggle t)
-        ("W" which-function-mode "which function" :toggle t)
+        ("W" which-function-mode "current function" :toggle t)
         ("E" toggle-debug-on-error "debug on error" :toggle (default-value 'debug-on-error))
-        ("Q" toggle-debug-on-quit "debug on quit" :toggle (default-value 'debug-on-quit)))
+        ("Q" toggle-debug-on-quit "debug on quit" :toggle (default-value 'debug-on-quit))
+        ("v" global-diff-hl-mode "gutter *" :toggle t)
+        ("V" diff-hl-flydiff-mode "live gutter *" :toggle t)
+        ("M" diff-hl-margin-mode "margin gutter *" :toggle t)
+        ("D" diff-hl-dired-mode "dired gutter" :toggle t))
        ))))
 
 (provide 'init-hydra)
