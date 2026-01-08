@@ -1,6 +1,6 @@
 ;;; init-funcs.el ---                                   -*- lexical-binding: t; -*-
 
-;; Copyright © 2020-2024 b40yd
+;; Copyright © 2020-2026 b40yd
 
 ;; Author: b40yd <bb.qnyd@gmail.com>
 ;; Keywords:
