@@ -152,20 +152,6 @@
 (use-package diffview)                  ; side-by-side diff view
 (use-package esup)                      ; Emacs startup profiler
 (use-package focus)                     ; Focus on the current region
-(use-package list-environment
-  :init
-  (with-no-warnings
-    (defun my-list-environment-entries ()
-      "Generate environment variable entries list for tabulated-list."
-      (mapcar (lambda (env)
-                (let* ((kv (split-string env "="))
-                       (key (car kv))
-                       (val (mapconcat #'identity (cdr kv) "=")))
-                  (list key (vector
-                             `(,key face font-lock-keyword-face)
-                             `(,val face font-lock-string-face)))))
-              process-environment))
-    (advice-add #'list-environment-entries :override #'my-list-environment-entries)))
 (use-package command-log-mode)
 (use-package mermaid-mode)
 (use-package plantuml-mode
