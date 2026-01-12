@@ -150,7 +150,6 @@
 
 ;; Misc
 (use-package diffview)                  ; side-by-side diff view
-(use-package disk-usage)
 (use-package esup)                      ; Emacs startup profiler
 (use-package focus)                     ; Focus on the current region
 (use-package list-environment
@@ -167,7 +166,6 @@
                              `(,val face font-lock-string-face)))))
               process-environment))
     (advice-add #'list-environment-entries :override #'my-list-environment-entries)))
-(use-package memory-usage)
 (use-package command-log-mode)
 (use-package mermaid-mode)
 (use-package plantuml-mode

@@ -205,7 +205,6 @@ localleader prefix."
   (which-key-add-key-based-replacements "C-x p" "project")
   (which-key-add-key-based-replacements "C-x r" "rect & bookmark")
   (which-key-add-key-based-replacements "C-x t" "tab & treemacs")
-  (which-key-add-key-based-replacements "C-x x" "buffer")
 
   (which-key-add-key-based-replacements dotfairy-leader-key "<leader>")
   (which-key-add-key-based-replacements dotfairy-localleader-key "<localleader>")
@@ -213,15 +212,15 @@ localleader prefix."
   (when (childframe-completion-workable-p)
     (use-package which-key-posframe
       :diminish
-      :autoload which-key-posframe-mode
+      :defines posframe-border-width
       :custom-face
       (which-key-posframe-border ((t (:inherit posframe-border :background unspecified))))
+      :hook which-key-mode
       :init
       (setq which-key-posframe-border-width posframe-border-width
             which-key-posframe-poshandler 'posframe-poshandler-frame-center-near-bottom
             which-key-posframe-parameters '((left-fringe . 8)
-                                            (right-fringe . 8)))
-      (which-key-posframe-mode 1))))
+                                            (right-fringe . 8))))))
 
 
 ;;
