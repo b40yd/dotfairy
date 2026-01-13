@@ -36,8 +36,9 @@
 (use-package magit
   :ensure t
   :commands (+magit/quit +magit/quit-all)
-  :init (setq magit-diff-refine-hunk t
-              git-commit-major-mode 'git-commit-elisp-text-mode)
+  :custom
+  (setq magit-diff-refine-hunk t
+        git-commit-major-mode 'git-commit-elisp-text-mode)
   :bind
   (("C-x g" . magit-status))
   :config
@@ -150,6 +151,10 @@ kill all magit buffers for this repo."
     ;; Clean up after itself
     (define-key vc-annotate-mode-map [remap quit-window] #'kill-current-buffer))
 
+  ;; Prime cache before Magit refresh
+  (use-package magit-prime
+    :diminish
+    :hook after-init)
 
   ;; Show TODOs in magit
   (use-package magit-todos
@@ -200,8 +205,8 @@ kill all magit buffers for this repo."
                                    "Improve `git-timemachine' buffers."
                                    ;; Display different colors in mode-line
                                    (if (facep 'mode-line-active)
-                                       (face-remap-add-relative 'mode-line-active 'custom-state)
-                                     (face-remap-add-relative 'mode-line 'custom-state))
+                                       (face-remap-add-relative 'mode-line-active 'custom-invalid)
+                                     (face-remap-add-relative 'mode-line 'custom-invalid))
 
                                    ;; Highlight symbols in elisp
                                    (and (derived-mode-p 'emacs-lisp-mode)
