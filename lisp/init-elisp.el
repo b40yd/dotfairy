@@ -32,6 +32,12 @@
 (use-package elisp-mode
   :ensure nil
   :config
+  ;; Syntax highlighting of known Elisp symbols
+  (if (boundp 'elisp-fontify-semantically)
+      (setq elisp-fontify-semantically t)
+    (use-package highlight-defined
+      :hook (emacs-lisp-mode inferior-emacs-lisp-mode)))
+
   (with-no-warnings
     ;; Align indent keywords
     ;; @see https://emacs.stackexchange.com/questions/10230/how-to-indent-keywords-aligned
@@ -43,6 +49,7 @@ if the arguments of a Lisp function call should be indented specially.
 INDENT-POINT is the position at which the line being indented begins.
 Point is located at the point to indent under (for default indentation);
 STATE is the `parse-partial-sexp' state for that position.
+
 If the current line is in a call to a Lisp function that has a non-nil
 property `lisp-indent-function' (or the deprecated `lisp-indent-hook'),
 it specifies how to indent.  The property value can be:
@@ -56,7 +63,6 @@ it specifies how to indent.  The property value can be:
   arguments like a body;
 
 * a function to call that returns the indentation (or nil).
-
   `lisp-indent-function' calls this function with the same two arguments
   that it itself received.
 
@@ -110,14 +116,24 @@ Lisp function does not specify a special indentation."
                                          indent-point normal-indent))
                   (method
                    (funcall method indent-point state))))))))
-    (add-hook 'emacs-lisp-mode-hook
-              (lambda () (setq-local lisp-indent-function #'my-lisp-indent-function)))
 
+    (setq lisp-indent-function #'my-lisp-indent-function)))
+
+;; Interactive macro expander
+(use-package macrostep
+  :bind (:map emacs-lisp-mode-map
+         ("C-c e" . macrostep-expand)
+         :map lisp-interaction-mode-map
+         ("C-c e" . macrostep-expand)))
+
+(use-package help-mode
+  :ensure nil
+  :hook (help-mode . cursor-sensor-mode)
+  :bind (:map help-mode-map
+         ("r" . remove-hook-at-point))
+  :config
+  (with-no-warnings
     ;; Add remove buttons for advices
-    (add-hook 'help-mode-hook 'cursor-sensor-mode)
-    (with-eval-after-load 'helpful
-      (add-hook 'helpful-mode-hook 'cursor-sensor-mode))
-
     (defun function-advices (function)
       "Return FUNCTION's advices."
       (let ((flist (indirect-function function)) advices)
@@ -125,6 +141,12 @@ Lisp function does not specify a special indentation."
           (setq advices `(,@advices ,(advice--car flist)))
           (setq flist (advice--cdr flist)))
         advices))
+
+    (defun help--update ()
+      "Update the help buffer."
+      (if (eq major-mode 'helpful-mode)
+          (helpful-update)
+        (revert-buffer nil t)))
 
     (defun add-remove-advice-button (advice function)
       (when (and (functionp advice) (functionp function))
@@ -140,9 +162,7 @@ Lisp function does not specify a special indentation."
                      (when (yes-or-no-p msg)
                        (message "%s from function `%s'" msg function)
                        (advice-remove function advice)
-                       (if (eq major-mode 'helpful-mode)
-                           (helpful-update)
-                         (revert-buffer nil t))))
+                       (help--update)))
            'follow-link t))))
 
     (defun add-button-to-remove-advice (buffer-or-name function)
@@ -190,52 +210,35 @@ Lisp function does not specify a special indentation."
                                (throw 'break (thing-at-point 'sexp)))))))))
             (when (yes-or-no-p (format "Remove %s from %s? " func hook))
               (remove-hook hook (intern func))
-              (if (eq major-mode 'helpful-mode)
-                  (helpful-update)
-                (revert-buffer nil t)))))))
-    (bind-key "r" #'remove-hook-at-point help-mode-map)
-    (with-eval-after-load 'helpful
-      (bind-key "r" #'remove-hook-at-point helpful-mode-map))))
-
-;; Syntax highlighting of known Elisp symbols
-(use-package highlight-defined
-  :hook ((emacs-lisp-mode inferior-emacs-lisp-mode) . highlight-defined-mode))
-
-;; Interactive macro expander
-(use-package macrostep
-  :hook (after-init . (lambda ()
-                        (map! :localleader
-                              :map emacs-lisp-mode-map
-                              "e" #'macrostep-expand
-                              :map lisp-interaction-mode-map
-                              "e" #'macrostep-expand))))
+              (help--update))))))))
 
 ;; A better *Help* buffer
 (use-package helpful
-  :autoload helpful--buffer
   :bind (([remap describe-function] . helpful-callable)
-         ([remap describe-command] . helpful-command)
+         ([remap describe-command]  . helpful-command)
          ([remap describe-variable] . helpful-variable)
-         ([remap describe-key] . helpful-key)
-         ([remap describe-symbol] . helpful-symbol))
-  :hook ((after-init . (lambda ()
-                         (map! :localleader
-                               :map emacs-lisp-mode-map
-                               "d" #'helpful-at-point))))
-  :init
-  (with-no-warnings
-    (with-eval-after-load 'apropos
-      ;; patch apropos buttons to call helpful instead of help
-      (dolist (fun-bt '(apropos-function apropos-macro apropos-command))
-        (button-type-put
-         fun-bt 'action
-         (lambda (button)
-           (helpful-callable (button-get button 'apropos-symbol)))))
-      (dolist (var-bt '(apropos-variable apropos-user-option))
-        (button-type-put
-         var-bt 'action
-         (lambda (button)
-           (helpful-variable (button-get button 'apropos-symbol))))))))
+         ([remap describe-key]      . helpful-key)
+         ([remap describe-symbol]   . helpful-symbol)
+         :map emacs-lisp-mode-map
+         ("C-c C-d"                 . helpful-at-point)
+         :map lisp-interaction-mode-map
+         ("C-c C-d"                 . helpful-at-point)
+         :map helpful-mode-map
+         ("C-x K"                   . helpful-kill-buffers)
+         ("r"                       . remove-hook-at-point))
+  :hook (helpful-mode . cursor-sensor-mode)
+  :init (with-eval-after-load 'apropos
+          ;; patch apropos buttons to call helpful instead of help
+          (dolist (fun-bt '(apropos-function apropos-macro apropos-command))
+            (button-type-put
+             fun-bt 'action
+             (lambda (button)
+               (helpful-callable (button-get button 'apropos-symbol)))))
+          (dolist (var-bt '(apropos-variable apropos-user-option))
+            (button-type-put
+             var-bt 'action
+             (lambda (button)
+               (helpful-variable (button-get button 'apropos-symbol)))))))
 
 (provide 'init-elisp)
 ;;; init-elisp.el ends here
