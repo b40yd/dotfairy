@@ -1,12 +1,34 @@
-;;; init-hydra.el
-;;;
-;;; (c) 7ym0n, https://gitlab.com/7ym0n/dotfairy
-;;;
+;;; init-hydra.el ---                                  -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2020-2026 b40yd
+
+;; Author: b40yd <b40yd@scanbuf.com>
+;; Keywords:
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;;
+
+;;; Code:
+
 (use-package hydra
   :defines (consult-imenu-config posframe-border-width)
   :functions childframe-completion-workable-p hydra-set-posframe-show-params
-  :hook
-  (after-load-theme . set-hydra-appearance)
+  :hook ((emacs-lisp-mode  . hydra-add-imenu)
+         (after-load-theme . hydra-set-posframe-appearance))
   :init
   (with-eval-after-load 'consult-imenu
     (setq consult-imenu-config
@@ -17,7 +39,7 @@
                                      (?p "Packages"  font-lock-constant-face)
                                      (?t "Types"     font-lock-type-face)
                                      (?v "Variables" font-lock-variable-name-face))))))
-  (defun set-hydra-appearance ()
+  (defun hydra-set-posframe-appearance ()
     "Set appearance of hydra."
     (when (childframe-completion-workable-p)
       (setq hydra-hint-display-type 'posframe)
@@ -30,12 +52,17 @@
               :foreground-color ,(face-foreground 'tooltip nil t)
               :lines-truncate t
               :poshandler posframe-poshandler-frame-center-near-bottom))))
-  (set-hydra-appearance))
+  (hydra-set-posframe-appearance))
 
 (use-package pretty-hydra
   :functions icons-displayable-p
   :bind ("C-c <f2>" . toggles-hydra/body)
+  :hook (emacs-lisp-mode . pretty-hydra-add-imenu)
   :init
+  (defun pretty-hydra-add-imenu ()
+    "Have hydras in `imenu'."
+    (add-to-list 'imenu-generic-expression
+                 '("Hydras" "^.*(\\(pretty-hydra-define\\) \\([a-zA-Z-]+\\)" 2)))
   (with-no-warnings
     (cl-defun pretty-hydra-title (title &optional icon-type icon-name
                                         &key face height v-adjust)
