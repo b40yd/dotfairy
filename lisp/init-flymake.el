@@ -51,7 +51,14 @@
 (use-package flyover
   :diminish
   :hook flymake-mode
-  :custom (flyover-checkers '(flymake)))
+  :custom
+  (flyover-checkers '(flymake))
+  (flyover-background-lightness 45)
+  (flyover-icon-background-tint-percent 40)
+  (flyover-display-mode 'show-only-on-same-line)
+  (flyover-show-at-eol t)
+  (flyover-virtual-line-type 'none)
+  :hook flymake-mode)
 
 (provide 'init-flymake)
 ;;; init-flymake.el ends here

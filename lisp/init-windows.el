@@ -171,7 +171,6 @@
   (aw-leading-char-face ((t (:inherit font-lock-keyword-face :foreground unspecified :bold t :height 1.0))))
   (aw-mode-line-face ((t (:inherit mode-line-emphasis :bold t))))
   :bind (([remap other-window] . ace-window))
-  :hook (emacs-startup . ace-window-display-mode)
   :config
   (defun toggle-window-split ()
     (interactive)
