@@ -36,11 +36,12 @@
   :ensure t
   :diminish
   :if (executable-find "aspell")
-  :hook (((text-mode outline-mode) . flyspell-mode)
-         ((prog-mode yaml-mode) . flyspell-prog-mode)
-         (flyspell-mode . (lambda ()
-                            (dolist (key '("C-;" "C-," "C-."))
-                              (unbind-key key flyspell-mode-map)))))
+  :bind (:map flyspell-mode-map
+         ("C-;" . nil)
+         ("C-," . nil)
+         ("C-." . nil))
+  :hook ((text-mode . flyspell-mode)
+         (prog-mode . flyspell-prog-mode))
   :init (setq flyspell-issue-message-flag nil
               flyspell-issue-welcome-flag nil
               ispell-program-name "aspell"

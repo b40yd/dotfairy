@@ -78,10 +78,11 @@
 
   :config
   ;; Type checker & language server: `ty'
-  (with-eval-after-load 'eglot
-    (add-to-list 'eglot-server-programs
-                 '((python-ts-mode python-mode)
-                   . ("ty" "server"))))
+  (when (executable-find "ty")
+    (with-eval-after-load 'eglot
+      (add-to-list 'eglot-server-programs
+                   '((python-mode python-ts-mode)
+                     . ("ty" "server")))))
 
   ;; Linter & formatter: `ruff'
   (when (executable-find "ruff")

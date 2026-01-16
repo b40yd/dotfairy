@@ -32,9 +32,7 @@
 (use-package colorful-mode
   :diminish
   :hook (after-init . global-colorful-mode)
-  :init (setq colorful-use-prefix t)
-  :config (dolist (mode '(html-mode php-mode help-mode helpful-mode))
-            (add-to-list 'global-colorful-modes mode)))
+  :init (setq colorful-use-prefix t))
 
 ;; Color picker https://github.com/ncruces/zenity/releases
 ;; Emacs not support xwidgets use zenity.
