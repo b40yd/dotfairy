@@ -241,14 +241,6 @@
     (revert-buffer t t)
     (message "Reverted this buffer")))
 
-;; Asynchronous processing
-(use-package async
-  :diminish (async-bytecomp-package-mode dired-async-mode)
-  :functions (async-bytecomp-package-mode dired-async-mode)
-  :init
-  (unless IS-WINDOWS
-    (async-bytecomp-package-mode 1))
-  (dired-async-mode 1))
 
 ;; Child frame
 (when (childframe-workable-p)

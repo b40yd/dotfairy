@@ -229,7 +229,7 @@ Install the doc if it's not installed."
   :config
   (setq valign-fancy-bar t))
 
-;; Frame transparence
+;; Frame transparency
 (use-package transwin
   :bind (("M-+" . transwin-inc)
          ("M--" . transwin-dec)
