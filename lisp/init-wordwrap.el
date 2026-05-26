@@ -252,9 +252,24 @@ modes explicitly listed in `+word-wrap-disabled-modes'."
   +word-wrap-mode
   +word-wrap--enable-global-mode)
 
+;;;###autoload
+(defun +word-wrap-adapt-to-line-numbers-h ()
+  (if (bound-and-true-p display-line-numbers)
+      (let ((width (line-number-display-width)))
+        (when (> width 0)
+          (setq-local visual-fill-column-extra-text-width (cons 0 (+ width 2)))))
+    (setq-local visual-fill-column-extra-text-width nil))
+  (visual-fill-column--adjust-window))
+
 (when (memq 'visual-line-mode text-mode-hook)
   (remove-hook 'text-mode-hook #'visual-line-mode)
   (add-hook 'text-mode-hook #'+word-wrap-mode))
+
+;; REVIEW: PR this upstream! Except visual-fill-column isn't maintained, so it
+;;   likely won't happen.
+(after! visual-fill-column
+  (add-hook 'visual-fill-column-mode-hook #'+word-wrap-adapt-to-line-numbers-h)
+  (add-hook 'display-line-numbers-mode-hook #'+word-wrap-adapt-to-line-numbers-h))
 
 (provide 'init-wordwrap)
 ;;; init-wordwrap.el ends here

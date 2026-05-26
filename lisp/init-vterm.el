@@ -156,93 +156,32 @@
         (and (bound-and-true-p corfu-mode) (corfu-mode -1)))
       (pop-to-buffer buffer))))
 
-;; Shell Pop: leverage `popper'
-(with-no-warnings
-  (defvar shell-pop--frame nil)
-  (defvar shell-pop--window nil)
+;; Better terminal emulator
+(unless IS-WINDOWS
+  (use-package ghostel
+    :hook (eshell-load . ghostel-eshell-visual-command-mode)))
 
-  (defun shell-pop--shell (&optional arg)
-    "Run shell and return the buffer."
-    (cond ((fboundp 'vterm) (vterm arg))
-          ((or (executable-find "pwsh") (executable-find "powershell"))
-           (powershell arg))
-          (IS-WINDOWS (eshell arg))
-          (t (shell))))
-
-  (defun shell-pop--hide-frame ()
-    "Hide child frame and refocus in parent frame."
-    (when (and
-           (frame-live-p shell-pop--frame)
-           (frame-visible-p shell-pop--frame))
-      (make-frame-invisible shell-pop--frame)
-      (select-frame-set-input-focus (frame-parent shell-pop--frame))
-      (setq shell-pop--frame nil)))
-
-  (defun shell-pop-toggle ()
-    "Toggle shell."
-    (interactive)
-    (shell-pop--hide-frame)
-    (if (window-live-p shell-pop--window)
-        (progn
-          (delete-window shell-pop--window)
-          (setq shell-pop--window nil))
-      (setq shell-pop--window
-            (get-buffer-window (shell-pop--shell)))))
-
-
-  (defun shell-pop-posframe-hidehandler (_)
-    "Hidehandler used by `shell-pop-posframe-toggle'."
-    (not (eq (selected-frame) posframe--frame)))
-
-  (defun shell-pop-posframe-toggle ()
-    "Toggle shell in child frame."
-    (interactive)
-    (let* ((buffer (shell-pop--shell))
-           (window (get-buffer-window buffer)))
-      ;; Hide window: for `popper'
-      (when (window-live-p window)
-        (delete-window window))
-
-      (if (and (frame-live-p shell-pop--frame)
-               (frame-visible-p shell-pop--frame))
-          (progn
-            ;; Hide child frame and refocus in parent frame
-            (make-frame-invisible shell-pop--frame)
-            (select-frame-set-input-focus (frame-parent shell-pop--frame))
-            (setq shell-pop--frame nil))
-        (let ((width  (max 100 (round (* (frame-width) 0.62))))
-              (height (round (* (frame-height) 0.62))))
-          ;; Shell pop in child frame
-          (setq shell-pop--frame
-                (posframe-show
-                 buffer
-                 :poshandler #'posframe-poshandler-frame-center
-                 :hidehandler #'shell-pop-posframe-hidehandler
-                 :left-fringe 8
-                 :right-fringe 8
-                 :width width
-                 :height height
-                 :min-width width
-                 :min-height height
-                 :internal-border-width 3
-                 :internal-border-color (face-background 'region nil t)
-                 :background-color (face-background 'default nil t)
-                 :foreground-color (face-foreground 'default nil t)
-                 :override-parameters '((cursor-type . t))
-                 :respect-mode-line t
-                 :accept-focus t))
-
-          ;; Focus in child frame
-          (select-frame-set-input-focus shell-pop--frame)
-
-          (with-current-buffer buffer
-            (setq-local cursor-type 'box) ; blink cursor
-            (goto-char (point-max))
-            (when (fboundp 'vterm-reset-cursor-point)
-              (vterm-reset-cursor-point)))))))
-  (if (childframe-completion-workable-p)
-      (bind-key "C-`" #'shell-pop-posframe-toggle)
-    (bind-key "C-`" #'shell-pop-toggle)))
+;; Shell Pop
+(use-package popterm
+    :functions childframe-workable-p
+    :bind (("C-`"   . popterm-toggle)
+           ("C-~"   . popterm-toggle-cd)
+           ([f9]    . popterm-window-toggle))
+    :hook (after-init . popterm-global-mode)
+    :init
+    (setq popterm-backend (if IS-WINDOWS 'eshell 'ghostel)
+          popterm-display-method (if (childframe-workable-p)
+                                     'posframe
+                                   'window)
+          popterm-scope 'project)
+    :config
+    (with-no-warnings
+      (defun popterm--reset-cursor-point (buffer)
+        "Reset cursor point."
+        (with-current-buffer buffer
+          (when (derived-mode-p 'ghostel-mode)
+            (ghostel-send-key "down"))))
+      (advice-add #'popterm--posframe-show :after #'popterm--reset-cursor-point)))
 
 (provide 'init-vterm)
 ;;; init-vterm.el ends here
